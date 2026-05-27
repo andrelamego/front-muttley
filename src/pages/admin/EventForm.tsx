@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import { AutocompleteInput } from '../../components/AutocompleteInput';
+import type { Discipline, Sponsor, Local, Participation, Person } from '../../data/types';
 
 export const EventForm: React.FC = () => {
   const navigate = useNavigate();
@@ -17,39 +18,85 @@ export const EventForm: React.FC = () => {
   const [localId, setLocalId] = useState('');
   const [descricao, setDescricao] = useState('');
   const [status, setStatus] = useState<'EM_ANDAMENTO' | 'FINALIZADO' | 'CANCELADO'>('EM_ANDAMENTO');
+  
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [locais, setLocais] = useState<Local[]>([]);
+  const [participacoes, setParticipacoes] = useState<Participation[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
+  
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
   const [step, setStep] = useState(1);
 
-  // Load existing event
+  // Load existing event and dropdown details
   useEffect(() => {
-    if (id) {
-      const events = db.getEvents();
-      const found = events.find(e => e.id === id);
-      if (found) {
-        setTema(found.tema);
-        setData(found.data);
-        setHorarioInicio(found.horarioInicio);
-        setHorarioFim(found.horarioFim);
-        setModalidade(found.modalidade);
-        setDisciplinaId(found.disciplinaId || '');
-        setPatrocinadorId(found.patrocinadorId || '');
-        setLocalId(found.localId || '');
-        setDescricao(found.descricao || '');
-        setStatus(found.status);
-      } else {
-        setErro('Evento não encontrado.');
+    const init = async () => {
+      setLoading(true);
+      try {
+        const [discs, sps, locs, pps] = await Promise.all([
+          db.getDisciplines(),
+          db.getSponsors(),
+          db.getLocais(),
+          db.getPeople()
+        ]);
+        setDisciplines(discs);
+        setSponsors(sps);
+        setLocais(locs);
+        setPeople(pps);
+
+        if (id) {
+          try {
+            const found = await db.getEventById(id);
+            if (found) {
+              setTema(found.tema);
+              setData(found.data);
+              setHorarioInicio(found.horarioInicio);
+              setHorarioFim(found.horarioFim);
+              setModalidade(found.modalidade);
+              setDisciplinaId(found.disciplinaId || '');
+              setPatrocinadorId(found.patrocinadorId || '');
+              setLocalId(found.localId || '');
+              setDescricao(found.descricao || '');
+              setStatus(found.status);
+
+              // Try to load event-specific participations
+              const parts = await db.getEventParticipations(id);
+              setParticipacoes(parts);
+            } else {
+              setErro('Evento não encontrado.');
+            }
+          } catch (err) {
+            // Fallback for finalized events since /participacoes endpoint might block
+            const events = await db.getEvents();
+            const found = events.find(e => e.id === id);
+            if (found) {
+              setTema(found.tema);
+              setData(found.data);
+              setHorarioInicio(found.horarioInicio);
+              setHorarioFim(found.horarioFim);
+              setModalidade(found.modalidade);
+              setDisciplinaId(found.disciplinaId || '');
+              setPatrocinadorId(found.patrocinadorId || '');
+              setLocalId(found.localId || '');
+              setDescricao(found.descricao || '');
+              setStatus(found.status);
+
+              const allParts = await db.getParticipations();
+              setParticipacoes(allParts.filter(p => p.eventoId === id));
+            } else {
+              setErro('Evento não encontrado.');
+            }
+          }
+        }
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao carregar dados do formulário.');
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+    init();
   }, [id]);
-
-  // Load data for dropdowns
-  const disciplines = db.getDisciplines();
-  const sponsors = db.getSponsors();
-  const locais = db.getLocais();
-
-  // Load participations if editing
-  const participacoes = db.getParticipations().filter(p => p.eventoId === id);
-  const people = db.getPeople();
 
   const participacaoList = participacoes.map(part => {
     const person = people.find(p => p.id === part.pessoaId);
@@ -62,41 +109,24 @@ export const EventForm: React.FC = () => {
     };
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
+
+    if (step < 3) {
+      handleNextStep();
+      return;
+    }
 
     if (!tema || !data || !horarioInicio || !horarioFim || !modalidade) {
       setErro('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
-    const events = db.getEvents();
-
-    if (id) {
-      // Edit
-      const updated = events.map(e => 
-        e.id === id 
-          ? { 
-              ...e, 
-              tema, 
-              data, 
-              horarioInicio, 
-              horarioFim, 
-              modalidade, 
-              disciplinaId: disciplinaId || undefined, 
-              patrocinadorId: patrocinadorId || undefined, 
-              localId: localId || undefined, 
-              descricao,
-              status
-            } 
-          : e
-      );
-      db.saveEvents(updated);
-    } else {
-      // New
-      const newEvent = {
-        id: `evt-${Date.now()}`,
+    try {
+      setLoading(true);
+      await db.saveEvent({
+        id: id || undefined,
         tema,
         data,
         horarioInicio,
@@ -106,14 +136,22 @@ export const EventForm: React.FC = () => {
         patrocinadorId: patrocinadorId || undefined,
         localId: localId || undefined,
         descricao,
-        status: 'EM_ANDAMENTO' as const,
-        qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=muttley-evt-${Date.now()}`,
-      };
-      db.saveEvents([...events, newEvent]);
+        status: id ? status : 'EM_ANDAMENTO',
+      });
+      navigate('/admin/eventos');
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao salvar o evento.');
+      setLoading(false);
     }
-
-    navigate('/admin/eventos');
   };
+
+  if (loading && step === 1 && !tema) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
+      </div>
+    );
+  }
 
   const isFinalized = status === 'FINALIZADO';
 
@@ -387,8 +425,8 @@ export const EventForm: React.FC = () => {
               </button>
             ) : (
               !isFinalized && (
-                <button className="primary-action" type="submit">
-                  {id ? 'Salvar alterações' : 'Criar evento'}
+                <button className="primary-action" type="submit" disabled={loading}>
+                  {loading ? 'Salvando...' : id ? 'Salvar alterações' : 'Criar evento'}
                 </button>
               )
             )}

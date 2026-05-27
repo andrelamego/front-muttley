@@ -66,8 +66,8 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       e.preventDefault();
       setHighlightedIndex(prev => (prev > 0 ? prev - 1 : 0));
     } else if (e.key === 'Enter') {
+      e.preventDefault();
       if (isOpen && highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
-        e.preventDefault();
         const selected = filteredOptions[highlightedIndex];
         onChange(selected.id);
         setQuery(selected.label);
