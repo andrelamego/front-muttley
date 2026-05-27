@@ -1,38 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
+import type { Event, Participation, Person } from '../../data/types';
 
 export const EventConclude: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
+  const [event, setEvent] = useState<Event | null>(null);
+  const [participacoes, setParticipacoes] = useState<Participation[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
   const [presentes, setPresentes] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'TODOS' | 'PRESENTES' | 'AUSENTES'>('TODOS');
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 20;
 
-  // Load event
-  const events = db.getEvents();
-  const event = events.find(e => e.id === id);
-
+  // Load event and participation details
   useEffect(() => {
-    if (!event) {
-      setErro('Evento não encontrado.');
-    }
-  }, [event]);
+    const loadData = async () => {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const [evt, parts, pps] = await Promise.all([
+          db.getEventById(id),
+          db.getEventParticipations(id),
+          db.getPeople()
+        ]);
+        setEvent(evt);
+        setParticipacoes(parts);
+        setPeople(pps);
 
-  // Load participations
-  const participacoes = db.getParticipations().filter(p => p.eventoId === id);
-  const people = db.getPeople();
-
-  // Initialize selected presence
-  useEffect(() => {
-    if (participacoes.length > 0) {
-      const initiallyPresent = participacoes.filter(p => p.presente).map(p => p.id);
-      setPresentes(initiallyPresent);
-    }
+        // Initialize selected presence
+        const initiallyPresent = parts.filter(p => p.presente).map(p => p.id);
+        setPresentes(initiallyPresent);
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao carregar dados do evento.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
   }, [id]);
 
   // Pre-process items to include person details
@@ -46,11 +56,11 @@ export const EventConclude: React.FC = () => {
   });
 
   // Filter based on search query (reactive filter by name/email/inscription)
+  const searchQueryLower = searchQuery.toLowerCase();
   const searchedParticipacoes = parsedParticipacoes.filter(part => {
-    const query = searchQuery.toLowerCase();
-    const matchesName = part.nome.toLowerCase().includes(query);
-    const matchesEmail = part.email.toLowerCase().includes(query);
-    const matchesInscricao = part.inscricao.toString().includes(query);
+    const matchesName = part.nome.toLowerCase().includes(searchQueryLower);
+    const matchesEmail = part.email.toLowerCase().includes(searchQueryLower);
+    const matchesInscricao = part.inscricao.toString().includes(searchQueryLower);
     return matchesName || matchesEmail || matchesInscricao;
   });
 
@@ -85,15 +95,15 @@ export const EventConclude: React.FC = () => {
     if (e.target.checked) {
       setPresentes(prev => {
         const next = [...prev];
-        visibleIds.forEach(id => {
-          if (!next.includes(id)) {
-            next.push(id);
+        visibleIds.forEach(vid => {
+          if (!next.includes(vid)) {
+            next.push(vid);
           }
         });
         return next;
       });
     } else {
-      setPresentes(prev => prev.filter(id => !visibleIds.includes(id)));
+      setPresentes(prev => prev.filter(vid => !visibleIds.includes(vid)));
     }
   };
 
@@ -101,66 +111,34 @@ export const EventConclude: React.FC = () => {
     if (checked) {
       setPresentes(prev => [...prev, partId]);
     } else {
-      setPresentes(prev => prev.filter(id => id !== partId));
+      setPresentes(prev => prev.filter(vid => vid !== partId));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
     if (!event) return;
 
     try {
-      const allCerts = db.getCertificates();
-      const updatedParts = db.getParticipations().map(part => {
-        if (part.eventoId === event.id) {
-          return { ...part, presente: presentes.includes(part.id) };
-        }
-        return part;
-      });
-
-      // Save updated attendance
-      db.saveParticipations(updatedParts);
-
-      // Generate certificates for present members
-      const newCerts = [...allCerts];
-      const today = new Date().toISOString().split('T')[0];
-      const loggedUser = db.getLoggedUser();
-      const signatureName = loggedUser ? loggedUser.nome.replace(/\s+/g, '_') : 'Luciano_de_Souza';
-      
-      presentes.forEach(partId => {
-        const exists = allCerts.some(c => c.participacaoId === partId);
-        if (!exists) {
-          const randHex1 = Math.random().toString(16).substring(2, 6).toUpperCase();
-          const randHex2 = Math.random().toString(16).substring(2, 6).toUpperCase();
-          const codigo = `MUTE-${randHex1}-${randHex2}`;
-
-          newCerts.push({
-            id: `cert-${Date.now()}-${Math.random()}`,
-            participacaoId: partId,
-            dataEmissao: today,
-            assinatura: `${signatureName}_FatecZL_Verify`,
-            codigoValidacao: codigo,
-            urlPublica: `/certificados/${codigo}`,
-          });
-        }
-      });
-
-      db.saveCertificates(newCerts);
-
-      // Finalize Event Status
-      const updatedEvents = events.map(evt => 
-        evt.id === event.id ? { ...evt, status: 'FINALIZADO' as const } : evt
-      );
-      db.saveEvents(updatedEvents);
-
+      setLoading(true);
+      await db.concludeEvent(event.id, presentes);
       sessionStorage.setItem('muttley_cert_msg', 'Event concluded and certificates successfully emitted!');
       navigate('/admin/certificados');
-    } catch (err) {
-      setErro('Erro ao processar e concluir o evento.');
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao processar e concluir o evento.');
+      setLoading(false);
     }
   };
+
+  if (loading && !event) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
+      </div>
+    );
+  }
 
   if (!event) {
     return (
@@ -414,9 +392,9 @@ export const EventConclude: React.FC = () => {
           <button
             className="primary-action px-6 py-2 bg-brand-primary text-white font-bold rounded-lg hover:bg-brand-primary-strong transition-colors cursor-pointer text-sm"
             type="submit"
-            disabled={participacoes.length === 0}
+            disabled={loading || participacoes.length === 0}
           >
-            Gerar certificados e concluir
+            {loading ? 'Processando...' : 'Gerar certificados e concluir'}
           </button>
         </div>
       </form>

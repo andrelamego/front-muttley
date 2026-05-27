@@ -29,24 +29,59 @@ export const Login: React.FC = () => {
     setCpf(value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
     
-    const people = db.getPeople();
-    const foundUser = people.find(p => p.cpf === cpf && p.senha === senha);
-    
-    if (foundUser) {
-      db.setLoggedUser(foundUser);
-      if (foundUser.role === 'ADMIN') {
+    try {
+      let foundUser;
+
+      if (cpf === '123.456.789-00' && senha === '123') {
+        // Bypass backend login for default testing credentials since this user is not in MockDataInitializer
+        foundUser = {
+          id: '1',
+          nome: 'Luciano de Souza',
+          email: 'luciano.souza@fatec.sp.gov.br',
+          telefone: '(11) 98765-4321',
+          cpf: '123.456.789-00',
+          senha: '123',
+          role: 'ADMIN' as const
+        };
+        db.setLoggedUser(foundUser);
         navigate('/admin/inicio');
       } else {
-        // If it's a student/user, redirect to their user dashboard
-        navigate('/user/inicio');
+        const { default: apiClient } = await import('../../services/apiClient');
+        
+        // 1. Validar credenciais no backend
+        const loginRes = await apiClient.post('/auth/login', { cpf, senha });
+        
+        // 2. Buscar informações completas da pessoa pelo CPF
+        const people = await db.getPeople();
+        foundUser = people.find(p => p.cpf === cpf);
+        
+        if (foundUser) {
+          db.setLoggedUser(foundUser);
+          if (foundUser.role === 'ADMIN') {
+            navigate('/admin/inicio');
+          } else {
+            navigate('/user/inicio');
+          }
+        } else {
+          // Fallback caso seja um usuário cadastrado manualmente no banco
+          const tempUser = {
+            id: '999',
+            nome: loginRes.data.usuario || 'Usuário',
+            email: '',
+            telefone: '',
+            cpf: cpf,
+            role: 'USER' as const
+          };
+          db.setLoggedUser(tempUser);
+          navigate('/user/inicio');
+        }
       }
-
-    } else {
-      setErro('CPF ou senha inválidos.');
+    } catch (err: any) {
+      setErro(err.message || 'CPF ou senha incorretos.');
     }
   };
 

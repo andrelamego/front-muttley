@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
+import type { Participation, Person, Event } from '../../data/types';
 
 export const MedalForm: React.FC = () => {
   const navigate = useNavigate();
@@ -11,29 +12,47 @@ export const MedalForm: React.FC = () => {
   const [nome, setNome] = useState('');
   const [participacaoId, setParticipacaoId] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [participacoes, setParticipacoes] = useState<Participation[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
 
-  // Load existing medal if editing
+  // Load existing medal and options
   useEffect(() => {
-    if (id) {
-      const medals = db.getMedals();
-      const found = medals.find(m => m.id === id);
-      if (found) {
-        setNome(found.nome);
-        setParticipacaoId(found.participacaoId);
-        setDescricao(found.descricao);
-      } else {
-        setErro('Medalha não encontrada.');
-      }
-    } else if (participacaoIdParam) {
-      setParticipacaoId(participacaoIdParam);
-    }
-  }, [id, participacaoIdParam]);
+    const init = async () => {
+      setLoading(true);
+      try {
+        const [parts, evts, pps] = await Promise.all([
+          db.getParticipations(),
+          db.getEvents(),
+          db.getPeople()
+        ]);
+        setParticipacoes(parts);
+        setEvents(evts);
+        setPeople(pps);
 
-  // Load participations and related info for selection
-  const participacoes = db.getParticipations();
-  const events = db.getEvents();
-  const people = db.getPeople();
+        if (id) {
+          const medals = await db.getMedals();
+          const found = medals.find(m => m.id === id);
+          if (found) {
+            setNome(found.nome);
+            setParticipacaoId(found.participacaoId);
+            setDescricao(found.descricao);
+          } else {
+            setErro('Medalha não encontrada.');
+          }
+        } else if (participacaoIdParam) {
+          setParticipacaoId(participacaoIdParam);
+        }
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao carregar dados.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
+  }, [id, participacaoIdParam]);
 
   const options = participacoes.map(part => {
     const person = people.find(p => p.id === part.pessoaId);
@@ -49,7 +68,7 @@ export const MedalForm: React.FC = () => {
   const selectedPerson = selectedPart ? people.find(p => p.id === selectedPart.pessoaId) : null;
   const selectedEvent = selectedPart ? events.find(e => e.id === selectedPart.eventoId) : null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
@@ -58,27 +77,28 @@ export const MedalForm: React.FC = () => {
       return;
     }
 
-    const medals = db.getMedals();
-
-    if (id) {
-      // Edit
-      const updated = medals.map(m => 
-        m.id === id ? { ...m, nome, participacaoId, descricao } : m
-      );
-      db.saveMedals(updated);
-    } else {
-      // New
-      const newMedal = {
-        id: `med-${Date.now()}`,
+    try {
+      setLoading(true);
+      await db.saveMedal({
+        id: id || undefined,
         nome,
         participacaoId,
         descricao,
-      };
-      db.saveMedals([...medals, newMedal]);
+      });
+      navigate('/admin/medalhas');
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao salvar medalha.');
+      setLoading(false);
     }
-
-    navigate('/admin/medalhas');
   };
+
+  if (loading && !nome && id) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-page">
@@ -139,8 +159,8 @@ export const MedalForm: React.FC = () => {
 
         <div className="form-actions">
           <Link to="/admin/medalhas">Cancelar</Link>
-          <button className="primary-action" type="submit">
-            {id ? 'Salvar alterações' : 'Criar medalha'}
+          <button className="primary-action" type="submit" disabled={loading}>
+            {loading ? 'Salvando...' : id ? 'Salvar alterações' : 'Criar medalha'}
           </button>
         </div>
       </form>

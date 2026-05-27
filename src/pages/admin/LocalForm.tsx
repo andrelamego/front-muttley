@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
+import type { Address } from '../../data/types';
 
 export const LocalForm: React.FC = () => {
   const navigate = useNavigate();
@@ -10,28 +11,40 @@ export const LocalForm: React.FC = () => {
   const [capacidade, setCapacidade] = useState(10);
   const [enderecoId, setEnderecoId] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
 
-  // Load existing local
+  // Load existing local and addresses
   useEffect(() => {
-    if (id) {
-      const locais = db.getLocais();
-      const found = locais.find(l => l.id === id);
-      if (found) {
-        setNome(found.nome);
-        setCapacidade(found.capacidade);
-        setEnderecoId(found.enderecoId);
-        setDescricao(found.descricao);
-      } else {
-        setErro('Local não encontrado.');
+    const init = async () => {
+      setLoading(true);
+      try {
+        const addrs = await db.getAddresses();
+        setAddresses(addrs);
+
+        if (id) {
+          const locais = await db.getLocais();
+          const found = locais.find(l => l.id === id);
+          if (found) {
+            setNome(found.nome);
+            setCapacidade(found.capacidade);
+            setEnderecoId(found.enderecoId);
+            setDescricao(found.descricao);
+          } else {
+            setErro('Local não encontrado.');
+          }
+        }
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao carregar dados.');
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+    init();
   }, [id]);
 
-  // Load addresses for selection
-  const addresses = db.getAddresses();
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
@@ -40,28 +53,29 @@ export const LocalForm: React.FC = () => {
       return;
     }
 
-    const locais = db.getLocais();
-
-    if (id) {
-      // Edit
-      const updated = locais.map(l => 
-        l.id === id ? { ...l, nome, capacidade: Number(capacidade), enderecoId, descricao } : l
-      );
-      db.saveLocais(updated);
-    } else {
-      // New
-      const newLocal = {
-        id: `loc-${Date.now()}`,
+    try {
+      const payload = {
+        id: id || undefined,
         nome,
         capacidade: Number(capacidade),
         enderecoId,
         descricao,
       };
-      db.saveLocais([...locais, newLocal]);
+      
+      await db.saveLocal(payload);
+      navigate('/admin/locais');
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao salvar local.');
     }
-
-    navigate('/admin/locais');
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-page">

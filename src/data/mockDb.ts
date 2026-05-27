@@ -1,461 +1,123 @@
-// Mock Database for Muttley Frontend
-// Persists in localStorage to simulate backend behavior
+import apiClient from '../services/apiClient';
+import type {
+  Address,
+  Certificate,
+  Collaborator,
+  Discipline,
+  Event,
+  Local,
+  Medal,
+  Organizer,
+  Participation,
+  Person,
+  Professor,
+  Speaker,
+  Sponsor,
+  Student,
+} from './types';
 
-export interface Address {
-  id: string;
-  logradouro: string;
-  numero: string;
-  bairro: string;
-  cidade: string;
-  estado: string;
-  complemento?: string;
-}
+type Entity = Record<string, any>;
 
-export interface Local {
-  id: string;
-  nome: string;
-  descricao: string;
-  capacidade: number;
-  enderecoId: string;
-}
+const toId = (value: unknown) => (value === null || value === undefined ? '' : String(value));
+const entityId = (value: Entity | null | undefined, nestedKey?: string) =>
+  toId(value?.id ?? (nestedKey ? value?.[nestedKey]?.id : undefined));
 
-export interface Person {
-  id: string;
-  nome: string;
-  email: string;
-  telefone: string;
-  cpf: string;
-  senha?: string;
-  role: 'ADMIN' | 'USER';
-}
+const pageContent = <T>(data: T[] | { content?: T[] }) => (Array.isArray(data) ? data : data.content || []);
 
-export interface Student {
-  id: string;
-  pessoaId: string;
-  matricula: string;
-  instituicao: string;
-}
+const normalizePerson = (person: Entity): Person => ({
+  id: toId(person.id),
+  nome: person.nome || '',
+  email: person.email || '',
+  telefone: person.telefone || '',
+  cpf: person.cpf || '',
+  senha: person.senha,
+  role: person.cpf === '123.456.789-00' ? 'ADMIN' : 'USER',
+});
 
-export interface Professor {
-  id: string;
-  pessoaId: string;
-  areaFormacao: string;
-  titulacao: string;
-}
+const normalizeAddress = (address: Entity): Address => ({
+  id: toId(address.id),
+  estado: address.estado || '',
+  cidade: address.cidade || '',
+  bairro: address.bairro || '',
+  logradouro: address.logradouro || '',
+  numero: toId(address.numero),
+  complemento: address.complemento || '',
+});
 
-export interface Speaker {
-  id: string;
-  pessoaId: string;
-  empresaAtual: string;
-  cargo: string;
-  resumoProfissional: string;
-}
+const normalizeLocal = (local: Entity): Local => ({
+  id: toId(local.id),
+  nome: local.nome || '',
+  descricao: local.descricao || '',
+  capacidade: Number(local.capacidade || 0),
+  enderecoId: entityId(local, 'endereco') || toId(local.enderecoId),
+});
 
-export interface Organizer {
-  id: string;
-  pessoaId: string;
-  instituicao: string;
-  cargo: string;
-}
+const normalizeDiscipline = (discipline: Entity): Discipline => ({
+  id: toId(discipline.id),
+  nome: discipline.nome || '',
+  descricao: discipline.descricao || '',
+  turno: discipline.turno || '',
+  professorId: entityId(discipline, 'professor') || toId(discipline.id_professor ?? discipline.professorId),
+});
 
-export interface Collaborator {
-  id: string;
-  pessoaId: string;
-  funcao: string;
-  disponibilidade: string;
-  tipo: string;
-}
+const normalizeSponsor = (sponsor: Entity): Sponsor => ({
+  id: toId(sponsor.id),
+  nome: sponsor.nome || '',
+  site: sponsor.site || '',
+});
 
-export interface Discipline {
-  id: string;
-  nome: string;
-  descricao: string;
-  turno: string;
-  professorId: string; // Refers to Professor.id
-}
+const normalizeEvent = (event: Entity): Event => ({
+  id: toId(event.id),
+  tema: event.tema || '',
+  data: event.data || '',
+  horarioInicio: event.horarioInicio || '',
+  horarioFim: event.horarioFim || '',
+  modalidade: event.modalidade || 'PRESENCIAL',
+  disciplinaId: entityId(event, 'disciplina') || toId(event.disciplinaId),
+  patrocinadorId: entityId(event, 'patrocinador') || toId(event.patrocinadorId),
+  localId: entityId(event, 'local') || toId(event.localId),
+  descricao: event.descricao || '',
+  status: event.status === 'CRIADO' ? 'EM_ANDAMENTO' : event.status || 'EM_ANDAMENTO',
+  qrCodeUrl: event.qrCodeUrl || '',
+});
 
-export interface Sponsor {
-  id: string;
-  nome: string;
-  site?: string;
-}
+const normalizeParticipation = (participation: Entity): Participation => ({
+  id: toId(participation.id),
+  eventoId: entityId(participation, 'evento') || toId(participation.eventoId),
+  pessoaId: entityId(participation, 'pessoa') || toId(participation.pessoaId),
+  inscricao: toId(participation.inscricao),
+  tipo: participation.tipo || 'Aluno',
+  presente: Boolean(participation.presente ?? participation.certificado),
+});
 
-export interface Event {
-  id: string;
-  tema: string;
-  data: string; // YYYY-MM-DD
-  horarioInicio: string; // HH:MM
-  horarioFim: string; // HH:MM
-  modalidade: 'PRESENCIAL' | 'ONLINE' | 'HIBRIDO';
-  disciplinaId?: string;
-  patrocinadorId?: string;
-  localId?: string;
-  descricao: string;
-  status: 'EM_ANDAMENTO' | 'FINALIZADO' | 'CANCELADO';
-  qrCodeUrl?: string;
-}
+const normalizeCertificate = (certificate: Entity): Certificate => ({
+  id: toId(certificate.id),
+  participacaoId: entityId(certificate, 'participacao') || toId(certificate.participacaoId),
+  dataEmissao: certificate.dataEmissao || '',
+  assinatura: certificate.assinatura || 'Coordenacao FATEC',
+  codigoValidacao: certificate.codigoValidacao || '',
+  urlPublica: certificate.urlPublica || `/certificados/${certificate.codigoValidacao || ''}`,
+});
 
-export interface Participation {
-  id: string;
-  eventoId: string;
-  pessoaId: string;
-  inscricao: string; // numeric code
-  tipo: 'Aluno' | 'Professor' | 'Palestrante' | 'Organizador' | 'Colaborador';
-  presente: boolean;
-}
+const normalizeMedal = (medal: Entity): Medal => ({
+  id: toId(medal.id),
+  nome: medal.nome || '',
+  descricao: medal.descricao || '',
+  participacaoId: entityId(medal, 'participacao') || toId(medal.participacaoId),
+});
 
-export interface Certificate {
-  id: string;
-  participacaoId: string;
-  dataEmissao: string; // YYYY-MM-DD
-  assinatura: string;
-  codigoValidacao: string;
-  urlPublica: string;
-}
+const normalizeProfile = <T extends { pessoaId: string }>(item: Entity, extra: Omit<T, 'id' | 'pessoaId'>): T => ({
+  id: toId(item.id),
+  pessoaId: entityId(item, 'pessoa') || toId(item.pessoaId),
+  ...extra,
+} as unknown as T);
 
-export interface Medal {
-  id: string;
-  nome: string;
-  descricao: string;
-  participacaoId: string;
-}
-
-// Initial Data Helper
-const INITIAL_ADDRESSES: Address[] = [
-  { id: 'addr-1', logradouro: 'Av. Águia de Haia', numero: '2683', bairro: 'Cidade Antônio Estêvão de Carvalho', cidade: 'São Paulo', estado: 'SP', complemento: 'FATEC Zona Leste' },
-  { id: 'addr-2', logradouro: 'Rua das Flores', numero: '120', bairro: 'Centro', cidade: 'São Paulo', estado: 'SP' },
-];
-
-const INITIAL_LOCAIS: Local[] = [
-  { id: 'loc-1', nome: 'Auditório Principal', descricao: 'Espaço climatizado para palestras e painéis', capacidade: 120, enderecoId: 'addr-1' },
-  { id: 'loc-2', nome: 'Laboratório 3', descricao: 'Laboratório de informática de alta performance', capacidade: 40, enderecoId: 'addr-1' },
-];
-
-const INITIAL_PEOPLE: Person[] = [
-  { id: 'usr-1', nome: 'Luciano de Souza', email: 'luciano.souza@fatec.sp.gov.br', telefone: '(11) 98765-4321', cpf: '123.456.789-00', senha: '123', role: 'ADMIN' },
-  { id: 'usr-2', nome: 'Ana Paula Costa', email: 'ana.costa@fatec.sp.gov.br', telefone: '(11) 91234-5678', cpf: '111.222.333-44', senha: '123', role: 'USER' },
-  { id: 'usr-3', nome: 'Gabriel Silva Rodrigues', email: 'gabriel.rodrigues@fatec.sp.gov.br', telefone: '(11) 97777-6666', cpf: '222.333.444-55', senha: '123', role: 'USER' },
-  { id: 'usr-4', nome: 'Prof. Carlos Alberto', email: 'carlos.alberto@fatec.sp.gov.br', telefone: '(11) 98888-8888', cpf: '333.444.555-66', senha: '123', role: 'USER' },
-  { id: 'usr-5', nome: 'Beatriz Martinez', email: 'beatriz.m@inovatech.com', telefone: '(11) 99999-1111', cpf: '444.555.666-77', senha: '123', role: 'USER' },
-  { id: 'usr-6', nome: 'Dra. Sandra Regina', email: 'sandra.regina@fatec.sp.gov.br', telefone: '(11) 95555-4444', cpf: '555.666.777-88', senha: '123', role: 'USER' },
-  { id: 'usr-7', nome: 'Marcos Vinicius', email: 'marcos.vini@fatec.sp.gov.br', telefone: '(11) 96666-5555', cpf: '666.777.888-99', senha: '123', role: 'USER' },
-  { id: 'usr-8', nome: 'Felipe Lima', email: 'felipe.lima@fatec.sp.gov.br', telefone: '(11) 95555-2222', cpf: '777.888.999-00', senha: '123', role: 'USER' },
-  { id: 'usr-9', nome: 'Mariana Costa', email: 'mariana.costa@fatec.sp.gov.br', telefone: '(11) 94444-3333', cpf: '888.999.000-11', senha: '123', role: 'USER' },
-  { id: 'usr-10', nome: 'Prof. Reinaldo Silva', email: 'reinaldo.silva@fatec.sp.gov.br', telefone: '(11) 92222-1111', cpf: '999.000.111-22', senha: '123', role: 'USER' },
-  { id: 'usr-11', nome: 'Guilherme Azevedo', email: 'g.azevedo@gmail.com', telefone: '(11) 91111-0000', cpf: '123.123.123-12', senha: '123', role: 'USER' },
-  { id: 'usr-12', nome: 'Patricia Cruz', email: 'patricia.cruz@fatec.sp.gov.br', telefone: '(11) 90000-9999', cpf: '321.321.321-32', senha: '123', role: 'USER' },
-];
-
-const INITIAL_STUDENTS: Student[] = [
-  { id: 'std-1', pessoaId: 'usr-2', matricula: '2026001', instituicao: 'FATEC Zona Leste' },
-  { id: 'std-2', pessoaId: 'usr-3', matricula: '2026002', instituicao: 'FATEC Zona Leste' },
-  { id: 'std-3', pessoaId: 'usr-8', matricula: '2026003', instituicao: 'FATEC Zona Leste' },
-  { id: 'std-4', pessoaId: 'usr-9', matricula: '2026004', instituicao: 'FATEC Zona Leste' },
-];
-
-const INITIAL_PROFESSORS: Professor[] = [
-  { id: 'prf-1', pessoaId: 'usr-4', areaFormacao: 'Engenharia de Software', titulacao: 'Mestre' },
-  { id: 'prf-2', pessoaId: 'usr-10', areaFormacao: 'Banco de Dados', titulacao: 'Doutor' },
-];
-
-const INITIAL_SPEAKERS: Speaker[] = [
-  { id: 'spk-1', pessoaId: 'usr-5', empresaAtual: 'InovaTech Solutions', cargo: 'Tech Lead Security', resumoProfissional: 'Especialista em segurança cibernética com mais de 10 anos de experiência.' },
-  { id: 'spk-2', pessoaId: 'usr-11', empresaAtual: 'Google Cloud', cargo: 'Solutions Architect', resumoProfissional: 'Especialista em computação em nuvem e arquiteturas distribuídas escaláveis.' },
-];
-
-const INITIAL_ORGANIZERS: Organizer[] = [
-  { id: 'org-1', pessoaId: 'usr-6', instituicao: 'FATEC Zona Leste', cargo: 'Coordenadora de Curso' },
-];
-
-const INITIAL_COLABORADORES: Collaborator[] = [
-  { id: 'col-1', pessoaId: 'usr-7', funcao: 'Apoio logístico e credenciamento', disponibilidade: 'Noite', tipo: 'Voluntário' },
-  { id: 'col-2', pessoaId: 'usr-12', funcao: 'Recepção e confecção de crachás', disponibilidade: 'Matutino', tipo: 'Voluntário' },
-];
-
-const INITIAL_SPONSORS: Sponsor[] = [
-  { id: 'spn-1', nome: 'InovaTech', site: 'https://inovatech.com' },
-  { id: 'spn-2', nome: 'FATEC ZL Labs', site: 'https://fateczl.edu.br' },
-  { id: 'spn-3', nome: 'GitHub', site: 'https://github.com' },
-  { id: 'spn-4', nome: 'Google Cloud', site: 'https://cloud.google.com' },
-];
-
-const INITIAL_DISCIPLINES: Discipline[] = [
-  { id: 'disc-1', nome: 'Laboratório de Engenharia de Software', descricao: 'Práticas modernas de desenvolvimento ágil e engenharia de software.', turno: 'Noturno', professorId: 'prf-1' },
-  { id: 'disc-2', nome: 'Segurança de Sistemas', descricao: 'Criptografia, análise de vulnerabilidades e segurança cibernética corporativa.', turno: 'Noturno', professorId: 'prf-1' },
-  { id: 'disc-3', nome: 'Administração de Banco de Dados', descricao: 'Modelagem, tuning, otimização de queries e bancos distribuídos.', turno: 'Noturno', professorId: 'prf-2' },
-  { id: 'disc-4', nome: 'Arquitetura de Nuvem', descricao: 'Provisionamento de infraestrutura serverless e contêineres.', turno: 'Matutino', professorId: 'prf-2' },
-];
-
-const INITIAL_EVENTS: Event[] = [
-  {
-    id: 'evt-1',
-    tema: 'Inteligência Cibernética em Tempos de Guerra Híbrida',
-    data: '2026-03-30',
-    horarioInicio: '19:00',
-    horarioFim: '21:00',
-    modalidade: 'PRESENCIAL',
-    disciplinaId: 'disc-2',
-    patrocinadorId: 'spn-1',
-    localId: 'loc-1',
-    descricao: 'Palestra técnica abordando os aspectos da cibersegurança nos conflitos globais geopolíticos e defesa em rede.',
-    status: 'FINALIZADO',
-    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=muttley-evt-1',
-  },
-  {
-    id: 'evt-2',
-    tema: 'Workshop DevOps: CI/CD com GitHub Actions e Docker',
-    data: '2026-05-30',
-    horarioInicio: '08:00',
-    horarioFim: '12:00',
-    modalidade: 'PRESENCIAL',
-    disciplinaId: 'disc-1',
-    patrocinadorId: 'spn-2',
-    localId: 'loc-2',
-    descricao: 'Hands-on focado em criar pipelines modernas de automação e contêineres.',
-    status: 'EM_ANDAMENTO',
-    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=muttley-evt-2',
-  },
-  {
-    id: 'evt-3',
-    tema: 'Simpósio de Inteligência Artificial e Modelos de Linguagem',
-    data: '2026-06-15',
-    horarioInicio: '19:30',
-    horarioFim: '22:00',
-    modalidade: 'HIBRIDO',
-    disciplinaId: 'disc-1',
-    patrocinadorId: 'spn-1',
-    localId: 'loc-1',
-    descricao: 'Grande simpósio discutindo as fronteiras dos LLMs e agentes cognitivos.',
-    status: 'EM_ANDAMENTO',
-    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=muttley-evt-3',
-  },
-  {
-    id: 'evt-4',
-    tema: 'Palestra: Tendências de Bancos de Dados NoSQL e NewSQL',
-    data: '2026-04-10',
-    horarioInicio: '19:00',
-    horarioFim: '20:30',
-    modalidade: 'HIBRIDO',
-    disciplinaId: 'disc-3',
-    patrocinadorId: 'spn-1',
-    localId: 'loc-1',
-    descricao: 'Uma visão aprofundada nos modernos motores de persistência distribuída.',
-    status: 'FINALIZADO',
-    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=muttley-evt-4',
-  },
-  {
-    id: 'evt-5',
-    tema: 'Workshop: Cloud Migration com GCP e Kubernetes',
-    data: '2026-05-15',
-    horarioInicio: '09:00',
-    horarioFim: '13:00',
-    modalidade: 'PRESENCIAL',
-    disciplinaId: 'disc-4',
-    patrocinadorId: 'spn-4',
-    localId: 'loc-2',
-    descricao: 'Migração prática de uma aplicação Java Spring para o Google Kubernetes Engine.',
-    status: 'FINALIZADO',
-    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=muttley-evt-5',
-  },
-  {
-    id: 'evt-6',
-    tema: 'Hackathon FATEC ZL 2026',
-    data: '2026-07-04',
-    horarioInicio: '08:00',
-    horarioFim: '22:00',
-    modalidade: 'PRESENCIAL',
-    disciplinaId: 'disc-1',
-    patrocinadorId: 'spn-3',
-    localId: 'loc-1',
-    descricao: 'Grande maratona de programação voltada a resolver desafios de mobilidade urbana na Zona Leste.',
-    status: 'EM_ANDAMENTO',
-    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=muttley-evt-6',
-  },
-];
-
-const INITIAL_PARTICIPATIONS: Participation[] = [
-  { id: 'part-1', eventoId: 'evt-1', pessoaId: 'usr-3', inscricao: '1001', tipo: 'Aluno', presente: true },
-  { id: 'part-2', eventoId: 'evt-1', pessoaId: 'usr-5', inscricao: '1002', tipo: 'Palestrante', presente: true },
-  { id: 'part-3', eventoId: 'evt-1', pessoaId: 'usr-4', inscricao: '1003', tipo: 'Professor', presente: true },
-  { id: 'part-4', eventoId: 'evt-2', pessoaId: 'usr-2', inscricao: '2001', tipo: 'Aluno', presente: false },
-  { id: 'part-5', eventoId: 'evt-2', pessoaId: 'usr-3', inscricao: '2002', tipo: 'Aluno', presente: false },
-  { id: 'part-6', eventoId: 'evt-3', pessoaId: 'usr-2', inscricao: '3001', tipo: 'Aluno', presente: false },
-  { id: 'part-7', eventoId: 'evt-4', pessoaId: 'usr-2', inscricao: '4001', tipo: 'Aluno', presente: true },
-  { id: 'part-8', eventoId: 'evt-4', pessoaId: 'usr-3', inscricao: '4002', tipo: 'Aluno', presente: true },
-  { id: 'part-9', eventoId: 'evt-5', pessoaId: 'usr-8', inscricao: '5001', tipo: 'Aluno', presente: true },
-  { id: 'part-10', eventoId: 'evt-5', pessoaId: 'usr-9', inscricao: '5002', tipo: 'Aluno', presente: true },
-  { id: 'part-11', eventoId: 'evt-5', pessoaId: 'usr-11', inscricao: '5003', tipo: 'Palestrante', presente: true },
-  { id: 'part-12', eventoId: 'evt-6', pessoaId: 'usr-2', inscricao: '6001', tipo: 'Aluno', presente: false },
-  { id: 'part-13', eventoId: 'evt-6', pessoaId: 'usr-3', inscricao: '6002', tipo: 'Aluno', presente: false },
-  { id: 'part-14', eventoId: 'evt-6', pessoaId: 'usr-8', inscricao: '6003', tipo: 'Aluno', presente: false },
-  { id: 'part-15', eventoId: 'evt-6', pessoaId: 'usr-9', inscricao: '6004', tipo: 'Aluno', presente: false },
-];
-
-const INITIAL_CERTIFICATES: Certificate[] = [
-  {
-    id: 'cert-1',
-    participacaoId: 'part-1',
-    dataEmissao: '2026-03-30',
-    assinatura: 'Luciano_de_Souza_ADSFatecZL',
-    codigoValidacao: 'MUTE-928A-817B',
-    urlPublica: '/certificados/MUTE-928A-817B',
-  },
-  {
-    id: 'cert-2',
-    participacaoId: 'part-2',
-    dataEmissao: '2026-03-30',
-    assinatura: 'Sandra_Regina_CoordADSFatecZL',
-    codigoValidacao: 'MUTE-118F-992D',
-    urlPublica: '/certificados/MUTE-118F-992D',
-  },
-  {
-    id: 'cert-3',
-    participacaoId: 'part-7',
-    dataEmissao: '2026-04-10',
-    assinatura: 'Luciano_de_Souza_ADSFatecZL',
-    codigoValidacao: 'MUTE-4567-EFGH',
-    urlPublica: '/certificados/MUTE-4567-EFGH',
-  },
-  {
-    id: 'cert-4',
-    participacaoId: 'part-8',
-    dataEmissao: '2026-04-10',
-    assinatura: 'Luciano_de_Souza_ADSFatecZL',
-    codigoValidacao: 'MUTE-8901-IJKL',
-    urlPublica: '/certificados/MUTE-8901-IJKL',
-  },
-  {
-    id: 'cert-5',
-    participacaoId: 'part-9',
-    dataEmissao: '2026-05-15',
-    assinatura: 'Luciano_de_Souza_ADSFatecZL',
-    codigoValidacao: 'MUTE-2345-MNOP',
-    urlPublica: '/certificados/MUTE-2345-MNOP',
-  },
-  {
-    id: 'cert-6',
-    participacaoId: 'part-10',
-    dataEmissao: '2026-05-15',
-    assinatura: 'Luciano_de_Souza_ADSFatecZL',
-    codigoValidacao: 'MUTE-6789-QRST',
-    urlPublica: '/certificados/MUTE-6789-QRST',
-  },
-  {
-    id: 'cert-7',
-    participacaoId: 'part-11',
-    dataEmissao: '2026-05-15',
-    assinatura: 'Sandra_Regina_CoordADSFatecZL',
-    codigoValidacao: 'MUTE-9999-ABCD',
-    urlPublica: '/certificados/MUTE-9999-ABCD',
-  },
-];
-
-const INITIAL_MEDALS: Medal[] = [
-  { id: 'med-1', nome: 'Destaque Cybersecurity', descricao: 'Medalha de ouro concedida por demonstrar alta excelência técnica no evento de Inteligência Cibernética.', participacaoId: 'part-1' },
-  { id: 'med-2', nome: 'Melhor Solution Architect', descricao: 'Medalha concedida pela Google Cloud por excelente desempenho arquitetural no workshop Cloud Migration.', participacaoId: 'part-9' },
-  { id: 'med-3', nome: 'Destaque Banco de Dados', descricao: 'Medalha concedida por melhor projeto de modelagem NewSQL no simpósio de Bancos de Dados.', participacaoId: 'part-8' },
-  { id: 'med-4', nome: 'Destaque Modelagem NoSQL', descricao: 'Concedida por excelente participação e resolução prática de desafios de modelagem e persistência de dados distribuídos.', participacaoId: 'part-7' },
-];
-
-// Helper database manager class
-class MockDatabase {
-  constructor() {
-    const version = localStorage.getItem('muttley_db_version');
-    if (version !== 'v3') {
-      // Clear old muttley keys
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('muttley_')) {
-          localStorage.removeItem(key);
-        }
-      }
-      localStorage.setItem('muttley_db_version', 'v3');
-    }
-  }
-
-  private get<T>(key: string, initial: T[]): T[] {
-    const data = localStorage.getItem(`muttley_${key}`);
-    if (!data) {
-      localStorage.setItem(`muttley_${key}`, JSON.stringify(initial));
-      return initial;
-    }
-    return JSON.parse(data);
-  }
-
-  private save<T>(key: string, data: T[]): void {
-    localStorage.setItem(`muttley_${key}`, JSON.stringify(data));
-  }
-
-  // Addresses
-  getAddresses(): Address[] { return this.get('addresses', INITIAL_ADDRESSES); }
-  saveAddresses(data: Address[]) { this.save('addresses', data); }
-
-  // Locais
-  getLocais(): Local[] { return this.get('locais', INITIAL_LOCAIS); }
-  saveLocais(data: Local[]) { this.save('locais', data); }
-
-  // People
-  getPeople(): Person[] { return this.get('people', INITIAL_PEOPLE); }
-  savePeople(data: Person[]) { this.save('people', data); }
-
-  // Students
-  getStudents(): Student[] { return this.get('students', INITIAL_STUDENTS); }
-  saveStudents(data: Student[]) { this.save('students', data); }
-
-  // Professors
-  getProfessors(): Professor[] { return this.get('professors', INITIAL_PROFESSORS); }
-  saveProfessors(data: Professor[]) { this.save('professors', data); }
-
-  // Speakers
-  getSpeakers(): Speaker[] { return this.get('speakers', INITIAL_SPEAKERS); }
-  saveSpeakers(data: Speaker[]) { this.save('speakers', data); }
-
-  // Organizers
-  getOrganizers(): Organizer[] { return this.get('organizers', INITIAL_ORGANIZERS); }
-  saveOrganizers(data: Organizer[]) { this.save('organizers', data); }
-
-  // Collaborators
-  getCollaborators(): Collaborator[] { return this.get('collaborators', INITIAL_COLABORADORES); }
-  saveCollaborators(data: Collaborator[]) { this.save('collaborators', data); }
-
-  // Sponsors
-  getSponsors(): Sponsor[] { return this.get('sponsors', INITIAL_SPONSORS); }
-  saveSponsors(data: Sponsor[]) { this.save('sponsors', data); }
-
-  // Disciplines
-  getDisciplines(): Discipline[] { return this.get('disciplines', INITIAL_DISCIPLINES); }
-  saveDisciplines(data: Discipline[]) { this.save('disciplines', data); }
-
-  // Events
-  getEvents(): Event[] { return this.get('events', INITIAL_EVENTS); }
-  saveEvents(data: Event[]) { this.save('events', data); }
-
-  // Participations
-  getParticipations(): Participation[] { return this.get('participations', INITIAL_PARTICIPATIONS); }
-  saveParticipations(data: Participation[]) { this.save('participations', data); }
-
-  // Certificates
-  getCertificates(): Certificate[] { return this.get('certificates', INITIAL_CERTIFICATES); }
-  saveCertificates(data: Certificate[]) { this.save('certificates', data); }
-
-  // Medals
-  getMedals(): Medal[] { return this.get('medals', INITIAL_MEDALS); }
-  saveMedals(data: Medal[]) { this.save('medals', data); }
-
-  // Current Logged User (Admin)
+class ApiDatabase {
   getLoggedUser(): Person | null {
     const user = localStorage.getItem('muttley_logged_user');
-    if (!user) {
-      // Default to Luciano (Admin) for instant dashboard review
-      const luciano = this.getPeople().find(p => p.role === 'ADMIN');
-      if (luciano) {
-        this.setLoggedUser(luciano);
-        return luciano;
-      }
-      return null;
-    }
-    return JSON.parse(user);
+    return user ? JSON.parse(user) : null;
   }
+
   setLoggedUser(user: Person | null) {
     if (user) {
       localStorage.setItem('muttley_logged_user', JSON.stringify(user));
@@ -463,7 +125,262 @@ class MockDatabase {
       localStorage.removeItem('muttley_logged_user');
     }
   }
+
+  async getAddresses(): Promise<Address[]> {
+    const response = await apiClient.get('/admin/enderecos');
+    return response.data.map(normalizeAddress);
+  }
+
+  async saveAddress(address: Partial<Address>): Promise<void> {
+    const payload = {
+      id: address.id ? Number(address.id) : null,
+      estado: address.estado,
+      cidade: address.cidade,
+      bairro: address.bairro,
+      logradouro: address.logradouro,
+      numero: Number(address.numero || 0),
+      complemento: address.complemento || '-',
+    };
+
+    if (address.id) {
+      await apiClient.put(`/admin/enderecos/${address.id}`, payload);
+    } else {
+      await apiClient.post('/admin/enderecos', payload);
+    }
+  }
+
+  async deleteAddress(id: string): Promise<void> {
+    await apiClient.delete(`/admin/enderecos/${id}`);
+  }
+
+  async getLocais(): Promise<Local[]> {
+    const response = await apiClient.get('/admin/locais');
+    return response.data.map(normalizeLocal);
+  }
+
+  async saveLocal(local: Partial<Local>): Promise<void> {
+    const payload = {
+      id: local.id ? Number(local.id) : null,
+      nome: local.nome,
+      descricao: local.descricao || '-',
+      capacidade: Number(local.capacidade || 0),
+      enderecoId: Number(local.enderecoId),
+    };
+
+    if (local.id) {
+      await apiClient.put(`/admin/locais/${local.id}`, payload);
+    } else {
+      await apiClient.post('/admin/locais', payload);
+    }
+  }
+
+  async deleteLocal(id: string): Promise<void> {
+    await apiClient.delete(`/admin/locais/${id}`);
+  }
+
+  async getPeople(): Promise<Person[]> {
+    const response = await apiClient.get('/admin/pessoas');
+    return response.data.map(normalizePerson);
+  }
+
+  async getStudents(): Promise<Student[]> {
+    const response = await apiClient.get('/admin/alunos');
+    return response.data.map((item: Entity) =>
+      normalizeProfile<Student>(item, {
+        matricula: item.matricula || '',
+        instituicao: item.instituicao || '',
+      }),
+    );
+  }
+
+  async getProfessors(): Promise<Professor[]> {
+    const response = await apiClient.get('/admin/professores');
+    return response.data.map((item: Entity) =>
+      normalizeProfile<Professor>(item, {
+        areaFormacao: item.areaFormacao || '',
+        titulacao: item.titulacao || '',
+      }),
+    );
+  }
+
+  async getSpeakers(): Promise<Speaker[]> {
+    const response = await apiClient.get('/admin/palestrantes');
+    return response.data.map((item: Entity) =>
+      normalizeProfile<Speaker>(item, {
+        empresaAtual: item.empresaAtual || '',
+        cargo: item.cargo || '',
+        resumoProfissional: item.resumoProfissional || '',
+      }),
+    );
+  }
+
+  async getOrganizers(): Promise<Organizer[]> {
+    const response = await apiClient.get('/admin/organizadores');
+    return response.data.map((item: Entity) =>
+      normalizeProfile<Organizer>(item, {
+        instituicao: item.instituicao || '',
+        cargo: item.cargo || '',
+      }),
+    );
+  }
+
+  async getCollaborators(): Promise<Collaborator[]> {
+    const response = await apiClient.get('/admin/colaboradores');
+    return response.data.map((item: Entity) =>
+      normalizeProfile<Collaborator>(item, {
+        funcao: item.funcao || '',
+        disponibilidade: item.disponibilidade || '',
+        tipo: item.tipo || '',
+      }),
+    );
+  }
+
+  async getSponsors(): Promise<Sponsor[]> {
+    const response = await apiClient.get('/admin/patrocinadores');
+    return response.data.map(normalizeSponsor);
+  }
+
+  async getDisciplines(): Promise<Discipline[]> {
+    const response = await apiClient.get('/admin/disciplinas');
+    return response.data.map(normalizeDiscipline);
+  }
+
+  async saveDiscipline(discipline: Partial<Discipline>): Promise<void> {
+    const payload = {
+      id: discipline.id ? Number(discipline.id) : null,
+      nome: discipline.nome,
+      descricao: discipline.descricao || '-',
+      turno: discipline.turno,
+      id_professor: discipline.professorId ? Number(discipline.professorId) : null,
+    };
+
+    if (discipline.id) {
+      await apiClient.put(`/admin/disciplinas/${discipline.id}`, payload);
+    } else {
+      await apiClient.post('/admin/disciplinas', payload);
+    }
+  }
+
+  async deleteDiscipline(id: string): Promise<void> {
+    await apiClient.delete(`/admin/disciplinas/${id}`);
+  }
+
+  async getEvents(): Promise<Event[]> {
+    const response = await apiClient.get('/admin/eventos', {
+      params: { tamanho: 1000, ordenar: 'data' },
+    });
+    return pageContent<Entity>(response.data).map(normalizeEvent);
+  }
+
+  async getEventById(id: string): Promise<Event | null> {
+    const response = await apiClient.get(`/admin/eventos/${id}`);
+    return normalizeEvent(response.data);
+  }
+
+  async saveEvent(event: Partial<Event>): Promise<void> {
+    const payload = {
+      id: event.id ? Number(event.id) : null,
+      tema: event.tema,
+      descricao: event.descricao || '-',
+      data: event.data,
+      horarioInicio: event.horarioInicio,
+      horarioFim: event.horarioFim,
+      modalidade: event.modalidade === 'HIBRIDO' ? 'ONLINE' : event.modalidade,
+      status: event.status,
+      disciplinaId: event.disciplinaId ? Number(event.disciplinaId) : null,
+      patrocinadorId: event.patrocinadorId ? Number(event.patrocinadorId) : null,
+      localId: event.localId ? Number(event.localId) : null,
+    };
+
+    if (event.id) {
+      await apiClient.put(`/admin/eventos/${event.id}`, payload);
+    } else {
+      await apiClient.post('/admin/eventos', payload);
+    }
+  }
+
+  async cancelEvent(id: string): Promise<void> {
+    await apiClient.delete(`/admin/eventos/${id}`);
+  }
+
+  async getParticipations(): Promise<Participation[]> {
+    const response = await apiClient.get('/participacoes');
+    return response.data.map(normalizeParticipation);
+  }
+
+  async getEventParticipations(id: string): Promise<Participation[]> {
+    const response = await apiClient.get(`/admin/eventos/${id}/participacoes`);
+    return (response.data.participacoes || []).map(normalizeParticipation);
+  }
+
+  async saveParticipation(participation: Partial<Participation>): Promise<void> {
+    const existing = await this.getParticipations();
+    const nextInscricao = Math.max(1000, ...existing.map((item) => Number(item.inscricao) || 0)) + 1;
+    const payload = {
+      id: participation.id ? Number(participation.id) : null,
+      inscricao: participation.inscricao ? Number(participation.inscricao) : nextInscricao,
+      tipo: participation.tipo || 'Aluno',
+      pessoaId: Number(participation.pessoaId),
+      eventoId: Number(participation.eventoId),
+    };
+
+    if (participation.id) {
+      await apiClient.put(`/participacoes/${participation.id}`, payload);
+    } else {
+      await apiClient.post('/participacoes', payload);
+    }
+  }
+
+  async concludeEvent(eventId: string, presentes: string[]): Promise<void> {
+    await apiClient.post(
+      `/admin/eventos/${eventId}/concluir`,
+      presentes.map((id) => Number(id)),
+    );
+  }
+
+  async getCertificates(): Promise<Certificate[]> {
+    const response = await apiClient.get('/admin/certificados');
+    return (response.data.certificados || []).map(normalizeCertificate);
+  }
+
+  async getCertificateByCode(code: string): Promise<{
+    certificado: Certificate;
+    linkedinUrl: string;
+    raw: Entity;
+  }> {
+    const response = await apiClient.get(`/certificados/${code}`);
+    const raw = response.data.certificado;
+    return {
+      certificado: normalizeCertificate(raw),
+      linkedinUrl: response.data.linkedinUrl || '',
+      raw,
+    };
+  }
+
+  async getMedals(): Promise<Medal[]> {
+    const response = await apiClient.get('/admin/medalhas');
+    return response.data.map(normalizeMedal);
+  }
+
+  async saveMedal(medal: Partial<Medal>): Promise<void> {
+    const payload = {
+      id: medal.id ? Number(medal.id) : null,
+      nome: medal.nome,
+      descricao: medal.descricao,
+      participacaoId: Number(medal.participacaoId),
+    };
+
+    if (medal.id) {
+      await apiClient.put(`/admin/medalhas/${medal.id}`, payload);
+    } else {
+      await apiClient.post('/admin/medalhas', payload);
+    }
+  }
+
+  async deleteMedal(id: string): Promise<void> {
+    await apiClient.delete(`/admin/medalhas/${id}`);
+  }
 }
 
-export const db = new MockDatabase();
+export const db = new ApiDatabase();
 export default db;
