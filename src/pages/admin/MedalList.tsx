@@ -1,24 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
+import type { Medal, Participation, Person, Event } from '../../data/types';
+import { ButtonLink, LoadingState, PageHeader } from '../../components/ui';
 
 export const MedalList: React.FC = () => {
-  const [medals, setMedals] = useState(db.getMedals());
+  const [medals, setMedals] = useState<Medal[]>([]);
+  const [participations, setParticipations] = useState<Participation[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
 
-  const handleDelete = (id: string) => {
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [meds, parts, pps, evts] = await Promise.all([
+        db.getMedals(),
+        db.getParticipations(),
+        db.getPeople(),
+        db.getEvents()
+      ]);
+      setMedals(meds);
+      setParticipations(parts);
+      setPeople(pps);
+      setEvents(evts);
+    } catch (err: any) {
+      setMessage(err.message || 'Erro ao carregar medalhas.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleDelete = async (id: string) => {
     if (window.confirm('Excluir esta medalha?')) {
-      const updated = medals.filter(m => m.id !== id);
-      db.saveMedals(updated);
-      setMedals(updated);
-      setMessage('Medalha excluída com sucesso.');
+      try {
+        setLoading(true);
+        await db.deleteMedal(id);
+        setMedals(prev => prev.filter(m => m.id !== id));
+        setMessage('Medalha excluída com sucesso.');
+      } catch (err: any) {
+        setMessage(err.message || 'Erro ao excluir medalha.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const getParticipationInfo = (partId: string) => {
-    const part = db.getParticipations().find(p => p.id === partId);
-    const person = part ? db.getPeople().find(p => p.id === part.pessoaId) : null;
-    const event = part ? db.getEvents().find(e => e.id === part.eventoId) : null;
+    const part = participations.find(p => p.id === partId);
+    const person = part ? people.find(p => p.id === part.pessoaId) : null;
+    const event = part ? events.find(e => e.id === part.eventoId) : null;
     
     return {
       personName: person ? person.nome : '-',
@@ -26,16 +63,24 @@ export const MedalList: React.FC = () => {
     };
   };
 
+  if (loading && medals.length === 0) {
+    return <LoadingState label="Carregando medalhas" />;
+  }
+
   return (
     <div className="admin-page">
-      <div className="page-title-row">
-        <h1>Medalhas</h1>
-        <Link className="new-event-button" to="/admin/medalhas/novo">
-          Nova medalha
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow="Reconhecimento"
+        title="Medalhas"
+        description="Crie e acompanhe reconhecimentos vinculados as participacoes."
+        actions={
+          <ButtonLink to="/admin/medalhas/novo" icon={<Plus aria-hidden="true" />}>
+            Nova medalha
+          </ButtonLink>
+        }
+      />
 
-      {message && <div className="alert alert-success">{message}</div>}
+      {message && <div className="alert alert-info">{message}</div>}
 
       <section className="people-panel">
         <table className="participants-table">
@@ -70,6 +115,7 @@ export const MedalList: React.FC = () => {
                         <button
                           className="table-action danger"
                           onClick={() => handleDelete(m.id)}
+                          disabled={loading}
                         >
                           Excluir
                         </button>

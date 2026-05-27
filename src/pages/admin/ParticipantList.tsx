@@ -1,17 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import db from '../../data/mockDb';
+import type { Person, Student, Professor, Speaker, Organizer, Collaborator } from '../../data/types';
+import { LoadingState, PageHeader } from '../../components/ui';
 
 type TabType = 'alunos' | 'professores' | 'palestrantes' | 'organizadores' | 'colaboradores';
 
 export const ParticipantList: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('alunos');
 
-  const people = db.getPeople();
-  const students = db.getStudents();
-  const professors = db.getProfessors();
-  const speakers = db.getSpeakers();
-  const organizers = db.getOrganizers();
-  const collaborators = db.getCollaborators();
+  const [people, setPeople] = useState<Person[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [professors, setProfessors] = useState<Professor[]>([]);
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [organizers, setOrganizers] = useState<Organizer[]>([]);
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      try {
+        const [pps, stds, profs, spks, orgs, colls] = await Promise.all([
+          db.getPeople(),
+          db.getStudents(),
+          db.getProfessors(),
+          db.getSpeakers(),
+          db.getOrganizers(),
+          db.getCollaborators()
+        ]);
+        setPeople(pps);
+        setStudents(stds);
+        setProfessors(profs);
+        setSpeakers(spks);
+        setOrganizers(orgs);
+        setCollaborators(colls);
+      } catch (err) {
+        console.error('Error loading participants:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
+  }, []);
 
   // Map students
   const listAlunos = students.map(s => {
@@ -78,11 +108,18 @@ export const ParticipantList: React.FC = () => {
     };
   });
 
+  if (loading) {
+    return <LoadingState label="Carregando pessoas" />;
+  }
+
   return (
     <div className="admin-page">
-      <div className="page-title-row">
-        <h1>Pessoas</h1>
-      </div>
+      <PageHeader
+        eyebrow="Comunidade academica"
+        title="Pessoas"
+        description="Consulte alunos, professores, palestrantes, organizadores e colaboradores."
+        compact
+      />
 
       <div className="tab-group">
         <button

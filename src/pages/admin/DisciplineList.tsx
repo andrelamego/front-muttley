@@ -1,22 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
+import type { Discipline, Professor, Person } from '../../data/types';
+import { ButtonLink, LoadingState, PageHeader } from '../../components/ui';
 
 export const DisciplineList: React.FC = () => {
-  const [disciplines, setDisciplines] = useState(db.getDisciplines());
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [professors, setProfessors] = useState<Professor[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [erro, setErro] = useState('');
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Excluir esta disciplina?')) {
-      const updated = disciplines.filter(d => d.id !== id);
-      db.saveDisciplines(updated);
-      setDisciplines(updated);
-      setMessage('Disciplina excluída com sucesso.');
-    }
+  const loadData = () => {
+    setLoading(true);
+    Promise.all([
+      db.getDisciplines(),
+      db.getProfessors(),
+      db.getPeople()
+    ]).then(([discs, profs, ppl]) => {
+      setDisciplines(discs);
+      setProfessors(profs);
+      setPeople(ppl);
+    }).catch(console.error)
+      .finally(() => setLoading(false));
   };
 
-  const professors = db.getProfessors();
-  const people = db.getPeople();
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Excluir esta disciplina?')) {
+      try {
+        await db.deleteDiscipline(id);
+        setDisciplines(prev => prev.filter(d => d.id !== id));
+        setMessage('Disciplina excluída com sucesso.');
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao excluir disciplina.');
+      }
+    }
+  };
 
   const getProfessorName = (profId: string) => {
     const prof = professors.find(p => p.id === profId);
@@ -24,16 +49,25 @@ export const DisciplineList: React.FC = () => {
     return person ? person.nome : '-';
   };
 
+  if (loading) {
+    return <LoadingState label="Carregando disciplinas" />;
+  }
+
   return (
     <div className="admin-page">
-      <div className="page-title-row">
-        <h1>Disciplinas</h1>
-        <Link className="new-event-button" to="/admin/disciplinas/novo">
-          Nova Disciplina
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow="Configuracao academica"
+        title="Disciplinas"
+        description="Mantenha a relacao entre disciplinas, turnos e professores responsaveis."
+        actions={
+          <ButtonLink to="/admin/disciplinas/novo" icon={<Plus aria-hidden="true" />}>
+            Nova Disciplina
+          </ButtonLink>
+        }
+      />
 
       {message && <div className="alert alert-success">{message}</div>}
+      {erro && <div className="alert alert-danger">{erro}</div>}
 
       <section className="people-panel">
         <table className="participants-table">

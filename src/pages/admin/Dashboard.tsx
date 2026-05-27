@@ -1,23 +1,45 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import db from '../../data/mockDb';
+import { LoadingState, PageHeader } from '../../components/ui';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const eventsRowRef = useRef<HTMLDivElement>(null);
 
-  // Load active upcoming events
-  const events = db.getEvents();
+  const [events, setEvents] = useState<any[]>([]);
+  const [locations, setLocations] = useState<any[]>([]);
+  const [certs, setCerts] = useState<any[]>([]);
+  const [participacoes, setParticipacoes] = useState<any[]>([]);
+  const [medals, setMedals] = useState<any[]>([]);
+  const [people, setPeople] = useState<any[]>([]);
+  const [disciplines, setDisciplines] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      db.getEvents(),
+      db.getLocais(),
+      db.getCertificates(),
+      db.getParticipations(),
+      db.getMedals(),
+      db.getPeople(),
+      db.getDisciplines()
+    ]).then(([evts, locs, crts, parts, mdls, ppl, discs]) => {
+      setEvents(evts);
+      setLocations(locs);
+      setCerts(crts);
+      setParticipacoes(parts);
+      setMedals(mdls);
+      setPeople(ppl);
+      setDisciplines(discs);
+    }).catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
   const upcomingEvents = events.filter(e => e.status === 'EM_ANDAMENTO');
 
-  // Load locations for event display
-  const locations = db.getLocais();
-
-  // Load certificates
-  const certs = db.getCertificates();
-  
   // Calculate Certificados Emitidos por Evento
-  const participacoes = db.getParticipations();
   const certsByEventMap: { [key: string]: { total: number; label: string } } = {};
   
   certs.forEach(c => {
@@ -39,12 +61,11 @@ export const Dashboard: React.FC = () => {
   }));
 
   // Calculate Participantes com mais medalhas
-  const medals = db.getMedals();
   const medalsByPersonMap: { [key: string]: { total: number; label: string } } = {};
   
   medals.forEach(m => {
     const part = participacoes.find(p => p.id === m.participacaoId);
-    const person = part ? db.getPeople().find(p => p.id === part.pessoaId) : null;
+    const person = part ? people.find(p => p.id === part.pessoaId) : null;
     if (person) {
       if (!medalsByPersonMap[person.id]) {
         medalsByPersonMap[person.id] = { total: 0, label: person.nome };
@@ -68,7 +89,6 @@ export const Dashboard: React.FC = () => {
   const totalCertificados = certs.length;
 
   // Calculate top discipline by student enrollment engagement
-  const disciplines = db.getDisciplines();
   const disciplineEngagement: { [key: string]: number } = {};
 
   events.forEach(e => {
@@ -114,11 +134,18 @@ export const Dashboard: React.FC = () => {
     navigate(`/admin/eventos/editar/${id}`);
   };
 
+  if (loading) {
+    return <LoadingState label="Carregando painel administrativo" />;
+  }
+
   return (
     <div className="dashboard">
-      <section className="hero">
-        <h1 className="text-3xl font-extrabold text-brand-ink-strong">Bem-vindo ao Muttley</h1>
-      </section>
+      <PageHeader
+        eyebrow="Painel administrativo"
+        title="Muttley"
+        description="Visao operacional de eventos, inscricoes, certificados e reconhecimentos academicos."
+        compact
+      />
 
       <section className="events-section mt-8" aria-labelledby="events-title">
         <div className="section-heading flex items-center justify-between mb-4">

@@ -1,57 +1,52 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import db from '../data/mockDb';
+import React from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { LogIn, LogOut, Menu, ShieldCheck, UserRound } from 'lucide-react'
+import db from '../data/mockDb'
+import { ButtonLink } from './ui'
 
 interface HeaderProps {
-  onToggleSidebar?: () => void;
+  onToggleSidebar?: () => void
 }
 
 export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const path = location.pathname;
-  const loggedUser = db.getLoggedUser();
-  const isAdmin = path.startsWith('/admin');
+  const location = useLocation()
+  const navigate = useNavigate()
+  const path = location.pathname
+  const loggedUser = db.getLoggedUser()
+  const isAdmin = path.startsWith('/admin')
 
   const handleLogout = () => {
-    db.setLoggedUser(null);
-    navigate('/login');
-  };
+    db.setLoggedUser(null)
+    navigate('/login')
+  }
 
   return (
-    <header className="app-header">
-      {isAdmin && (
-        <button
-          className="topbar-hamburger"
-          type="button"
-          onClick={onToggleSidebar}
-          aria-label="Abrir navegação"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-        </button>
-      )}
+    <header className="app-header app-header--redesign">
+      <div className="app-header__left">
+        {isAdmin && (
+          <button className="topbar-hamburger" type="button" onClick={onToggleSidebar} aria-label="Abrir navegacao">
+            <Menu aria-hidden="true" />
+          </button>
+        )}
 
-      <Link className="brand" to={isAdmin ? "/admin/inicio" : loggedUser ? "/user/inicio" : "/login"}>
-        Muttley
-      </Link>
+        <Link className="brand" to={isAdmin ? '/admin/inicio' : loggedUser ? '/user/inicio' : '/login'}>
+          Muttley
+        </Link>
+      </div>
 
       {!isAdmin && loggedUser?.role === 'ADMIN' && (
-        <nav className="main-nav" aria-label="Navegação principal">
+        <nav className="main-nav" aria-label="Navegacao principal">
           <Link to="/admin/inicio">
-            Painel Admin
+            <ShieldCheck aria-hidden="true" />
+            Painel admin
           </Link>
         </nav>
       )}
 
-      {/* Navigation for USER role on Desktop/Tablet (hidden on Mobile via CSS) */}
       {!isAdmin && loggedUser?.role === 'USER' && (
-        <nav className="main-nav user-desktop-nav" aria-label="Navegação principal do usuário">
+        <nav className="main-nav user-desktop-nav" aria-label="Navegacao principal do usuario">
           <Link to="/user/inicio" className={path === '/user/inicio' ? 'active' : ''}>
-            Início
+            Inicio
           </Link>
           <Link to="/user/certificados" className={path.startsWith('/user/certificados') ? 'active' : ''}>
             Certificados
@@ -62,33 +57,26 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         </nav>
       )}
 
-      <div className="user-menu" aria-label="Usuário logado">
+      <div className="user-menu" aria-label="Usuario logado">
         {loggedUser ? (
           <>
-            <span className="user-display-name text-xs md:text-sm font-semibold">{loggedUser.nome.split(' ')[0]}</span>
             <span className="avatar" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="8" r="4"></circle>
-                <path d="M4 21c1.6-4 4.2-6 8-6s6.4 2 8 6"></path>
-              </svg>
+              <UserRound />
             </span>
-            <button
-              onClick={handleLogout}
-              className="text-[10px] md:text-xs font-bold text-brand-danger bg-brand-danger-soft px-2.5 py-1 rounded-full hover:bg-brand-danger hover:text-white transition-colors cursor-pointer ml-1"
-              type="button"
-            >
-              Sair
+            <span className="user-display-name">{loggedUser.nome.split(' ')[0]}</span>
+            <button onClick={handleLogout} className="header-logout" type="button">
+              <LogOut aria-hidden="true" />
+              <span>Sair</span>
             </button>
           </>
         ) : (
-          <Link to="/login" className="table-action font-semibold">
+          <ButtonLink to="/login" variant="secondary" size="sm" icon={<LogIn aria-hidden="true" />}>
             Entrar
-          </Link>
+          </ButtonLink>
         )}
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
-
+export default Header
