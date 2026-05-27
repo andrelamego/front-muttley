@@ -2531,3 +2531,157 @@ svg {
     background: var(--primary-soft);
     color: var(--primary-strong);
 }
+
+/* User Area Styles */
+.user-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4.25rem;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.06);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.user-bottom-nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 750;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    width: 25%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+}
+
+.user-bottom-nav-link svg {
+    width: 1.4rem;
+    height: 1.4rem;
+    color: var(--muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.user-bottom-nav-link:hover svg,
+.user-bottom-nav-link:focus-visible svg {
+    color: var(--ink-strong);
+    transform: translateY(-2px);
+}
+
+.user-bottom-nav-link.active {
+    color: var(--primary-strong);
+}
+
+.user-bottom-nav-link.active svg {
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
+/* Responsive navigation toggle for User layout */
+.user-desktop-nav {
+    display: none !important;
+}
+
+@media (min-width: 768px) {
+    .user-bottom-nav {
+        display: none !important;
+    }
+    .user-desktop-nav {
+        display: flex !important;
+        align-items: center;
+        gap: 1.75rem;
+        margin-left: 2rem;
+    }
+    .user-desktop-nav a {
+        color: var(--ink);
+        font-weight: 700;
+        font-size: 0.92rem;
+        text-decoration: none;
+        position: relative;
+        padding: 0.5rem 0;
+        transition: color 0.2s;
+    }
+    .user-desktop-nav a:hover,
+    .user-desktop-nav a:focus-visible {
+        color: var(--primary);
+    }
+    .user-desktop-nav a.active {
+        color: var(--primary-strong);
+    }
+    .user-desktop-nav a.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--primary);
+        border-radius: 99px;
+    }
+}
+
+/* User Dashboard Cards and Banner */
+.welcome-banner {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%);
+    box-shadow: 0 12px 30px rgba(15, 118, 110, 0.15);
+}
+
+.stat-card {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: .95;
+        transform: scale(1.03);
+    }
+}
+
+.truncate-2-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Bento Grid Admin Styles */
+.bento-card {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bento-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-soft);
+}
+
+.bento-kpi {
+    background: linear-gradient(135deg, rgba(15, 118, 110, 0.04) 0%, transparent 100%), var(--surface) !important;
+}
+
+

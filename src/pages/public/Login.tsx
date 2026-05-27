@@ -41,9 +41,10 @@ export const Login: React.FC = () => {
       if (foundUser.role === 'ADMIN') {
         navigate('/admin/inicio');
       } else {
-        // If it's a student/user, redirect to a default event view or a user panel
-        navigate('/user/evento/evt-2');
+        // If it's a student/user, redirect to their user dashboard
+        navigate('/user/inicio');
       }
+
     } else {
       setErro('CPF ou senha inválidos.');
     }

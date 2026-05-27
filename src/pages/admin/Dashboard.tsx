@@ -60,9 +60,33 @@ export const Dashboard: React.FC = () => {
     percentual: Math.round((d.total / maxMedalTotal) * 100),
   }));
 
-  // General counts
-  const totalCertsLast30Days = certs.length; // mock representation
-  const activeEventsCount = upcomingEvents.length;
+  // General calculations for dashboard Bento Grid
+  const totalInscricoes = participacoes.length;
+  const totalPresentes = participacoes.filter(p => p.presente).length;
+  const taxaPresenca = totalInscricoes > 0 ? Math.round((totalPresentes / totalInscricoes) * 100) : 0;
+  const totalMedalhas = medals.length;
+  const totalCertificados = certs.length;
+
+  // Calculate top discipline by student enrollment engagement
+  const disciplines = db.getDisciplines();
+  const disciplineEngagement: { [key: string]: number } = {};
+
+  events.forEach(e => {
+    if (e.disciplinaId) {
+      const regCount = participacoes.filter(p => p.eventoId === e.id).length;
+      disciplineEngagement[e.disciplinaId] = (disciplineEngagement[e.disciplinaId] || 0) + regCount;
+    }
+  });
+
+  let topDisciplineId = '';
+  let maxEngagement = 0;
+  Object.entries(disciplineEngagement).forEach(([id, count]) => {
+    if (count > maxEngagement) {
+      maxEngagement = count;
+      topDisciplineId = id;
+    }
+  });
+  const topDiscipline = disciplines.find(d => d.id === topDisciplineId);
 
   const [canScroll, setCanScroll] = useState(false);
 
@@ -201,17 +225,81 @@ export const Dashboard: React.FC = () => {
       </section>
 
       <section className="stats-section mt-8" aria-labelledby="stats-title">
-        <h2 id="stats-title" className="text-xl font-bold text-brand-ink-strong mb-4">Estatísticas</h2>
+        <h2 id="stats-title" className="text-xl font-bold text-brand-ink-strong mb-4">Estatísticas do Sistema</h2>
 
-        <div className="stats-grid grid grid-cols-1 md:grid-cols-2 gap-4">
-          <article className="stat-panel bg-brand-surface border border-brand-line rounded-lg p-4 shadow-sm flex flex-col min-h-[260px]">
-            <h3 className="text-sm font-bold text-brand-ink-strong mb-3">Certificados emitidos por evento</h3>
+        <div className="bento-grid grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+          
+          {/* Card 1: Visão Geral (col-span-2) */}
+          <article className="bento-card bento-kpi bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-2 flex flex-col justify-between min-h-[180px]">
+            <div>
+              <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">Visão Geral</span>
+              <h3 className="text-base font-bold text-brand-ink-strong mt-0.5 mb-4">Métricas Consolidadas</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="text-center p-2 bg-brand-surface-soft rounded-lg border border-brand-line/50">
+                <span className="text-xl md:text-2xl font-extrabold text-brand-primary block">{totalInscricoes}</span>
+                <span className="text-[9px] text-brand-muted font-bold uppercase tracking-wider block mt-1">Inscrições</span>
+              </div>
+              <div className="text-center p-2 bg-brand-surface-soft rounded-lg border border-brand-line/50">
+                <span className="text-xl md:text-2xl font-extrabold text-teal-600 block">{totalCertificados}</span>
+                <span className="text-[9px] text-brand-muted font-bold uppercase tracking-wider block mt-1">Diplomas</span>
+              </div>
+              <div className="text-center p-2 bg-brand-surface-soft rounded-lg border border-brand-line/50">
+                <span className="text-xl md:text-2xl font-extrabold text-amber-500 block">{totalMedalhas}</span>
+                <span className="text-[9px] text-brand-muted font-bold uppercase tracking-wider block mt-1">Medalhas</span>
+              </div>
+            </div>
+          </article>
+
+          {/* Card 2: Taxa de Presença (col-span-1) */}
+          <article className="bento-card bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-1 flex flex-col justify-between min-h-[180px]">
+            <div>
+              <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">Engajamento</span>
+              <h3 className="text-base font-bold text-brand-ink-strong mt-0.5 mb-1">Presença Média</h3>
+            </div>
+            <div className="flex flex-col gap-1.5 mt-auto">
+              <div className="flex items-baseline gap-1">
+                <strong className="text-4xl font-extrabold text-brand-ink-strong">{taxaPresenca}%</strong>
+                <span className="text-xs text-brand-muted">comparecimento</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden mt-1 border border-brand-line/30">
+                <div className="bg-brand-primary h-full rounded-full" style={{ width: `${taxaPresenca}%` }} />
+              </div>
+            </div>
+          </article>
+
+          {/* Card 3: Disciplina Destaque (col-span-1) */}
+          <article className="bento-card bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-1 flex flex-col justify-between min-h-[180px]">
+            <div>
+              <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">Atividade Acadêmica</span>
+              <h3 className="text-base font-bold text-brand-ink-strong mt-0.5 mb-2">Disciplina Líder</h3>
+            </div>
+            {topDiscipline ? (
+              <div className="mt-auto">
+                <strong className="text-sm font-extrabold text-brand-primary block truncate-2-lines leading-tight" title={topDiscipline.nome}>
+                  {topDiscipline.nome}
+                </strong>
+                <span className="text-xs text-brand-muted block mt-1">
+                  {maxEngagement} inscrições geradas
+                </span>
+              </div>
+            ) : (
+              <p className="text-xs text-brand-muted mt-auto">Nenhum engajamento registrado.</p>
+            )}
+          </article>
+
+          {/* Card 4: Gráfico de Certificados por Evento (col-span-2) */}
+          <article className="bento-card bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-2 flex flex-col min-h-[280px]">
+            <div>
+              <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">Certificação</span>
+              <h3 className="text-base font-bold text-brand-ink-strong mt-0.5 mb-3">Diplomas por Evento</h3>
+            </div>
             {certsWithPercentage.length > 0 ? (
-              <div className="bar-chart vertical flex-grow grid grid-flow-col gap-3 p-3 bg-brand-surface-soft rounded-lg items-end justify-start overflow-x-auto">
+              <div className="bar-chart vertical flex-grow grid grid-flow-col gap-3 p-3 bg-brand-surface-soft rounded-lg items-end justify-start overflow-x-auto border border-brand-line/30">
                 {certsWithPercentage.map((item, idx) => (
                   <div key={idx} className="bar-item flex flex-col items-center gap-1 w-16 text-center">
                     <div className="w-4 bg-brand-primary rounded-t-sm" style={{ height: `${Math.max(10, item.percentual * 1.5)}px` }} />
-                    <strong className="text-xs text-brand-ink-strong mt-1">{item.total}</strong>
+                    <strong className="text-[11px] text-brand-ink-strong mt-1">{item.total}</strong>
                     <small className="text-[9px] text-brand-muted truncate w-14 block" title={item.label}>
                       {item.label}
                     </small>
@@ -219,53 +307,46 @@ export const Dashboard: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <p className="stat-empty text-brand-muted flex items-center justify-center flex-grow text-sm">
-                Nenhum certificado emitido ainda.
+              <p className="text-brand-muted flex items-center justify-center flex-grow text-xs italic">
+                Nenhum certificado emitido.
               </p>
             )}
           </article>
 
-          <article className="stat-panel bg-brand-surface border border-brand-line rounded-lg p-4 shadow-sm flex flex-col min-h-[260px]">
-            <h3 className="text-sm font-bold text-brand-ink-strong mb-3">Participantes com mais medalhas</h3>
+          {/* Card 5: Ranking de Medalhas (col-span-2) */}
+          <article className="bento-card bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-2 flex flex-col min-h-[280px]">
+            <div>
+              <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">Reconhecimento</span>
+              <h3 className="text-base font-bold text-brand-ink-strong mt-0.5 mb-3">Destaque: Medalhistas</h3>
+            </div>
             {medalsWithPercentage.length > 0 ? (
               <ul className="ranking-list flex flex-col gap-3 justify-center flex-grow" aria-label="Ranking de participantes com mais medalhas">
                 {medalsWithPercentage.map((item, idx) => (
                   <li key={idx} className="grid grid-cols-[100px_1fr] gap-2 items-center text-xs">
-                    <span className="truncate text-brand-ink font-semibold" title={item.label}>{item.label.split(' ')[0] + ' ' + (item.label.split(' ')[1] || '')}</span>
-                    <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                      <div className="bg-brand-accent h-full rounded-full" style={{ width: `${item.percentual}%` }} />
+                    <span className="truncate text-brand-ink font-semibold" title={item.label}>
+                      {item.label.split(' ')[0] + ' ' + (item.label.split(' ')[1] || '')}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-brand-line/30 flex-grow">
+                        <div className="bg-brand-accent h-full rounded-full" style={{ width: `${item.percentual}%` }} />
+                      </div>
+                      <span className="font-bold text-brand-ink-strong min-w-[20px] text-right">
+                        {item.total} 🏅
+                      </span>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="stat-empty text-brand-muted flex items-center justify-center flex-grow text-sm">
-                Nenhuma medalha cadastrada ainda.
+              <p className="text-brand-muted flex items-center justify-center flex-grow text-xs italic">
+                Nenhuma medalha emitida.
               </p>
             )}
           </article>
 
-          <article className="stat-panel compact bg-brand-surface border border-brand-line rounded-lg p-4 shadow-sm flex items-center gap-4">
-            <h3 className="text-sm font-bold text-brand-ink-strong w-1/3">Últimos 30 dias</h3>
-            <div className="metric-row flex items-baseline gap-2 flex-grow">
-              <strong className="text-3xl font-extrabold text-brand-primary">{totalCertsLast30Days}</strong>
-              <span className="text-xs text-brand-muted">
-                certificados emitidos (+5% em relação aos 30 dias anteriores)
-              </span>
-            </div>
-          </article>
-
-          <article className="stat-panel compact bg-brand-surface border border-brand-line rounded-lg p-4 shadow-sm flex items-center gap-4">
-            <h3 className="text-sm font-bold text-brand-ink-strong w-1/3">Eventos ativos</h3>
-            <div className="metric-row flex items-baseline gap-2 flex-grow">
-              <strong className="text-3xl font-extrabold text-brand-primary">{activeEventsCount}</strong>
-              <span className="text-xs text-brand-muted">
-                eventos programados para os próximos 7 dias
-              </span>
-            </div>
-          </article>
         </div>
       </section>
+
     </div>
   );
 };

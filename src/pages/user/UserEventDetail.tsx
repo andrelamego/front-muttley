@@ -87,27 +87,13 @@ export const UserEventDetail: React.FC = () => {
   return (
     <div className="user-event-body min-h-screen py-6">
       <main className="user-event-page max-w-3xl mx-auto px-4">
-        <header className="user-event-topbar flex items-center justify-between py-4 border-b border-brand-line/40">
-          <Link className="brand text-brand-primary text-xl font-extrabold" to="/login">
-            Muttley
+        {/* Back Link to User Home */}
+        <div className="mb-4">
+          <Link to="/user/inicio" className="text-xs font-bold text-brand-primary flex items-center gap-1 hover:underline">
+            ← Voltar para a Página Inicial
           </Link>
-          <div className="flex gap-2">
-            {loggedUser ? (
-              <span className="text-xs font-semibold text-brand-ink">
-                Olá, {loggedUser.nome.split(' ')[0]} 
-                {loggedUser.role === 'ADMIN' && (
-                  <Link to="/admin/inicio" className="ml-2 text-brand-primary font-bold hover:underline">
-                    (Painel)
-                  </Link>
-                )}
-              </span>
-            ) : (
-              <Link className="text-xs font-bold text-brand-primary hover:underline" to="/login">
-                Entrar
-              </Link>
-            )}
-          </div>
-        </header>
+        </div>
+
 
         {success && <div className="alert alert-success my-4">{success}</div>}
         {error && <div className="alert alert-danger my-4">{error}</div>}

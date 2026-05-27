@@ -10,6 +10,10 @@ import CertificateView from './pages/public/CertificateView';
 
 // User Pages
 import UserEventDetail from './pages/user/UserEventDetail';
+import UserDashboard from './pages/user/UserDashboard';
+import UserCertificates from './pages/user/UserCertificates';
+import UserMedals from './pages/user/UserMedals';
+
 
 // Admin Pages
 import Dashboard from './pages/admin/Dashboard';
@@ -40,7 +44,38 @@ const App: React.FC = () => {
         <Route path="/certificados/:codigo" element={<CertificateView />} />
 
         {/* User Routes */}
-        <Route path="/user/evento/:id" element={<UserEventDetail />} />
+        <Route
+          path="/user/inicio"
+          element={
+            <Layout>
+              <UserDashboard />
+            </Layout>
+          }
+        />
+        <Route
+          path="/user/certificados"
+          element={
+            <Layout>
+              <UserCertificates />
+            </Layout>
+          }
+        />
+        <Route
+          path="/user/medalhas"
+          element={
+            <Layout>
+              <UserMedals />
+            </Layout>
+          }
+        />
+        <Route
+          path="/user/evento/:id"
+          element={
+            <Layout>
+              <UserEventDetail />
+            </Layout>
+          }
+        />
 
         {/* Admin Routes with Header & Footer Layout */}
         <Route

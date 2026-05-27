@@ -134,16 +134,16 @@ const INITIAL_LOCAIS: Local[] = [
 const INITIAL_PEOPLE: Person[] = [
   { id: 'usr-1', nome: 'Luciano de Souza', email: 'luciano.souza@fatec.sp.gov.br', telefone: '(11) 98765-4321', cpf: '123.456.789-00', senha: '123', role: 'ADMIN' },
   { id: 'usr-2', nome: 'Ana Paula Costa', email: 'ana.costa@fatec.sp.gov.br', telefone: '(11) 91234-5678', cpf: '111.222.333-44', senha: '123', role: 'USER' },
-  { id: 'usr-3', nome: 'Gabriel Silva Rodrigues', email: 'gabriel.rodrigues@fatec.sp.gov.br', telefone: '(11) 97777-6666', cpf: '222.333.444-55', role: 'USER' },
-  { id: 'usr-4', nome: 'Prof. Carlos Alberto', email: 'carlos.alberto@fatec.sp.gov.br', telefone: '(11) 98888-8888', cpf: '333.444.555-66', role: 'USER' },
-  { id: 'usr-5', nome: 'Beatriz Martinez', email: 'beatriz.m@inovatech.com', telefone: '(11) 99999-1111', cpf: '444.555.666-77', role: 'USER' },
-  { id: 'usr-6', nome: 'Dra. Sandra Regina', email: 'sandra.regina@fatec.sp.gov.br', telefone: '(11) 95555-4444', cpf: '555.666.777-88', role: 'USER' },
-  { id: 'usr-7', nome: 'Marcos Vinicius', email: 'marcos.vini@fatec.sp.gov.br', telefone: '(11) 96666-5555', cpf: '666.777.888-99', role: 'USER' },
-  { id: 'usr-8', nome: 'Felipe Lima', email: 'felipe.lima@fatec.sp.gov.br', telefone: '(11) 95555-2222', cpf: '777.888.999-00', role: 'USER' },
-  { id: 'usr-9', nome: 'Mariana Costa', email: 'mariana.costa@fatec.sp.gov.br', telefone: '(11) 94444-3333', cpf: '888.999.000-11', role: 'USER' },
-  { id: 'usr-10', nome: 'Prof. Reinaldo Silva', email: 'reinaldo.silva@fatec.sp.gov.br', telefone: '(11) 92222-1111', cpf: '999.000.111-22', role: 'USER' },
-  { id: 'usr-11', nome: 'Guilherme Azevedo', email: 'g.azevedo@gmail.com', telefone: '(11) 91111-0000', cpf: '123.123.123-12', role: 'USER' },
-  { id: 'usr-12', nome: 'Patricia Cruz', email: 'patricia.cruz@fatec.sp.gov.br', telefone: '(11) 90000-9999', cpf: '321.321.321-32', role: 'USER' },
+  { id: 'usr-3', nome: 'Gabriel Silva Rodrigues', email: 'gabriel.rodrigues@fatec.sp.gov.br', telefone: '(11) 97777-6666', cpf: '222.333.444-55', senha: '123', role: 'USER' },
+  { id: 'usr-4', nome: 'Prof. Carlos Alberto', email: 'carlos.alberto@fatec.sp.gov.br', telefone: '(11) 98888-8888', cpf: '333.444.555-66', senha: '123', role: 'USER' },
+  { id: 'usr-5', nome: 'Beatriz Martinez', email: 'beatriz.m@inovatech.com', telefone: '(11) 99999-1111', cpf: '444.555.666-77', senha: '123', role: 'USER' },
+  { id: 'usr-6', nome: 'Dra. Sandra Regina', email: 'sandra.regina@fatec.sp.gov.br', telefone: '(11) 95555-4444', cpf: '555.666.777-88', senha: '123', role: 'USER' },
+  { id: 'usr-7', nome: 'Marcos Vinicius', email: 'marcos.vini@fatec.sp.gov.br', telefone: '(11) 96666-5555', cpf: '666.777.888-99', senha: '123', role: 'USER' },
+  { id: 'usr-8', nome: 'Felipe Lima', email: 'felipe.lima@fatec.sp.gov.br', telefone: '(11) 95555-2222', cpf: '777.888.999-00', senha: '123', role: 'USER' },
+  { id: 'usr-9', nome: 'Mariana Costa', email: 'mariana.costa@fatec.sp.gov.br', telefone: '(11) 94444-3333', cpf: '888.999.000-11', senha: '123', role: 'USER' },
+  { id: 'usr-10', nome: 'Prof. Reinaldo Silva', email: 'reinaldo.silva@fatec.sp.gov.br', telefone: '(11) 92222-1111', cpf: '999.000.111-22', senha: '123', role: 'USER' },
+  { id: 'usr-11', nome: 'Guilherme Azevedo', email: 'g.azevedo@gmail.com', telefone: '(11) 91111-0000', cpf: '123.123.123-12', senha: '123', role: 'USER' },
+  { id: 'usr-12', nome: 'Patricia Cruz', email: 'patricia.cruz@fatec.sp.gov.br', telefone: '(11) 90000-9999', cpf: '321.321.321-32', senha: '123', role: 'USER' },
 ];
 
 const INITIAL_STUDENTS: Student[] = [
@@ -354,13 +354,14 @@ const INITIAL_MEDALS: Medal[] = [
   { id: 'med-1', nome: 'Destaque Cybersecurity', descricao: 'Medalha de ouro concedida por demonstrar alta excelência técnica no evento de Inteligência Cibernética.', participacaoId: 'part-1' },
   { id: 'med-2', nome: 'Melhor Solution Architect', descricao: 'Medalha concedida pela Google Cloud por excelente desempenho arquitetural no workshop Cloud Migration.', participacaoId: 'part-9' },
   { id: 'med-3', nome: 'Destaque Banco de Dados', descricao: 'Medalha concedida por melhor projeto de modelagem NewSQL no simpósio de Bancos de Dados.', participacaoId: 'part-8' },
+  { id: 'med-4', nome: 'Destaque Modelagem NoSQL', descricao: 'Concedida por excelente participação e resolução prática de desafios de modelagem e persistência de dados distribuídos.', participacaoId: 'part-7' },
 ];
 
 // Helper database manager class
 class MockDatabase {
   constructor() {
     const version = localStorage.getItem('muttley_db_version');
-    if (version !== 'v2') {
+    if (version !== 'v3') {
       // Clear old muttley keys
       for (let i = localStorage.length - 1; i >= 0; i--) {
         const key = localStorage.key(i);
@@ -368,7 +369,7 @@ class MockDatabase {
           localStorage.removeItem(key);
         }
       }
-      localStorage.setItem('muttley_db_version', 'v2');
+      localStorage.setItem('muttley_db_version', 'v3');
     }
   }
 
