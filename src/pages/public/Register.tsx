@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import apiClient from '../../services/apiClient';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -49,11 +50,7 @@ export const Register: React.FC = () => {
     }
 
     try {
-      const { default: apiClient } = await import('../../services/apiClient');
-      
-      // Realizar o cadastro enviando o DTO AtualizacaoPessoa para o backend
       await apiClient.post('/auth/register', {
-        id: null,
         nome,
         email,
         telefone,

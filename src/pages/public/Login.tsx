@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import apiClient from '../../services/apiClient';
 import db from '../../data/mockDb';
+
+type LoginResponse = {
+  token?: string;
+  accessToken?: string;
+  role?: 'ADMIN' | 'USER';
+  usuario?: string | {
+    id?: string | number;
+    nome?: string;
+    email?: string;
+    telefone?: string;
+    cpf?: string;
+    role?: 'ADMIN' | 'USER';
+  };
+};
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [cpf, setCpf] = useState('');
+  const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    // Check if redirect message exists
     const regMsg = sessionStorage.getItem('muttley_register_msg');
     if (regMsg) {
       setMessage(regMsg);
@@ -18,70 +32,30 @@ export const Login: React.FC = () => {
     }
   }, []);
 
-  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 11) value = value.slice(0, 11);
-    
-    value = value.replace(/(\d{3})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    
-    setCpf(value);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
-    
-    try {
-      let foundUser;
+    db.setLoggedUser(null);
 
-      if (cpf === '123.456.789-00' && senha === '123') {
-        // Bypass backend login for default testing credentials since this user is not in MockDataInitializer
-        foundUser = {
-          id: '1',
-          nome: 'Luciano de Souza',
-          email: 'luciano.souza@fatec.sp.gov.br',
-          telefone: '(11) 98765-4321',
-          cpf: '123.456.789-00',
-          senha: '123',
-          role: 'ADMIN' as const
-        };
-        db.setLoggedUser(foundUser);
-        navigate('/admin/inicio');
-      } else {
-        const { default: apiClient } = await import('../../services/apiClient');
-        
-        // 1. Validar credenciais no backend
-        const loginRes = await apiClient.post('/auth/login', { cpf, senha });
-        
-        // 2. Buscar informações completas da pessoa pelo CPF
-        const people = await db.getPeople();
-        foundUser = people.find(p => p.cpf === cpf);
-        
-        if (foundUser) {
-          db.setLoggedUser(foundUser);
-          if (foundUser.role === 'ADMIN') {
-            navigate('/admin/inicio');
-          } else {
-            navigate('/user/inicio');
-          }
-        } else {
-          // Fallback caso seja um usuário cadastrado manualmente no banco
-          const tempUser = {
-            id: '999',
-            nome: loginRes.data.usuario || 'Usuário',
-            email: '',
-            telefone: '',
-            cpf: cpf,
-            role: 'USER' as const
-          };
-          db.setLoggedUser(tempUser);
-          navigate('/user/inicio');
-        }
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const response = await apiClient.post<LoginResponse>('/auth/login', { email: normalizedEmail, senha });
+      const token = response.data.accessToken || response.data.token;
+      const role = response.data.role || (typeof response.data.usuario === 'object' ? response.data.usuario?.role : undefined) || 'USER';
+      const usuario = response.data.usuario || { email: normalizedEmail, role };
+
+      if (!token) {
+        throw new Error('Token de autenticacao nao retornado pela API.');
       }
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+
+      navigate(role === 'ADMIN' ? '/admin/inicio' : '/user/inicio');
     } catch (err: any) {
-      setErro(err.message || 'CPF ou senha incorretos.');
+      db.setLoggedUser(null);
+      setErro(err.message || 'Email ou senha incorretos.');
     }
   };
 
@@ -93,7 +67,7 @@ export const Login: React.FC = () => {
             Muttley
           </Link>
           <p className="mt-4 text-brand-primary-soft max-w-xs text-sm leading-relaxed">
-            Sistema integrado de eventos acadêmicos, certificados e emissão de medalhas da FATEC Zona Leste.
+            Sistema integrado de eventos academicos, certificados e emissao de medalhas da FATEC Zona Leste.
           </p>
         </section>
 
@@ -108,14 +82,15 @@ export const Login: React.FC = () => {
 
           <form className="event-form auth-form flex flex-col gap-4 !mt-0 !p-0 !border-0 !shadow-none !bg-transparent" onSubmit={handleSubmit}>
             <label className="field">
-              <span className="text-sm font-semibold text-brand-ink-strong">CPF</span>
+              <span className="text-sm font-semibold text-brand-ink-strong">Email</span>
               <input
-                type="text"
-                name="cpf"
-                id="cpf"
-                value={cpf}
-                onChange={handleCpfChange}
-                placeholder="000.000.000-00"
+                type="email"
+                name="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu.email@exemplo.com"
+                autoComplete="email"
                 required
                 className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
               />
@@ -129,6 +104,7 @@ export const Login: React.FC = () => {
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 placeholder="Sua senha"
+                autoComplete="current-password"
                 required
                 className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
               />
@@ -151,7 +127,7 @@ export const Login: React.FC = () => {
 
           <div className="mt-6 text-center text-xs border-t border-brand-line pt-4">
             <p className="text-brand-muted">
-              Para testes (Admin): CPF <strong className="text-brand-ink-strong">123.456.789-00</strong> | Senha <strong className="text-brand-ink-strong">123</strong>
+              Para testes: <strong className="text-brand-ink-strong">ana.souza@email.com</strong> | Senha <strong className="text-brand-ink-strong">muttley123</strong>
             </p>
           </div>
         </section>

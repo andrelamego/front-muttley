@@ -1,30 +1,30 @@
 import apiClient from '../services/apiClient';
 import type {
-  Address,
-  Certificate,
-  Collaborator,
-  Discipline,
-  Event,
+  Aluno,
+  Certificado,
+  Colaborador,
+  Disciplina,
+  Endereco,
+  Evento,
   Local,
-  Medal,
-  Organizer,
-  Participation,
-  Person,
+  Medalha,
+  Organizador,
+  Participacao,
+  Patrocinador,
+  Palestrante,
+  Pessoa,
   Professor,
-  Speaker,
-  Sponsor,
-  Student,
 } from './types';
 
 type Entity = Record<string, any>;
 
 const toId = (value: unknown) => (value === null || value === undefined ? '' : String(value));
 const entityId = (value: Entity | null | undefined, nestedKey?: string) =>
-  toId(value?.id ?? (nestedKey ? value?.[nestedKey]?.id : undefined));
+  toId(nestedKey ? value?.[nestedKey]?.id : value?.id);
 
 const pageContent = <T>(data: T[] | { content?: T[] }) => (Array.isArray(data) ? data : data.content || []);
 
-const normalizePerson = (person: Entity): Person => ({
+const normalizePerson = (person: Entity): Pessoa => ({
   id: toId(person.id),
   nome: person.nome || '',
   email: person.email || '',
@@ -32,9 +32,31 @@ const normalizePerson = (person: Entity): Person => ({
   cpf: person.cpf || '',
   senha: person.senha,
   role: person.cpf === '123.456.789-00' ? 'ADMIN' : 'USER',
+  aluno: person.aluno ? normalizeProfile<Aluno>(person.aluno, {
+    matricula: person.aluno.matricula || '',
+    instituicao: person.aluno.instituicao || '',
+  }) : null,
+  professor: person.professor ? normalizeProfile<Professor>(person.professor, {
+    areaFormacao: person.professor.areaFormacao || '',
+    titulacao: person.professor.titulacao || '',
+  }) : null,
+  palestrante: person.palestrante ? normalizeProfile<Palestrante>(person.palestrante, {
+    empresaAtual: person.palestrante.empresaAtual || '',
+    cargo: person.palestrante.cargo || '',
+    resumoProfissional: person.palestrante.resumoProfissional || '',
+  }) : null,
+  organizador: person.organizador ? normalizeProfile<Organizador>(person.organizador, {
+    instituicao: person.organizador.instituicao || '',
+    cargo: person.organizador.cargo || '',
+  }) : null,
+  colaborador: person.colaborador ? normalizeProfile<Colaborador>(person.colaborador, {
+    funcao: person.colaborador.funcao || '',
+    disponibilidade: person.colaborador.disponibilidade || '',
+    tipo: person.colaborador.tipo || '',
+  }) : null,
 });
 
-const normalizeAddress = (address: Entity): Address => ({
+const normalizeAddress = (address: Entity): Endereco => ({
   id: toId(address.id),
   estado: address.estado || '',
   cidade: address.cidade || '',
@@ -52,7 +74,7 @@ const normalizeLocal = (local: Entity): Local => ({
   enderecoId: entityId(local, 'endereco') || toId(local.enderecoId),
 });
 
-const normalizeDiscipline = (discipline: Entity): Discipline => ({
+const normalizeDiscipline = (discipline: Entity): Disciplina => ({
   id: toId(discipline.id),
   nome: discipline.nome || '',
   descricao: discipline.descricao || '',
@@ -60,13 +82,13 @@ const normalizeDiscipline = (discipline: Entity): Discipline => ({
   professorId: entityId(discipline, 'professor') || toId(discipline.id_professor ?? discipline.professorId),
 });
 
-const normalizeSponsor = (sponsor: Entity): Sponsor => ({
+const normalizeSponsor = (sponsor: Entity): Patrocinador => ({
   id: toId(sponsor.id),
   nome: sponsor.nome || '',
   site: sponsor.site || '',
 });
 
-const normalizeEvent = (event: Entity): Event => ({
+const normalizeEvent = (event: Entity): Evento => ({
   id: toId(event.id),
   tema: event.tema || '',
   data: event.data || '',
@@ -77,20 +99,21 @@ const normalizeEvent = (event: Entity): Event => ({
   patrocinadorId: entityId(event, 'patrocinador') || toId(event.patrocinadorId),
   localId: entityId(event, 'local') || toId(event.localId),
   descricao: event.descricao || '',
-  status: event.status === 'CRIADO' ? 'EM_ANDAMENTO' : event.status || 'EM_ANDAMENTO',
+  status: event.status || 'CRIADO',
   qrCodeUrl: event.qrCodeUrl || '',
 });
 
-const normalizeParticipation = (participation: Entity): Participation => ({
+const normalizeParticipation = (participation: Entity): Participacao => ({
   id: toId(participation.id),
   eventoId: entityId(participation, 'evento') || toId(participation.eventoId),
   pessoaId: entityId(participation, 'pessoa') || toId(participation.pessoaId),
   inscricao: toId(participation.inscricao),
   tipo: participation.tipo || 'Aluno',
   presente: Boolean(participation.presente ?? participation.certificado),
+  pessoa: participation.pessoa ? normalizePerson(participation.pessoa) : null,
 });
 
-const normalizeCertificate = (certificate: Entity): Certificate => ({
+const normalizeCertificate = (certificate: Entity): Certificado => ({
   id: toId(certificate.id),
   participacaoId: entityId(certificate, 'participacao') || toId(certificate.participacaoId),
   dataEmissao: certificate.dataEmissao || '',
@@ -99,7 +122,7 @@ const normalizeCertificate = (certificate: Entity): Certificate => ({
   urlPublica: certificate.urlPublica || `/certificados/${certificate.codigoValidacao || ''}`,
 });
 
-const normalizeMedal = (medal: Entity): Medal => ({
+const normalizeMedal = (medal: Entity): Medalha => ({
   id: toId(medal.id),
   nome: medal.nome || '',
   descricao: medal.descricao || '',
@@ -113,25 +136,57 @@ const normalizeProfile = <T extends { pessoaId: string }>(item: Entity, extra: O
 } as unknown as T);
 
 class ApiDatabase {
-  getLoggedUser(): Person | null {
-    const user = localStorage.getItem('muttley_logged_user');
-    return user ? JSON.parse(user) : null;
+  getLoggedUser(): Pessoa | null {
+    const usuario = localStorage.getItem('usuario');
+    const role = localStorage.getItem('role') as Pessoa['role'] | null;
+
+    if (usuario) {
+      const parsed = JSON.parse(usuario);
+      if (typeof parsed === 'string') {
+        return {
+          id: '',
+          nome: parsed,
+          email: '',
+          telefone: '',
+          cpf: '',
+          senha: null,
+          role: role || 'USER',
+        };
+      }
+
+      return {
+        id: toId(parsed.id),
+        nome: parsed.nome || parsed.name || parsed.email || 'Usuário',
+        email: parsed.email || '',
+        telefone: parsed.telefone || '',
+        cpf: parsed.cpf || '',
+        senha: null,
+        role: (parsed.role || role || 'USER') as Pessoa['role'],
+      };
+    }
+
+    const legacyUser = localStorage.getItem('muttley_logged_user');
+    return legacyUser ? JSON.parse(legacyUser) : null;
   }
 
-  setLoggedUser(user: Person | null) {
+  setLoggedUser(user: Pessoa | null) {
     if (user) {
-      localStorage.setItem('muttley_logged_user', JSON.stringify(user));
+      localStorage.setItem('usuario', JSON.stringify(user));
+      localStorage.setItem('role', user.role);
     } else {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('usuario');
       localStorage.removeItem('muttley_logged_user');
     }
   }
 
-  async getAddresses(): Promise<Address[]> {
+  async getAddresses(): Promise<Endereco[]> {
     const response = await apiClient.get('/admin/enderecos');
     return response.data.map(normalizeAddress);
   }
 
-  async saveAddress(address: Partial<Address>): Promise<void> {
+  async saveAddress(address: Partial<Endereco>): Promise<void> {
     const payload = {
       id: address.id ? Number(address.id) : null,
       estado: address.estado,
@@ -178,15 +233,15 @@ class ApiDatabase {
     await apiClient.delete(`/admin/locais/${id}`);
   }
 
-  async getPeople(): Promise<Person[]> {
+  async getPeople(): Promise<Pessoa[]> {
     const response = await apiClient.get('/admin/pessoas');
     return response.data.map(normalizePerson);
   }
 
-  async getStudents(): Promise<Student[]> {
+  async getStudents(): Promise<Aluno[]> {
     const response = await apiClient.get('/admin/alunos');
     return response.data.map((item: Entity) =>
-      normalizeProfile<Student>(item, {
+      normalizeProfile<Aluno>(item, {
         matricula: item.matricula || '',
         instituicao: item.instituicao || '',
       }),
@@ -203,10 +258,10 @@ class ApiDatabase {
     );
   }
 
-  async getSpeakers(): Promise<Speaker[]> {
+  async getSpeakers(): Promise<Palestrante[]> {
     const response = await apiClient.get('/admin/palestrantes');
     return response.data.map((item: Entity) =>
-      normalizeProfile<Speaker>(item, {
+      normalizeProfile<Palestrante>(item, {
         empresaAtual: item.empresaAtual || '',
         cargo: item.cargo || '',
         resumoProfissional: item.resumoProfissional || '',
@@ -214,20 +269,20 @@ class ApiDatabase {
     );
   }
 
-  async getOrganizers(): Promise<Organizer[]> {
+  async getOrganizers(): Promise<Organizador[]> {
     const response = await apiClient.get('/admin/organizadores');
     return response.data.map((item: Entity) =>
-      normalizeProfile<Organizer>(item, {
+      normalizeProfile<Organizador>(item, {
         instituicao: item.instituicao || '',
         cargo: item.cargo || '',
       }),
     );
   }
 
-  async getCollaborators(): Promise<Collaborator[]> {
+  async getCollaborators(): Promise<Colaborador[]> {
     const response = await apiClient.get('/admin/colaboradores');
     return response.data.map((item: Entity) =>
-      normalizeProfile<Collaborator>(item, {
+      normalizeProfile<Colaborador>(item, {
         funcao: item.funcao || '',
         disponibilidade: item.disponibilidade || '',
         tipo: item.tipo || '',
@@ -235,17 +290,17 @@ class ApiDatabase {
     );
   }
 
-  async getSponsors(): Promise<Sponsor[]> {
+  async getSponsors(): Promise<Patrocinador[]> {
     const response = await apiClient.get('/admin/patrocinadores');
     return response.data.map(normalizeSponsor);
   }
 
-  async getDisciplines(): Promise<Discipline[]> {
+  async getDisciplines(): Promise<Disciplina[]> {
     const response = await apiClient.get('/admin/disciplinas');
     return response.data.map(normalizeDiscipline);
   }
 
-  async saveDiscipline(discipline: Partial<Discipline>): Promise<void> {
+  async saveDiscipline(discipline: Partial<Disciplina>): Promise<void> {
     const payload = {
       id: discipline.id ? Number(discipline.id) : null,
       nome: discipline.nome,
@@ -265,19 +320,19 @@ class ApiDatabase {
     await apiClient.delete(`/admin/disciplinas/${id}`);
   }
 
-  async getEvents(): Promise<Event[]> {
+  async getEvents(): Promise<Evento[]> {
     const response = await apiClient.get('/admin/eventos', {
       params: { tamanho: 1000, ordenar: 'data' },
     });
     return pageContent<Entity>(response.data).map(normalizeEvent);
   }
 
-  async getEventById(id: string): Promise<Event | null> {
+  async getEventById(id: string): Promise<Evento | null> {
     const response = await apiClient.get(`/admin/eventos/${id}`);
     return normalizeEvent(response.data);
   }
 
-  async saveEvent(event: Partial<Event>): Promise<void> {
+  async saveEvent(event: Partial<Evento>): Promise<void> {
     const payload = {
       id: event.id ? Number(event.id) : null,
       tema: event.tema,
@@ -286,7 +341,6 @@ class ApiDatabase {
       horarioInicio: event.horarioInicio,
       horarioFim: event.horarioFim,
       modalidade: event.modalidade === 'HIBRIDO' ? 'ONLINE' : event.modalidade,
-      status: event.status,
       disciplinaId: event.disciplinaId ? Number(event.disciplinaId) : null,
       patrocinadorId: event.patrocinadorId ? Number(event.patrocinadorId) : null,
       localId: event.localId ? Number(event.localId) : null,
@@ -303,17 +357,17 @@ class ApiDatabase {
     await apiClient.delete(`/admin/eventos/${id}`);
   }
 
-  async getParticipations(): Promise<Participation[]> {
+  async getParticipations(): Promise<Participacao[]> {
     const response = await apiClient.get('/participacoes');
     return response.data.map(normalizeParticipation);
   }
 
-  async getEventParticipations(id: string): Promise<Participation[]> {
+  async getEventParticipations(id: string): Promise<Participacao[]> {
     const response = await apiClient.get(`/admin/eventos/${id}/participacoes`);
     return (response.data.participacoes || []).map(normalizeParticipation);
   }
 
-  async saveParticipation(participation: Partial<Participation>): Promise<void> {
+  async saveParticipation(participation: Partial<Participacao>): Promise<void> {
     const existing = await this.getParticipations();
     const nextInscricao = Math.max(1000, ...existing.map((item) => Number(item.inscricao) || 0)) + 1;
     const payload = {
@@ -331,20 +385,25 @@ class ApiDatabase {
     }
   }
 
-  async concludeEvent(eventId: string, presentes: string[]): Promise<void> {
-    await apiClient.post(
+  async concludeEvent(eventId: string, presentes: string[]): Promise<{
+    message: string;
+    certificadosGerados: number;
+    codigosValidacao: string[];
+  }> {
+    const response = await apiClient.post(
       `/admin/eventos/${eventId}/concluir`,
       presentes.map((id) => Number(id)),
     );
+    return response.data;
   }
 
-  async getCertificates(): Promise<Certificate[]> {
+  async getCertificates(): Promise<Certificado[]> {
     const response = await apiClient.get('/admin/certificados');
     return (response.data.certificados || []).map(normalizeCertificate);
   }
 
   async getCertificateByCode(code: string): Promise<{
-    certificado: Certificate;
+    certificado: Certificado;
     linkedinUrl: string;
     raw: Entity;
   }> {
@@ -357,12 +416,12 @@ class ApiDatabase {
     };
   }
 
-  async getMedals(): Promise<Medal[]> {
+  async getMedals(): Promise<Medalha[]> {
     const response = await apiClient.get('/admin/medalhas');
     return response.data.map(normalizeMedal);
   }
 
-  async saveMedal(medal: Partial<Medal>): Promise<void> {
+  async saveMedal(medal: Partial<Medalha>): Promise<void> {
     const payload = {
       id: medal.id ? Number(medal.id) : null,
       nome: medal.nome,
