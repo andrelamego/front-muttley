@@ -1,6 +1,9 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
+import type { Event, Local, Discipline, Sponsor } from '../../data/types';
+import { ButtonLink, EmptyState, EventListSkeleton, PageHeader, StatusBadge } from '../../components/ui';
 
 export const EventList: React.FC = () => {
   const [busca, setBusca] = useState('');
@@ -9,14 +12,36 @@ export const EventList: React.FC = () => {
   const [tamanho, setTamanho] = useState(10);
   const [pagina, setPagina] = useState(0);
   const [message, setMessage] = useState('');
+  const [erro, setErro] = useState('');
 
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Load events
-  const [events, setEvents] = useState(db.getEvents());
-  const locations = db.getLocais();
-  const disciplines = db.getDisciplines();
-  const sponsors = db.getSponsors();
+  // Load state datasets
+  const [events, setEvents] = useState<Event[]>([]);
+  const [locations, setLocations] = useState<Local[]>([]);
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = () => {
+    setLoading(true);
+    Promise.all([
+      db.getEvents(),
+      db.getLocais(),
+      db.getDisciplines(),
+      db.getSponsors()
+    ]).then(([evts, locs, discs, spons]) => {
+      setEvents(evts);
+      setLocations(locs);
+      setDisciplines(discs);
+      setSponsors(spons);
+    }).catch(console.error)
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const activeEvents = useMemo(() => events.filter(e => e.status === 'EM_ANDAMENTO'), [events]);
 
@@ -42,14 +67,17 @@ export const EventList: React.FC = () => {
     }
   };
 
-  const handleCancel = (id: string) => {
+  const handleCancel = async (id: string) => {
     if (window.confirm('Cancelar este evento?')) {
-      const updated = events.map(e => 
-        e.id === id ? { ...e, status: 'CANCELADO' as const } : e
-      );
-      db.saveEvents(updated);
-      setEvents(updated);
-      setMessage('Evento cancelado com sucesso.');
+      try {
+        await db.cancelEvent(id);
+        setMessage('Evento cancelado com sucesso.');
+        // Refresh event list
+        const evts = await db.getEvents();
+        setEvents(evts);
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao cancelar evento.');
+      }
     }
   };
 
@@ -92,16 +120,25 @@ export const EventList: React.FC = () => {
 
   const totalPages = Math.ceil(filteredEvents.length / tamanho);
 
+  if (loading) {
+    return <EventListSkeleton />;
+  }
+
   return (
     <div className="admin-page">
-      <div className="page-title-row">
-        <h1>Eventos</h1>
-        <Link className="new-event-button" to="/admin/eventos/novo">
-          Novo Evento
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow="Gestao academica"
+        title="Eventos"
+        description="Cadastre, acompanhe e conclua atividades academicas com controle de inscricoes e certificados."
+        actions={
+          <ButtonLink to="/admin/eventos/novo" icon={<Plus aria-hidden="true" />}>
+            Novo Evento
+          </ButtonLink>
+        }
+      />
 
       {message && <div className="alert alert-success">{message}</div>}
+      {erro && <div className="alert alert-danger">{erro}</div>}
 
       {activeEvents.length > 0 && (
         <section className="events-section mb-8" aria-labelledby="active-events-title">
@@ -286,6 +323,7 @@ export const EventList: React.FC = () => {
           className="border border-brand-line p-2 rounded-lg text-sm bg-brand-surface"
         >
           <option value="">Todos os status</option>
+          <option value="CRIADO">Criado</option>
           <option value="EM_ANDAMENTO">Em andamento</option>
           <option value="FINALIZADO">Finalizado</option>
           <option value="CANCELADO">Cancelado</option>
@@ -321,9 +359,7 @@ export const EventList: React.FC = () => {
 
       <section className="event-list flex flex-col gap-4">
         {paginatedEvents.length === 0 ? (
-          <p className="text-center text-brand-muted p-8 bg-brand-surface border border-brand-line rounded-lg">
-            Nenhum evento encontrado.
-          </p>
+          <EmptyState title="Nenhum evento encontrado" description="Ajuste os filtros ou cadastre um novo evento." />
         ) : (
           paginatedEvents.map(evento => {
             const local = locations.find(l => l.id === evento.localId);
@@ -357,11 +393,7 @@ export const EventList: React.FC = () => {
                 <div className="event-list-content min-w-0">
                   <h2 className="text-lg font-bold text-brand-ink-strong truncate mb-2">{evento.tema}</h2>
                   <div className="event-tags flex flex-wrap gap-2 text-xs text-brand-muted mb-2">
-                    <span className={`px-2 py-0.5 rounded-full font-bold uppercase ${
-                      isFinalized ? 'bg-slate-100 text-slate-500' : isCancelled ? 'bg-brand-danger-soft text-brand-danger' : 'bg-brand-primary-soft text-brand-primary-strong'
-                    }`}>
-                      {evento.status.replace('_', ' ')}
-                    </span>
+                    <StatusBadge status={evento.status} />
                     {disc && (
                       <span className="flex items-center gap-1">
                         <svg className="w-3.5 h-3.5 text-brand-primary" viewBox="0 0 24 24">

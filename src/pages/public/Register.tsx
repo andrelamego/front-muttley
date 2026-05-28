@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import db from '../../data/mockDb';
+import apiClient from '../../services/apiClient';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ export const Register: React.FC = () => {
     setTelefone(value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
@@ -49,30 +49,21 @@ export const Register: React.FC = () => {
       return;
     }
 
-    const people = db.getPeople();
-    const existing = people.find(p => p.cpf === cpf || p.email === email);
-    if (existing) {
-      setErro('Já existe um usuário cadastrado com este CPF ou e-mail.');
-      return;
+    try {
+      await apiClient.post('/auth/register', {
+        nome,
+        email,
+        telefone,
+        cpf,
+        senha
+      });
+
+      // Salva mensagem de sucesso e redireciona
+      sessionStorage.setItem('muttley_register_msg', 'Cadastro realizado com sucesso! Faça login.');
+      navigate('/login');
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao realizar cadastro.');
     }
-
-    // Add new user
-    const newUser = {
-      id: `usr-${Date.now()}`,
-      nome,
-      email,
-      telefone,
-      cpf,
-      senha,
-      role: 'USER' as const,
-    };
-
-    const updatedPeople = [...people, newUser];
-    db.savePeople(updatedPeople);
-
-    // Save success message in sessionStorage
-    sessionStorage.setItem('muttley_register_msg', 'Cadastro realizado com sucesso! Faça login.');
-    navigate('/login');
   };
 
   return (

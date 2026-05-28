@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import { AutocompleteInput } from '../../components/AutocompleteInput';
+import type { Discipline, Sponsor, Local, Participation, Person, StatusEvento } from '../../data/types';
+import { FormSkeleton } from '../../components/ui';
 
 export const EventForm: React.FC = () => {
   const navigate = useNavigate();
@@ -16,87 +18,118 @@ export const EventForm: React.FC = () => {
   const [patrocinadorId, setPatrocinadorId] = useState('');
   const [localId, setLocalId] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [status, setStatus] = useState<'EM_ANDAMENTO' | 'FINALIZADO' | 'CANCELADO'>('EM_ANDAMENTO');
+  const [eventStatus, setEventStatus] = useState<StatusEvento>('CRIADO');
+  
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [locais, setLocais] = useState<Local[]>([]);
+  const [participacoes, setParticipacoes] = useState<Participation[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
+  
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
   const [step, setStep] = useState(1);
 
-  // Load existing event
+  // Load existing event and dropdown details
   useEffect(() => {
-    if (id) {
-      const events = db.getEvents();
-      const found = events.find(e => e.id === id);
-      if (found) {
-        setTema(found.tema);
-        setData(found.data);
-        setHorarioInicio(found.horarioInicio);
-        setHorarioFim(found.horarioFim);
-        setModalidade(found.modalidade);
-        setDisciplinaId(found.disciplinaId || '');
-        setPatrocinadorId(found.patrocinadorId || '');
-        setLocalId(found.localId || '');
-        setDescricao(found.descricao || '');
-        setStatus(found.status);
-      } else {
-        setErro('Evento não encontrado.');
+    const init = async () => {
+      setLoading(true);
+      try {
+        const [discs, sps, locs, pps] = await Promise.all([
+          db.getDisciplines(),
+          db.getSponsors(),
+          db.getLocais(),
+          db.getPeople()
+        ]);
+        setDisciplines(discs);
+        setSponsors(sps);
+        setLocais(locs);
+        setPeople(pps);
+
+        if (id) {
+          try {
+            const found = await db.getEventById(id);
+            if (found) {
+              setTema(found.tema);
+              setData(found.data);
+              setHorarioInicio(found.horarioInicio);
+              setHorarioFim(found.horarioFim);
+              setModalidade(found.modalidade);
+              setDisciplinaId(found.disciplinaId || '');
+              setPatrocinadorId(found.patrocinadorId || '');
+              setLocalId(found.localId || '');
+              setDescricao(found.descricao || '');
+              setEventStatus(found.status);
+
+              // Try to load event-specific participations
+              const parts = await db.getEventParticipations(id);
+              setParticipacoes(parts);
+            } else {
+              setErro('Evento não encontrado.');
+            }
+          } catch (err) {
+            // Fallback for finalized events since /participacoes endpoint might block
+            const events = await db.getEvents();
+            const found = events.find(e => e.id === id);
+            if (found) {
+              setTema(found.tema);
+              setData(found.data);
+              setHorarioInicio(found.horarioInicio);
+              setHorarioFim(found.horarioFim);
+              setModalidade(found.modalidade);
+              setDisciplinaId(found.disciplinaId || '');
+              setPatrocinadorId(found.patrocinadorId || '');
+              setLocalId(found.localId || '');
+              setDescricao(found.descricao || '');
+              setEventStatus(found.status);
+
+              const allParts = await db.getParticipations();
+              setParticipacoes(allParts.filter(p => p.eventoId === id));
+            } else {
+              setErro('Evento não encontrado.');
+            }
+          }
+        }
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao carregar dados do formulário.');
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+    init();
   }, [id]);
 
-  // Load data for dropdowns
-  const disciplines = db.getDisciplines();
-  const sponsors = db.getSponsors();
-  const locais = db.getLocais();
-
-  // Load participations if editing
-  const participacoes = db.getParticipations().filter(p => p.eventoId === id);
-  const people = db.getPeople();
-
   const participacaoList = participacoes.map(part => {
-    const person = people.find(p => p.id === part.pessoaId);
+    const person = part.pessoa || people.find(p => p.id === part.pessoaId);
     return {
       id: part.id,
       inscricao: part.inscricao,
-      nome: person ? person.nome : 'Participante não informado',
+      nome: person?.nome || 'Participante não informado',
       tipo: part.tipo,
-      email: person ? person.email : '-',
+      email: person?.email || '-',
     };
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+  };
+
+  const handleSave = async () => {
     setErro('');
+
+    if (step !== 3) {
+      return;
+    }
 
     if (!tema || !data || !horarioInicio || !horarioFim || !modalidade) {
       setErro('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
-    const events = db.getEvents();
-
-    if (id) {
-      // Edit
-      const updated = events.map(e => 
-        e.id === id 
-          ? { 
-              ...e, 
-              tema, 
-              data, 
-              horarioInicio, 
-              horarioFim, 
-              modalidade, 
-              disciplinaId: disciplinaId || undefined, 
-              patrocinadorId: patrocinadorId || undefined, 
-              localId: localId || undefined, 
-              descricao,
-              status
-            } 
-          : e
-      );
-      db.saveEvents(updated);
-    } else {
-      // New
-      const newEvent = {
-        id: `evt-${Date.now()}`,
+    try {
+      setLoading(true);
+      await db.saveEvent({
+        id: id || undefined,
         tema,
         data,
         horarioInicio,
@@ -106,16 +139,19 @@ export const EventForm: React.FC = () => {
         patrocinadorId: patrocinadorId || undefined,
         localId: localId || undefined,
         descricao,
-        status: 'EM_ANDAMENTO' as const,
-        qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=muttley-evt-${Date.now()}`,
-      };
-      db.saveEvents([...events, newEvent]);
+      });
+      navigate('/admin/eventos');
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao salvar o evento.');
+      setLoading(false);
     }
-
-    navigate('/admin/eventos');
   };
 
-  const isFinalized = status === 'FINALIZADO';
+  if (loading && step === 1 && !tema) {
+    return <div className="admin-page"><FormSkeleton fields={5} steps /></div>;
+  }
+
+  const isFinalized = eventStatus === 'FINALIZADO';
 
   const disciplineOptions = disciplines.map(d => ({ id: d.id, label: d.nome }));
   const sponsorOptions = sponsors.map(s => ({ id: s.id, label: s.nome }));
@@ -228,7 +264,7 @@ export const EventForm: React.FC = () => {
         })}
       </div>
 
-      <form className="event-form" onSubmit={handleSubmit}>
+      <form className="event-form" onSubmit={handleFormSubmit}>
         {step === 1 && (
           <div className="form-grid">
             <label className="field col-span-2">
@@ -343,22 +379,6 @@ export const EventForm: React.FC = () => {
                 disabled={isFinalized}
               />
             </div>
-
-            {id && (
-              <label className="field col-span-2 description-field">
-                <span>Status:*</span>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
-                  disabled={isFinalized}
-                  required
-                >
-                  <option value="EM_ANDAMENTO">Em andamento</option>
-                  <option value="FINALIZADO">Finalizado</option>
-                  <option value="CANCELADO">Cancelado</option>
-                </select>
-              </label>
-            )}
           </div>
         )}
 
@@ -387,8 +407,8 @@ export const EventForm: React.FC = () => {
               </button>
             ) : (
               !isFinalized && (
-                <button className="primary-action" type="submit">
-                  {id ? 'Salvar alterações' : 'Criar evento'}
+                <button className="primary-action" type="button" disabled={loading} onClick={handleSave}>
+                  {loading ? 'Salvando...' : id ? 'Salvar alterações' : 'Criar evento'}
                 </button>
               )
             )}
@@ -409,7 +429,8 @@ export const EventForm: React.FC = () => {
               <p>Nenhuma participação cadastrada para este evento.</p>
             </div>
           ) : (
-            <table className="participants-table">
+            <div className="ui-table-wrap">
+            <table className="participants-table event-participants-table">
               <thead>
                 <tr>
                   <th>Inscrição</th>
@@ -440,6 +461,7 @@ export const EventForm: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </section>
       )}

@@ -1,16 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
+import type { Event, Participation, Discipline, Sponsor, Local, Address } from '../../data/types';
 
 export const UserEventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  
+  const [event, setEvent] = useState<Event | null>(null);
+  const [participacoes, setParticipacoes] = useState<Participation[]>([]);
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [locais, setLocais] = useState<Local[]>([]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Find event
-  const events = db.getEvents();
-  const event = events.find(e => e.id === id) || events[0]; // fallback to first event if not found
+  const loggedUser = db.getLoggedUser();
+
+  const loadData = () => {
+    if (!id) return;
+    setLoading(true);
+    
+    Promise.all([
+      db.getEventById(id).catch(() => null),
+      db.getParticipations(),
+      db.getDisciplines(),
+      db.getSponsors(),
+      db.getLocais(),
+      db.getAddresses()
+    ]).then(([evt, parts, discs, spons, locs, addrs]) => {
+      setEvent(evt);
+      setParticipacoes(parts);
+      setDisciplines(discs);
+      setSponsors(spons);
+      setLocais(locs);
+      setAddresses(addrs);
+    }).catch(console.error)
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
+      </div>
+    );
+  }
 
   if (!event) {
     return (
@@ -25,10 +66,6 @@ export const UserEventDetail: React.FC = () => {
     );
   }
 
-  // Find logged user to see if they are enrolled
-  const loggedUser = db.getLoggedUser();
-  const participacoes = db.getParticipations();
-  
   // Check if already registered
   const userPart = loggedUser 
     ? participacoes.find(p => p.eventoId === event.id && p.pessoaId === loggedUser.id)
@@ -42,7 +79,7 @@ export const UserEventDetail: React.FC = () => {
   const day = event.data ? dateObj.getDate() + 1 : 12; // adjustment for UTC conversion shift
   const monthName = event.data ? dateObj.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '') : 'mai';
 
-  const handleEnroll = () => {
+  const handleEnroll = async () => {
     if (!loggedUser) {
       // Save redirect target
       sessionStorage.setItem('muttley_redirect_url', `/user/evento/${event.id}`);
@@ -51,37 +88,27 @@ export const UserEventDetail: React.FC = () => {
     }
 
     try {
-      const parts = db.getParticipations();
-      // Generate registration number
-      const inscricaoNum = String(1000 + parts.length + 1);
-      
       const newPart = {
-        id: `part-${Date.now()}`,
         eventoId: event.id,
         pessoaId: loggedUser.id,
-        inscricao: inscricaoNum,
-        tipo: 'Aluno' as const, // default type
-        presente: false
+        tipo: 'Aluno' as const,
       };
 
-      db.saveParticipations([...parts, newPart]);
-      setSuccess(`Inscrição realizada com sucesso! Código da inscrição: #${inscricaoNum}`);
-    } catch (err) {
-      setError('Erro ao realizar inscrição.');
+      await db.saveParticipation(newPart);
+      setSuccess('Inscrição realizada com sucesso!');
+      
+      // Reload participations
+      const updatedParts = await db.getParticipations();
+      setParticipacoes(updatedParts);
+    } catch (err: any) {
+      setError(err.message || 'Erro ao realizar inscrição.');
     }
   };
 
   // Find linked models
-  const disciplines = db.getDisciplines();
   const discipline = disciplines.find(d => d.id === event.disciplinaId);
-
-  const sponsors = db.getSponsors();
   const sponsor = sponsors.find(s => s.id === event.patrocinadorId);
-
-  const locais = db.getLocais();
   const local = locais.find(l => l.id === event.localId);
-
-  const addresses = db.getAddresses();
   const address = local ? addresses.find(a => a.id === local.enderecoId) : null;
 
   return (
@@ -93,7 +120,6 @@ export const UserEventDetail: React.FC = () => {
             ← Voltar para a Página Inicial
           </Link>
         </div>
-
 
         {success && <div className="alert alert-success my-4">{success}</div>}
         {error && <div className="alert alert-danger my-4">{error}</div>}

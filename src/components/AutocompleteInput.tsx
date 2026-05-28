@@ -29,7 +29,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 
   // Synchronize initial input text if a value is selected
   useEffect(() => {
-    const selectedOption = options.find(opt => opt.id === value);
+    const selectedOption = options.find(opt => String(opt.id) === String(value));
     if (selectedOption) {
       setQuery(selectedOption.label);
     } else if (!value) {
@@ -66,8 +66,8 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       e.preventDefault();
       setHighlightedIndex(prev => (prev > 0 ? prev - 1 : 0));
     } else if (e.key === 'Enter') {
+      e.preventDefault();
       if (isOpen && highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
-        e.preventDefault();
         const selected = filteredOptions[highlightedIndex];
         onChange(selected.id);
         setQuery(selected.label);
@@ -79,7 +79,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   };
 
   const handleSelect = (option: Option) => {
-    onChange(option.id);
+    onChange(String(option.id));
     setQuery(option.label);
     setIsOpen(false);
   };
@@ -129,7 +129,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       {isOpen && !disabled && filteredOptions.length > 0 && (
         <ul className="absolute left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-brand-surface border border-brand-line rounded-lg shadow-lg z-50 py-1 text-sm">
           {filteredOptions.map((opt, index) => {
-            const isSelected = opt.id === value;
+            const isSelected = String(opt.id) === String(value);
             const isHighlighted = index === highlightedIndex;
 
             return (

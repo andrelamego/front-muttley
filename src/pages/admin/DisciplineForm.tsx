@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
+import type { Professor, Person } from '../../data/types';
+import { FormSkeleton } from '../../components/ui';
 
 export const DisciplineForm: React.FC = () => {
   const navigate = useNavigate();
@@ -10,28 +12,42 @@ export const DisciplineForm: React.FC = () => {
   const [turno, setTurno] = useState('');
   const [professorId, setProfessorId] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [professors, setProfessors] = useState<Professor[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
 
-  // Load existing discipline if in edit mode
+  // Load existing discipline and professor options
   useEffect(() => {
-    if (id) {
-      const disciplines = db.getDisciplines();
-      const found = disciplines.find(d => d.id === id);
-      if (found) {
-        setNome(found.nome);
-        setTurno(found.turno);
-        setProfessorId(found.professorId);
-        setDescricao(found.descricao);
-      } else {
-        setErro('Disciplina não encontrada.');
+    const init = async () => {
+      setLoading(true);
+      try {
+        const profs = await db.getProfessors();
+        const ppl = await db.getPeople();
+        setProfessors(profs);
+        setPeople(ppl);
+
+        if (id) {
+          const disciplines = await db.getDisciplines();
+          const found = disciplines.find(d => d.id === id);
+          if (found) {
+            setNome(found.nome);
+            setTurno(found.turno);
+            setProfessorId(found.professorId);
+            setDescricao(found.descricao);
+          } else {
+            setErro('Disciplina não encontrada.');
+          }
+        }
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao carregar dados.');
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+    init();
   }, [id]);
 
-  // Load professors for selection
-  const professors = db.getProfessors();
-  const people = db.getPeople();
-  
   const professorList = professors.map(prof => {
     const person = people.find(p => p.id === prof.pessoaId);
     return {
@@ -40,7 +56,7 @@ export const DisciplineForm: React.FC = () => {
     };
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
@@ -49,28 +65,25 @@ export const DisciplineForm: React.FC = () => {
       return;
     }
 
-    const disciplines = db.getDisciplines();
-    
-    if (id) {
-      // Edit
-      const updated = disciplines.map(d => 
-        d.id === id ? { ...d, nome, turno, professorId, descricao } : d
-      );
-      db.saveDisciplines(updated);
-    } else {
-      // New
-      const newDisc = {
-        id: `disc-${Date.now()}`,
+    try {
+      const payload = {
+        id: id || undefined,
         nome,
         turno,
         professorId,
         descricao,
       };
-      db.saveDisciplines([...disciplines, newDisc]);
+      
+      await db.saveDiscipline(payload);
+      navigate('/admin/disciplinas');
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao salvar disciplina.');
     }
-
-    navigate('/admin/disciplinas');
   };
+
+  if (loading) {
+    return <div className="admin-page"><FormSkeleton fields={4} /></div>;
+  }
 
   return (
     <div className="admin-page">

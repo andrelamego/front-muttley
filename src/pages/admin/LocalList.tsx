@@ -1,23 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
+import type { Local, Address } from '../../data/types';
+import { ButtonLink, PageHeader, TablePageSkeleton } from '../../components/ui';
 
 export const LocalList: React.FC = () => {
-  const [locais, setLocais] = useState(db.getLocais());
-  const [addresses, setAddresses] = useState(db.getAddresses());
+  const [locais, setLocais] = useState<Local[]>([]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [erro, setErro] = useState('');
 
-  const handleDeleteLocal = (id: string) => {
+  const loadData = () => {
+    setLoading(true);
+    Promise.all([
+      db.getLocais(),
+      db.getAddresses()
+    ]).then(([locs, addrs]) => {
+      setLocais(locs);
+      setAddresses(addrs);
+    }).catch(console.error)
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleDeleteLocal = async (id: string) => {
     if (window.confirm('Excluir este local?')) {
-      const updated = locais.filter(l => l.id !== id);
-      db.saveLocais(updated);
-      setLocais(updated);
-      setMessage('Local excluído com sucesso.');
+      try {
+        await db.deleteLocal(id);
+        setLocais(prev => prev.filter(l => l.id !== id));
+        setMessage('Local excluído com sucesso.');
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao excluir local.');
+      }
     }
   };
 
-  const handleDeleteAddress = (id: string) => {
+  const handleDeleteAddress = async (id: string) => {
     // Check if address is in use
     const isUsed = locais.some(l => l.enderecoId === id);
     if (isUsed) {
@@ -26,10 +49,13 @@ export const LocalList: React.FC = () => {
     }
 
     if (window.confirm('Excluir este endereço?')) {
-      const updated = addresses.filter(a => a.id !== id);
-      db.saveAddresses(updated);
-      setAddresses(updated);
-      setMessage('Endereço excluído com sucesso.');
+      try {
+        await db.deleteAddress(id);
+        setAddresses(prev => prev.filter(a => a.id !== id));
+        setMessage('Endereço excluído com sucesso.');
+      } catch (err: any) {
+        setErro(err.message || 'Erro ao excluir endereço.');
+      }
     }
   };
 
@@ -38,14 +64,22 @@ export const LocalList: React.FC = () => {
     return addr ? `${addr.logradouro}, ${addr.numero} - ${addr.cidade}` : '-';
   };
 
+  if (loading) {
+    return <TablePageSkeleton columns={5} rows={5} />;
+  }
+
   return (
     <div className="admin-page">
-      <div className="page-title-row">
-        <h1>Locais</h1>
-        <Link className="new-event-button" to="/admin/locais/novo">
-          Novo local
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow="Infraestrutura"
+        title="Locais"
+        description="Gerencie salas, auditorios, capacidade e enderecos usados nos eventos."
+        actions={
+          <ButtonLink to="/admin/locais/novo" icon={<Plus aria-hidden="true" />}>
+            Novo local
+          </ButtonLink>
+        }
+      />
 
       {message && <div className="alert alert-success">{message}</div>}
       {erro && <div className="alert alert-danger">{erro}</div>}

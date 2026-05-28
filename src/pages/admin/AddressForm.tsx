@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
+import { FormSkeleton } from '../../components/ui';
 
 export const AddressForm: React.FC = () => {
   const navigate = useNavigate();
@@ -12,27 +13,38 @@ export const AddressForm: React.FC = () => {
   const [numero, setNumero] = useState('');
   const [logradouro, setLogradouro] = useState('');
   const [complemento, setComplemento] = useState('');
+  const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState('');
 
   // Load existing address
   useEffect(() => {
     if (id) {
-      const addresses = db.getAddresses();
-      const found = addresses.find(a => a.id === id);
-      if (found) {
-        setEstado(found.estado);
-        setCidade(found.cidade);
-        setBairro(found.bairro);
-        setNumero(found.numero);
-        setLogradouro(found.logradouro);
-        setComplemento(found.complemento || '');
-      } else {
-        setErro('Endereço não encontrado.');
-      }
+      const loadAddress = async () => {
+        setLoading(true);
+        try {
+          const addresses = await db.getAddresses();
+          const found = addresses.find(a => a.id === id);
+          if (found) {
+            setEstado(found.estado);
+            setCidade(found.cidade);
+            setBairro(found.bairro);
+            setNumero(found.numero);
+            setLogradouro(found.logradouro);
+            setComplemento(found.complemento || '');
+          } else {
+            setErro('Endereço não encontrado.');
+          }
+        } catch (err: any) {
+          setErro(err.message || 'Erro ao carregar endereço.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadAddress();
     }
   }, [id]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
@@ -41,30 +53,27 @@ export const AddressForm: React.FC = () => {
       return;
     }
 
-    const addresses = db.getAddresses();
-
-    if (id) {
-      // Edit
-      const updated = addresses.map(a => 
-        a.id === id ? { ...a, estado: estado.toUpperCase().substring(0, 2), cidade, bairro, numero, logradouro, complemento } : a
-      );
-      db.saveAddresses(updated);
-    } else {
-      // New
-      const newAddr = {
-        id: `addr-${Date.now()}`,
+    try {
+      const payload = {
+        id: id || undefined,
         estado: estado.toUpperCase().substring(0, 2),
         cidade,
         bairro,
-        numero,
+        numero: String(Number(numero)),
         logradouro,
-        complemento,
+        complemento: complemento.trim() || '—', // Ensure non-blank complemento to satisfy @NotBlank backend validation
       };
-      db.saveAddresses([...addresses, newAddr]);
-    }
 
-    navigate('/admin/locais');
+      await db.saveAddress(payload);
+      navigate('/admin/locais');
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao salvar endereço.');
+    }
   };
+
+  if (loading) {
+    return <div className="admin-page"><FormSkeleton fields={6} /></div>;
+  }
 
   return (
     <div className="admin-page">
@@ -111,7 +120,7 @@ export const AddressForm: React.FC = () => {
           <label className="field">
             <span>Número:*</span>
             <input
-              type="text"
+              type="number"
               value={numero}
               onChange={(e) => setNumero(e.target.value)}
               placeholder="Ex: 100"

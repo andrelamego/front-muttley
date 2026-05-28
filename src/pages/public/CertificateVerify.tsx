@@ -7,17 +7,16 @@ export const CertificateVerify: React.FC = () => {
   const [codigo, setCodigo] = useState('');
   const [erro, setErro] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
     const formattedCode = codigo.trim().toUpperCase();
-    const certs = db.getCertificates();
-    const found = certs.find(c => c.codigoValidacao.toUpperCase() === formattedCode);
-
-    if (found) {
-      navigate(`/certificados/${found.codigoValidacao}`);
-    } else {
+    try {
+      // Validar o certificado chamando a API diretamente
+      await db.getCertificateByCode(formattedCode);
+      navigate(`/certificados/${formattedCode}`);
+    } catch (err: any) {
       setErro('Certificado não encontrado. Verifique o código e tente novamente.');
     }
   };

@@ -1,0 +1,147 @@
+export interface Endereco {
+  id: string;
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  complemento?: string;
+}
+
+export interface Local {
+  id: string;
+  nome: string;
+  descricao: string;
+  capacidade: number;
+  enderecoId: string;
+  endereco?: Endereco | null;
+}
+
+export interface Aluno {
+  id: string;
+  pessoaId: string;
+  matricula: string;
+  instituicao: string;
+}
+
+export interface Professor {
+  id: string;
+  pessoaId: string;
+  areaFormacao: string;
+  titulacao: string;
+}
+
+export interface Palestrante {
+  id: string;
+  pessoaId: string;
+  empresaAtual: string;
+  cargo: string;
+  resumoProfissional: string;
+}
+
+export interface Organizador {
+  id: string;
+  pessoaId: string;
+  instituicao: string;
+  cargo: string;
+}
+
+export interface Colaborador {
+  id: string;
+  pessoaId: string;
+  funcao: string;
+  disponibilidade: string;
+  tipo: string;
+}
+
+export interface Pessoa {
+  id: string;
+  nome: string;
+  email: string;
+  telefone: string;
+  cpf: string;
+  senha?: string | null;
+  role: 'ADMIN' | 'USER';
+  aluno?: Aluno | null;
+  professor?: Professor | null;
+  palestrante?: Palestrante | null;
+  organizador?: Organizador | null;
+  colaborador?: Colaborador | null;
+}
+
+export interface Disciplina {
+  id: string;
+  nome: string;
+  descricao: string;
+  turno: string;
+  professorId: string;
+  professor?: Professor | null;
+}
+
+export interface Patrocinador {
+  id: string;
+  nome: string;
+  site?: string;
+}
+
+export type StatusEvento = 'CRIADO' | 'EM_ANDAMENTO' | 'FINALIZADO' | 'CANCELADO';
+export type ModalidadeEvento = 'PRESENCIAL' | 'ONLINE' | 'HIBRIDO';
+
+export interface Evento {
+  id: string;
+  tema: string;
+  data: string;
+  horarioInicio: string;
+  horarioFim: string;
+  modalidade: ModalidadeEvento;
+  disciplinaId?: string;
+  patrocinadorId?: string;
+  localId?: string;
+  descricao: string;
+  status: StatusEvento;
+  qrCodeUrl?: string;
+  disciplina?: Disciplina | null;
+  patrocinador?: Patrocinador | null;
+  local?: Local | null;
+}
+
+export interface Participacao {
+  id: string;
+  eventoId: string;
+  pessoaId: string;
+  inscricao: string;
+  tipo: 'Aluno' | 'Professor' | 'Palestrante' | 'Organizador' | 'Colaborador';
+  presente: boolean;
+  pessoa?: Pessoa | null;
+}
+
+export interface Certificado {
+  id: string;
+  participacaoId: string;
+  dataEmissao: string;
+  assinatura: string;
+  codigoValidacao: string;
+  urlPublica: string;
+}
+
+export interface Medalha {
+  id: string;
+  nome: string;
+  descricao: string;
+  participacaoId: string;
+}
+
+export type Address = Endereco;
+export type Person = Pessoa;
+export type Student = Aluno;
+export type Speaker = Palestrante;
+export type Organizer = Organizador;
+export type Collaborator = Colaborador;
+export type Discipline = Disciplina;
+export type Sponsor = Patrocinador;
+export type EventStatus = StatusEvento;
+export type EventModality = ModalidadeEvento;
+export type Event = Evento;
+export type Participation = Participacao;
+export type Certificate = Certificado;
+export type Medal = Medalha;

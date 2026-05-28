@@ -1,20 +1,48 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import db from '../../data/mockDb';
+import type { Event, Certificate, Participation, Person, Local } from '../../data/types';
+import { CertificatesSkeleton, PageHeader } from '../../components/ui';
 
 export const CertificateList: React.FC = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
 
+  const [events, setEvents] = useState<Event[]>([]);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [participacoes, setParticipacoes] = useState<Participation[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
+  const [locais, setLocais] = useState<Local[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      try {
+        const [evts, certs, parts, pps, locs] = await Promise.all([
+          db.getEvents(),
+          db.getCertificates(),
+          db.getParticipations(),
+          db.getPeople(),
+          db.getLocais()
+        ]);
+        setEvents(evts);
+        setCertificates(certs);
+        setParticipacoes(parts);
+        setPeople(pps);
+        setLocais(locs);
+      } catch (err) {
+        console.error('Error loading certificates list:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
+  }, []);
+
   // Load events waiting for certificate (status = EM_ANDAMENTO)
-  const events = db.getEvents();
   const pendingEvents = events.filter(e => e.status === 'EM_ANDAMENTO');
 
-  // Load latest certificates
-  const certs = db.getCertificates();
-  const participacoes = db.getParticipations();
-  const people = db.getPeople();
-
-  const latestCerts = certs.map(c => {
+  const latestCerts = certificates.map(c => {
     const part = participacoes.find(p => p.id === c.participacaoId);
     const person = part ? people.find(p => p.id === part.pessoaId) : null;
     const event = part ? events.find(e => e.id === part.eventoId) : null;
@@ -42,7 +70,7 @@ export const CertificateList: React.FC = () => {
     checkScroll();
     window.addEventListener('resize', checkScroll);
     return () => window.removeEventListener('resize', checkScroll);
-  }, [pendingEvents]);
+  }, [events]);
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
@@ -51,11 +79,18 @@ export const CertificateList: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return <CertificatesSkeleton />;
+  }
+
   return (
     <div className="admin-page certificates-page">
-      <div className="page-title-row">
-        <h1>Certificados</h1>
-      </div>
+      <PageHeader
+        eyebrow="Certificacao"
+        title="Certificados"
+        description="Conclua eventos, gere certificados e acompanhe os ultimos documentos emitidos."
+        compact
+      />
 
       <section className="events-section mb-8" aria-labelledby="pending-certificates-title">
         <div className="section-heading flex items-center justify-between mb-4">
@@ -81,7 +116,7 @@ export const CertificateList: React.FC = () => {
 
             <div className="events-row scroll-smooth" ref={carouselRef}>
               {pendingEvents.map(evento => {
-                const local = db.getLocais().find(l => l.id === evento.localId);
+                const local = locais.find(l => l.id === evento.localId);
                 const dateObj = new Date(evento.data);
                 const day = evento.data ? dateObj.getDate() + 1 : 12;
                 const month = evento.data ? dateObj.toLocaleDateString('pt-BR', { month: '2-digit' }) : '05';
