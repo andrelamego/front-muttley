@@ -17,6 +17,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isAdmin = path.startsWith('/admin')
   const isUserPage = path.startsWith('/user')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   const handleLogout = () => {
     db.setLoggedUser(null)
@@ -25,8 +26,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   if (isAdmin) {
     return (
-      <div className="admin-layout-wrapper">
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <div className={`admin-layout-wrapper ${isSidebarCollapsed ? 'sidebar-is-collapsed' : ''}`}>
+        <Sidebar
+          isOpen={isSidebarOpen}
+          isCollapsed={isSidebarCollapsed}
+          onClose={() => setIsSidebarOpen(false)}
+          onToggleCollapsed={() => setIsSidebarCollapsed((value) => !value)}
+        />
         <button
           type="button"
           aria-label="Fechar navegacao"

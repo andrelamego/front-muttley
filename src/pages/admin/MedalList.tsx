@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { Medal, Participation, Person, Event } from '../../data/types';
-import { ButtonLink, LoadingState, PageHeader } from '../../components/ui';
+import { ButtonLink, PageHeader, TablePageSkeleton } from '../../components/ui';
 
 export const MedalList: React.FC = () => {
   const [medals, setMedals] = useState<Medal[]>([]);
@@ -64,7 +64,7 @@ export const MedalList: React.FC = () => {
   };
 
   if (loading && medals.length === 0) {
-    return <LoadingState label="Carregando medalhas" />;
+    return <TablePageSkeleton columns={5} rows={6} />;
   }
 
   return (

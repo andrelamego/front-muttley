@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { Discipline, Professor, Person } from '../../data/types';
-import { ButtonLink, LoadingState, PageHeader } from '../../components/ui';
+import { ButtonLink, PageHeader, TablePageSkeleton } from '../../components/ui';
 
 export const DisciplineList: React.FC = () => {
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
@@ -50,7 +50,7 @@ export const DisciplineList: React.FC = () => {
   };
 
   if (loading) {
-    return <LoadingState label="Carregando disciplinas" />;
+    return <TablePageSkeleton columns={5} rows={6} />;
   }
 
   return (

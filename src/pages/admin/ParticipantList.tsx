@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import db from '../../data/mockDb';
 import type { Person, Student, Professor, Speaker, Organizer, Collaborator } from '../../data/types';
-import { LoadingState, PageHeader } from '../../components/ui';
+import { PageHeader, TablePageSkeleton } from '../../components/ui';
 
 type TabType = 'alunos' | 'professores' | 'palestrantes' | 'organizadores' | 'colaboradores';
 
@@ -109,7 +109,7 @@ export const ParticipantList: React.FC = () => {
   });
 
   if (loading) {
-    return <LoadingState label="Carregando pessoas" />;
+    return <TablePageSkeleton action={false} columns={5} rows={7} />;
   }
 
   return (

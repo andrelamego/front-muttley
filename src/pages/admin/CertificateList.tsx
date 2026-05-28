@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Event, Certificate, Participation, Person, Local } from '../../data/types';
-import { LoadingState, PageHeader } from '../../components/ui';
+import { CertificatesSkeleton, PageHeader } from '../../components/ui';
 
 export const CertificateList: React.FC = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -80,7 +80,7 @@ export const CertificateList: React.FC = () => {
   };
 
   if (loading) {
-    return <LoadingState label="Carregando certificados" />;
+    return <CertificatesSkeleton />;
   }
 
   return (

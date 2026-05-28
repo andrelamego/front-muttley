@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import { AutocompleteInput } from '../../components/AutocompleteInput';
-import type { Discipline, Sponsor, Local, Participation, Person } from '../../data/types';
+import type { Discipline, Sponsor, Local, Participation, Person, StatusEvento } from '../../data/types';
+import { FormSkeleton } from '../../components/ui';
 
 export const EventForm: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export const EventForm: React.FC = () => {
   const [patrocinadorId, setPatrocinadorId] = useState('');
   const [localId, setLocalId] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [status, setStatus] = useState<'EM_ANDAMENTO' | 'FINALIZADO' | 'CANCELADO'>('EM_ANDAMENTO');
+  const [eventStatus, setEventStatus] = useState<StatusEvento>('CRIADO');
   
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
@@ -58,7 +59,7 @@ export const EventForm: React.FC = () => {
               setPatrocinadorId(found.patrocinadorId || '');
               setLocalId(found.localId || '');
               setDescricao(found.descricao || '');
-              setStatus(found.status);
+              setEventStatus(found.status);
 
               // Try to load event-specific participations
               const parts = await db.getEventParticipations(id);
@@ -80,7 +81,7 @@ export const EventForm: React.FC = () => {
               setPatrocinadorId(found.patrocinadorId || '');
               setLocalId(found.localId || '');
               setDescricao(found.descricao || '');
-              setStatus(found.status);
+              setEventStatus(found.status);
 
               const allParts = await db.getParticipations();
               setParticipacoes(allParts.filter(p => p.eventoId === id));
@@ -99,22 +100,24 @@ export const EventForm: React.FC = () => {
   }, [id]);
 
   const participacaoList = participacoes.map(part => {
-    const person = people.find(p => p.id === part.pessoaId);
+    const person = part.pessoa || people.find(p => p.id === part.pessoaId);
     return {
       id: part.id,
       inscricao: part.inscricao,
-      nome: person ? person.nome : 'Participante não informado',
+      nome: person?.nome || 'Participante não informado',
       tipo: part.tipo,
-      email: person ? person.email : '-',
+      email: person?.email || '-',
     };
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+  };
+
+  const handleSave = async () => {
     setErro('');
 
-    if (step < 3) {
-      handleNextStep();
+    if (step !== 3) {
       return;
     }
 
@@ -136,7 +139,6 @@ export const EventForm: React.FC = () => {
         patrocinadorId: patrocinadorId || undefined,
         localId: localId || undefined,
         descricao,
-        status: id ? status : 'EM_ANDAMENTO',
       });
       navigate('/admin/eventos');
     } catch (err: any) {
@@ -146,14 +148,10 @@ export const EventForm: React.FC = () => {
   };
 
   if (loading && step === 1 && !tema) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
-      </div>
-    );
+    return <div className="admin-page"><FormSkeleton fields={5} steps /></div>;
   }
 
-  const isFinalized = status === 'FINALIZADO';
+  const isFinalized = eventStatus === 'FINALIZADO';
 
   const disciplineOptions = disciplines.map(d => ({ id: d.id, label: d.nome }));
   const sponsorOptions = sponsors.map(s => ({ id: s.id, label: s.nome }));
@@ -266,7 +264,7 @@ export const EventForm: React.FC = () => {
         })}
       </div>
 
-      <form className="event-form" onSubmit={handleSubmit}>
+      <form className="event-form" onSubmit={handleFormSubmit}>
         {step === 1 && (
           <div className="form-grid">
             <label className="field col-span-2">
@@ -381,22 +379,6 @@ export const EventForm: React.FC = () => {
                 disabled={isFinalized}
               />
             </div>
-
-            {id && (
-              <label className="field col-span-2 description-field">
-                <span>Status:*</span>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
-                  disabled={isFinalized}
-                  required
-                >
-                  <option value="EM_ANDAMENTO">Em andamento</option>
-                  <option value="FINALIZADO">Finalizado</option>
-                  <option value="CANCELADO">Cancelado</option>
-                </select>
-              </label>
-            )}
           </div>
         )}
 
@@ -425,7 +407,7 @@ export const EventForm: React.FC = () => {
               </button>
             ) : (
               !isFinalized && (
-                <button className="primary-action" type="submit" disabled={loading}>
+                <button className="primary-action" type="button" disabled={loading} onClick={handleSave}>
                   {loading ? 'Salvando...' : id ? 'Salvar alterações' : 'Criar evento'}
                 </button>
               )
@@ -447,7 +429,8 @@ export const EventForm: React.FC = () => {
               <p>Nenhuma participação cadastrada para este evento.</p>
             </div>
           ) : (
-            <table className="participants-table">
+            <div className="ui-table-wrap">
+            <table className="participants-table event-participants-table">
               <thead>
                 <tr>
                   <th>Inscrição</th>
@@ -478,6 +461,7 @@ export const EventForm: React.FC = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </section>
       )}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Address } from '../../data/types';
+import { FormSkeleton } from '../../components/ui';
 
 export const LocalForm: React.FC = () => {
   const navigate = useNavigate();
@@ -70,11 +71,7 @@ export const LocalForm: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
-      </div>
-    );
+    return <div className="admin-page"><FormSkeleton fields={4} /></div>;
   }
 
   return (

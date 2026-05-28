@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { Event, Local, Discipline, Sponsor } from '../../data/types';
-import { ButtonLink, EmptyState, LoadingState, PageHeader, StatusBadge } from '../../components/ui';
+import { ButtonLink, EmptyState, EventListSkeleton, PageHeader, StatusBadge } from '../../components/ui';
 
 export const EventList: React.FC = () => {
   const [busca, setBusca] = useState('');
@@ -121,7 +121,7 @@ export const EventList: React.FC = () => {
   const totalPages = Math.ceil(filteredEvents.length / tamanho);
 
   if (loading) {
-    return <LoadingState label="Carregando eventos" />;
+    return <EventListSkeleton />;
   }
 
   return (
@@ -323,6 +323,7 @@ export const EventList: React.FC = () => {
           className="border border-brand-line p-2 rounded-lg text-sm bg-brand-surface"
         >
           <option value="">Todos os status</option>
+          <option value="CRIADO">Criado</option>
           <option value="EM_ANDAMENTO">Em andamento</option>
           <option value="FINALIZADO">Finalizado</option>
           <option value="CANCELADO">Cancelado</option>

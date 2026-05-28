@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Event, Participation, Person } from '../../data/types';
+import { CompletionSkeleton } from '../../components/ui';
 
 export const EventConclude: React.FC = () => {
   const navigate = useNavigate();
@@ -123,8 +124,12 @@ export const EventConclude: React.FC = () => {
 
     try {
       setLoading(true);
-      await db.concludeEvent(event.id, presentes);
-      sessionStorage.setItem('muttley_cert_msg', 'Event concluded and certificates successfully emitted!');
+      const result = await db.concludeEvent(event.id, presentes);
+      const total = result?.certificadosGerados ?? 0;
+      sessionStorage.setItem(
+        'muttley_cert_msg',
+        `Evento concluido com sucesso. ${total} certificado${total === 1 ? '' : 's'} gerado${total === 1 ? '' : 's'}.`,
+      );
       navigate('/admin/certificados');
     } catch (err: any) {
       setErro(err.message || 'Erro ao processar e concluir o evento.');
@@ -133,11 +138,7 @@ export const EventConclude: React.FC = () => {
   };
 
   if (loading && !event) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
-      </div>
-    );
+    return <CompletionSkeleton />;
   }
 
   if (!event) {

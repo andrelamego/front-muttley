@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import db from '../../data/mockDb';
-import { LoadingState, PageHeader } from '../../components/ui';
+import { DashboardSkeleton, PageHeader } from '../../components/ui';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -135,7 +135,7 @@ export const Dashboard: React.FC = () => {
   };
 
   if (loading) {
-    return <LoadingState label="Carregando painel administrativo" />;
+    return <DashboardSkeleton />;
   }
 
   return (

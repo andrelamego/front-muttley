@@ -8,6 +8,7 @@ import {
   Home,
   LogOut,
   MapPin,
+  PanelLeftOpen,
   PanelLeftClose,
   UsersRound,
 } from 'lucide-react'
@@ -15,7 +16,9 @@ import db from '../data/mockDb'
 
 interface SidebarProps {
   isOpen: boolean
+  isCollapsed: boolean
   onClose: () => void
+  onToggleCollapsed: () => void
 }
 
 type SidebarLink = {
@@ -78,7 +81,7 @@ const menuGroups: Array<{ title: string; links: SidebarLink[] }> = [
   },
 ]
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onClose, onToggleCollapsed }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const path = location.pathname
@@ -92,11 +95,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const isActive = (routes: string[]) => routes.some((route) => path.startsWith(route))
 
   return (
-    <aside className={`sidebar sidebar--redesign ${isOpen ? 'open' : ''}`}>
+    <aside className={`sidebar sidebar--redesign ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
-        <Link className="brand" to="/admin/inicio" onClick={onClose}>
+        <Link className="brand sidebar-brand" to="/admin/inicio" onClick={onClose}>
           Muttley
         </Link>
+        <button
+          className="sidebar-collapse-toggle"
+          type="button"
+          onClick={onToggleCollapsed}
+          aria-label={isCollapsed ? 'Expandir barra lateral' : 'Compactar barra lateral'}
+          aria-pressed={isCollapsed}
+          title={isCollapsed ? 'Expandir barra lateral' : 'Compactar barra lateral'}
+        >
+          {isCollapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}
+        </button>
         <button className="sidebar-close" type="button" onClick={onClose} aria-label="Fechar navegacao">
           <PanelLeftClose aria-hidden="true" />
         </button>
@@ -115,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   className={`sidebar-link ${isActive(link.routes) ? 'active' : ''}`}
                 >
                   {link.icon}
-                  <span>{link.label}</span>
+                  <span className="sidebar-link-label">{link.label}</span>
                 </Link>
               ))}
             </div>

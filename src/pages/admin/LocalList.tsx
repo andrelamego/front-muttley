@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { Local, Address } from '../../data/types';
-import { ButtonLink, LoadingState, PageHeader } from '../../components/ui';
+import { ButtonLink, PageHeader, TablePageSkeleton } from '../../components/ui';
 
 export const LocalList: React.FC = () => {
   const [locais, setLocais] = useState<Local[]>([]);
@@ -65,7 +65,7 @@ export const LocalList: React.FC = () => {
   };
 
   if (loading) {
-    return <LoadingState label="Carregando locais" />;
+    return <TablePageSkeleton columns={5} rows={5} />;
   }
 
   return (
