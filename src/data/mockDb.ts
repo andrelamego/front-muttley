@@ -10,11 +10,16 @@ import type {
   Medalha,
   Organizador,
   Participacao,
+  InscricaoPublicaRequest,
+  InscricaoPublicaResponse,
+  EventoPublicoResponse,
+  MeResponse,
   Patrocinador,
   Palestrante,
   Pessoa,
   Professor,
 } from './types';
+import type { TurnoDisciplina } from './types';
 
 type Entity = Record<string, any>;
 
@@ -23,6 +28,20 @@ const entityId = (value: Entity | null | undefined, nestedKey?: string) =>
   toId(nestedKey ? value?.[nestedKey]?.id : value?.id);
 
 const pageContent = <T>(data: T[] | { content?: T[] }) => (Array.isArray(data) ? data : data.content || []);
+
+const normalizeTurno = (turno: unknown): TurnoDisciplina => {
+  const value = String(turno || '').trim().toUpperCase();
+  if (value === 'MATUTINO' || value === 'VESPERTINO' || value === 'NOTURNO' || value === 'INTEGRAL') {
+    return value;
+  }
+  const legacy: Record<string, TurnoDisciplina> = {
+    MANHA: 'MATUTINO',
+    MANHÃ: 'MATUTINO',
+    TARDE: 'VESPERTINO',
+    NOITE: 'NOTURNO',
+  };
+  return legacy[value] || 'NOTURNO';
+};
 
 const normalizePerson = (person: Entity): Pessoa => ({
   id: toId(person.id),
@@ -78,7 +97,7 @@ const normalizeDiscipline = (discipline: Entity): Disciplina => ({
   id: toId(discipline.id),
   nome: discipline.nome || '',
   descricao: discipline.descricao || '',
-  turno: discipline.turno || '',
+  turno: normalizeTurno(discipline.turno),
   professorId: entityId(discipline, 'professor') || toId(discipline.id_professor ?? discipline.professorId),
 });
 
@@ -101,6 +120,20 @@ const normalizeEvent = (event: Entity): Evento => ({
   descricao: event.descricao || '',
   status: event.status || 'CRIADO',
   qrCodeUrl: event.qrCodeUrl || '',
+});
+
+const normalizePublicEvent = (event: Entity): EventoPublicoResponse => ({
+  id: Number(event.id || 0),
+  tema: event.tema || '',
+  descricao: event.descricao || null,
+  data: event.data || '',
+  horarioInicio: event.horarioInicio || '',
+  horarioFim: event.horarioFim || '',
+  modalidade: event.modalidade || '',
+  status: event.status || '',
+  disciplina: event.disciplina ?? null,
+  local: event.local ?? null,
+  inscricoesEncerradas: Boolean(event.inscricoesEncerradas),
 });
 
 const normalizeParticipation = (participation: Entity): Participacao => ({
@@ -238,6 +271,22 @@ class ApiDatabase {
     return response.data.map(normalizePerson);
   }
 
+  async getMe(): Promise<Pessoa> {
+    const response = await apiClient.get<MeResponse>('/me');
+    const me = response.data;
+    const user: Pessoa = {
+      id: toId(me.id),
+      nome: me.nome || me.email || 'Usuario',
+      email: me.email || '',
+      telefone: me.telefone || '',
+      cpf: me.cpf || '',
+      senha: null,
+      role: me.role || 'USER',
+    };
+    this.setLoggedUser(user);
+    return user;
+  }
+
   async getStudents(): Promise<Aluno[]> {
     const response = await apiClient.get('/admin/alunos');
     return response.data.map((item: Entity) =>
@@ -327,13 +376,28 @@ class ApiDatabase {
     return pageContent<Entity>(response.data).map(normalizeEvent);
   }
 
+  async getPublicEvents(): Promise<EventoPublicoResponse[]> {
+    const response = await apiClient.get('/eventos');
+    return pageContent<Entity>(response.data).map(normalizePublicEvent);
+  }
+
+  async getPublicEventById(id: string): Promise<EventoPublicoResponse> {
+    const response = await apiClient.get(`/eventos/${id}`);
+    return normalizePublicEvent(response.data);
+  }
+
+  async createPublicInscription(eventId: string, payload: InscricaoPublicaRequest): Promise<InscricaoPublicaResponse> {
+    const response = await apiClient.post(`/eventos/${eventId}/inscricoes`, payload);
+    return response.data;
+  }
+
   async getEventById(id: string): Promise<Evento | null> {
     const response = await apiClient.get(`/admin/eventos/${id}`);
     return normalizeEvent(response.data);
   }
 
-  async saveEvent(event: Partial<Evento>): Promise<void> {
-    const payload = {
+  async saveEvent(event: Partial<Evento>): Promise<{ id?: string; message?: string }> {
+    const evento = {
       id: event.id ? Number(event.id) : null,
       tema: event.tema,
       descricao: event.descricao || '-',
@@ -346,11 +410,36 @@ class ApiDatabase {
       localId: event.localId ? Number(event.localId) : null,
     };
 
+    const payload = {
+      evento,
+      participacoes: (event.participacoes || []).map((participacao) => ({
+        id: participacao.id ? Number(participacao.id) : null,
+        inscricao: Number(participacao.inscricao),
+        pessoaId: Number(participacao.pessoaId),
+        tipo: participacao.tipo,
+      })),
+    };
+
     if (event.id) {
-      await apiClient.put(`/admin/eventos/${event.id}`, payload);
+      const response = await apiClient.put(`/admin/eventos/${event.id}`, payload);
+      return {
+        id: event.id,
+        message: response.data?.message,
+      };
     } else {
-      await apiClient.post('/admin/eventos', payload);
+      const response = await apiClient.post('/admin/eventos', payload);
+      return {
+        id: toId(response.data?.id),
+        message: response.data?.message,
+      };
     }
+  }
+
+  async getEventQrCodeBlob(id: string): Promise<Blob> {
+    const response = await apiClient.get(`/admin/eventos/${id}/qrcode`, {
+      responseType: 'blob',
+    });
+    return response.data;
   }
 
   async cancelEvent(id: string): Promise<void> {

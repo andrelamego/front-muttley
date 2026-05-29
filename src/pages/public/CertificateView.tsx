@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import db from '../../data/mockDb';
 
 export const CertificateView: React.FC = () => {
   const { codigo } = useParams<{ codigo: string }>();
+  const navigate = useNavigate();
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [data, setData] = useState<any | null>(null);
@@ -69,6 +70,14 @@ export const CertificateView: React.FC = () => {
     }
   };
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate('/login');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -83,9 +92,9 @@ export const CertificateView: React.FC = () => {
         <div className="text-center p-8 bg-brand-surface rounded-xl border border-brand-line shadow-md max-w-md">
           <h2 className="text-2xl font-bold text-brand-danger">Certificado nao encontrado</h2>
           <p className="text-brand-muted mt-2">{erro || 'O codigo de validacao fornecido e invalido.'}</p>
-          <Link to="/certificados/publico" className="primary-action mt-6 inline-flex items-center">
-            Voltar para Validacao
-          </Link>
+          <button type="button" onClick={handleBack} className="primary-action mt-6 inline-flex items-center">
+            Voltar
+          </button>
         </div>
       </div>
     );
@@ -108,7 +117,7 @@ export const CertificateView: React.FC = () => {
           </span>
           <h1 className="text-3xl font-extrabold text-brand-ink-strong mt-1">Validacao de Certificado</h1>
         </div>
-        <Link className="link-action" to="/certificados/publico">Voltar</Link>
+        <button className="link-action" type="button" onClick={handleBack}>Voltar</button>
       </div>
 
       <section className="w-full flex flex-col gap-4">

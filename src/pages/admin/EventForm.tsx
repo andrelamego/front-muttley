@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import { AutocompleteInput } from '../../components/AutocompleteInput';
-import type { Discipline, Sponsor, Local, Participation, Person, StatusEvento } from '../../data/types';
+import type { Discipline, Sponsor, Local, Participation, Person, StatusEvento, ParticipanteEvento, TipoParticipacao } from '../../data/types';
 import { FormSkeleton } from '../../components/ui';
 
 export const EventForm: React.FC = () => {
@@ -25,6 +25,14 @@ export const EventForm: React.FC = () => {
   const [locais, setLocais] = useState<Local[]>([]);
   const [participacoes, setParticipacoes] = useState<Participation[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
+  const [selectedPessoaId, setSelectedPessoaId] = useState('');
+  const [selectedTipo, setSelectedTipo] = useState<TipoParticipacao>('Aluno');
+  const [eventParticipants, setEventParticipants] = useState<ParticipanteEvento[]>([]);
+  const [createdEventId, setCreatedEventId] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [qrCodeLoading, setQrCodeLoading] = useState(false);
+  const [qrCodeError, setQrCodeError] = useState('');
+  const [showCreationModal, setShowCreationModal] = useState(false);
   
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
@@ -64,6 +72,12 @@ export const EventForm: React.FC = () => {
               // Try to load event-specific participations
               const parts = await db.getEventParticipations(id);
               setParticipacoes(parts);
+              setEventParticipants(parts.map(part => ({
+                id: part.id,
+                inscricao: part.inscricao,
+                pessoaId: part.pessoaId,
+                tipo: part.tipo,
+              })));
             } else {
               setErro('Evento não encontrado.');
             }
@@ -84,7 +98,14 @@ export const EventForm: React.FC = () => {
               setEventStatus(found.status);
 
               const allParts = await db.getParticipations();
-              setParticipacoes(allParts.filter(p => p.eventoId === id));
+              const eventParts = allParts.filter(p => p.eventoId === id);
+              setParticipacoes(eventParts);
+              setEventParticipants(eventParts.map(part => ({
+                id: part.id,
+                inscricao: part.inscricao,
+                pessoaId: part.pessoaId,
+                tipo: part.tipo,
+              })));
             } else {
               setErro('Evento não encontrado.');
             }
@@ -99,6 +120,12 @@ export const EventForm: React.FC = () => {
     init();
   }, [id]);
 
+  useEffect(() => () => {
+    if (qrCodeUrl) {
+      URL.revokeObjectURL(qrCodeUrl);
+    }
+  }, [qrCodeUrl]);
+
   const participacaoList = participacoes.map(part => {
     const person = part.pessoa || people.find(p => p.id === part.pessoaId);
     return {
@@ -109,6 +136,87 @@ export const EventForm: React.FC = () => {
       email: person?.email || '-',
     };
   });
+
+  const participantRoles: TipoParticipacao[] = ['Aluno', 'Professor', 'Palestrante', 'Organizador', 'Colaborador'];
+  const peopleOptions = people.map(person => ({
+    id: person.id,
+    label: `${person.nome} - ${person.email || person.cpf || 'sem contato'}`,
+  }));
+  const selectedParticipantsList = eventParticipants.map(part => {
+    const person = people.find(p => p.id === part.pessoaId);
+    return {
+      ...part,
+      nome: person?.nome || 'Participante nao informado',
+      email: person?.email || '-',
+    };
+  });
+  const nextInscricao = Math.max(
+    1000,
+    ...eventParticipants.map(part => Number(part.inscricao) || 0),
+    ...participacoes.map(part => Number(part.inscricao) || 0),
+  ) + 1;
+
+  const handleAddEventParticipant = () => {
+    setErro('');
+
+    if (!selectedPessoaId) {
+      setErro('Selecione uma pessoa para adicionar ao evento.');
+      return;
+    }
+
+    if (eventParticipants.some(part => part.pessoaId === selectedPessoaId)) {
+      setErro('Essa pessoa ja foi adicionada ao evento.');
+      return;
+    }
+
+    setEventParticipants(prev => [...prev, {
+      inscricao: String(nextInscricao),
+      pessoaId: selectedPessoaId,
+      tipo: selectedTipo,
+    }]);
+    setSelectedPessoaId('');
+    setSelectedTipo('Aluno');
+  };
+
+  const handleRemoveEventParticipant = (pessoaId: string) => {
+    setEventParticipants(prev => prev.filter(part => part.pessoaId !== pessoaId));
+  };
+
+  const loadCreatedEventQrCode = async (eventId: string, attempt = 1) => {
+    setQrCodeLoading(true);
+    setQrCodeError('');
+
+    try {
+      const blob = await db.getEventQrCodeBlob(eventId);
+      const url = URL.createObjectURL(blob);
+      setQrCodeUrl((previousUrl) => {
+        if (previousUrl) {
+          URL.revokeObjectURL(previousUrl);
+        }
+        return url;
+      });
+      setQrCodeLoading(false);
+    } catch (err) {
+      if (attempt < 4) {
+        window.setTimeout(() => loadCreatedEventQrCode(eventId, attempt + 1), 900);
+        return;
+      }
+      setQrCodeError('Evento criado, mas o QR Code ainda nao ficou disponivel.');
+      setQrCodeLoading(false);
+    }
+  };
+
+  const handleCloseCreationModal = () => {
+    navigate('/admin/eventos');
+  };
+
+  const handleDownloadQrCode = () => {
+    if (!qrCodeUrl) return;
+    const anchor = document.createElement('a');
+    anchor.href = qrCodeUrl;
+    anchor.download = `qrcode-evento-${createdEventId || 'muttley'}.png`;
+    anchor.click();
+  };
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +236,7 @@ export const EventForm: React.FC = () => {
 
     try {
       setLoading(true);
-      await db.saveEvent({
+      const result = await db.saveEvent({
         id: id || undefined,
         tema,
         data,
@@ -139,7 +247,17 @@ export const EventForm: React.FC = () => {
         patrocinadorId: patrocinadorId || undefined,
         localId: localId || undefined,
         descricao,
+        participacoes: eventParticipants,
       });
+
+      if (!id && result.id) {
+        setCreatedEventId(result.id);
+        setShowCreationModal(true);
+        setLoading(false);
+        loadCreatedEventQrCode(result.id);
+        return;
+      }
+
       navigate('/admin/eventos');
     } catch (err: any) {
       setErro(err.message || 'Erro ao salvar o evento.');
@@ -379,6 +497,7 @@ export const EventForm: React.FC = () => {
                 disabled={isFinalized}
               />
             </div>
+
           </div>
         )}
 
@@ -416,7 +535,148 @@ export const EventForm: React.FC = () => {
         </div>
       </form>
 
-      {id && (
+      <section className="event-participant-builder" aria-labelledby="event-participants-title">
+        <div className="participants-heading">
+          <div>
+            <h2 id="event-participants-title">Participantes do evento</h2>
+            <p>Adicione pessoas e defina o papel de cada uma no evento.</p>
+          </div>
+        </div>
+
+        {!isFinalized && (
+          <div className="event-participant-builder__controls">
+            <div className="field">
+              <span>Pessoa:</span>
+              <AutocompleteInput
+                options={peopleOptions}
+                value={selectedPessoaId}
+                onChange={setSelectedPessoaId}
+                placeholder="Buscar participante..."
+              />
+            </div>
+
+            <label className="field">
+              <span>Papel:</span>
+              <select
+                value={selectedTipo}
+                onChange={(e) => setSelectedTipo(e.target.value as TipoParticipacao)}
+              >
+                {participantRoles.map(role => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
+              </select>
+            </label>
+
+            <button
+              className="primary-action"
+              type="button"
+              onClick={handleAddEventParticipant}
+            >
+              Adicionar
+            </button>
+          </div>
+        )}
+
+        {selectedParticipantsList.length === 0 ? (
+          <div className="empty-state compact-empty">
+            <p>Nenhum participante adicionado.</p>
+          </div>
+        ) : (
+          <div className="ui-table-wrap">
+            <table className="participants-table event-participants-table">
+              <thead>
+                <tr>
+                  <th>Inscricao</th>
+                  <th>Participante</th>
+                  <th>Papel</th>
+                  <th>Email</th>
+                  <th>{isFinalized ? 'Medalha' : 'Acoes'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedParticipantsList.map(part => {
+                  const participation = participacoes.find(item => item.pessoaId === part.pessoaId);
+                  return (
+                    <tr key={part.pessoaId}>
+                      <td>#{part.inscricao}</td>
+                      <td><strong>{part.nome}</strong></td>
+                      <td>{part.tipo}</td>
+                      <td>{part.email}</td>
+                      <td>
+                        {isFinalized && participation ? (
+                          <Link
+                            to={`/admin/medalhas/novo?participacaoId=${participation.id}`}
+                            className="table-action font-semibold"
+                          >
+                            Adicionar Medalha
+                          </Link>
+                        ) : !isFinalized ? (
+                          <button
+                            className="table-action"
+                            type="button"
+                            onClick={() => handleRemoveEventParticipant(part.pessoaId)}
+                          >
+                            Remover
+                          </button>
+                        ) : (
+                          <span className="text-xs text-brand-muted">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {showCreationModal && (
+        <div className="modal-backdrop" role="presentation">
+          <section className="creation-confirmation-modal" role="dialog" aria-modal="true" aria-labelledby="creation-confirmation-title">
+            <button
+              className="modal-close-button"
+              type="button"
+              aria-label="Fechar"
+              onClick={handleCloseCreationModal}
+            >
+              x
+            </button>
+
+            <div className="creation-confirmation-modal__header">
+              <span>Evento criado</span>
+              <h2 id="creation-confirmation-title">QR Code gerado para o evento</h2>
+              <p>Use o QR Code para validar a presenca dos participantes no dia do evento.</p>
+            </div>
+
+            <div className="creation-confirmation-modal__qr">
+              {qrCodeUrl ? (
+                <img src={qrCodeUrl} alt="QR Code do evento criado" />
+              ) : (
+                <div className="creation-confirmation-modal__placeholder" role="status">
+                  {qrCodeError || 'Gerando QR Code...'}
+                </div>
+              )}
+            </div>
+
+            <div className="creation-confirmation-modal__actions">
+              <button
+                className="link-action"
+                type="button"
+                onClick={handleDownloadQrCode}
+                disabled={!qrCodeUrl || qrCodeLoading}
+              >
+                Baixar QR Code
+              </button>
+              <button className="primary-action" type="button" onClick={handleCloseCreationModal}>
+                Concluir
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {false && id && isFinalized && (
         <section className="participants-section mt-8" aria-labelledby="participacoes-title">
           <div className="participants-heading mb-4">
             <h2 id="participacoes-title" className="text-lg font-bold text-brand-ink-strong">

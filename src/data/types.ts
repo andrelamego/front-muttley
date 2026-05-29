@@ -73,7 +73,7 @@ export interface Disciplina {
   id: string;
   nome: string;
   descricao: string;
-  turno: string;
+  turno: TurnoDisciplina;
   professorId: string;
   professor?: Professor | null;
 }
@@ -86,6 +86,15 @@ export interface Patrocinador {
 
 export type StatusEvento = 'CRIADO' | 'EM_ANDAMENTO' | 'FINALIZADO' | 'CANCELADO';
 export type ModalidadeEvento = 'PRESENCIAL' | 'ONLINE' | 'HIBRIDO';
+export type TurnoDisciplina = 'MATUTINO' | 'VESPERTINO' | 'NOTURNO' | 'INTEGRAL';
+export type TipoParticipacao = 'Aluno' | 'Professor' | 'Palestrante' | 'Organizador' | 'Colaborador';
+
+export interface ParticipanteEvento {
+  id?: string;
+  inscricao: string;
+  pessoaId: string;
+  tipo: TipoParticipacao;
+}
 
 export interface Evento {
   id: string;
@@ -103,6 +112,42 @@ export interface Evento {
   disciplina?: Disciplina | null;
   patrocinador?: Patrocinador | null;
   local?: Local | null;
+  participacoes?: ParticipanteEvento[];
+}
+
+export interface EventoPublicoResponse {
+  id: number;
+  tema: string;
+  descricao: string | null;
+  data: string;
+  horarioInicio: string;
+  horarioFim: string;
+  modalidade: string;
+  status: string;
+  disciplina: string | null;
+  local: string | null;
+  inscricoesEncerradas: boolean;
+}
+
+export interface InscricaoPublicaRequest {
+  nomeCompleto: string;
+  cpf: string;
+  email: string;
+}
+
+export interface InscricaoPublicaResponse {
+  message: string;
+  participacaoId: number;
+  inscricao: number;
+}
+
+export interface MeResponse {
+  id: number;
+  nome: string;
+  email: string;
+  telefone: string | null;
+  cpf: string | null;
+  role: 'ADMIN' | 'USER' | null;
 }
 
 export interface Participacao {
@@ -110,7 +155,7 @@ export interface Participacao {
   eventoId: string;
   pessoaId: string;
   inscricao: string;
-  tipo: 'Aluno' | 'Professor' | 'Palestrante' | 'Organizador' | 'Colaborador';
+  tipo: TipoParticipacao;
   presente: boolean;
   pessoa?: Pessoa | null;
 }
@@ -142,6 +187,7 @@ export type Sponsor = Patrocinador;
 export type EventStatus = StatusEvento;
 export type EventModality = ModalidadeEvento;
 export type Event = Evento;
+export type PublicEvent = EventoPublicoResponse;
 export type Participation = Participacao;
 export type Certificate = Certificado;
 export type Medal = Medalha;
