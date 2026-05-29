@@ -5,8 +5,9 @@ import Layout from './components/Layout';
 // Public Pages
 import Login from './pages/public/Login';
 import Register from './pages/public/Register';
-import CertificateVerify from './pages/public/CertificateVerify';
 import CertificateView from './pages/public/CertificateView';
+import PublicEventList from './pages/public/PublicEventList';
+import PublicEventDetail from './pages/public/PublicEventDetail';
 
 // User Pages
 import UserEventDetail from './pages/user/UserEventDetail';
@@ -35,12 +36,13 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Routes>
         {/* Root Redirect */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to="/eventos" replace />} />
 
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/certificados/publico" element={<CertificateVerify />} />
+        <Route path="/eventos" element={<Layout><PublicEventList /></Layout>} />
+        <Route path="/eventos/:id" element={<Layout><PublicEventDetail /></Layout>} />
         <Route path="/certificados/:codigo" element={<CertificateView />} />
 
         {/* User Routes */}

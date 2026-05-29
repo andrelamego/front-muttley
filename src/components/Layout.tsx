@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Award, FileBadge, Home, LogOut } from 'lucide-react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Award, CalendarDays, FileBadge, Home } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
 import Sidebar from './Sidebar'
@@ -12,17 +12,12 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation()
-  const navigate = useNavigate()
   const path = location.pathname
   const isAdmin = path.startsWith('/admin')
-  const isUserPage = path.startsWith('/user')
+  const loggedUser = db.getLoggedUser()
+  const isUserPage = path.startsWith('/user') || (Boolean(loggedUser) && path.startsWith('/eventos'))
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-
-  const handleLogout = () => {
-    db.setLoggedUser(null)
-    navigate('/login')
-  }
 
   if (isAdmin) {
     return (
@@ -59,6 +54,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <span>Inicio</span>
           </Link>
 
+          <Link to="/eventos" className={`user-bottom-nav-link ${path.startsWith('/eventos') ? 'active' : ''}`}>
+            <CalendarDays aria-hidden="true" />
+            <span>Eventos</span>
+          </Link>
+
           <Link
             to="/user/certificados"
             className={`user-bottom-nav-link ${path.startsWith('/user/certificados') ? 'active' : ''}`}
@@ -74,11 +74,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Award aria-hidden="true" />
             <span>Medalhas</span>
           </Link>
-
-          <button onClick={handleLogout} className="user-bottom-nav-link" type="button">
-            <LogOut aria-hidden="true" />
-            <span>Sair</span>
-          </button>
         </nav>
 
         <Footer />
@@ -86,7 +81,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     )
   }
 
-  const isAuthPage = ['/login', '/register', '/certificados/publico'].includes(path)
+  const isAuthPage = ['/login', '/register'].includes(path)
 
   return (
     <div className="public-app-shell">
