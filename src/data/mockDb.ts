@@ -10,13 +10,17 @@ import type {
   Medalha,
   Organizador,
   Participacao,
+  CertificadoUsuarioResponse,
   InscricaoPublicaRequest,
   InscricaoPublicaResponse,
   EventoPublicoResponse,
+  MedalhaUsuarioResponse,
   MeResponse,
+  ParticipacaoComEventoResponse,
   Patrocinador,
   Palestrante,
   Pessoa,
+  ParticipacaoUsuarioResponse,
   Professor,
 } from './types';
 import type { TurnoDisciplina } from './types';
@@ -136,6 +140,37 @@ const normalizePublicEvent = (event: Entity): EventoPublicoResponse => ({
   inscricoesEncerradas: Boolean(event.inscricoesEncerradas),
 });
 
+const normalizeParticipationEvent = (event: Entity | null | undefined): Participacao['evento'] => {
+  if (!event) return null;
+
+  return {
+    id: Number(event.id || 0),
+    tema: event.tema || '',
+    descricao: event.descricao || null,
+    data: event.data || '',
+    horarioInicio: event.horarioInicio || '',
+    horarioFim: event.horarioFim || '',
+    modalidade: event.modalidade || 'PRESENCIAL',
+    status: event.status || 'CRIADO',
+    disciplina: event.disciplina ?? null,
+    local: event.local ?? null,
+  };
+};
+
+const normalizeParticipationPerson = (person: Entity | null | undefined): Pessoa | null => {
+  if (!person) return null;
+
+  return {
+    id: toId(person.id),
+    nome: person.nome || '',
+    email: person.email || '',
+    telefone: '',
+    cpf: person.cpf || '',
+    senha: null,
+    role: 'USER',
+  };
+};
+
 const normalizeParticipation = (participation: Entity): Participacao => ({
   id: toId(participation.id),
   eventoId: entityId(participation, 'evento') || toId(participation.eventoId),
@@ -143,7 +178,8 @@ const normalizeParticipation = (participation: Entity): Participacao => ({
   inscricao: toId(participation.inscricao),
   tipo: participation.tipo || 'Aluno',
   presente: Boolean(participation.presente ?? participation.certificado),
-  pessoa: participation.pessoa ? normalizePerson(participation.pessoa) : null,
+  pessoa: normalizeParticipationPerson(participation.pessoa),
+  evento: normalizeParticipationEvent(participation.evento),
 });
 
 const normalizeCertificate = (certificate: Entity): Certificado => ({
@@ -153,6 +189,8 @@ const normalizeCertificate = (certificate: Entity): Certificado => ({
   assinatura: certificate.assinatura || 'Coordenacao FATEC',
   codigoValidacao: certificate.codigoValidacao || '',
   urlPublica: certificate.urlPublica || `/certificados/${certificate.codigoValidacao || ''}`,
+  caminhoPdf: certificate.caminhoPdf || '',
+  participacao: certificate.participacao ? normalizeParticipation(certificate.participacao) : null,
 });
 
 const normalizeMedal = (medal: Entity): Medalha => ({
@@ -285,6 +323,21 @@ class ApiDatabase {
     };
     this.setLoggedUser(user);
     return user;
+  }
+
+  async getMyParticipations(): Promise<ParticipacaoUsuarioResponse[]> {
+    const response = await apiClient.get<ParticipacaoUsuarioResponse[]>('/me/participacoes');
+    return response.data;
+  }
+
+  async getMyCertificates(): Promise<CertificadoUsuarioResponse[]> {
+    const response = await apiClient.get<CertificadoUsuarioResponse[]>('/me/certificados');
+    return response.data;
+  }
+
+  async getMyMedals(): Promise<MedalhaUsuarioResponse[]> {
+    const response = await apiClient.get<MedalhaUsuarioResponse[]>('/me/medalhas');
+    return response.data;
   }
 
   async getStudents(): Promise<Aluno[]> {
@@ -447,13 +500,21 @@ class ApiDatabase {
   }
 
   async getParticipations(): Promise<Participacao[]> {
-    const response = await apiClient.get('/participacoes');
+    const response = await apiClient.get<ParticipacaoComEventoResponse[]>('/participacoes');
     return response.data.map(normalizeParticipation);
   }
 
+  async getParticipationById(id: string): Promise<Participacao> {
+    const response = await apiClient.get<ParticipacaoComEventoResponse>(`/participacoes/${id}`);
+    return normalizeParticipation(response.data);
+  }
+
   async getEventParticipations(id: string): Promise<Participacao[]> {
-    const response = await apiClient.get(`/admin/eventos/${id}/participacoes`);
-    return (response.data.participacoes || []).map(normalizeParticipation);
+    const response = await apiClient.get<{ participacoes?: ParticipacaoComEventoResponse[] } | ParticipacaoComEventoResponse[]>(
+      `/admin/eventos/${id}/participacoes`,
+    );
+    const participacoes = Array.isArray(response.data) ? response.data : response.data.participacoes || [];
+    return participacoes.map(normalizeParticipation);
   }
 
   async saveParticipation(participation: Partial<Participacao>): Promise<void> {

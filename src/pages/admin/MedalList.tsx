@@ -54,8 +54,8 @@ export const MedalList: React.FC = () => {
 
   const getParticipationInfo = (partId: string) => {
     const part = participations.find(p => p.id === partId);
-    const person = part ? people.find(p => p.id === part.pessoaId) : null;
-    const event = part ? events.find(e => e.id === part.eventoId) : null;
+    const person = part ? part.pessoa || people.find(p => p.id === part.pessoaId) : null;
+    const event = part ? part.evento || events.find(e => e.id === part.eventoId) : null;
     
     return {
       personName: person ? person.nome : '-',

@@ -143,7 +143,8 @@ export const EventForm: React.FC = () => {
     label: `${person.nome} - ${person.email || person.cpf || 'sem contato'}`,
   }));
   const selectedParticipantsList = eventParticipants.map(part => {
-    const person = people.find(p => p.id === part.pessoaId);
+    const participation = participacoes.find(item => item.pessoaId === part.pessoaId);
+    const person = participation?.pessoa || people.find(p => p.id === part.pessoaId);
     return {
       ...part,
       nome: person?.nome || 'Participante nao informado',

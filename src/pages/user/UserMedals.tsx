@@ -2,53 +2,38 @@ import React, { useEffect, useState } from 'react'
 import { Award, Copy, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import db from '../../data/mockDb'
-import type { Event, Medal, Participation } from '../../data/types'
+import type { MedalhaUsuarioResponse } from '../../data/types'
 import { Button, Card, EmptyState, LoadingState, PageHeader, StatusBadge } from '../../components/ui'
 
 export const UserMedals: React.FC = () => {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const loggedUser = db.getLoggedUser()
-
-  const [participations, setParticipations] = useState<Participation[]>([])
-  const [events, setEvents] = useState<Event[]>([])
-  const [medals, setMedals] = useState<Medal[]>([])
+  const [medals, setMedals] = useState<MedalhaUsuarioResponse[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!loggedUser) {
+    if (!db.getLoggedUser()) {
       navigate('/login')
     }
-  }, [loggedUser, navigate])
+  }, [navigate])
 
   useEffect(() => {
-    if (!loggedUser) return
+    if (!db.getLoggedUser()) return
 
     setLoading(true)
-    Promise.all([db.getParticipations(), db.getEvents(), db.getMedals()])
-      .then(([parts, evts, mdls]) => {
-        const userParts = parts.filter((p) => p.pessoaId === loggedUser.id)
-        setParticipations(userParts)
-        setEvents(evts)
-        setMedals(mdls.filter((m) => userParts.some((p) => p.id === m.participacaoId)))
-      })
+    Promise.all([db.getMe(), db.getMyMedals()])
+      .then(([, mdls]) => setMedals(mdls))
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 
-  if (!loggedUser) return null
+  if (!db.getLoggedUser()) return null
   if (loading) return <LoadingState label="Carregando medalhas" />
 
-  const userMedals = medals.map((medal) => {
-    const participation = participations.find((p) => p.id === medal.participacaoId)
-    const event = participation ? events.find((e) => e.id === participation.eventoId) : null
-    return { ...medal, event }
-  })
-
-  const filteredMedals = userMedals.filter(
+  const filteredMedals = medals.filter(
     (medal) =>
       medal.nome.toLowerCase().includes(search.toLowerCase()) ||
-      medal.event?.tema.toLowerCase().includes(search.toLowerCase()),
+      (medal.evento?.tema || '').toLowerCase().includes(search.toLowerCase()),
   )
 
   return (
@@ -77,26 +62,30 @@ export const UserMedals: React.FC = () => {
         />
       ) : (
         <div className="achievement-grid">
-          {filteredMedals.map((medal) => (
-            <Card key={medal.id} className="achievement-card">
-              <div className="achievement-card__mark">
-                <Award aria-hidden="true" />
-              </div>
-              <StatusBadge status="FINALIZADO" label={medal.event?.tema || 'Evento'} />
-              <h2>{medal.nome}</h2>
-              <p>{medal.descricao}</p>
-              <Button
-                variant="secondary"
-                size="sm"
-                icon={<Copy aria-hidden="true" />}
-                onClick={() => {
-                  navigator.clipboard?.writeText(`Recebi a medalha "${medal.nome}" no evento ${medal.event?.tema || 'Muttley'}.`)
-                }}
-              >
-                Copiar conquista
-              </Button>
-            </Card>
-          ))}
+          {filteredMedals.map((medal) => {
+            const eventName = medal.evento?.tema || 'Evento'
+
+            return (
+              <Card key={medal.id} className="achievement-card">
+                <div className="achievement-card__mark">
+                  <Award aria-hidden="true" />
+                </div>
+                <StatusBadge status="FINALIZADO" label={eventName} />
+                <h2>{medal.nome}</h2>
+                <p>{medal.descricao || 'Reconhecimento recebido por participacao academica.'}</p>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={<Copy aria-hidden="true" />}
+                  onClick={() => {
+                    navigator.clipboard?.writeText(`Recebi a medalha "${medal.nome}" no evento ${eventName}.`)
+                  }}
+                >
+                  Copiar conquista
+                </Button>
+              </Card>
+            )
+          })}
         </div>
       )}
     </div>

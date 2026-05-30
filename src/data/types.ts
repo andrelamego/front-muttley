@@ -150,6 +150,62 @@ export interface MeResponse {
   role: 'ADMIN' | 'USER' | null;
 }
 
+export interface EventoResumoUsuarioResponse {
+  id: number;
+  tema: string;
+  descricao: string | null;
+  data: string;
+  horarioInicio: string;
+  horarioFim: string;
+  modalidade: 'ONLINE' | 'PRESENCIAL';
+  status: 'CRIADO' | 'EM_ANDAMENTO' | 'CANCELADO' | 'FINALIZADO';
+  disciplina: string | null;
+  local: string | null;
+}
+
+export interface CertificadoUsuarioResponse {
+  id: number;
+  dataEmissao: string;
+  assinatura: string | null;
+  codigoValidacao: string;
+  urlPublica: string;
+  caminhoPdf: string;
+  participacaoId: number;
+  inscricao: number;
+  tipoParticipacao: string | null;
+  evento: EventoResumoUsuarioResponse | null;
+}
+
+export interface MedalhaUsuarioResponse {
+  id: number;
+  nome: string;
+  descricao: string | null;
+  participacaoId: number;
+  inscricao: number;
+  tipoParticipacao: string | null;
+  evento: EventoResumoUsuarioResponse | null;
+}
+
+export interface ParticipacaoUsuarioResponse {
+  id: number;
+  inscricao: number;
+  tipo: string | null;
+  evento: EventoResumoUsuarioResponse | null;
+}
+
+export interface ParticipacaoComEventoResponse {
+  id: number;
+  inscricao: number;
+  tipo: string | null;
+  pessoa: {
+    id: number;
+    nome: string;
+    email: string;
+    cpf: string | null;
+  } | null;
+  evento: EventoResumoUsuarioResponse | null;
+}
+
 export interface Participacao {
   id: string;
   eventoId: string;
@@ -158,6 +214,7 @@ export interface Participacao {
   tipo: TipoParticipacao;
   presente: boolean;
   pessoa?: Pessoa | null;
+  evento?: EventoResumoUsuarioResponse | null;
 }
 
 export interface Certificado {
@@ -167,6 +224,8 @@ export interface Certificado {
   assinatura: string;
   codigoValidacao: string;
   urlPublica: string;
+  caminhoPdf?: string;
+  participacao?: Participacao | null;
 }
 
 export interface Medalha {
