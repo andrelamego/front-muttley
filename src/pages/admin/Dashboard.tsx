@@ -44,12 +44,13 @@ export const Dashboard: React.FC = () => {
   
   certs.forEach(c => {
     const part = participacoes.find(p => p.id === c.participacaoId);
-    const evt = part ? events.find(e => e.id === part.eventoId) : null;
+    const evt = part ? part.evento || events.find(e => e.id === part.eventoId) : null;
     if (evt) {
-      if (!certsByEventMap[evt.id]) {
-        certsByEventMap[evt.id] = { total: 0, label: evt.tema.substring(0, 15) + '...' };
+      const eventId = String(evt.id);
+      if (!certsByEventMap[eventId]) {
+        certsByEventMap[eventId] = { total: 0, label: evt.tema.substring(0, 15) + '...' };
       }
-      certsByEventMap[evt.id].total += 1;
+      certsByEventMap[eventId].total += 1;
     }
   });
 
@@ -65,7 +66,7 @@ export const Dashboard: React.FC = () => {
   
   medals.forEach(m => {
     const part = participacoes.find(p => p.id === m.participacaoId);
-    const person = part ? people.find(p => p.id === part.pessoaId) : null;
+    const person = part ? part.pessoa || people.find(p => p.id === part.pessoaId) : null;
     if (person) {
       if (!medalsByPersonMap[person.id]) {
         medalsByPersonMap[person.id] = { total: 0, label: person.nome };

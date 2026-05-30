@@ -13,6 +13,10 @@ export const EventList: React.FC = () => {
   const [pagina, setPagina] = useState(0);
   const [message, setMessage] = useState('');
   const [erro, setErro] = useState('');
+  const [qrModalEvent, setQrModalEvent] = useState<Event | null>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [qrCodeLoading, setQrCodeLoading] = useState(false);
+  const [qrCodeError, setQrCodeError] = useState('');
 
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +46,12 @@ export const EventList: React.FC = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => () => {
+    if (qrCodeUrl) {
+      URL.revokeObjectURL(qrCodeUrl);
+    }
+  }, [qrCodeUrl]);
 
   const activeEvents = useMemo(() => events.filter(e => e.status === 'EM_ANDAMENTO'), [events]);
 
@@ -81,6 +91,48 @@ export const EventList: React.FC = () => {
     }
   };
 
+  const openQrCodeModal = async (evento: Event) => {
+    setQrModalEvent(evento);
+    setQrCodeLoading(true);
+    setQrCodeError('');
+    setQrCodeUrl((previousUrl) => {
+      if (previousUrl) {
+        URL.revokeObjectURL(previousUrl);
+      }
+      return '';
+    });
+
+    try {
+      const blob = await db.getEventQrCodeBlob(evento.id);
+      const url = URL.createObjectURL(blob);
+      setQrCodeUrl(url);
+    } catch (err: any) {
+      setQrCodeError(err.message || 'Nao foi possivel carregar o QR Code deste evento.');
+    } finally {
+      setQrCodeLoading(false);
+    }
+  };
+
+  const closeQrCodeModal = () => {
+    setQrModalEvent(null);
+    setQrCodeError('');
+    setQrCodeLoading(false);
+    setQrCodeUrl((previousUrl) => {
+      if (previousUrl) {
+        URL.revokeObjectURL(previousUrl);
+      }
+      return '';
+    });
+  };
+
+  const handleDownloadQrCode = () => {
+    if (!qrCodeUrl || !qrModalEvent) return;
+    const anchor = document.createElement('a');
+    anchor.href = qrCodeUrl;
+    anchor.download = `qrcode-evento-${qrModalEvent.id}.png`;
+    anchor.click();
+  };
+
   // Filter and sort events
   const filteredEvents = useMemo(() => {
     let result = [...events];
@@ -103,10 +155,10 @@ export const EventList: React.FC = () => {
     result.sort((a, b) => {
       if (ordenar === 'tema') {
         return a.tema.localeCompare(b.tema);
-      } else {
-        // Sort by date (descending)
-        return new Date(b.data).getTime() - new Date(a.data).getTime();
       }
+      const dateDiff = new Date(a.data).getTime() - new Date(b.data).getTime();
+      if (dateDiff !== 0) return dateDiff;
+      return (a.horarioInicio || '').localeCompare(b.horarioInicio || '');
     });
 
     return result;
@@ -369,10 +421,15 @@ export const EventList: React.FC = () => {
             const isCancelled = evento.status === 'CANCELADO';
             const dateObj = new Date(evento.data);
             const day = evento.data ? dateObj.getDate() + 1 : 12;
-            const month = evento.data ? dateObj.toLocaleDateString('pt-BR', { month: '2-digit' }) : '05';
+            const month = evento.data ? dateObj.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '') : 'mai';
 
             return (
-              <article key={evento.id} className="event-list-card grid md:grid-cols-[180px_1fr_120px] gap-4 p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
+              <article key={evento.id} className="event-list-card event-list-card--redesigned">
+                <div className="event-list-date" aria-label={`Data do evento: ${day} de ${month}`}>
+                  <strong>{day}</strong>
+                  <span>{month}</span>
+                  <small>{evento.horarioInicio}</small>
+                </div>
                 <div className="event-list-meta flex flex-col gap-2 md:border-r border-brand-line md:pr-4 justify-center text-xs text-brand-muted">
                   <span className="flex items-center gap-1.5 font-semibold">
                     <svg className="w-4 h-4 text-brand-primary" viewBox="0 0 24 24">
@@ -392,6 +449,22 @@ export const EventList: React.FC = () => {
 
                 <div className="event-list-content min-w-0">
                   <h2 className="text-lg font-bold text-brand-ink-strong truncate mb-2">{evento.tema}</h2>
+                  <div className="event-list-details">
+                    <span>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 21s7-5.3 7-12a7 7 0 0 0-14 0c0 6.7 7 12 7 12z"></path>
+                        <circle cx="12" cy="9" r="2.2"></circle>
+                      </svg>
+                      {local?.nome || 'Local nao definido'}
+                    </span>
+                    <span>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 7v5l4 2"></path>
+                      </svg>
+                      {evento.horarioInicio} - {evento.horarioFim}
+                    </span>
+                  </div>
                   <div className="event-tags flex flex-wrap gap-2 text-xs text-brand-muted mb-2">
                     <StatusBadge status={evento.status} />
                     {disc && (
@@ -420,39 +493,40 @@ export const EventList: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="event-actions flex flex-col gap-2 justify-center">
+                <div className="event-actions">
                   <Link
-                    className="table-action text-center font-bold"
+                    className="event-action event-action--primary"
                     to={`/admin/eventos/editar/${evento.id}`}
                   >
                     {isFinalized ? 'Ver detalhes' : 'Editar'}
                   </Link>
 
+                  {evento.qrCodeUrl && (
+                    <button
+                      type="button"
+                      onClick={() => openQrCodeModal(evento)}
+                      className="event-action event-action--secondary"
+                    >
+                      Ver QR Code
+                    </button>
+                  )}
+
                   {!isFinalized && !isCancelled && (
-                    <>
+                    <div className="event-actions__secondary">
                       <Link
-                        className="table-action text-center font-bold"
+                        className="event-action event-action--secondary"
                         to={`/admin/eventos/concluir/${evento.id}`}
                       >
                         Concluir
                       </Link>
                       <button
-                        className="table-action danger font-bold"
+                        className="event-action event-action--danger"
+                        type="button"
                         onClick={() => handleCancel(evento.id)}
                       >
                         Cancelar
                       </button>
-                    </>
-                  )}
-                  {evento.qrCodeUrl && (
-                    <a
-                      href={evento.qrCodeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[10px] text-center text-brand-primary font-bold hover:underline"
-                    >
-                      Ver QR Code
-                    </a>
+                    </div>
                   )}
                 </div>
               </article>
@@ -504,6 +578,51 @@ export const EventList: React.FC = () => {
             Último
           </button>
         </nav>
+      )}
+
+      {qrModalEvent && (
+        <div className="modal-backdrop" role="presentation">
+          <section className="creation-confirmation-modal" role="dialog" aria-modal="true" aria-labelledby="event-qrcode-title">
+            <button
+              className="modal-close-button"
+              type="button"
+              aria-label="Fechar"
+              onClick={closeQrCodeModal}
+            >
+              x
+            </button>
+
+            <div className="creation-confirmation-modal__header">
+              <span>QR Code</span>
+              <h2 id="event-qrcode-title">{qrModalEvent.tema}</h2>
+              <p>Use este QR Code para validar a presenca dos participantes no dia do evento.</p>
+            </div>
+
+            <div className="creation-confirmation-modal__qr">
+              {qrCodeUrl ? (
+                <img src={qrCodeUrl} alt={`QR Code do evento ${qrModalEvent.tema}`} />
+              ) : (
+                <div className="creation-confirmation-modal__placeholder" role="status">
+                  {qrCodeError || 'Carregando QR Code...'}
+                </div>
+              )}
+            </div>
+
+            <div className="creation-confirmation-modal__actions">
+              <button
+                className="link-action"
+                type="button"
+                onClick={handleDownloadQrCode}
+                disabled={!qrCodeUrl || qrCodeLoading}
+              >
+                Baixar QR Code
+              </button>
+              <button className="primary-action" type="button" onClick={closeQrCodeModal}>
+                Concluir
+              </button>
+            </div>
+          </section>
+        </div>
       )}
     </div>
   );

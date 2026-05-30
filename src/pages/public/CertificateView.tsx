@@ -1,17 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import db from '../../data/mockDb';
+import type { Participation } from '../../data/types';
 
 export const CertificateView: React.FC = () => {
   const { codigo } = useParams<{ codigo: string }>();
+  const navigate = useNavigate();
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [data, setData] = useState<any | null>(null);
+  const [participation, setParticipation] = useState<Participation | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
 
   const previewUrl = useMemo(
-    () => (codigo ? `/api/certificados/${encodeURIComponent(codigo)}/preview-html` : ''),
+    () => (codigo ? `/api/certificados/${encodeURIComponent(codigo)}/preview` : ''),
     [codigo],
   );
 
@@ -24,13 +27,28 @@ export const CertificateView: React.FC = () => {
     if (!codigo) return;
 
     setLoading(true);
-    db.getCertificateByCode(codigo)
-      .then(setData)
-      .catch((err) => {
+    setErro('');
+    setParticipation(null);
+
+    const loadCertificate = async () => {
+      try {
+        const certificateData = await db.getCertificateByCode(codigo);
+        setData(certificateData);
+
+        const participationId = certificateData.certificado.participacaoId || certificateData.raw?.participacao?.id;
+        const participationData = participationId
+          ? await db.getParticipationById(String(participationId)).catch(() => certificateData.certificado.participacao || null)
+          : certificateData.certificado.participacao || null;
+        setParticipation(participationData);
+      } catch (err) {
         console.error(err);
         setErro('Certificado nao encontrado ou codigo invalido.');
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCertificate();
   }, [codigo]);
 
   const handleCopyKey = async () => {
@@ -57,7 +75,8 @@ export const CertificateView: React.FC = () => {
   const handleShare = async () => {
     if (!navigator.share || !data?.certificado) return;
 
-    const rawEvent = data.raw?.participacao?.evento;
+    const rawPart = participation || data.certificado?.participacao || data.raw?.participacao;
+    const rawEvent = rawPart?.evento;
     try {
       await navigator.share({
         title: `Certificado - ${rawEvent?.tema || 'Muttley'}`,
@@ -67,6 +86,14 @@ export const CertificateView: React.FC = () => {
     } catch (err) {
       console.error('Erro ao compartilhar', err);
     }
+  };
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate('/login');
   };
 
   if (loading) {
@@ -83,18 +110,22 @@ export const CertificateView: React.FC = () => {
         <div className="text-center p-8 bg-brand-surface rounded-xl border border-brand-line shadow-md max-w-md">
           <h2 className="text-2xl font-bold text-brand-danger">Certificado nao encontrado</h2>
           <p className="text-brand-muted mt-2">{erro || 'O codigo de validacao fornecido e invalido.'}</p>
-          <Link to="/certificados/publico" className="primary-action mt-6 inline-flex items-center">
-            Voltar para Validacao
-          </Link>
+          <button type="button" onClick={handleBack} className="primary-action mt-6 inline-flex items-center">
+            Voltar
+          </button>
         </div>
       </div>
     );
   }
 
   const { certificado, linkedinUrl } = data;
-  const rawPart = data.raw?.participacao;
+  const rawPart = participation || certificado.participacao || data.raw?.participacao;
   const rawEvent = rawPart?.evento;
   const rawPerson = rawPart?.pessoa;
+  const participantName = rawPerson?.nome || 'Participante';
+  const participantEmail = rawPerson?.email || 'N/A';
+  const participantRole = rawPart?.tipo || 'participante';
+  const eventTitle = rawEvent?.tema || 'Evento';
 
   return (
     <main className="admin-page public-certificate-view mx-auto p-4 md:p-8 flex flex-col gap-8 max-w-6xl">
@@ -108,7 +139,7 @@ export const CertificateView: React.FC = () => {
           </span>
           <h1 className="text-3xl font-extrabold text-brand-ink-strong mt-1">Validacao de Certificado</h1>
         </div>
-        <Link className="link-action" to="/certificados/publico">Voltar</Link>
+        <button className="link-action" type="button" onClick={handleBack}>Voltar</button>
       </div>
 
       <section className="w-full flex flex-col gap-4">
@@ -145,7 +176,7 @@ export const CertificateView: React.FC = () => {
 
         <div className="certificate-preview-shell border border-brand-line rounded-xl overflow-hidden shadow-md bg-white w-full aspect-[1.414/1]">
           <iframe
-            title="Preview do certificado"
+            title="Preview do certificado emitido"
             src={previewUrl}
             className="w-full h-full border-0 bg-white"
           />
@@ -158,15 +189,25 @@ export const CertificateView: React.FC = () => {
           <dl className="certificate-data-list">
             <div>
               <dt className="text-xs text-brand-muted font-bold uppercase">Participante</dt>
-              <dd className="text-sm font-semibold text-brand-ink-strong">{rawPerson?.nome || 'N/A'}</dd>
+              <dd className="text-sm font-semibold text-brand-ink-strong">{participantName}</dd>
             </div>
             <div>
               <dt className="text-xs text-brand-muted font-bold uppercase">E-mail</dt>
-              <dd className="text-sm font-semibold text-brand-ink-strong">{rawPerson?.email || 'N/A'}</dd>
+              <dd className="text-sm font-semibold text-brand-ink-strong">{participantEmail}</dd>
             </div>
             <div className="col-span-2">
               <dt className="text-xs text-brand-muted font-bold uppercase">Evento</dt>
-              <dd className="text-sm font-semibold text-brand-ink-strong">{rawEvent?.tema || 'N/A'}</dd>
+              <dd className="text-sm font-semibold text-brand-ink-strong">{eventTitle}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-brand-muted font-bold uppercase">Inscricao</dt>
+              <dd className="text-sm font-semibold text-brand-ink-strong">
+                {rawPart?.inscricao ? `#${rawPart.inscricao}` : 'N/A'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-brand-muted font-bold uppercase">Tipo</dt>
+              <dd className="text-sm font-semibold text-brand-ink-strong">{participantRole}</dd>
             </div>
             <div>
               <dt className="text-xs text-brand-muted font-bold uppercase">Emissao</dt>

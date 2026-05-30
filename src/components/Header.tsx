@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LogIn, LogOut, Menu, ShieldCheck, UserRound } from 'lucide-react'
+import { Award, CalendarDays, FileBadge, Home, LogIn, LogOut, Menu, ShieldCheck, UserRound } from 'lucide-react'
 import db from '../data/mockDb'
 import { ButtonLink } from './ui'
 
@@ -29,10 +29,18 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
           </button>
         )}
 
-        <Link className="brand" to={isAdmin ? '/admin/inicio' : loggedUser ? '/user/inicio' : '/login'}>
+        <Link className="brand" to={isAdmin ? '/admin/inicio' : loggedUser ? '/user/inicio' : '/eventos'}>
           Muttley
         </Link>
       </div>
+
+      {!isAdmin && !loggedUser && (
+        <nav className="main-nav" aria-label="Navegacao publica">
+          <Link to="/eventos" className={path.startsWith('/eventos') ? 'active' : ''}>
+            Eventos
+          </Link>
+        </nav>
+      )}
 
       {!isAdmin && loggedUser?.role === 'ADMIN' && (
         <nav className="main-nav" aria-label="Navegacao principal">
@@ -43,15 +51,22 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         </nav>
       )}
 
-      {!isAdmin && loggedUser?.role === 'USER' && (
+      {!isAdmin && loggedUser && (
         <nav className="main-nav user-desktop-nav" aria-label="Navegacao principal do usuario">
           <Link to="/user/inicio" className={path === '/user/inicio' ? 'active' : ''}>
+            <Home aria-hidden="true" />
             Inicio
           </Link>
+          <Link to="/eventos" className={path.startsWith('/eventos') ? 'active' : ''}>
+            <CalendarDays aria-hidden="true" />
+            Eventos
+          </Link>
           <Link to="/user/certificados" className={path.startsWith('/user/certificados') ? 'active' : ''}>
+            <FileBadge aria-hidden="true" />
             Certificados
           </Link>
           <Link to="/user/medalhas" className={path.startsWith('/user/medalhas') ? 'active' : ''}>
+            <Award aria-hidden="true" />
             Medalhas
           </Link>
         </nav>

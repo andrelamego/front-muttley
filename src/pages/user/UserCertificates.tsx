@@ -2,50 +2,39 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ExternalLink, Search, ShieldCheck } from 'lucide-react'
 import db from '../../data/mockDb'
-import type { Certificate, Event, Participation } from '../../data/types'
+import type { CertificadoUsuarioResponse } from '../../data/types'
 import { ButtonAnchor, ButtonLink, Card, EmptyState, LoadingState, PageHeader, StatusBadge } from '../../components/ui'
+
+const formatDate = (date: string) => (date ? new Date(`${date}T00:00:00`).toLocaleDateString('pt-BR') : 'Data nao informada')
 
 export const UserCertificates: React.FC = () => {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const loggedUser = db.getLoggedUser()
-
-  const [participations, setParticipations] = useState<Participation[]>([])
-  const [events, setEvents] = useState<Event[]>([])
-  const [certificates, setCertificates] = useState<Certificate[]>([])
+  const [certificates, setCertificates] = useState<CertificadoUsuarioResponse[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!loggedUser) {
+    if (!db.getLoggedUser()) {
       navigate('/login')
     }
-  }, [loggedUser, navigate])
+  }, [navigate])
 
   useEffect(() => {
-    if (!loggedUser) return
+    if (!db.getLoggedUser()) return
 
     setLoading(true)
-    Promise.all([db.getParticipations(), db.getEvents(), db.getCertificates()])
-      .then(([parts, evts, certs]) => {
-        const userParts = parts.filter((p) => p.pessoaId === loggedUser.id)
-        setParticipations(userParts)
-        setEvents(evts)
-        setCertificates(certs.filter((c) => userParts.some((p) => p.id === c.participacaoId)))
-      })
+    Promise.all([db.getMe(), db.getMyCertificates()])
+      .then(([, certs]) => setCertificates(certs))
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 
-  if (!loggedUser) return null
+  if (!db.getLoggedUser()) return null
   if (loading) return <LoadingState label="Carregando certificados" />
 
-  const userCerts = certificates.map((cert) => {
-    const participation = participations.find((p) => p.id === cert.participacaoId)
-    const event = participation ? events.find((e) => e.id === participation.eventoId) : null
-    return { ...cert, event, participation }
-  })
-
-  const filteredCerts = userCerts.filter((cert) => cert.event?.tema.toLowerCase().includes(search.toLowerCase()))
+  const filteredCerts = certificates.filter((cert) =>
+    (cert.evento?.tema || 'Certificado Muttley').toLowerCase().includes(search.toLowerCase()),
+  )
 
   return (
     <div className="user-certs-container mobile-stack">
@@ -74,29 +63,30 @@ export const UserCertificates: React.FC = () => {
       ) : (
         <div className="mobile-card-list">
           {filteredCerts.map((cert) => {
-            const issueDate = new Date(cert.dataEmissao)
-            const formattedIssueDate = issueDate.toLocaleDateString('pt-BR')
-            const issueYear = issueDate.getFullYear()
-            const issueMonth = issueDate.getMonth() + 1
+            const issueDate = cert.dataEmissao ? new Date(`${cert.dataEmissao}T00:00:00`) : null
+            const issueYear = issueDate?.getFullYear()
+            const issueMonth = issueDate ? issueDate.getMonth() + 1 : undefined
+            const eventName = cert.evento?.tema || 'Certificado Muttley'
+            const certUrl = window.location.origin + `/certificados/${cert.codigoValidacao}`
             const linkedinUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent(
-              cert.event?.tema || 'Certificado Muttley',
-            )}&organizationName=${encodeURIComponent('FATEC Zona Leste')}&issueYear=${issueYear}&issueMonth=${issueMonth}&certUrl=${encodeURIComponent(
-              window.location.origin + `/certificados/${cert.codigoValidacao}`,
-            )}&certId=${cert.codigoValidacao}`
+              eventName,
+            )}&organizationName=${encodeURIComponent('FATEC Zona Leste')}${
+              issueYear ? `&issueYear=${issueYear}&issueMonth=${issueMonth}` : ''
+            }&certUrl=${encodeURIComponent(certUrl)}&certId=${cert.codigoValidacao}`
 
             return (
               <Card key={cert.id} className="student-record-card">
                 <div className="student-record-card__top">
-                  <StatusBadge status="VALID" label={`Certificado de ${cert.participation?.tipo || 'Participacao'}`} />
+                  <StatusBadge status="VALID" label={`Certificado de ${cert.tipoParticipacao || 'Participacao'}`} />
                   <ShieldCheck aria-hidden="true" />
                 </div>
 
                 <div className="student-record-card__body">
-                  <h2>{cert.event?.tema || 'Evento'}</h2>
+                  <h2>{eventName}</h2>
                   <dl>
                     <div>
                       <dt>Emissao</dt>
-                      <dd>{formattedIssueDate}</dd>
+                      <dd>{formatDate(cert.dataEmissao)}</dd>
                     </div>
                     <div>
                       <dt>Codigo</dt>

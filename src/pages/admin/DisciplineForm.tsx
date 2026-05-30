@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
-import type { Professor, Person } from '../../data/types';
+import type { Professor, Person, TurnoDisciplina } from '../../data/types';
 import { FormSkeleton } from '../../components/ui';
 
 export const DisciplineForm: React.FC = () => {
@@ -9,7 +9,7 @@ export const DisciplineForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   const [nome, setNome] = useState('');
-  const [turno, setTurno] = useState('');
+  const [turno, setTurno] = useState<TurnoDisciplina | ''>('');
   const [professorId, setProfessorId] = useState('');
   const [descricao, setDescricao] = useState('');
   const [professors, setProfessors] = useState<Professor[]>([]);
@@ -55,6 +55,13 @@ export const DisciplineForm: React.FC = () => {
       name: person ? person.nome : prof.titulacao,
     };
   });
+
+  const turnoOptions: Array<{ value: TurnoDisciplina; label: string }> = [
+    { value: 'MATUTINO', label: 'Matutino' },
+    { value: 'VESPERTINO', label: 'Vespertino' },
+    { value: 'NOTURNO', label: 'Noturno' },
+    { value: 'INTEGRAL', label: 'Integral' },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,13 +113,16 @@ export const DisciplineForm: React.FC = () => {
 
           <label className="field">
             <span>Turno:*</span>
-            <input
-              type="text"
+            <select
               value={turno}
-              onChange={(e) => setTurno(e.target.value)}
-              placeholder="Ex: Matutino, Vespertino, Noturno"
+              onChange={(e) => setTurno(e.target.value as TurnoDisciplina)}
               required
-            />
+            >
+              <option value="">Selecione um turno</option>
+              {turnoOptions.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
           </label>
 
           <label className="field">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
-import type { Event, Participation, Person } from '../../data/types';
+import type { Event, Participation } from '../../data/types';
 import { CompletionSkeleton } from '../../components/ui';
 
 export const EventConclude: React.FC = () => {
@@ -10,7 +10,6 @@ export const EventConclude: React.FC = () => {
 
   const [event, setEvent] = useState<Event | null>(null);
   const [participacoes, setParticipacoes] = useState<Participation[]>([]);
-  const [people, setPeople] = useState<Person[]>([]);
   const [presentes, setPresentes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
@@ -25,14 +24,12 @@ export const EventConclude: React.FC = () => {
       if (!id) return;
       setLoading(true);
       try {
-        const [evt, parts, pps] = await Promise.all([
+        const [evt, parts] = await Promise.all([
           db.getEventById(id),
-          db.getEventParticipations(id),
-          db.getPeople()
+          db.getEventParticipations(id)
         ]);
         setEvent(evt);
         setParticipacoes(parts);
-        setPeople(pps);
 
         // Initialize selected presence
         const initiallyPresent = parts.filter(p => p.presente).map(p => p.id);
@@ -48,11 +45,10 @@ export const EventConclude: React.FC = () => {
 
   // Pre-process items to include person details
   const parsedParticipacoes = participacoes.map(part => {
-    const person = people.find(p => p.id === part.pessoaId);
     return {
       ...part,
-      nome: person?.nome || '',
-      email: person?.email || '',
+      nome: part.pessoa?.nome || 'Participante nao informado',
+      email: part.pessoa?.email || '-',
     };
   });
 

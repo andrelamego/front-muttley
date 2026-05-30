@@ -5,6 +5,13 @@ import db from '../../data/mockDb';
 import type { Discipline, Professor, Person } from '../../data/types';
 import { ButtonLink, PageHeader, TablePageSkeleton } from '../../components/ui';
 
+const turnoLabels: Record<string, string> = {
+  MATUTINO: 'Matutino',
+  VESPERTINO: 'Vespertino',
+  NOTURNO: 'Noturno',
+  INTEGRAL: 'Integral',
+};
+
 export const DisciplineList: React.FC = () => {
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [professors, setProfessors] = useState<Professor[]>([]);
@@ -90,7 +97,7 @@ export const DisciplineList: React.FC = () => {
                 <tr key={d.id}>
                   <td>{d.nome}</td>
                   <td>{d.descricao}</td>
-                  <td>{d.turno}</td>
+                  <td>{turnoLabels[d.turno] || d.turno}</td>
                   <td>{getProfessorName(d.professorId)}</td>
                   <td>
                     <div className="table-actions">

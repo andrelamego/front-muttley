@@ -7,6 +7,11 @@ type LoginResponse = {
   token?: string;
   accessToken?: string;
   role?: 'ADMIN' | 'USER';
+  id?: string | number;
+  nome?: string;
+  email?: string;
+  telefone?: string;
+  cpf?: string;
   usuario?: string | {
     id?: string | number;
     nome?: string;
@@ -42,7 +47,23 @@ export const Login: React.FC = () => {
       const response = await apiClient.post<LoginResponse>('/auth/login', { email: normalizedEmail, senha });
       const token = response.data.accessToken || response.data.token;
       const role = response.data.role || (typeof response.data.usuario === 'object' ? response.data.usuario?.role : undefined) || 'USER';
-      const usuario = response.data.usuario || { email: normalizedEmail, role };
+      const usuario = typeof response.data.usuario === 'object' && response.data.usuario
+        ? {
+            id: response.data.usuario.id ?? response.data.id,
+            nome: response.data.usuario.nome ?? response.data.nome,
+            email: response.data.usuario.email ?? response.data.email ?? normalizedEmail,
+            telefone: response.data.usuario.telefone ?? response.data.telefone,
+            cpf: response.data.usuario.cpf ?? response.data.cpf,
+            role,
+          }
+        : {
+            id: response.data.id,
+            nome: response.data.nome,
+            email: response.data.email ?? normalizedEmail,
+            telefone: response.data.telefone,
+            cpf: response.data.cpf,
+            role,
+          };
 
       if (!token) {
         throw new Error('Token de autenticacao nao retornado pela API.');

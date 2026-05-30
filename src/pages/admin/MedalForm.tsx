@@ -56,8 +56,8 @@ export const MedalForm: React.FC = () => {
   }, [id, participacaoIdParam]);
 
   const options = participacoes.map(part => {
-    const person = people.find(p => p.id === part.pessoaId);
-    const event = events.find(e => e.id === part.eventoId);
+    const person = part.pessoa || people.find(p => p.id === part.pessoaId);
+    const event = part.evento || events.find(e => e.id === part.eventoId);
     return {
       id: part.id,
       text: `#${part.inscricao} - ${person ? person.nome : 'Participante'} - ${event ? event.tema : 'Evento'}`,
@@ -66,8 +66,8 @@ export const MedalForm: React.FC = () => {
 
   // Selected participation info for preview banner
   const selectedPart = participacoes.find(p => p.id === participacaoId);
-  const selectedPerson = selectedPart ? people.find(p => p.id === selectedPart.pessoaId) : null;
-  const selectedEvent = selectedPart ? events.find(e => e.id === selectedPart.eventoId) : null;
+  const selectedPerson = selectedPart ? selectedPart.pessoa || people.find(p => p.id === selectedPart.pessoaId) : null;
+  const selectedEvent = selectedPart ? selectedPart.evento || events.find(e => e.id === selectedPart.eventoId) : null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

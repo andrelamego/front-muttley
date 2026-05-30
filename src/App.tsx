@@ -1,15 +1,15 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import Layout from './components/Layout';
 
 // Public Pages
 import Login from './pages/public/Login';
 import Register from './pages/public/Register';
-import CertificateVerify from './pages/public/CertificateVerify';
 import CertificateView from './pages/public/CertificateView';
+import PublicEventList from './pages/public/PublicEventList';
+import PublicEventDetail from './pages/public/PublicEventDetail';
 
 // User Pages
-import UserEventDetail from './pages/user/UserEventDetail';
 import UserDashboard from './pages/user/UserDashboard';
 import UserCertificates from './pages/user/UserCertificates';
 import UserMedals from './pages/user/UserMedals';
@@ -30,17 +30,23 @@ import ParticipantList from './pages/admin/ParticipantList';
 import DisciplineList from './pages/admin/DisciplineList';
 import DisciplineForm from './pages/admin/DisciplineForm';
 
+const UserEventRedirect: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={id ? `/eventos/${id}` : '/eventos'} replace />;
+};
+
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         {/* Root Redirect */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to="/eventos" replace />} />
 
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/certificados/publico" element={<CertificateVerify />} />
+        <Route path="/eventos" element={<Layout><PublicEventList /></Layout>} />
+        <Route path="/eventos/:id" element={<Layout><PublicEventDetail /></Layout>} />
         <Route path="/certificados/:codigo" element={<CertificateView />} />
 
         {/* User Routes */}
@@ -72,7 +78,7 @@ const App: React.FC = () => {
           path="/user/evento/:id"
           element={
             <Layout>
-              <UserEventDetail />
+              <UserEventRedirect />
             </Layout>
           }
         />
