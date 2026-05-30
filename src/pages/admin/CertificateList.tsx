@@ -4,6 +4,11 @@ import db from '../../data/mockDb';
 import type { Event, Certificate, Participation, Person, Local } from '../../data/types';
 import { CertificatesSkeleton, PageHeader } from '../../components/ui';
 
+const formatDate = (date: string) => {
+  if (!date) return 'N/A';
+  return new Date(`${date}T00:00:00`).toLocaleDateString('pt-BR');
+};
+
 export const CertificateList: React.FC = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -43,15 +48,16 @@ export const CertificateList: React.FC = () => {
   const pendingEvents = events.filter(e => e.status === 'EM_ANDAMENTO');
 
   const latestCerts = certificates.map(c => {
-    const part = participacoes.find(p => p.id === c.participacaoId);
-    const person = part ? people.find(p => p.id === part.pessoaId) : null;
-    const event = part ? events.find(e => e.id === part.eventoId) : null;
+    const enrichedPart = participacoes.find(p => p.id === c.participacaoId || p.id === c.participacao?.id);
+    const part = enrichedPart || c.participacao || null;
+    const person = part ? part.pessoa || people.find(p => p.id === part.pessoaId) : null;
+    const event = enrichedPart?.evento || (part ? events.find(e => e.id === part.eventoId) : null);
     return {
       id: c.id,
       dataEmissao: c.dataEmissao,
-      participante: person ? person.nome : '-',
-      evento: event ? event.tema : '-',
-      assinatura: c.assinatura,
+      participante: person?.nome || 'Participante nao informado',
+      evento: event?.tema || 'Evento nao informado',
+      assinatura: c.assinatura || '-',
       codigoValidacao: c.codigoValidacao,
       urlPublica: `/certificados/${c.codigoValidacao}`,
     };
@@ -241,11 +247,9 @@ export const CertificateList: React.FC = () => {
                 </tr>
               ) : (
                 latestCerts.map(cert => {
-                  const dateObj = new Date(cert.dataEmissao);
-                  const formattedDate = dateObj.toLocaleDateString('pt-BR');
                   return (
                     <tr key={cert.id}>
-                      <td>{formattedDate}</td>
+                      <td>{formatDate(cert.dataEmissao)}</td>
                       <td><strong>{cert.participante}</strong></td>
                       <td>{cert.evento}</td>
                       <td className="font-mono text-xs max-w-xs truncate" title={cert.assinatura}>{cert.assinatura}</td>
