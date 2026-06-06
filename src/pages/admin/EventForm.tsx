@@ -29,13 +29,12 @@ export const EventForm: React.FC = () => {
   const [selectedTipo, setSelectedTipo] = useState<TipoParticipacao>('Aluno');
   const [eventParticipants, setEventParticipants] = useState<ParticipanteEvento[]>([]);
   const [createdEventId, setCreatedEventId] = useState('');
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [qrCodeInscricaoUrl, setQrCodeInscricaoUrl] = useState('');
+  const [qrCodeConfirmacaoUrl, setQrCodeConfirmacaoUrl] = useState('');
   const [qrCodeLoading, setQrCodeLoading] = useState(false);
   const [qrCodeError, setQrCodeError] = useState('');
   const [showCreationModal, setShowCreationModal] = useState(false);
-  const [qrCodeConfirmacaoUrl, setQrCodeConfirmacaoUrl] = useState('');
-  const [qrCodeConfirmacaoLoading, setQrCodeConfirmacaoLoading] = useState(false);
-  const [qrCodeConfirmacaoError, setQrCodeConfirmacaoError] = useState('');
+  
   
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
@@ -124,9 +123,13 @@ export const EventForm: React.FC = () => {
   }, [id]);
 
   useEffect(() => () => {
-    if (qrCodeUrl) URL.revokeObjectURL(qrCodeUrl);
-    if (qrCodeConfirmacaoUrl) URL.revokeObjectURL(qrCodeConfirmacaoUrl);
-  }, [qrCodeUrl, qrCodeConfirmacaoUrl]);
+    if (qrCodeInscricaoUrl) {
+      URL.revokeObjectURL(qrCodeInscricaoUrl);
+    }
+    if (qrCodeConfirmacaoUrl) {
+      URL.revokeObjectURL(qrCodeConfirmacaoUrl);
+    }
+  }, [qrCodeInscricaoUrl, qrCodeConfirmacaoUrl]);
 
   const participacaoList = participacoes.map(part => {
     const person = part.pessoa || people.find(p => p.id === part.pessoaId);
@@ -185,70 +188,53 @@ export const EventForm: React.FC = () => {
     setEventParticipants(prev => prev.filter(part => part.pessoaId !== pessoaId));
   };
 
-  const loadCreatedEventQrCode = async (eventId: string, attempt = 1) => {
+  const loadQrCodes = async (eventId: string, attempt = 1) => {
     setQrCodeLoading(true);
     setQrCodeError('');
 
     try {
-      const blob = await db.getEventQrCodeInscricaoBlob(eventId);
-      const url = URL.createObjectURL(blob);
-      setQrCodeUrl((previousUrl) => {
-        if (previousUrl) {
-          URL.revokeObjectURL(previousUrl);
-        }
-        return url;
+      const [blobInscricao, blobConfirmacao] = await Promise.all([
+        db.getEventQrCodeInscricaoBlob(eventId),
+        db.getEventQrCodeConfirmacaoBlob(eventId),
+      ]);
+
+      setQrCodeInscricaoUrl((previousUrl) => {
+        if (previousUrl) URL.revokeObjectURL(previousUrl);
+        return URL.createObjectURL(blobInscricao);
       });
-      setQrCodeLoading(false);
+      setQrCodeConfirmacaoUrl((previousUrl) => {
+        if (previousUrl) URL.revokeObjectURL(previousUrl);
+        return URL.createObjectURL(blobConfirmacao);
+      });
     } catch (err) {
       if (attempt < 4) {
-        window.setTimeout(() => loadCreatedEventQrCode(eventId, attempt + 1), 900);
+        window.setTimeout(() => loadQrCodes(eventId, attempt + 1), 900);
         return;
       }
-      setQrCodeError('Evento criado, mas o QR Code ainda nao ficou disponivel.');
+      setQrCodeError('Evento criado, mas os QR Codes ainda não ficaram disponíveis.');
+    } finally {
       setQrCodeLoading(false);
     }
   };
 
-  const loadConfirmacaoQrCode = async (eventId: string, attempt = 1) => {
-  setQrCodeConfirmacaoLoading(true);
-  setQrCodeConfirmacaoError('');
+    const handleCloseCreationModal = () => {
+      navigate('/admin/eventos');
+    };
 
-  try {
-    const blob = await db.getEventQrCodeConfirmacaoBlob(eventId);
-    const url = URL.createObjectURL(blob);
-    setQrCodeConfirmacaoUrl((previousUrl) => {
-      if (previousUrl) URL.revokeObjectURL(previousUrl);
-      return url;
-    });
-    setQrCodeConfirmacaoLoading(false);
-  } catch (err) {
-    if (attempt < 4) {
-      window.setTimeout(() => loadConfirmacaoQrCode(eventId, attempt + 1), 900);
-      return;
+    const handleDownloadQrCode = () => {
+    if (qrCodeInscricaoUrl) {
+      const a = document.createElement('a');
+      a.href = qrCodeInscricaoUrl;
+      a.download = `qrcode-inscricao-evento-${createdEventId || 'muttley'}.png`;
+      a.click();
     }
-    setQrCodeConfirmacaoError('QR Code de confirmação ainda não disponível.');
-    setQrCodeConfirmacaoLoading(false);
-  }
-};
-
-  const handleCloseCreationModal = () => {
-    navigate('/admin/eventos');
+    if (qrCodeConfirmacaoUrl) {
+      const a = document.createElement('a');
+      a.href = qrCodeConfirmacaoUrl;
+      a.download = `qrcode-confirmacao-evento-${createdEventId || 'muttley'}.png`;
+      a.click();
+    }
   };
-
-  const handleDownloadQrCode = () => {
-  if (qrCodeUrl) {
-    const a = document.createElement('a');
-    a.href = qrCodeUrl;
-    a.download = `qrcode-inscricao-evento-${createdEventId || 'muttley'}.png`;
-    a.click();
-  }
-  if (qrCodeConfirmacaoUrl) {
-    const a = document.createElement('a');
-    a.href = qrCodeConfirmacaoUrl;
-    a.download = `qrcode-confirmacao-evento-${createdEventId || 'muttley'}.png`;
-    a.click();
-  }
-};
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -286,8 +272,7 @@ export const EventForm: React.FC = () => {
         setCreatedEventId(result.id);
         setShowCreationModal(true);
         setLoading(false);
-        loadCreatedEventQrCode(result.id);
-        loadConfirmacaoQrCode(result.id);
+        loadQrCodes(result.id);
         return;
       }
 
@@ -689,8 +674,8 @@ export const EventForm: React.FC = () => {
                   Inscrição
                 </span>
                 <div className="creation-confirmation-modal__qr">
-                  {qrCodeUrl ? (
-                    <img src={qrCodeUrl} alt="QR Code de inscrição" />
+                  {qrCodeInscricaoUrl ? (
+                    <img src={qrCodeInscricaoUrl} alt="QR Code de inscrição" />
                   ) : (
                     <div className="creation-confirmation-modal__placeholder" role="status">
                       {qrCodeError || 'Gerando QR Code...'}
@@ -712,7 +697,7 @@ export const EventForm: React.FC = () => {
                     <img src={qrCodeConfirmacaoUrl} alt="QR Code de confirmação de presença" />
                   ) : (
                     <div className="creation-confirmation-modal__placeholder" role="status">
-                      {qrCodeConfirmacaoError || 'Gerando QR Code...'}
+                      {qrCodeError || 'Gerando QR Code...'}
                     </div>
                   )}
                 </div>
@@ -727,7 +712,7 @@ export const EventForm: React.FC = () => {
                 className="link-action"
                 type="button"
                 onClick={handleDownloadQrCode}
-                disabled={(!qrCodeUrl && !qrCodeConfirmacaoUrl) || qrCodeLoading || qrCodeConfirmacaoLoading}
+                disabled={(!qrCodeInscricaoUrl && !qrCodeConfirmacaoUrl) || qrCodeLoading}
               >
                 Baixar QR Codes
               </button>

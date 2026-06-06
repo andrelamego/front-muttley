@@ -123,7 +123,8 @@ const normalizeEvent = (event: Entity): Evento => ({
   localId: entityId(event, 'local') || toId(event.localId),
   descricao: event.descricao || '',
   status: event.status || 'CRIADO',
-  qrCodeUrl: event.qrCodeUrl || '',
+  qrCodeInscricaoUrl: event.qrCodeInscricaoUrl || '',
+  qrCodeConfirmacaoUrl: event.qrCodeConfirmacaoUrl || '',
 });
 
 const normalizePublicEvent = (event: Entity): EventoPublicoResponse => ({
