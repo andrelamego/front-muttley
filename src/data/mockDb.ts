@@ -488,8 +488,15 @@ class ApiDatabase {
     }
   }
 
-  async getEventQrCodeBlob(id: string): Promise<Blob> {
-    const response = await apiClient.get(`/admin/eventos/${id}/qrcode`, {
+  async getEventQrCodeInscricaoBlob(id: string): Promise<Blob> {
+    const response = await apiClient.get(`/admin/eventos/${id}/qrcode-inscricao`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  }
+
+  async getEventQrCodeConfirmacaoBlob(id: string): Promise<Blob> {
+    const response = await apiClient.get(`/admin/eventos/${id}/qrcode-confirmacao`, {
       responseType: 'blob',
     });
     return response.data;

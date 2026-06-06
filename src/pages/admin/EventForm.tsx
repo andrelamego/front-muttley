@@ -33,6 +33,9 @@ export const EventForm: React.FC = () => {
   const [qrCodeLoading, setQrCodeLoading] = useState(false);
   const [qrCodeError, setQrCodeError] = useState('');
   const [showCreationModal, setShowCreationModal] = useState(false);
+  const [qrCodeConfirmacaoUrl, setQrCodeConfirmacaoUrl] = useState('');
+  const [qrCodeConfirmacaoLoading, setQrCodeConfirmacaoLoading] = useState(false);
+  const [qrCodeConfirmacaoError, setQrCodeConfirmacaoError] = useState('');
   
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
@@ -121,10 +124,9 @@ export const EventForm: React.FC = () => {
   }, [id]);
 
   useEffect(() => () => {
-    if (qrCodeUrl) {
-      URL.revokeObjectURL(qrCodeUrl);
-    }
-  }, [qrCodeUrl]);
+    if (qrCodeUrl) URL.revokeObjectURL(qrCodeUrl);
+    if (qrCodeConfirmacaoUrl) URL.revokeObjectURL(qrCodeConfirmacaoUrl);
+  }, [qrCodeUrl, qrCodeConfirmacaoUrl]);
 
   const participacaoList = participacoes.map(part => {
     const person = part.pessoa || people.find(p => p.id === part.pessoaId);
@@ -188,7 +190,7 @@ export const EventForm: React.FC = () => {
     setQrCodeError('');
 
     try {
-      const blob = await db.getEventQrCodeBlob(eventId);
+      const blob = await db.getEventQrCodeInscricaoBlob(eventId);
       const url = URL.createObjectURL(blob);
       setQrCodeUrl((previousUrl) => {
         if (previousUrl) {
@@ -207,17 +209,46 @@ export const EventForm: React.FC = () => {
     }
   };
 
+  const loadConfirmacaoQrCode = async (eventId: string, attempt = 1) => {
+  setQrCodeConfirmacaoLoading(true);
+  setQrCodeConfirmacaoError('');
+
+  try {
+    const blob = await db.getEventQrCodeConfirmacaoBlob(eventId);
+    const url = URL.createObjectURL(blob);
+    setQrCodeConfirmacaoUrl((previousUrl) => {
+      if (previousUrl) URL.revokeObjectURL(previousUrl);
+      return url;
+    });
+    setQrCodeConfirmacaoLoading(false);
+  } catch (err) {
+    if (attempt < 4) {
+      window.setTimeout(() => loadConfirmacaoQrCode(eventId, attempt + 1), 900);
+      return;
+    }
+    setQrCodeConfirmacaoError('QR Code de confirmação ainda não disponível.');
+    setQrCodeConfirmacaoLoading(false);
+  }
+};
+
   const handleCloseCreationModal = () => {
     navigate('/admin/eventos');
   };
 
   const handleDownloadQrCode = () => {
-    if (!qrCodeUrl) return;
-    const anchor = document.createElement('a');
-    anchor.href = qrCodeUrl;
-    anchor.download = `qrcode-evento-${createdEventId || 'muttley'}.png`;
-    anchor.click();
-  };
+  if (qrCodeUrl) {
+    const a = document.createElement('a');
+    a.href = qrCodeUrl;
+    a.download = `qrcode-inscricao-evento-${createdEventId || 'muttley'}.png`;
+    a.click();
+  }
+  if (qrCodeConfirmacaoUrl) {
+    const a = document.createElement('a');
+    a.href = qrCodeConfirmacaoUrl;
+    a.download = `qrcode-confirmacao-evento-${createdEventId || 'muttley'}.png`;
+    a.click();
+  }
+};
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -256,6 +287,7 @@ export const EventForm: React.FC = () => {
         setShowCreationModal(true);
         setLoading(false);
         loadCreatedEventQrCode(result.id);
+        loadConfirmacaoQrCode(result.id);
         return;
       }
 
@@ -646,18 +678,48 @@ export const EventForm: React.FC = () => {
 
             <div className="creation-confirmation-modal__header">
               <span>Evento criado</span>
-              <h2 id="creation-confirmation-title">QR Code gerado para o evento</h2>
-              <p>Use o QR Code para validar a presenca dos participantes no dia do evento.</p>
+              <h2 id="creation-confirmation-title">QR Codes gerados para o evento</h2>
+              <p>Compartilhe os QR Codes com os participantes e organizadores.</p>
             </div>
 
-            <div className="creation-confirmation-modal__qr">
-              {qrCodeUrl ? (
-                <img src={qrCodeUrl} alt="QR Code do evento criado" />
-              ) : (
-                <div className="creation-confirmation-modal__placeholder" role="status">
-                  {qrCodeError || 'Gerando QR Code...'}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', margin: '1rem 0' }}>
+              {/* QR Inscrição */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Inscrição
+                </span>
+                <div className="creation-confirmation-modal__qr">
+                  {qrCodeUrl ? (
+                    <img src={qrCodeUrl} alt="QR Code de inscrição" />
+                  ) : (
+                    <div className="creation-confirmation-modal__placeholder" role="status">
+                      {qrCodeError || 'Gerando QR Code...'}
+                    </div>
+                  )}
                 </div>
-              )}
+                <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textAlign: 'center' }}>
+                  Participante escaneia para se inscrever
+                </span>
+              </div>
+
+              {/* QR Confirmação */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Confirmação de presença
+                </span>
+                <div className="creation-confirmation-modal__qr">
+                  {qrCodeConfirmacaoUrl ? (
+                    <img src={qrCodeConfirmacaoUrl} alt="QR Code de confirmação de presença" />
+                  ) : (
+                    <div className="creation-confirmation-modal__placeholder" role="status">
+                      {qrCodeConfirmacaoError || 'Gerando QR Code...'}
+                    </div>
+                  )}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textAlign: 'center' }}>
+                  Participante escaneia no dia do evento
+                </span>
+              </div>
             </div>
 
             <div className="creation-confirmation-modal__actions">
@@ -665,9 +727,9 @@ export const EventForm: React.FC = () => {
                 className="link-action"
                 type="button"
                 onClick={handleDownloadQrCode}
-                disabled={!qrCodeUrl || qrCodeLoading}
+                disabled={(!qrCodeUrl && !qrCodeConfirmacaoUrl) || qrCodeLoading || qrCodeConfirmacaoLoading}
               >
-                Baixar QR Code
+                Baixar QR Codes
               </button>
               <button className="primary-action" type="button" onClick={handleCloseCreationModal}>
                 Concluir
