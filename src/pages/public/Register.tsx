@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +13,29 @@ export const Register: React.FC = () => {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const [isFromEmail, setIsFromEmail] = useState(false);
+
+  useEffect(() => {
+    if (!token) return;
+
+    apiClient
+      .get(`/auth/registration-info?token=${token}`)
+      .then((res) => {
+        const { nome, email } = res.data;
+
+        setNome(nome || '');
+        setEmail(email || '');
+        setCpf(cpf || '');
+
+        setIsFromEmail(true);
+      })
+      .catch((err) => {
+        setErro('Link de cadastro inválido ou expirado.');
+        console.error(err);
+      });
+  }, [token]);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -109,6 +134,7 @@ export const Register: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu.email@exemplo.com"
+                  disabled={isFromEmail}
                   required
                   className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
                 />
@@ -136,6 +162,7 @@ export const Register: React.FC = () => {
                   value={cpf}
                   onChange={handleCpfChange}
                   placeholder="000.000.000-00"
+                  disabled={isFromEmail}
                   required
                   className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
                 />
