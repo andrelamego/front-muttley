@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Event, Certificate, Participation, Person, Local } from '../../data/types';
 import { CertificatesSkeleton, PageHeader } from '../../components/ui';
+import { uploadAssinatura } from '../../services/apiClient';
 
 const formatDate = (date: string) => {
   if (!date) return 'N/A';
@@ -237,22 +238,57 @@ export const CertificateList: React.FC = () => {
                 <th>Participante</th>
                 <th>Evento</th>
                 <th>Assinatura</th>
+                <th>Upload Assinatura</th>
                 <th>Validação</th>
               </tr>
             </thead>
             <tbody>
               {latestCerts.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center">Nenhum certificado emitido.</td>
+                  <td colSpan={6} className="text-center">Nenhum certificado emitido.</td>
                 </tr>
               ) : (
                 latestCerts.map(cert => {
+
+                  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+                    if (e.target.files && e.target.files[0]) {
+                      try {
+                        await uploadAssinatura(cert.id, e.target.files[0]);
+                        alert('Assinatura enviada com sucesso!');
+                        window.location.reload(); // Recarrega para buscar a imagem nova do backend
+                      } catch (err) {
+                        alert('Erro ao enviar a imagem.');
+                      }
+                    }
+                  };
+
                   return (
                     <tr key={cert.id}>
                       <td>{formatDate(cert.dataEmissao)}</td>
                       <td><strong>{cert.participante}</strong></td>
                       <td>{cert.evento}</td>
                       <td className="font-mono text-xs max-w-xs truncate" title={cert.assinatura}>{cert.assinatura}</td>
+
+                      {/* Nova coluna: Visualização da Assinatura */}
+                      <td>
+                        <img
+                          src={`/api/admin/certificados/${cert.id}/assinatura-visual`}
+                          alt="Assinatura"
+                          className="h-10 w-20 object-contain"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      </td>
+
+                      {/* Nova coluna: Upload */}
+                      <td>
+                        <input
+                          type="file"
+                          accept="image/png"
+                          onChange={handleFileChange}
+                          className="text-[10px] w-24"
+                        />
+                      </td>
+
                       <td>
                         <Link className="table-action" to={cert.urlPublica}>
                           Abrir
