@@ -55,13 +55,15 @@ apiClient.interceptors.response.use(
   },
 );
 
-// Adicione esta exportação no src/services/apiClient.ts
-export const uploadAssinatura = async (id: number, file: File) => {
+export const uploadAssinaturaEvento = async (eventoId: number | string, file: File) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  // O axios/fetch gerencia o boundary automaticamente, não defina Content-Type aqui
-  return await axios.post(`/api/admin/certificados/${id}/upload-assinatura`, formData);
+  return await apiClient.post(`/admin/certificados/evento/${eventoId}/upload-assinatura`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data' // Essencial para envio de arquivos
+    }
+  });
 };
 
 export default apiClient;

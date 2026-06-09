@@ -217,12 +217,27 @@ export const CertificateView: React.FC = () => {
               <dt className="text-xs text-brand-muted font-bold uppercase">Codigo de validacao</dt>
               <dd className="text-sm font-mono font-bold text-brand-primary">{certificado.codigoValidacao}</dd>
             </div>
+
             <div className="col-span-full">
-              <dt className="text-xs text-brand-muted font-bold uppercase">Assinatura</dt>
+              <dt className="text-xs text-brand-muted font-bold uppercase">Assinatura Digital (Hash)</dt>
               <dd className="text-xs font-mono break-all bg-brand-surface-soft p-2.5 rounded border border-brand-line mt-1">
                 {certificado.assinatura}
               </dd>
             </div>
+
+            {/* SEÇÃO DA IMAGEM DA ASSINATURA */}
+            <div className="col-span-full mt-4 pt-4 border-t border-brand-line">
+              <dt className="text-xs text-brand-muted font-bold uppercase">Assinatura do Coordenador</dt>
+              <dd className="mt-2 flex justify-start">
+                <img
+                  src={`${import.meta.env.VITE_API_BASE_URL || '/api'}/admin/certificados/${certificado.id}/assinatura-visual`}
+                  alt="Assinatura não encontrada ou não cadastrada"
+                  className="h-20 object-contain rounded"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              </dd>
+            </div>
+
           </dl>
         </article>
       </section>
