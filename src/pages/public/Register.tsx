@@ -14,16 +14,16 @@ export const Register: React.FC = () => {
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const id = searchParams.get('id');
   const [isFromEmail, setIsFromEmail] = useState(false);
 
   useEffect(() => {
-    if (!token) return;
+    if (!id) return;
 
     apiClient
-      .get(`/auth/registration-info?token=${token}`)
+      .get(`/pessoa/dados-cadastro/${id}`)
       .then((res) => {
-        const { nome, email } = res.data;
+        const { nome, email, cpf} = res.data;
 
         setNome(nome || '');
         setEmail(email || '');
@@ -32,10 +32,10 @@ export const Register: React.FC = () => {
         setIsFromEmail(true);
       })
       .catch((err) => {
-        setErro('Link de cadastro inválido ou expirado.');
+        setErro('Link de cadastro inválido.');
         console.error(err);
       });
-  }, [token]);
+  }, [id]);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -74,15 +74,28 @@ export const Register: React.FC = () => {
       return;
     }
 
-    try {
-      await apiClient.post('/auth/register', {
-        nome,
-        email,
-        telefone,
-        cpf,
-        senha
-      });
+    
 
+    try {
+      if(isFromEmail){
+        await apiClient.put('/auth/register', {
+          nome,
+          email,
+          telefone,
+          cpf,
+          senha
+        });
+      }
+      else{
+        await apiClient.post('/auth/register', {
+          nome,
+          email,
+          telefone,
+          cpf,
+          senha
+        });
+      }
+      
       // Salva mensagem de sucesso e redireciona
       sessionStorage.setItem('muttley_register_msg', 'Cadastro realizado com sucesso! Faça login.');
       navigate('/login');
