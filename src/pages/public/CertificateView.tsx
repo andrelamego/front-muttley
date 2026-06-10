@@ -230,7 +230,7 @@ export const CertificateView: React.FC = () => {
               <dt className="text-xs text-brand-muted font-bold uppercase">Assinatura do Coordenador</dt>
               <dd className="mt-2 flex justify-start">
                 <img
-                  src={`${import.meta.env.VITE_API_BASE_URL || '/api'}/admin/certificados/${certificado.id}/assinatura-visual`}
+                  src={`${import.meta.env.VITE_API_BASE_URL || '/api'}/certificados/${certificado.id}/assinatura-visual`}
                   alt="Assinatura não encontrada ou não cadastrada"
                   className="h-20 object-contain rounded"
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}

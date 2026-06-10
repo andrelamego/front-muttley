@@ -4,7 +4,7 @@ import db from '../../data/mockDb';
 import type { Event, Participation } from '../../data/types';
 import { CompletionSkeleton } from '../../components/ui';
 // IMPORTA A FUNÇÃO DE UPLOAD
-import { uploadAssinaturaEvento } from '../../services/apiClient';
+import { concluirEAssinarEvento } from '../../services/apiClient';
 
 export const EventConclude: React.FC = () => {
   const navigate = useNavigate();
@@ -109,7 +109,7 @@ export const EventConclude: React.FC = () => {
     }
   };
 
-  // LÓGICA DE SUBMISSÃO COM A IMAGEM
+// LÓGICA DE SUBMISSÃO COM A IMAGEM E LISTA DE PRESENTES
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
@@ -123,23 +123,19 @@ export const EventConclude: React.FC = () => {
 
     try {
       setLoading(true);
-      const result = await db.concludeEvent(event.id, presentes);
 
-      // Envia a imagem para ser atrelada a todos os certificados recém-gerados
-      try {
-        await uploadAssinaturaEvento(event.id, assinaturaFile);
-      } catch (uploadErr) {
-        console.error("Erro ao fazer upload da assinatura:", uploadErr);
-      }
+      // NOVO: Chama a nossa API enviando o ID do evento, a lista de presentes e a imagem
+      await concluirEAssinarEvento(event.id, presentes, assinaturaFile);
 
-      const total = result?.certificadosGerados ?? 0;
       sessionStorage.setItem(
         'muttley_cert_msg',
-        `Evento concluido com sucesso. ${total} certificado${total === 1 ? '' : 's'} gerado${total === 1 ? '' : 's'}.`,
+        'Evento concluído com sucesso e certificados gerados com a assinatura.'
       );
       navigate('/admin/certificados');
+
     } catch (err: any) {
-      setErro(err.message || 'Erro ao processar e concluir o evento.');
+      console.error(err);
+      setErro(err.message || 'Erro ao processar e concluir o evento. Verifique se o Back-end está rodando.');
       setLoading(false);
     }
   };
