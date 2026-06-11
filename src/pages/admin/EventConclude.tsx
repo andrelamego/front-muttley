@@ -32,7 +32,8 @@ export const EventConclude: React.FC = () => {
         setParticipacoes(parts);
 
         // Initialize selected presence
-        const initiallyPresent = parts.filter(p => p.presente).map(p => p.id);
+        const initiallyPresent = parts.filter(p => !!p.presente).map(p => p.id);
+        console.log
         setPresentes(initiallyPresent);
       } catch (err: any) {
         setErro(err.message || 'Erro ao carregar dados do evento.');
