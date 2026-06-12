@@ -55,4 +55,33 @@ apiClient.interceptors.response.use(
   },
 );
 
+export const uploadAssinaturaEvento = async (eventoId: number | string, file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return await apiClient.post(`/admin/certificados/evento/${eventoId}/upload-assinatura`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data' // Essencial para envio de arquivos
+    }
+  });
+};
+
+export const concluirEAssinarEvento = async (eventoId: string | number, presentes: string[], file: File) => {
+  const formData = new FormData();
+
+  // Anexa a lista de presentes (se houver)
+  if (presentes && presentes.length > 0) {
+    presentes.forEach(id => formData.append('presentes', id.toString()));
+  }
+
+  // Anexa a imagem
+  formData.append('file', file);
+
+  return await apiClient.post(`/admin/eventos/${eventoId}/concluir`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+};
+
 export default apiClient;

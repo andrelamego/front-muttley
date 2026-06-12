@@ -3,6 +3,8 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Event, Participation } from '../../data/types';
 import { CompletionSkeleton } from '../../components/ui';
+// IMPORTA A FUNÇÃO DE UPLOAD
+import { concluirEAssinarEvento } from '../../services/apiClient';
 
 export const EventConclude: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +20,9 @@ export const EventConclude: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 20;
 
-  // Load event and participation details
+  // ESTADO PARA GUARDAR A IMAGEM
+  const [assinaturaFile, setAssinaturaFile] = useState<File | null>(null);
+
   useEffect(() => {
     const loadData = async () => {
       if (!id) return;
@@ -31,9 +35,7 @@ export const EventConclude: React.FC = () => {
         setEvent(evt);
         setParticipacoes(parts);
 
-        // Initialize selected presence
-        const initiallyPresent = parts.filter(p => !!p.presente).map(p => p.id);
-        console.log
+        const initiallyPresent = parts.filter(p => p.presente).map(p => p.id);
         setPresentes(initiallyPresent);
       } catch (err: any) {
         setErro(err.message || 'Erro ao carregar dados do evento.');
@@ -44,7 +46,6 @@ export const EventConclude: React.FC = () => {
     loadData();
   }, [id]);
 
-  // Pre-process items to include person details
   const parsedParticipacoes = participacoes.map(part => {
     return {
       ...part,
@@ -53,7 +54,6 @@ export const EventConclude: React.FC = () => {
     };
   });
 
-  // Filter based on search query (reactive filter by name/email/inscription)
   const searchQueryLower = searchQuery.toLowerCase();
   const searchedParticipacoes = parsedParticipacoes.filter(part => {
     const matchesName = part.nome.toLowerCase().includes(searchQueryLower);
@@ -62,19 +62,16 @@ export const EventConclude: React.FC = () => {
     return matchesName || matchesEmail || matchesInscricao;
   });
 
-  // Filter based on active tab
   const filteredParticipacoes = searchedParticipacoes.filter(part => {
     const isPresent = presentes.includes(part.id);
     if (activeTab === 'PRESENTES') return isPresent;
     if (activeTab === 'AUSENTES') return !isPresent;
-    return true; // 'TODOS'
+    return true;
   });
 
-  // Pagination bounds
   const totalItems = filteredParticipacoes.length;
   const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
 
-  // Ensure current page is valid
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
@@ -85,7 +82,6 @@ export const EventConclude: React.FC = () => {
   const endIndex = Math.min(startIndex + PAGE_SIZE, totalItems);
   const paginatedParticipacoes = filteredParticipacoes.slice(startIndex, endIndex);
 
-  // Visible selected count (for page selection)
   const visibleSelected = paginatedParticipacoes.length > 0 && paginatedParticipacoes.every(p => presentes.includes(p.id));
 
   const handleToggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,30 +109,38 @@ export const EventConclude: React.FC = () => {
     }
   };
 
+// LÓGICA DE SUBMISSÃO COM A IMAGEM E LISTA DE PRESENTES
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
     if (!event) return;
 
+    if (!assinaturaFile) {
+      setErro('Atenção: Selecione o arquivo da assinatura antes de concluir o evento!');
+      return;
+    }
+
     try {
       setLoading(true);
-      const result = await db.concludeEvent(event.id, presentes);
-      const total = result?.certificadosGerados ?? 0;
+
+      // NOVO: Chama a nossa API enviando o ID do evento, a lista de presentes e a imagem
+      await concluirEAssinarEvento(event.id, presentes, assinaturaFile);
+
       sessionStorage.setItem(
         'muttley_cert_msg',
-        `Evento concluido com sucesso. ${total} certificado${total === 1 ? '' : 's'} gerado${total === 1 ? '' : 's'}.`,
+        'Evento concluído com sucesso e certificados gerados com a assinatura.'
       );
       navigate('/admin/certificados');
+
     } catch (err: any) {
-      setErro(err.message || 'Erro ao processar e concluir o evento.');
+      console.error(err);
+      setErro(err.message || 'Erro ao processar e concluir o evento. Verifique se o Back-end está rodando.');
       setLoading(false);
     }
   };
 
-  if (loading && !event) {
-    return <CompletionSkeleton />;
-  }
+  if (loading && !event) return <CompletionSkeleton />;
 
   if (!event) {
     return (
@@ -147,18 +151,15 @@ export const EventConclude: React.FC = () => {
     );
   }
 
-  const percentPresent = parsedParticipacoes.length > 0 
-    ? Math.round((presentes.length / parsedParticipacoes.length) * 100)
-    : 0;
+  const percentPresent = parsedParticipacoes.length > 0
+    ? Math.round((presentes.length / parsedParticipacoes.length) * 100) : 0;
 
   return (
     <div className="admin-page">
       <div className="page-title-row">
         <div>
           <h1>Concluir evento</h1>
-          <p className="completion-subtitle text-sm text-brand-muted mt-1">
-            {event.tema}
-          </p>
+          <p className="completion-subtitle text-sm text-brand-muted mt-1">{event.tema}</p>
         </div>
         <Link className="link-action" to="/admin/eventos">Voltar</Link>
       </div>
@@ -199,7 +200,6 @@ export const EventConclude: React.FC = () => {
         </article>
       </div>
 
-      {/* Attendance Percentage Progress Bar */}
       <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
           <span style={{ fontWeight: 'bold', color: 'var(--ink-strong)' }}>Taxa de Presença Geral</span>
@@ -210,51 +210,34 @@ export const EventConclude: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabs for Filtering Presence */}
       <div className="flex border-b border-brand-line mb-4" style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--line)', marginBottom: '1.5rem' }}>
         {(['TODOS', 'PRESENTES', 'AUSENTES'] as const).map(tab => {
-          const count = 
-            tab === 'TODOS' ? parsedParticipacoes.length : 
-            tab === 'PRESENTES' ? presentes.length : 
+          const count =
+            tab === 'TODOS' ? parsedParticipacoes.length :
+            tab === 'PRESENTES' ? presentes.length :
             parsedParticipacoes.length - presentes.length;
-          
-          const label = 
-            tab === 'TODOS' ? 'Todos' : 
-            tab === 'PRESENTES' ? 'Presentes' : 
-            'Não Confirmados';
 
+          const label = tab === 'TODOS' ? 'Todos' : tab === 'PRESENTES' ? 'Presentes' : 'Não Confirmados';
           const isActive = activeTab === tab;
 
           return (
             <button
               key={tab}
               type="button"
-              onClick={() => {
-                setActiveTab(tab);
-                setCurrentPage(1);
-              }}
+              onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
               style={{
-                background: 'none',
-                border: 'none',
-                padding: '0.75rem 0.5rem',
-                cursor: 'pointer',
+                background: 'none', border: 'none', padding: '0.75rem 0.5rem', cursor: 'pointer',
                 borderBottom: isActive ? '2px solid var(--primary)' : '2px solid transparent',
-                color: isActive ? 'var(--primary)' : 'var(--muted)',
-                fontWeight: isActive ? 'bold' : 'normal',
-                fontSize: '0.9rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem',
+                color: isActive ? 'var(--primary)' : 'var(--muted)', fontWeight: isActive ? 'bold' : 'normal',
+                fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem',
               }}
             >
               <span>{label}</span>
               <span style={{
-                fontSize: '0.75rem',
-                padding: '0.1rem 0.45rem',
+                fontSize: '0.75rem', padding: '0.1rem 0.45rem',
                 backgroundColor: isActive ? 'var(--primary-soft)' : 'var(--surface-soft)',
                 color: isActive ? 'var(--primary-strong)' : 'var(--muted)',
-                borderRadius: '999px',
-                fontWeight: 'bold',
+                borderRadius: '999px', fontWeight: 'bold',
               }}>
                 {count}
               </span>
@@ -263,7 +246,6 @@ export const EventConclude: React.FC = () => {
         })}
       </div>
 
-      {/* Search and Selection Toolbar */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--line)', borderRadius: 'var(--radius)', backgroundColor: 'var(--surface)', padding: '0 0.75rem', flex: 1, minWidth: '260px', height: '2.55rem' }}>
           <svg style={{ color: 'var(--muted)', marginRight: '0.5rem', width: '1rem', height: '1rem' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -274,27 +256,20 @@ export const EventConclude: React.FC = () => {
             type="text"
             placeholder="Buscar por nome, e-mail ou inscrição..."
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.88rem', backgroundColor: 'transparent', color: 'var(--ink)' }}
           />
           {searchQuery && (
             <button
               type="button"
-              onClick={() => {
-                setSearchQuery('');
-                setCurrentPage(1);
-              }}
+              onClick={() => { setSearchQuery(''); setCurrentPage(1); }}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontWeight: 'bold', fontSize: '1.1rem' }}
             >
               ×
             </button>
           )}
         </div>
-        
-        {/* Toggle select-all switch */}
+
         {paginatedParticipacoes.length > 0 && (
           <label className="attendance-toggle flex items-center gap-2 text-xs font-bold text-brand-ink cursor-pointer">
             <input
@@ -309,6 +284,28 @@ export const EventConclude: React.FC = () => {
       </div>
 
       <form className="completion-form flex flex-col gap-4" onSubmit={handleSubmit}>
+
+        {/* CAIXA DE UPLOAD DA ASSINATURA */}
+        <div className="p-4 border border-brand-primary/30 rounded-lg bg-blue-50/30">
+          <label className="block text-sm font-bold text-brand-ink-strong mb-2">
+            Assinatura do Documento (Obrigatório)
+          </label>
+          <p className="text-xs text-brand-muted mb-3">
+            Selecione o arquivo PNG ou JPG contendo a assinatura do responsável. Esta imagem será aplicada automaticamente em todos os certificados gerados.
+          </p>
+          <input
+            type="file"
+            accept="image/png, image/jpeg"
+            required
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                setAssinaturaFile(e.target.files[0]);
+              }
+            }}
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-brand-primary file:text-white hover:file:bg-brand-primary-strong cursor-pointer bg-white border border-brand-line p-1"
+          />
+        </div>
+
         <section className="participants-section mt-2" aria-labelledby="participacoes-title">
           {paginatedParticipacoes.length === 0 ? (
             <div className="empty-state compact-empty p-8 bg-brand-surface border border-brand-line rounded-lg text-center text-brand-muted">
@@ -329,7 +326,6 @@ export const EventConclude: React.FC = () => {
                 <tbody>
                   {paginatedParticipacoes.map(part => {
                     const isChecked = presentes.includes(part.id);
-
                     return (
                       <tr key={part.id}>
                         <td className="text-center">
@@ -353,7 +349,6 @@ export const EventConclude: React.FC = () => {
                 </tbody>
               </table>
 
-              {/* Local client-side pagination */}
               {totalPages > 1 && (
                 <div className="pagination" style={{ display: 'flex', justifyContent: 'center', gap: '0.85rem', marginTop: '1.5rem', alignItems: 'center' }}>
                   <button

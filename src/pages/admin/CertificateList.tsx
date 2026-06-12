@@ -44,7 +44,6 @@ export const CertificateList: React.FC = () => {
     init();
   }, []);
 
-  // Load events waiting for certificate (status = EM_ANDAMENTO)
   const pendingEvents = events.filter(e => e.status === 'EM_ANDAMENTO');
 
   const latestCerts = certificates.map(c => {
@@ -61,7 +60,7 @@ export const CertificateList: React.FC = () => {
       codigoValidacao: c.codigoValidacao,
       urlPublica: `/certificados/${c.codigoValidacao}`,
     };
-  }).reverse(); // Latest first
+  }).reverse();
 
   const [canScroll, setCanScroll] = useState(false);
 
@@ -192,36 +191,6 @@ export const CertificateList: React.FC = () => {
         )}
       </section>
 
-      <section className="certificate-overview mb-8" aria-label="Modelo do certificado e resumo">
-        <article className="certificate-preview-panel">
-          <div className="section-heading flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-brand-ink-strong">Modelo do certificado</h2>
-            <Link className="link-action text-brand-primary font-bold hover:underline text-xs" to="/certificados/MUTE-928A-817B" target="_blank">
-              Abrir modelo (Visualização pública)
-            </Link>
-          </div>
-          <div className="certificate-preview-shell border border-brand-line rounded-xl overflow-hidden aspect-[1.7/1] shadow-sm bg-white relative max-w-2xl mx-auto flex items-center justify-center p-6 text-center">
-            {/* Visual representation of the layout inside a card */}
-            <div className="border-4 border-brand-line p-4 w-full h-full flex flex-col justify-between items-center" style={{ backgroundImage: "url('/Fundo.jpg')", backgroundSize: 'cover' }}>
-              <h3 className="text-2xl font-serif font-bold text-amber-500 tracking-wider">CERTIFICADO</h3>
-              <div className="my-2">
-                <p className="text-[10px] text-slate-800">Este certificado é concedido ao participante</p>
-                <h4 className="text-xs font-bold text-slate-900 border-b border-brand-primary/20 pb-0.5 mt-1 inline-block px-2">
-                  [Nome do Participante]
-                </h4>
-                <p className="text-[9px] text-slate-600 max-w-sm mx-auto mt-2 leading-relaxed">
-                  por participar e concluir as atividades do evento <strong>[Tema do Evento]</strong> realizado em [Data do Evento], promovido pela FATEC Zona Leste.
-                </p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-24 border-t border-slate-900 my-0.5"></div>
-                <p className="text-[8px] text-slate-500">Coordenador do curso de ADS</p>
-              </div>
-            </div>
-          </div>
-        </article>
-      </section>
-
       <section className="latest-certificates mt-12" aria-labelledby="latest-certificates-title">
         <div className="section-heading mb-4">
           <h2 id="latest-certificates-title" className="text-lg font-bold text-brand-ink-strong">
@@ -236,14 +205,15 @@ export const CertificateList: React.FC = () => {
                 <th>Emissão</th>
                 <th>Participante</th>
                 <th>Evento</th>
-                <th>Assinatura</th>
+                <th>Assinatura (Hash)</th>
+                <th>Assinatura (Visual)</th>
                 <th>Validação</th>
               </tr>
             </thead>
             <tbody>
               {latestCerts.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center">Nenhum certificado emitido.</td>
+                  <td colSpan={6} className="text-center">Nenhum certificado emitido.</td>
                 </tr>
               ) : (
                 latestCerts.map(cert => {
@@ -253,6 +223,17 @@ export const CertificateList: React.FC = () => {
                       <td><strong>{cert.participante}</strong></td>
                       <td>{cert.evento}</td>
                       <td className="font-mono text-xs max-w-xs truncate" title={cert.assinatura}>{cert.assinatura}</td>
+
+                      {/* Exibe a imagem salva na hora da conclusão */}
+                      <td>
+                        <img
+                          src={`${import.meta.env.VITE_API_BASE_URL || '/api'}/admin/certificados/${cert.id}/assinatura-visual`}
+                          alt="Sem Assinatura"
+                          className="h-10 w-24 object-contain bg-gray-50 border rounded"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      </td>
+
                       <td>
                         <Link className="table-action" to={cert.urlPublica}>
                           Abrir
