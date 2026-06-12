@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import db from '../../data/mockDb';
+import { toast } from '../../components/ui/Toast';
 import type { Person, Student, Professor, Speaker, Organizer, Collaborator } from '../../data/types';
 import { PageHeader, TablePageSkeleton } from '../../components/ui';
 
@@ -36,6 +37,7 @@ export const ParticipantList: React.FC = () => {
         setCollaborators(colls);
       } catch (err) {
         console.error('Error loading participants:', err);
+        toast.error(err instanceof Error ? err.message : 'Erro ao carregar participantes.');
       } finally {
         setLoading(false);
       }

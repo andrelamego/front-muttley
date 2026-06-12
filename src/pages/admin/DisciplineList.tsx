@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { Discipline, Professor, Person } from '../../data/types';
 import { ButtonLink, PageHeader, TablePageSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 const turnoLabels: Record<string, string> = {
   MATUTINO: 'Matutino',
@@ -17,8 +18,6 @@ export const DisciplineList: React.FC = () => {
   const [professors, setProfessors] = useState<Professor[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [erro, setErro] = useState('');
 
   const loadData = () => {
     setLoading(true);
@@ -30,7 +29,7 @@ export const DisciplineList: React.FC = () => {
       setDisciplines(discs);
       setProfessors(profs);
       setPeople(ppl);
-    }).catch(console.error)
+    }).catch((err) => toast.error(err.message || 'Erro ao carregar disciplinas.'))
       .finally(() => setLoading(false));
   };
 
@@ -43,9 +42,9 @@ export const DisciplineList: React.FC = () => {
       try {
         await db.deleteDiscipline(id);
         setDisciplines(prev => prev.filter(d => d.id !== id));
-        setMessage('Disciplina excluída com sucesso.');
+        toast.success('Disciplina excluída com sucesso.');
       } catch (err: any) {
-        setErro(err.message || 'Erro ao excluir disciplina.');
+        toast.error(err.message || 'Erro ao excluir disciplina.');
       }
     }
   };
@@ -72,9 +71,6 @@ export const DisciplineList: React.FC = () => {
           </ButtonLink>
         }
       />
-
-      {message && <div className="alert alert-success">{message}</div>}
-      {erro && <div className="alert alert-danger">{erro}</div>}
 
       <section className="people-panel">
         <table className="participants-table">

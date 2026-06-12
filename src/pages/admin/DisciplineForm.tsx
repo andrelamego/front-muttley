@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Professor, Person, TurnoDisciplina } from '../../data/types';
 import { FormSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const DisciplineForm: React.FC = () => {
   const navigate = useNavigate();
@@ -15,7 +16,6 @@ export const DisciplineForm: React.FC = () => {
   const [professors, setProfessors] = useState<Professor[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
 
   // Load existing discipline and professor options
   useEffect(() => {
@@ -36,11 +36,11 @@ export const DisciplineForm: React.FC = () => {
             setProfessorId(found.professorId);
             setDescricao(found.descricao);
           } else {
-            setErro('Disciplina não encontrada.');
+            toast.error('Disciplina não encontrada.');
           }
         }
       } catch (err: any) {
-        setErro(err.message || 'Erro ao carregar dados.');
+        toast.error(err.message || 'Erro ao carregar dados.');
       } finally {
         setLoading(false);
       }
@@ -65,10 +65,8 @@ export const DisciplineForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErro('');
-
     if (!nome || !turno || !professorId) {
-      setErro('Por favor, preencha todos os campos obrigatórios.');
+      toast.warning('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -82,9 +80,10 @@ export const DisciplineForm: React.FC = () => {
       };
       
       await db.saveDiscipline(payload);
+      toast.success(id ? 'Disciplina atualizada com sucesso.' : 'Disciplina criada com sucesso.');
       navigate('/admin/disciplinas');
     } catch (err: any) {
-      setErro(err.message || 'Erro ao salvar disciplina.');
+      toast.error(err.message || 'Erro ao salvar disciplina.');
     }
   };
 
@@ -95,8 +94,6 @@ export const DisciplineForm: React.FC = () => {
   return (
     <div className="admin-page">
       <h1>{id ? 'Editar disciplina' : 'Nova disciplina'}</h1>
-
-      {erro && <div className="alert alert-danger">{erro}</div>}
 
       <form className="event-form" onSubmit={handleSubmit}>
         <div className="form-grid">

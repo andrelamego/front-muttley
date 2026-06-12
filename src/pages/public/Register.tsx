@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from '../../components/ui/Toast';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +13,6 @@ export const Register: React.FC = () => {
   const [cpf, setCpf] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
-  const [erro, setErro] = useState('');
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id');
   const [isFromEmail, setIsFromEmail] = useState(false);
@@ -32,7 +32,7 @@ export const Register: React.FC = () => {
         setIsFromEmail(true);
       })
       .catch((err) => {
-        setErro('Link de cadastro inválido.');
+        toast.error('Link de cadastro inválido.');
         console.error(err);
       });
   }, [id]);
@@ -67,10 +67,8 @@ export const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErro('');
-
     if (senha !== confirmarSenha) {
-      setErro('As senhas não coincidem.');
+      toast.warning('As senhas não coincidem.');
       return;
     }
 
@@ -96,11 +94,10 @@ export const Register: React.FC = () => {
         });
       }
       
-      // Salva mensagem de sucesso e redireciona
-      sessionStorage.setItem('muttley_register_msg', 'Cadastro realizado com sucesso! Faça login.');
+      toast.success('Cadastro realizado com sucesso! Faça login.');
       navigate('/login');
     } catch (err: any) {
-      setErro(err.message || 'Erro ao realizar cadastro.');
+      toast.error(err.message || 'Erro ao realizar cadastro.');
     }
   };
 
@@ -117,8 +114,6 @@ export const Register: React.FC = () => {
         </section>
 
         <section className="auth-panel register-panel p-8 md:p-12 flex flex-col justify-center" aria-labelledby="register-title">
-          {erro && <div className="alert alert-danger mb-4">{erro}</div>}
-
           <div className="auth-heading mb-6">
             <span className="auth-kicker text-brand-primary font-bold text-xs uppercase tracking-wider">Cadastro</span>
             <h1 id="register-title" className="text-2xl font-extrabold text-brand-ink-strong mt-1">Criar cadastro</h1>

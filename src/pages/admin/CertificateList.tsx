@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Event, Certificate, Participation, Person, Local } from '../../data/types';
 import { CertificatesSkeleton, PageHeader } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 const formatDate = (date: string) => {
   if (!date) return 'N/A';
@@ -37,6 +38,7 @@ export const CertificateList: React.FC = () => {
         setLocais(locs);
       } catch (err) {
         console.error('Error loading certificates list:', err);
+        toast.error(err instanceof Error ? err.message : 'Erro ao carregar certificados.');
       } finally {
         setLoading(false);
       }

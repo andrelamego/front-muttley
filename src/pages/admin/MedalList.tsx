@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { Medal, Participation, Person, Event } from '../../data/types';
 import { ButtonLink, PageHeader, TablePageSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const MedalList: React.FC = () => {
   const [medals, setMedals] = useState<Medal[]>([]);
@@ -11,7 +12,6 @@ export const MedalList: React.FC = () => {
   const [people, setPeople] = useState<Person[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
 
   const loadData = async () => {
     setLoading(true);
@@ -27,7 +27,7 @@ export const MedalList: React.FC = () => {
       setPeople(pps);
       setEvents(evts);
     } catch (err: any) {
-      setMessage(err.message || 'Erro ao carregar medalhas.');
+      toast.error(err.message || 'Erro ao carregar medalhas.');
     } finally {
       setLoading(false);
     }
@@ -43,9 +43,9 @@ export const MedalList: React.FC = () => {
         setLoading(true);
         await db.deleteMedal(id);
         setMedals(prev => prev.filter(m => m.id !== id));
-        setMessage('Medalha excluída com sucesso.');
+        toast.success('Medalha excluída com sucesso.');
       } catch (err: any) {
-        setMessage(err.message || 'Erro ao excluir medalha.');
+        toast.error(err.message || 'Erro ao excluir medalha.');
       } finally {
         setLoading(false);
       }
@@ -80,13 +80,12 @@ export const MedalList: React.FC = () => {
         }
       />
 
-      {message && <div className="alert alert-info">{message}</div>}
-
       <section className="people-panel">
         <table className="participants-table">
           <thead>
             <tr>
               <th>Nome</th>
+              <th>Tipo</th>
               <th>Descrição</th>
               <th>Participante</th>
               <th>Evento</th>
@@ -96,7 +95,7 @@ export const MedalList: React.FC = () => {
           <tbody>
             {medals.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center">Nenhuma medalha cadastrada.</td>
+                <td colSpan={6} className="text-center">Nenhuma medalha cadastrada.</td>
               </tr>
             ) : (
               medals.map(m => {
@@ -104,6 +103,11 @@ export const MedalList: React.FC = () => {
                 return (
                   <tr key={m.id}>
                     <td><strong>{m.nome}</strong></td>
+                    <td>
+                      <span className={`medal-type-badge medal-type-badge--${m.tipo.toLowerCase()}`}>
+                        {m.tipo}
+                      </span>
+                    </td>
                     <td>{m.descricao}</td>
                     <td>{info.personName}</td>
                     <td>{info.eventTitle}</td>

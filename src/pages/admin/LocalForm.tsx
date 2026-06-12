@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Address } from '../../data/types';
 import { FormSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const LocalForm: React.FC = () => {
   const navigate = useNavigate();
@@ -14,7 +15,6 @@ export const LocalForm: React.FC = () => {
   const [descricao, setDescricao] = useState('');
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
 
   // Load existing local and addresses
   useEffect(() => {
@@ -33,11 +33,11 @@ export const LocalForm: React.FC = () => {
             setEnderecoId(found.enderecoId);
             setDescricao(found.descricao);
           } else {
-            setErro('Local não encontrado.');
+            toast.error('Local não encontrado.');
           }
         }
       } catch (err: any) {
-        setErro(err.message || 'Erro ao carregar dados.');
+        toast.error(err.message || 'Erro ao carregar dados.');
       } finally {
         setLoading(false);
       }
@@ -47,10 +47,8 @@ export const LocalForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErro('');
-
     if (!nome || !capacidade || !enderecoId) {
-      setErro('Por favor, preencha todos os campos obrigatórios.');
+      toast.warning('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -64,9 +62,10 @@ export const LocalForm: React.FC = () => {
       };
       
       await db.saveLocal(payload);
+      toast.success(id ? 'Local atualizado com sucesso.' : 'Local criado com sucesso.');
       navigate('/admin/locais');
     } catch (err: any) {
-      setErro(err.message || 'Erro ao salvar local.');
+      toast.error(err.message || 'Erro ao salvar local.');
     }
   };
 
@@ -77,8 +76,6 @@ export const LocalForm: React.FC = () => {
   return (
     <div className="admin-page">
       <h1>{id ? 'Editar local' : 'Novo local'}</h1>
-
-      {erro && <div className="alert alert-danger">{erro}</div>}
 
       <form className="event-form" onSubmit={handleSubmit}>
         <div className="form-grid">

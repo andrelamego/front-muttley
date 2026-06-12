@@ -4,13 +4,12 @@ import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { Local, Address } from '../../data/types';
 import { ButtonLink, PageHeader, TablePageSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const LocalList: React.FC = () => {
   const [locais, setLocais] = useState<Local[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [erro, setErro] = useState('');
 
   const loadData = () => {
     setLoading(true);
@@ -20,7 +19,7 @@ export const LocalList: React.FC = () => {
     ]).then(([locs, addrs]) => {
       setLocais(locs);
       setAddresses(addrs);
-    }).catch(console.error)
+    }).catch((err) => toast.error(err.message || 'Erro ao carregar locais.'))
       .finally(() => setLoading(false));
   };
 
@@ -33,9 +32,9 @@ export const LocalList: React.FC = () => {
       try {
         await db.deleteLocal(id);
         setLocais(prev => prev.filter(l => l.id !== id));
-        setMessage('Local excluído com sucesso.');
+        toast.success('Local excluído com sucesso.');
       } catch (err: any) {
-        setErro(err.message || 'Erro ao excluir local.');
+        toast.error(err.message || 'Erro ao excluir local.');
       }
     }
   };
@@ -44,7 +43,7 @@ export const LocalList: React.FC = () => {
     // Check if address is in use
     const isUsed = locais.some(l => l.enderecoId === id);
     if (isUsed) {
-      setErro('Não é possível excluir este endereço pois ele está vinculado a um local.');
+      toast.warning('Não é possível excluir este endereço pois ele está vinculado a um local.');
       return;
     }
 
@@ -52,9 +51,9 @@ export const LocalList: React.FC = () => {
       try {
         await db.deleteAddress(id);
         setAddresses(prev => prev.filter(a => a.id !== id));
-        setMessage('Endereço excluído com sucesso.');
+        toast.success('Endereço excluído com sucesso.');
       } catch (err: any) {
-        setErro(err.message || 'Erro ao excluir endereço.');
+        toast.error(err.message || 'Erro ao excluir endereço.');
       }
     }
   };
@@ -80,9 +79,6 @@ export const LocalList: React.FC = () => {
           </ButtonLink>
         }
       />
-
-      {message && <div className="alert alert-success">{message}</div>}
-      {erro && <div className="alert alert-danger">{erro}</div>}
 
       <section className="people-panel mb-8">
         <table className="participants-table">

@@ -88,6 +88,7 @@ export type StatusEvento = 'CRIADO' | 'EM_ANDAMENTO' | 'FINALIZADO' | 'CANCELADO
 export type ModalidadeEvento = 'PRESENCIAL' | 'ONLINE' | 'HIBRIDO';
 export type TurnoDisciplina = 'MATUTINO' | 'VESPERTINO' | 'NOTURNO' | 'INTEGRAL';
 export type TipoParticipacao = 'Aluno' | 'Professor' | 'Palestrante' | 'Organizador' | 'Colaborador';
+export type TipoMedalha = 'BRONZE' | 'PRATA' | 'OURO';
 
 export interface ParticipanteEvento {
   id?: string;
@@ -181,6 +182,7 @@ export interface MedalhaUsuarioResponse {
   id: number;
   nome: string;
   descricao: string | null;
+  tipo: TipoMedalha;
   participacaoId: number;
   inscricao: number;
   tipoParticipacao: string | null;
@@ -233,6 +235,7 @@ export interface Medalha {
   id: string;
   nome: string;
   descricao: string;
+  tipo: TipoMedalha;
   participacaoId: string;
 }
 

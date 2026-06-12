@@ -1168,6 +1168,102 @@ svg {
     color: var(--primary-strong);
 }
 
+.toast-viewport {
+    position: fixed;
+    z-index: 10000;
+    top: max(1rem, env(safe-area-inset-top));
+    right: max(1rem, env(safe-area-inset-right));
+    display: grid;
+    width: min(calc(100vw - 2rem), 390px);
+    gap: 0.65rem;
+    pointer-events: none;
+}
+
+.app-toast {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.9rem 0.85rem;
+    border: 1px solid;
+    border-radius: 8px;
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.2);
+    pointer-events: auto;
+    animation: toast-enter 180ms ease-out;
+}
+
+.app-toast--success {
+    border-color: #72c89e;
+    background: #eaf8f0;
+    color: #145c38;
+}
+
+.app-toast--warning {
+    border-color: #e5bd55;
+    background: #fff7d8;
+    color: #73510b;
+}
+
+.app-toast--error {
+    border-color: #e69a9a;
+    background: #fff0f0;
+    color: #9f1d1d;
+}
+
+.app-toast__icon {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: 0.05rem;
+}
+
+.app-toast p {
+    margin: 0;
+    color: inherit;
+    font-size: 0.86rem;
+    font-weight: 720;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.app-toast button {
+    display: grid;
+    width: 1.6rem;
+    height: 1.6rem;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.app-toast button:hover,
+.app-toast button:focus-visible {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.app-toast button svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+@keyframes toast-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+}
+
+@media (max-width: 640px) {
+    .toast-viewport {
+        top: max(0.75rem, env(safe-area-inset-top));
+        right: 0.75rem;
+        left: 0.75rem;
+        width: auto;
+    }
+}
+
 .field-error {
     display: inline-flex;
     width: fit-content;
@@ -1354,6 +1450,81 @@ svg {
     color: var(--muted);
     font-size: 0.86rem;
     font-weight: 650;
+}
+
+.medal-type-field legend {
+    margin-bottom: 0.5rem;
+    color: var(--ink-strong);
+    font-size: 0.84rem;
+    font-weight: 750;
+}
+
+.medal-type-selector {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+}
+
+.medal-type-option {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 0.65rem;
+    min-width: 0;
+    padding: 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.medal-type-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.medal-type-option__mark {
+    grid-row: 1 / span 2;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.1rem;
+    border: 3px solid rgba(255, 255, 255, 0.72);
+    border-radius: 999px;
+    box-shadow: 0 0 0 1px currentColor;
+}
+
+.medal-type-option strong {
+    color: var(--ink-strong);
+    font-size: 0.88rem;
+}
+
+.medal-type-option small {
+    min-width: 0;
+    color: var(--muted);
+    font-size: 0.72rem;
+    line-height: 1.35;
+}
+
+.medal-type-option--bronze {
+    color: #9a5b32;
+}
+
+.medal-type-option--prata {
+    color: #68747c;
+}
+
+.medal-type-option--ouro {
+    color: #a87300;
+}
+
+.medal-type-option.is-selected {
+    border-color: currentColor;
+    background: color-mix(in srgb, currentColor 8%, var(--surface));
+    box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 14%, transparent);
 }
 
 .participants-section {
@@ -4022,6 +4193,16 @@ body {
 
 .achievement-card {
     justify-items: start;
+    overflow: hidden;
+    border-top: 3px solid var(--line);
+}
+
+.achievement-card__header {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
 }
 
 .achievement-card__mark {
@@ -4039,6 +4220,61 @@ body {
     height: 1.55rem;
 }
 
+.achievement-card--bronze {
+    border-top-color: #a96338;
+}
+
+.achievement-card--bronze .achievement-card__mark {
+    background: #f4e2d5;
+    color: #94542d;
+}
+
+.achievement-card--prata {
+    border-top-color: #839099;
+}
+
+.achievement-card--prata .achievement-card__mark {
+    background: #e8ecef;
+    color: #5e6971;
+}
+
+.achievement-card--ouro {
+    border-top-color: #c28a12;
+}
+
+.achievement-card--ouro .achievement-card__mark {
+    background: #fff1c7;
+    color: #9b6900;
+}
+
+.medal-type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.75rem;
+    padding: 0 0.6rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 850;
+    letter-spacing: 0;
+}
+
+.medal-type-badge--bronze {
+    background: #f7e8dd;
+    color: #89502e;
+}
+
+.medal-type-badge--prata {
+    background: #edf0f2;
+    color: #59666e;
+}
+
+.medal-type-badge--ouro {
+    background: #fff2c9;
+    color: #8d6200;
+}
+
 @media (min-width: 640px) {
     .student-event-card__meta,
     .student-record-card dl {
@@ -4047,6 +4283,12 @@ body {
 
     .achievement-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .medal-type-selector {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -4210,7 +4452,37 @@ body {
 }
 
 .app-header--redesign .user-menu {
+    display: flex;
+    justify-content: flex-end;
     min-width: max-content;
+}
+
+.admin-panel-shortcut {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 2rem;
+    padding: 0 0.68rem;
+    border: 1px solid rgba(181, 18, 27, 0.2);
+    border-radius: 9px;
+    background: var(--primary-soft);
+    color: var(--primary-strong);
+    font-size: 0.78rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-panel-shortcut:hover,
+.admin-panel-shortcut:focus-visible {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+    outline: 0;
+}
+
+.admin-panel-shortcut svg {
+    flex: 0 0 auto;
 }
 
 .app-header--redesign .avatar {
@@ -4231,6 +4503,21 @@ body {
 .app-header--redesign .header-logout:hover {
     background: var(--danger-soft);
     color: var(--danger);
+}
+
+@media (max-width: 1040px) {
+    .admin-panel-shortcut {
+        width: 2rem;
+        padding: 0;
+    }
+
+    .admin-panel-shortcut span {
+        display: none;
+    }
+
+    .app-header--redesign .main-nav a {
+        padding-inline: 0.58rem;
+    }
 }
 
 .user-app-shell .public-layout-full {
@@ -4276,6 +4563,10 @@ body {
         padding-inline: 0.9rem;
     }
 
+    .user-app-shell > .app-footer {
+        display: none;
+    }
+
     .app-header--redesign .main-nav,
     .app-header--redesign .user-display-name,
     .app-header--redesign .header-logout span {
@@ -4286,6 +4577,15 @@ body {
         width: 2rem;
         padding: 0;
         justify-content: center;
+    }
+
+    .admin-panel-shortcut {
+        width: 2rem;
+        padding: 0;
+    }
+
+    .admin-panel-shortcut span {
+        display: none;
     }
 }
 
@@ -4446,6 +4746,113 @@ body {
 
 .ui-skeleton-certificate .ui-skeleton:last-child {
     border-radius: var(--radius-md);
+}
+
+/* User pages content-shaped skeletons */
+.user-page-skeleton {
+    pointer-events: none;
+}
+
+.user-page-heading-skeleton {
+    display: grid;
+    gap: 0.7rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.user-search-skeleton {
+    width: 100%;
+    height: 2.85rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+}
+
+.user-dashboard-hero-skeleton {
+    align-content: center;
+}
+
+.user-dashboard-hero-skeleton .ui-skeleton {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.18));
+    background-size: 220% 100%;
+}
+
+.user-stat-card-skeleton {
+    align-content: space-between;
+}
+
+.user-content-skeleton,
+.user-section-heading-skeleton {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.user-content-skeleton {
+    gap: 1rem;
+}
+
+.user-event-card-skeleton {
+    min-height: 15.5rem;
+}
+
+.user-record-data-skeleton {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+}
+
+.user-back-link-skeleton {
+    align-self: center;
+    width: 7rem;
+    height: 1rem;
+}
+
+.user-event-date-skeleton {
+    width: 5rem;
+    min-width: 5rem;
+    height: 6rem;
+}
+
+.user-event-action-skeleton {
+    width: 100%;
+    height: 3.2rem;
+}
+
+.public-events-hero-skeleton {
+    align-items: end;
+}
+
+.public-events-search-skeleton {
+    width: 100%;
+    height: 3rem;
+}
+
+.public-event-date-skeleton {
+    grid-row: 1 / span 2;
+    width: 4.1rem;
+    height: 5.3rem;
+}
+
+.public-event-action-skeleton {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 2.4rem;
+}
+
+.public-event-signup-fields-skeleton {
+    display: grid;
+    gap: 0.95rem;
+}
+
+@media (min-width: 640px) {
+    .user-record-data-skeleton {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 700px) {
+    .user-event-action-skeleton {
+        width: 15rem;
+    }
 }
 
 .people-panel,

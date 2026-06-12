@@ -4,6 +4,7 @@ import db from '../../data/mockDb';
 import { AutocompleteInput } from '../../components/AutocompleteInput';
 import type { Discipline, Sponsor, Local, Participation, Person, StatusEvento, ParticipanteEvento, TipoParticipacao } from '../../data/types';
 import { FormSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const EventForm: React.FC = () => {
   const navigate = useNavigate();
@@ -32,12 +33,10 @@ export const EventForm: React.FC = () => {
   const [qrCodeInscricaoUrl, setQrCodeInscricaoUrl] = useState('');
   const [qrCodeConfirmacaoUrl, setQrCodeConfirmacaoUrl] = useState('');
   const [qrCodeLoading, setQrCodeLoading] = useState(false);
-  const [qrCodeError, setQrCodeError] = useState('');
   const [showCreationModal, setShowCreationModal] = useState(false);
   
   
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
   const [step, setStep] = useState(1);
 
   // Load existing event and dropdown details
@@ -81,7 +80,7 @@ export const EventForm: React.FC = () => {
                 tipo: part.tipo,
               })));
             } else {
-              setErro('Evento não encontrado.');
+              toast.error('Evento não encontrado.');
             }
           } catch (err) {
             // Fallback for finalized events since /participacoes endpoint might block
@@ -109,12 +108,12 @@ export const EventForm: React.FC = () => {
                 tipo: part.tipo,
               })));
             } else {
-              setErro('Evento não encontrado.');
+              toast.error('Evento não encontrado.');
             }
           }
         }
       } catch (err: any) {
-        setErro(err.message || 'Erro ao carregar dados do formulário.');
+        toast.error(err.message || 'Erro ao carregar dados do formulário.');
       } finally {
         setLoading(false);
       }
@@ -163,15 +162,13 @@ export const EventForm: React.FC = () => {
   ) + 1;
 
   const handleAddEventParticipant = () => {
-    setErro('');
-
     if (!selectedPessoaId) {
-      setErro('Selecione uma pessoa para adicionar ao evento.');
+      toast.warning('Selecione uma pessoa para adicionar ao evento.');
       return;
     }
 
     if (eventParticipants.some(part => part.pessoaId === selectedPessoaId)) {
-      setErro('Essa pessoa ja foi adicionada ao evento.');
+      toast.warning('Essa pessoa já foi adicionada ao evento.');
       return;
     }
 
@@ -190,7 +187,6 @@ export const EventForm: React.FC = () => {
 
   const loadQrCodes = async (eventId: string, attempt = 1) => {
     setQrCodeLoading(true);
-    setQrCodeError('');
 
     try {
       const [blobInscricao, blobConfirmacao] = await Promise.all([
@@ -211,7 +207,7 @@ export const EventForm: React.FC = () => {
         window.setTimeout(() => loadQrCodes(eventId, attempt + 1), 900);
         return;
       }
-      setQrCodeError('Evento criado, mas os QR Codes ainda não ficaram disponíveis.');
+      toast.error('Evento criado, mas os QR Codes ainda não ficaram disponíveis.');
     } finally {
       setQrCodeLoading(false);
     }
@@ -241,14 +237,12 @@ export const EventForm: React.FC = () => {
   };
 
   const handleSave = async () => {
-    setErro('');
-
     if (step !== 3) {
       return;
     }
 
     if (!tema || !data || !horarioInicio || !horarioFim || !modalidade) {
-      setErro('Por favor, preencha todos os campos obrigatórios.');
+      toast.warning('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -269,6 +263,7 @@ export const EventForm: React.FC = () => {
       });
 
       if (!id && result.id) {
+        toast.success('Evento criado com sucesso.');
         setCreatedEventId(result.id);
         setShowCreationModal(true);
         setLoading(false);
@@ -276,9 +271,10 @@ export const EventForm: React.FC = () => {
         return;
       }
 
+      toast.success('Evento atualizado com sucesso.');
       navigate('/admin/eventos');
     } catch (err: any) {
-      setErro(err.message || 'Erro ao salvar o evento.');
+      toast.error(err.message || 'Erro ao salvar o evento.');
       setLoading(false);
     }
   };
@@ -300,16 +296,15 @@ export const EventForm: React.FC = () => {
   ];
 
   const handleNextStep = () => {
-    setErro('');
     if (step === 1) {
       if (!tema) {
-        setErro('Tema do evento é obrigatório.');
+        toast.warning('Tema do evento é obrigatório.');
         return;
       }
       setStep(2);
     } else if (step === 2) {
       if (!data || !horarioInicio || !horarioFim) {
-        setErro('Data, horário de início e término são obrigatórios.');
+        toast.warning('Data, horário de início e término são obrigatórios.');
         return;
       }
       setStep(3);
@@ -317,15 +312,12 @@ export const EventForm: React.FC = () => {
   };
 
   const handlePrevStep = () => {
-    setErro('');
     setStep(prev => prev - 1);
   };
 
   return (
     <div className="admin-page">
       <h1>{id ? isFinalized ? 'Detalhes do evento' : 'Editar evento' : 'Novo evento'}</h1>
-
-      {erro && <div className="alert alert-danger">{erro}</div>}
 
       {/* Step Indicator */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--line)' }}>
@@ -343,22 +335,19 @@ export const EventForm: React.FC = () => {
                   }
                   if (s.number < step) {
                     setStep(s.number);
-                    setErro('');
                   } else {
                     if (step === 1) {
                       if (!tema) {
-                        setErro('Tema do evento é obrigatório.');
+                        toast.warning('Tema do evento é obrigatório.');
                         return;
                       }
                       setStep(s.number);
-                      setErro('');
                     } else if (step === 2) {
                       if (!data || !horarioInicio || !horarioFim) {
-                        setErro('Data, horário de início e término são obrigatórios.');
+                        toast.warning('Data, horário de início e término são obrigatórios.');
                         return;
                       }
                       setStep(s.number);
-                      setErro('');
                     }
                   }
                 }}
@@ -678,7 +667,7 @@ export const EventForm: React.FC = () => {
                     <img src={qrCodeInscricaoUrl} alt="QR Code de inscrição" />
                   ) : (
                     <div className="creation-confirmation-modal__placeholder" role="status">
-                      {qrCodeError || 'Gerando QR Code...'}
+                      Gerando QR Code...
                     </div>
                   )}
                 </div>
@@ -697,7 +686,7 @@ export const EventForm: React.FC = () => {
                     <img src={qrCodeConfirmacaoUrl} alt="QR Code de confirmação de presença" />
                   ) : (
                     <div className="creation-confirmation-modal__placeholder" role="status">
-                      {qrCodeError || 'Gerando QR Code...'}
+                      Gerando QR Code...
                     </div>
                   )}
                 </div>

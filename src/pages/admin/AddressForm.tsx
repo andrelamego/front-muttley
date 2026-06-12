@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import { FormSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const AddressForm: React.FC = () => {
   const navigate = useNavigate();
@@ -14,7 +15,6 @@ export const AddressForm: React.FC = () => {
   const [logradouro, setLogradouro] = useState('');
   const [complemento, setComplemento] = useState('');
   const [loading, setLoading] = useState(false);
-  const [erro, setErro] = useState('');
 
   // Load existing address
   useEffect(() => {
@@ -32,10 +32,10 @@ export const AddressForm: React.FC = () => {
             setLogradouro(found.logradouro);
             setComplemento(found.complemento || '');
           } else {
-            setErro('Endereço não encontrado.');
+            toast.error('Endereço não encontrado.');
           }
         } catch (err: any) {
-          setErro(err.message || 'Erro ao carregar endereço.');
+          toast.error(err.message || 'Erro ao carregar endereço.');
         } finally {
           setLoading(false);
         }
@@ -46,10 +46,8 @@ export const AddressForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErro('');
-
     if (!estado || !cidade || !bairro || !numero || !logradouro) {
-      setErro('Por favor, preencha todos os campos obrigatórios.');
+      toast.warning('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -65,9 +63,10 @@ export const AddressForm: React.FC = () => {
       };
 
       await db.saveAddress(payload);
+      toast.success(id ? 'Endereço atualizado com sucesso.' : 'Endereço criado com sucesso.');
       navigate('/admin/locais');
     } catch (err: any) {
-      setErro(err.message || 'Erro ao salvar endereço.');
+      toast.error(err.message || 'Erro ao salvar endereço.');
     }
   };
 
@@ -78,8 +77,6 @@ export const AddressForm: React.FC = () => {
   return (
     <div className="admin-page">
       <h1>{id ? 'Editar endereço' : 'Novo endereço'}</h1>
-
-      {erro && <div className="alert alert-danger">{erro}</div>}
 
       <form className="event-form" onSubmit={handleSubmit}>
         <div className="form-grid">

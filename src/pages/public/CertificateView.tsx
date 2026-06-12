@@ -2,16 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Participation } from '../../data/types';
+import { toast } from '../../components/ui/Toast';
 
 export const CertificateView: React.FC = () => {
   const { codigo } = useParams<{ codigo: string }>();
   const navigate = useNavigate();
-  const [copiedKey, setCopiedKey] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
   const [data, setData] = useState<any | null>(null);
   const [participation, setParticipation] = useState<Participation | null>(null);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
+  const [hasError, setHasError] = useState(false);
 
   const previewUrl = useMemo(
     () => (codigo ? `/api/certificados/${encodeURIComponent(codigo)}/preview` : ''),
@@ -27,7 +26,7 @@ export const CertificateView: React.FC = () => {
     if (!codigo) return;
 
     setLoading(true);
-    setErro('');
+    setHasError(false);
     setParticipation(null);
 
     const loadCertificate = async () => {
@@ -42,7 +41,8 @@ export const CertificateView: React.FC = () => {
         setParticipation(participationData);
       } catch (err) {
         console.error(err);
-        setErro('Certificado nao encontrado ou codigo invalido.');
+        setHasError(true);
+        toast.error('Certificado nao encontrado ou codigo invalido.');
       } finally {
         setLoading(false);
       }
@@ -55,20 +55,20 @@ export const CertificateView: React.FC = () => {
     if (!data?.certificado?.codigoValidacao) return;
     try {
       await navigator.clipboard.writeText(data.certificado.codigoValidacao);
-      setCopiedKey(true);
-      setTimeout(() => setCopiedKey(false), 2000);
+      toast.success('Chave copiada.');
     } catch (err) {
       console.error('Falha ao copiar a chave', err);
+      toast.error('Não foi possível copiar a chave.');
     }
   };
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
+      toast.success('Link copiado.');
     } catch (err) {
       console.error('Falha ao copiar o link', err);
+      toast.error('Não foi possível copiar o link.');
     }
   };
 
@@ -85,6 +85,7 @@ export const CertificateView: React.FC = () => {
       });
     } catch (err) {
       console.error('Erro ao compartilhar', err);
+      toast.error('Não foi possível compartilhar o certificado.');
     }
   };
 
@@ -104,12 +105,11 @@ export const CertificateView: React.FC = () => {
     );
   }
 
-  if (erro || !data?.certificado) {
+  if (hasError || !data?.certificado) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center p-8 bg-brand-surface rounded-xl border border-brand-line shadow-md max-w-md">
           <h2 className="text-2xl font-bold text-brand-danger">Certificado nao encontrado</h2>
-          <p className="text-brand-muted mt-2">{erro || 'O codigo de validacao fornecido e invalido.'}</p>
           <button type="button" onClick={handleBack} className="primary-action mt-6 inline-flex items-center">
             Voltar
           </button>
@@ -147,10 +147,10 @@ export const CertificateView: React.FC = () => {
           <h2 className="text-xl font-bold text-brand-ink-strong">Visualizacao do Certificado</h2>
           <div className="public-certificate-actions flex gap-2 flex-wrap justify-end">
             <button type="button" className="primary-action px-3 py-2 text-xs font-bold" onClick={handleCopyKey}>
-              {copiedKey ? 'Chave copiada' : 'Copiar chave'}
+              Copiar chave
             </button>
             <button type="button" className="primary-action px-3 py-2 text-xs font-bold" onClick={handleCopyLink}>
-              {copiedLink ? 'Link copiado' : 'Copiar link'}
+              Copiar link
             </button>
             {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
               <button type="button" className="primary-action px-3 py-2 text-xs font-bold" onClick={handleShare}>

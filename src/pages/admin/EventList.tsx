@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { Evento, Local, Discipline, Sponsor } from '../../data/types';
 import { ButtonLink, EmptyState, EventListSkeleton, PageHeader, StatusBadge } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const EventList: React.FC = () => {
   const [busca, setBusca] = useState('');
@@ -11,13 +12,10 @@ export const EventList: React.FC = () => {
   const [ordenar, setOrdenar] = useState('data');
   const [tamanho, setTamanho] = useState(10);
   const [pagina, setPagina] = useState(0);
-  const [message, setMessage] = useState('');
-  const [erro, setErro] = useState('');
   const [qrModalEvent, setQrModalEvent] = useState<Evento | null>(null);
   const [qrCodeInscricaoUrl, setQrCodeInscricaoUrl] = useState('');
   const [qrCodeConfirmacaoUrl, setQrCodeConfirmacaoUrl] = useState('');
   const [qrCodeLoading, setQrCodeLoading] = useState(false);
-  const [qrCodeError, setQrCodeError] = useState('');
 
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +38,7 @@ export const EventList: React.FC = () => {
       setLocations(locs);
       setDisciplines(discs);
       setSponsors(spons);
-    }).catch(console.error)
+    }).catch((err) => toast.error(err.message || 'Erro ao carregar eventos.'))
       .finally(() => setLoading(false));
   };
 
@@ -85,12 +83,12 @@ export const EventList: React.FC = () => {
     if (window.confirm('Cancelar este evento?')) {
       try {
         await db.cancelEvent(id);
-        setMessage('Evento cancelado com sucesso.');
+        toast.success('Evento cancelado com sucesso.');
         // Refresh event list
         const evts = await db.getEvents();
         setEvents(evts);
       } catch (err: any) {
-        setErro(err.message || 'Erro ao cancelar evento.');
+        toast.error(err.message || 'Erro ao cancelar evento.');
       }
     }
   };
@@ -98,7 +96,6 @@ export const EventList: React.FC = () => {
   const openQrCodeModal = async (evento: Evento) => {
     setQrModalEvent(evento);
     setQrCodeLoading(true);
-    setQrCodeError('');
     setQrCodeInscricaoUrl(prev => { if (prev) URL.revokeObjectURL(prev); return ''; });
     setQrCodeConfirmacaoUrl(prev => { if (prev) URL.revokeObjectURL(prev); return ''; });
 
@@ -110,7 +107,7 @@ export const EventList: React.FC = () => {
       setQrCodeInscricaoUrl(URL.createObjectURL(blobInscricao));
       setQrCodeConfirmacaoUrl(URL.createObjectURL(blobConfirmacao));
     } catch (err: any) {
-      setQrCodeError(err.message || 'Não foi possível carregar os QR Codes.');
+      toast.error(err.message || 'Não foi possível carregar os QR Codes.');
     } finally {
       setQrCodeLoading(false);
     }
@@ -118,7 +115,6 @@ export const EventList: React.FC = () => {
 
   const closeQrCodeModal = () => {
     setQrModalEvent(null);
-    setQrCodeError('');
     setQrCodeLoading(false);
     setQrCodeInscricaoUrl(prev => { if (prev) URL.revokeObjectURL(prev); return ''; });
     setQrCodeConfirmacaoUrl(prev => { if (prev) URL.revokeObjectURL(prev); return ''; });
@@ -195,9 +191,6 @@ export const EventList: React.FC = () => {
           </ButtonLink>
         }
       />
-
-      {message && <div className="alert alert-success">{message}</div>}
-      {erro && <div className="alert alert-danger">{erro}</div>}
 
       {activeEvents.length > 0 && (
         <section className="events-section mb-8" aria-labelledby="active-events-title">
@@ -600,12 +593,7 @@ export const EventList: React.FC = () => {
               <p>Compartilhe os QR Codes com os participantes e organizadores.</p>
             </div>
 
-            {qrCodeError ? (
-              <div className="creation-confirmation-modal__placeholder" role="status">
-                {qrCodeError}
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', margin: '1rem 0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', margin: '1rem 0' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Inscrição
@@ -635,8 +623,7 @@ export const EventList: React.FC = () => {
                     Participante escaneia no dia do evento
                   </span>
                 </div>
-              </div>
-            )}
+            </div>
 
             <div className="creation-confirmation-modal__actions">
               <button

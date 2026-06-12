@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import db from '../../data/mockDb';
 import { DashboardSkeleton, PageHeader } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export const Dashboard: React.FC = () => {
       setMedals(mdls);
       setPeople(ppl);
       setDisciplines(discs);
-    }).catch(console.error)
+    }).catch((err) => toast.error(err.message || 'Erro ao carregar o painel administrativo.'))
       .finally(() => setLoading(false));
   }, []);
 

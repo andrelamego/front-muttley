@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
-import type { Participation, Person, Event } from '../../data/types';
+import type { Participation, Person, Event, TipoMedalha } from '../../data/types';
 import { FormSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
+
+const medalTypes: Array<{ value: TipoMedalha; label: string; description: string }> = [
+  { value: 'BRONZE', label: 'Bronze', description: 'Reconhecimento de participacao' },
+  { value: 'PRATA', label: 'Prata', description: 'Destaque por contribuicao relevante' },
+  { value: 'OURO', label: 'Ouro', description: 'Maior nivel de reconhecimento' },
+];
 
 export const MedalForm: React.FC = () => {
   const navigate = useNavigate();
@@ -13,11 +20,11 @@ export const MedalForm: React.FC = () => {
   const [nome, setNome] = useState('');
   const [participacaoId, setParticipacaoId] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [tipo, setTipo] = useState<TipoMedalha>('BRONZE');
   const [participacoes, setParticipacoes] = useState<Participation[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
 
   // Load existing medal and options
   useEffect(() => {
@@ -40,14 +47,15 @@ export const MedalForm: React.FC = () => {
             setNome(found.nome);
             setParticipacaoId(found.participacaoId);
             setDescricao(found.descricao);
+            setTipo(found.tipo);
           } else {
-            setErro('Medalha não encontrada.');
+            toast.error('Medalha não encontrada.');
           }
         } else if (participacaoIdParam) {
           setParticipacaoId(participacaoIdParam);
         }
       } catch (err: any) {
-        setErro(err.message || 'Erro ao carregar dados.');
+        toast.error(err.message || 'Erro ao carregar dados.');
       } finally {
         setLoading(false);
       }
@@ -71,10 +79,8 @@ export const MedalForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErro('');
-
-    if (!nome || !participacaoId || !descricao) {
-      setErro('Por favor, preencha todos os campos obrigatórios.');
+    if (!nome || !participacaoId || !descricao || !tipo) {
+      toast.warning('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -85,23 +91,23 @@ export const MedalForm: React.FC = () => {
         nome,
         participacaoId,
         descricao,
+        tipo,
       });
+      toast.success(id ? 'Medalha atualizada com sucesso.' : 'Medalha criada com sucesso.');
       navigate('/admin/medalhas');
     } catch (err: any) {
-      setErro(err.message || 'Erro ao salvar medalha.');
+      toast.error(err.message || 'Erro ao salvar medalha.');
       setLoading(false);
     }
   };
 
   if (loading && !nome && id) {
-    return <div className="admin-page"><FormSkeleton fields={4} /></div>;
+    return <div className="admin-page"><FormSkeleton fields={5} /></div>;
   }
 
   return (
     <div className="admin-page">
       <h1>{id ? 'Editar medalha' : 'Nova medalha'}</h1>
-
-      {erro && <div className="alert alert-danger">{erro}</div>}
 
       <form className="event-form" onSubmit={handleSubmit}>
         <div className="form-grid">
@@ -131,6 +137,31 @@ export const MedalForm: React.FC = () => {
               ))}
             </select>
           </label>
+
+          <fieldset className="field description-field medal-type-field">
+            <legend>Tipo da medalha:*</legend>
+            <div className="medal-type-selector">
+              {medalTypes.map(option => (
+                <label
+                  key={option.value}
+                  className={`medal-type-option medal-type-option--${option.value.toLowerCase()} ${
+                    tipo === option.value ? 'is-selected' : ''
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="tipo"
+                    value={option.value}
+                    checked={tipo === option.value}
+                    onChange={() => setTipo(option.value)}
+                  />
+                  <span className="medal-type-option__mark" aria-hidden="true" />
+                  <strong>{option.label}</strong>
+                  <small>{option.description}</small>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           {selectedPart && selectedPerson && selectedEvent && (
             <div className="selected-participation description-field col-span-2 p-4 bg-brand-surface-soft border border-brand-line rounded-lg flex flex-col gap-1">

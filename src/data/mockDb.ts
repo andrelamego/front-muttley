@@ -24,6 +24,7 @@ import type {
   Professor,
 } from './types';
 import type { TurnoDisciplina } from './types';
+import { getRoleFromToken, normalizeAuthRole } from '../utils/auth';
 
 type Entity = Record<string, any>;
 
@@ -198,6 +199,7 @@ const normalizeMedal = (medal: Entity): Medalha => ({
   id: toId(medal.id),
   nome: medal.nome || '',
   descricao: medal.descricao || '',
+  tipo: medal.tipo || 'BRONZE',
   participacaoId: entityId(medal, 'participacao') || toId(medal.participacaoId),
 });
 
@@ -210,10 +212,12 @@ const normalizeProfile = <T extends { pessoaId: string }>(item: Entity, extra: O
 class ApiDatabase {
   getLoggedUser(): Pessoa | null {
     const usuario = localStorage.getItem('usuario');
-    const role = localStorage.getItem('role') as Pessoa['role'] | null;
+    const storedRole = localStorage.getItem('role');
+    const tokenRole = getRoleFromToken(localStorage.getItem('token'));
 
     if (usuario) {
       const parsed = JSON.parse(usuario);
+      const role = normalizeAuthRole(tokenRole, storedRole, typeof parsed === 'object' ? parsed.role : null) || 'USER';
       if (typeof parsed === 'string') {
         return {
           id: '',
@@ -222,7 +226,7 @@ class ApiDatabase {
           telefone: '',
           cpf: '',
           senha: null,
-          role: role || 'USER',
+          role,
         };
       }
 
@@ -233,7 +237,7 @@ class ApiDatabase {
         telefone: parsed.telefone || '',
         cpf: parsed.cpf || '',
         senha: null,
-        role: (parsed.role || role || 'USER') as Pessoa['role'],
+        role,
       };
     }
 
@@ -313,6 +317,13 @@ class ApiDatabase {
   async getMe(): Promise<Pessoa> {
     const response = await apiClient.get<MeResponse>('/me');
     const me = response.data;
+    const currentUser = this.getLoggedUser();
+    const role = normalizeAuthRole(
+      getRoleFromToken(localStorage.getItem('token')),
+      me.role,
+      localStorage.getItem('role'),
+      currentUser?.role,
+    ) || 'USER';
     const user: Pessoa = {
       id: toId(me.id),
       nome: me.nome || me.email || 'Usuario',
@@ -320,7 +331,7 @@ class ApiDatabase {
       telefone: me.telefone || '',
       cpf: me.cpf || '',
       senha: null,
-      role: me.role || 'USER',
+      role,
     };
     this.setLoggedUser(user);
     return user;
@@ -338,7 +349,10 @@ class ApiDatabase {
 
   async getMyMedals(): Promise<MedalhaUsuarioResponse[]> {
     const response = await apiClient.get<MedalhaUsuarioResponse[]>('/me/medalhas');
-    return response.data;
+    return response.data.map((medal) => ({
+      ...medal,
+      tipo: medal.tipo || 'BRONZE',
+    }));
   }
 
   async getStudents(): Promise<Aluno[]> {
@@ -584,6 +598,7 @@ class ApiDatabase {
       id: medal.id ? Number(medal.id) : null,
       nome: medal.nome,
       descricao: medal.descricao,
+      tipo: medal.tipo,
       participacaoId: Number(medal.participacaoId),
     };
 

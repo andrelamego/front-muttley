@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Event, Participation } from '../../data/types';
 import { CompletionSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 // IMPORTA A FUNÇÃO DE UPLOAD
 import { concluirEAssinarEvento } from '../../services/apiClient';
 
@@ -14,7 +15,6 @@ export const EventConclude: React.FC = () => {
   const [participacoes, setParticipacoes] = useState<Participation[]>([]);
   const [presentes, setPresentes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'TODOS' | 'PRESENTES' | 'AUSENTES'>('TODOS');
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,7 +38,7 @@ export const EventConclude: React.FC = () => {
         const initiallyPresent = parts.filter(p => p.presente).map(p => p.id);
         setPresentes(initiallyPresent);
       } catch (err: any) {
-        setErro(err.message || 'Erro ao carregar dados do evento.');
+        toast.error(err.message || 'Erro ao carregar dados do evento.');
       } finally {
         setLoading(false);
       }
@@ -112,12 +112,10 @@ export const EventConclude: React.FC = () => {
 // LÓGICA DE SUBMISSÃO COM A IMAGEM E LISTA DE PRESENTES
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErro('');
-
     if (!event) return;
 
     if (!assinaturaFile) {
-      setErro('Atenção: Selecione o arquivo da assinatura antes de concluir o evento!');
+      toast.warning('Selecione o arquivo da assinatura antes de concluir o evento.');
       return;
     }
 
@@ -127,15 +125,12 @@ export const EventConclude: React.FC = () => {
       // NOVO: Chama a nossa API enviando o ID do evento, a lista de presentes e a imagem
       await concluirEAssinarEvento(event.id, presentes, assinaturaFile);
 
-      sessionStorage.setItem(
-        'muttley_cert_msg',
-        'Evento concluído com sucesso e certificados gerados com a assinatura.'
-      );
+      toast.success('Evento concluído com sucesso e certificados gerados com a assinatura.');
       navigate('/admin/certificados');
 
     } catch (err: any) {
       console.error(err);
-      setErro(err.message || 'Erro ao processar e concluir o evento. Verifique se o Back-end está rodando.');
+      toast.error(err.message || 'Erro ao processar e concluir o evento. Verifique se o Back-end está rodando.');
       setLoading(false);
     }
   };
@@ -163,8 +158,6 @@ export const EventConclude: React.FC = () => {
         </div>
         <Link className="link-action" to="/admin/eventos">Voltar</Link>
       </div>
-
-      {erro && <div className="alert alert-danger">{erro}</div>}
 
       <div className="completion-hero grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 mb-8">
         <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
