@@ -3,15 +3,14 @@ import { Link, useParams } from 'react-router-dom';
 import { CalendarDays, Clock, MapPin } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { PublicEvent } from '../../data/types';
-import { LoadingState, StatusBadge } from '../../components/ui';
+import { PublicEventDetailSkeleton, StatusBadge } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const PublicEventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const loggedUser = db.getLoggedUser();
   const [event, setEvent] = useState<PublicEvent | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [confirmation, setConfirmation] = useState<{ message: string; inscricao: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     nomeCompleto: '',
@@ -24,7 +23,7 @@ export const PublicEventDetail: React.FC = () => {
     setLoading(true);
     db.getPublicEventById(id)
       .then(setEvent)
-      .catch((err) => setError(err.message || 'Evento nao encontrado.'))
+      .catch((err) => toast.error(err.message || 'Evento nao encontrado.'))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -45,8 +44,6 @@ export const PublicEventDetail: React.FC = () => {
   ) => {
     if (!id || !event) return;
 
-    setError('');
-
     const normalizedPayload = {
       nomeCompleto: payload.nomeCompleto.trim(),
       cpf: payload.cpf.trim(),
@@ -54,7 +51,7 @@ export const PublicEventDetail: React.FC = () => {
     };
 
     if (!normalizedPayload.nomeCompleto || !normalizedPayload.email || !normalizedPayload.cpf) {
-      setError(options.fromLoggedUser
+      toast.warning(options.fromLoggedUser
         ? 'Nao foi possivel localizar nome, CPF e e-mail da sua conta. Saia e entre novamente.'
         : 'Preencha nome, CPF e e-mail para concluir a inscricao.');
       return;
@@ -67,13 +64,10 @@ export const PublicEventDetail: React.FC = () => {
         cpf: normalizedPayload.cpf,
         email: normalizedPayload.email,
       });
-      setConfirmation({
-        message: response.message,
-        inscricao: response.inscricao,
-      });
+      toast.success(`${response.message} Numero de inscricao: #${response.inscricao}`);
       setForm({ nomeCompleto: '', cpf: '', email: '' });
     } catch (err: any) {
-      setError(err.message || 'Nao foi possivel realizar sua inscricao.');
+      toast.error(err.message || 'Nao foi possivel realizar sua inscricao.');
     } finally {
       setSubmitting(false);
     }
@@ -93,6 +87,7 @@ export const PublicEventDetail: React.FC = () => {
       userData = await db.getMe();
     } catch (err) {
       console.error('Nao foi possivel atualizar os dados do usuario logado pelo endpoint /me.', err);
+      toast.warning('Não foi possível atualizar os dados da sua conta. Usaremos os dados salvos neste dispositivo.');
     }
 
     await submitInscription({
@@ -103,7 +98,7 @@ export const PublicEventDetail: React.FC = () => {
   };
 
   if (loading) {
-    return <LoadingState label="Carregando evento" />;
+    return <PublicEventDetailSkeleton />;
   }
 
   if (!event) {
@@ -160,8 +155,6 @@ export const PublicEventDetail: React.FC = () => {
           <span>Inscricao</span>
           <h2>{event.inscricoesEncerradas ? 'Inscricoes encerradas' : 'Reserve sua participacao'}</h2>
 
-          {error && <div className="alert alert-danger">{error}</div>}
-
           {loggedUser ? (
             <div className="public-event-logged-signup">
               <p>Vamos usar os dados da sua conta para confirmar a inscricao.</p>
@@ -217,38 +210,6 @@ export const PublicEventDetail: React.FC = () => {
         </aside>
       </section>
 
-      {confirmation && (
-        <div className="modal-backdrop" role="presentation">
-          <section className="public-inscription-modal" role="dialog" aria-modal="true" aria-labelledby="public-inscription-title">
-            <button
-              className="modal-close-button"
-              type="button"
-              aria-label="Fechar"
-              onClick={() => setConfirmation(null)}
-            >
-              x
-            </button>
-
-            <div className="public-inscription-modal__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M20 6 9 17l-5-5"></path>
-              </svg>
-            </div>
-
-            <div className="public-inscription-modal__content">
-              <span>Inscricao confirmada</span>
-              <h2 id="public-inscription-title">Voce esta inscrito no evento</h2>
-              <p>{confirmation.message}</p>
-              <strong>Numero de inscricao: #{confirmation.inscricao}</strong>
-              <small>Todos os dados da sua inscricao serao enviados para o e-mail informado.</small>
-            </div>
-
-            <button className="primary-action" type="button" onClick={() => setConfirmation(null)}>
-              Entendi
-            </button>
-          </section>
-        </div>
-      )}
     </main>
   );
 };

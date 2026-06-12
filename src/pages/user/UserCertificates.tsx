@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ExternalLink, Search, ShieldCheck } from 'lucide-react'
 import db from '../../data/mockDb'
 import type { CertificadoUsuarioResponse } from '../../data/types'
-import { ButtonAnchor, ButtonLink, Card, EmptyState, LoadingState, PageHeader, StatusBadge } from '../../components/ui'
+import { ButtonAnchor, ButtonLink, Card, EmptyState, PageHeader, StatusBadge, UserCertificatesSkeleton } from '../../components/ui'
+import { toast } from '../../components/ui/Toast'
 
 const formatDate = (date: string) => (date ? new Date(`${date}T00:00:00`).toLocaleDateString('pt-BR') : 'Data nao informada')
 
@@ -25,12 +26,12 @@ export const UserCertificates: React.FC = () => {
     setLoading(true)
     Promise.all([db.getMe(), db.getMyCertificates()])
       .then(([, certs]) => setCertificates(certs))
-      .catch(console.error)
+      .catch((err) => toast.error(err.message || 'Erro ao carregar certificados.'))
       .finally(() => setLoading(false))
   }, [])
 
   if (!db.getLoggedUser()) return null
-  if (loading) return <LoadingState label="Carregando certificados" />
+  if (loading) return <UserCertificatesSkeleton />
 
   const filteredCerts = certificates.filter((cert) =>
     (cert.evento?.tema || 'Certificado Muttley').toLowerCase().includes(search.toLowerCase()),

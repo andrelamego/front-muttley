@@ -40,8 +40,15 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Root Redirect */}
-        <Route path="/" element={<Navigate to="/eventos" replace />} />
+        {/* Public events home */}
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <PublicEventList />
+            </Layout>
+          }
+        />
 
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />

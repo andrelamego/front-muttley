@@ -3,19 +3,19 @@ import { Link } from 'react-router-dom';
 import { CalendarDays, Clock, MapPin, Search } from 'lucide-react';
 import db from '../../data/mockDb';
 import type { PublicEvent } from '../../data/types';
-import { EmptyState, LoadingState, StatusBadge } from '../../components/ui';
+import { EmptyState, PublicEventListSkeleton, StatusBadge } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const PublicEventList: React.FC = () => {
   const [events, setEvents] = useState<PublicEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [query, setQuery] = useState('');
 
   useEffect(() => {
     setLoading(true);
     db.getPublicEvents()
       .then(setEvents)
-      .catch((err) => setError(err.message || 'Nao foi possivel carregar os eventos.'))
+      .catch((err) => toast.error(err.message || 'Nao foi possivel carregar os eventos.'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -37,7 +37,7 @@ export const PublicEventList: React.FC = () => {
   }, [events, query]);
 
   if (loading) {
-    return <LoadingState label="Carregando eventos" />;
+    return <PublicEventListSkeleton />;
   }
 
   return (
@@ -59,8 +59,6 @@ export const PublicEventList: React.FC = () => {
           />
         </label>
       </section>
-
-      {error && <div className="alert alert-danger">{error}</div>}
 
       {filteredEvents.length === 0 ? (
         <EmptyState title="Nenhum evento encontrado" description="Novos eventos aparecem aqui quando forem publicados." />

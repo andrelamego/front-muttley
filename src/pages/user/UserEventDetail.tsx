@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import db from '../../data/mockDb';
 import type { Event, Participation, Discipline, Sponsor, Local, Address } from '../../data/types';
+import { UserEventDetailSkeleton } from '../../components/ui';
+import { toast } from '../../components/ui/Toast';
 
 export const UserEventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [success, setSuccess] = useState('');
-  const [error, setError] = useState('');
   
   const [event, setEvent] = useState<Event | null>(null);
   const [participacoes, setParticipacoes] = useState<Participation[]>([]);
@@ -37,7 +37,7 @@ export const UserEventDetail: React.FC = () => {
       setSponsors(spons);
       setLocais(locs);
       setAddresses(addrs);
-    }).catch(console.error)
+    }).catch((err) => toast.error(err.message || 'Erro ao carregar o evento.'))
       .finally(() => setLoading(false));
   };
 
@@ -46,11 +46,7 @@ export const UserEventDetail: React.FC = () => {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-primary"></div>
-      </div>
-    );
+    return <UserEventDetailSkeleton />;
   }
 
   if (!event) {
@@ -95,13 +91,13 @@ export const UserEventDetail: React.FC = () => {
       };
 
       await db.saveParticipation(newPart);
-      setSuccess('Inscrição realizada com sucesso!');
+      toast.success('Inscrição realizada com sucesso!');
       
       // Reload participations
       const updatedParts = await db.getParticipations();
       setParticipacoes(updatedParts);
     } catch (err: any) {
-      setError(err.message || 'Erro ao realizar inscrição.');
+      toast.error(err.message || 'Erro ao realizar inscrição.');
     }
   };
 
@@ -120,9 +116,6 @@ export const UserEventDetail: React.FC = () => {
             ← Voltar para a Página Inicial
           </Link>
         </div>
-
-        {success && <div className="alert alert-success my-4">{success}</div>}
-        {error && <div className="alert alert-danger my-4">{error}</div>}
 
         <section className="user-event-hero grid grid-cols-[auto_1fr] gap-6 items-start mt-6">
           <div className="user-event-date-card flex flex-col items-center justify-center p-3 w-20 h-24 bg-brand-surface border border-brand-line rounded-lg shadow-sm">

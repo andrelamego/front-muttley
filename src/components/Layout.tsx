@@ -15,7 +15,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const path = location.pathname
   const isAdmin = path.startsWith('/admin')
   const loggedUser = db.getLoggedUser()
-  const isUserPage = path.startsWith('/user') || (Boolean(loggedUser) && path.startsWith('/eventos'))
+  const isUserPage = path.startsWith('/user') || (Boolean(loggedUser) && (path === '/' || path.startsWith('/eventos')))
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
@@ -54,7 +54,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <span>Inicio</span>
           </Link>
 
-          <Link to="/eventos" className={`user-bottom-nav-link ${path.startsWith('/eventos') ? 'active' : ''}`}>
+          <Link to="/eventos" className={`user-bottom-nav-link ${path === '/' || path.startsWith('/eventos') ? 'active' : ''}`}>
             <CalendarDays aria-hidden="true" />
             <span>Eventos</span>
           </Link>

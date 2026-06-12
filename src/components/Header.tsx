@@ -36,17 +36,8 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
 
       {!isAdmin && !loggedUser && (
         <nav className="main-nav" aria-label="Navegacao publica">
-          <Link to="/eventos" className={path.startsWith('/eventos') ? 'active' : ''}>
+          <Link to="/eventos" className={path === '/' || path.startsWith('/eventos') ? 'active' : ''}>
             Eventos
-          </Link>
-        </nav>
-      )}
-
-      {!isAdmin && loggedUser?.role === 'ADMIN' && (
-        <nav className="main-nav" aria-label="Navegacao principal">
-          <Link to="/admin/inicio">
-            <ShieldCheck aria-hidden="true" />
-            Painel admin
           </Link>
         </nav>
       )}
@@ -57,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             <Home aria-hidden="true" />
             Inicio
           </Link>
-          <Link to="/eventos" className={path.startsWith('/eventos') ? 'active' : ''}>
+          <Link to="/eventos" className={path === '/' || path.startsWith('/eventos') ? 'active' : ''}>
             <CalendarDays aria-hidden="true" />
             Eventos
           </Link>
@@ -75,6 +66,12 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
       <div className="user-menu" aria-label="Usuario logado">
         {loggedUser ? (
           <>
+            {!isAdmin && loggedUser.role === 'ADMIN' && (
+              <Link className="admin-panel-shortcut" to="/admin/inicio" aria-label="Abrir painel administrativo">
+                <ShieldCheck aria-hidden="true" />
+                <span>Painel admin</span>
+              </Link>
+            )}
             <span className="avatar" aria-hidden="true">
               <UserRound />
             </span>

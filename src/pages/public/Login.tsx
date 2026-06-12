@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
 import db from '../../data/mockDb';
+import { toast } from '../../components/ui/Toast';
+import { getRoleFromToken, normalizeAuthRole } from '../../utils/auth';
 
 type LoginResponse = {
   token?: string;
@@ -26,27 +28,33 @@ export const Login: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState('');
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const regMsg = sessionStorage.getItem('muttley_register_msg');
     if (regMsg) {
-      setMessage(regMsg);
+      toast.success(regMsg);
       sessionStorage.removeItem('muttley_register_msg');
     }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErro('');
     db.setLoggedUser(null);
 
     try {
       const normalizedEmail = email.trim().toLowerCase();
       const response = await apiClient.post<LoginResponse>('/auth/login', { email: normalizedEmail, senha });
       const token = response.data.accessToken || response.data.token;
-      const role = response.data.role || (typeof response.data.usuario === 'object' ? response.data.usuario?.role : undefined) || 'USER';
+
+      if (!token) {
+        throw new Error('Token de autenticacao nao retornado pela API.');
+      }
+
+      const role = normalizeAuthRole(
+        getRoleFromToken(token),
+        response.data.role,
+        typeof response.data.usuario === 'object' ? response.data.usuario?.role : undefined,
+      ) || 'USER';
       const usuario = typeof response.data.usuario === 'object' && response.data.usuario
         ? {
             id: response.data.usuario.id ?? response.data.id,
@@ -65,18 +73,15 @@ export const Login: React.FC = () => {
             role,
           };
 
-      if (!token) {
-        throw new Error('Token de autenticacao nao retornado pela API.');
-      }
-
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
       localStorage.setItem('usuario', JSON.stringify(usuario));
 
+      toast.success('Login realizado com sucesso.');
       navigate(role === 'ADMIN' ? '/admin/inicio' : '/user/inicio');
     } catch (err: any) {
       db.setLoggedUser(null);
-      setErro(err.message || 'Email ou senha incorretos.');
+      toast.error(err.message || 'Email ou senha incorretos.');
     }
   };
 
@@ -93,9 +98,6 @@ export const Login: React.FC = () => {
         </section>
 
         <section className="auth-panel p-8 md:p-12 flex flex-col justify-center" aria-labelledby="login-title">
-          {message && <div className="alert alert-success mb-4">{message}</div>}
-          {erro && <div className="alert alert-danger mb-4">{erro}</div>}
-
           <div className="auth-heading mb-6">
             <span className="auth-kicker text-brand-primary font-bold text-xs uppercase tracking-wider">Acesso</span>
             <h1 id="login-title" className="text-2xl font-extrabold text-brand-ink-strong mt-1">Entrar no Muttley</h1>

@@ -8,7 +8,8 @@ import type {
   ParticipacaoUsuarioResponse,
   Pessoa,
 } from '../../data/types'
-import { ButtonLink, Card, EmptyState, LoadingState, SectionHeader, StatCard, StatusBadge } from '../../components/ui'
+import { ButtonLink, Card, EmptyState, SectionHeader, StatCard, StatusBadge, UserDashboardSkeleton } from '../../components/ui'
+import { toast } from '../../components/ui/Toast'
 
 const formatDate = (date: string) => (date ? new Date(`${date}T00:00:00`).toLocaleDateString('pt-BR') : 'Data nao informada')
 
@@ -37,12 +38,12 @@ export const UserDashboard: React.FC = () => {
         setCertificates(certs)
         setMedals(mdls)
       })
-      .catch(console.error)
+      .catch((err) => toast.error(err.message || 'Erro ao carregar seu painel.'))
       .finally(() => setLoading(false))
   }, [])
 
   if (!user) return null
-  if (loading) return <LoadingState label="Carregando seu painel" />
+  if (loading) return <UserDashboardSkeleton />
 
   const userEvents = participations
     .filter((participation) => participation.evento)
