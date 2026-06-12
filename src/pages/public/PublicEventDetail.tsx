@@ -28,6 +28,17 @@ export const PublicEventDetail: React.FC = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const handleCpfChange = (changeEvent: React.ChangeEvent<HTMLInputElement>) => {
+    let value = changeEvent.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+
+    setForm((current) => ({ ...current, cpf: value }));
+  };
+
   const submitInscription = async (
     payload: { nomeCompleto: string; cpf: string; email: string },
     options: { fromLoggedUser?: boolean } = {},
@@ -180,7 +191,7 @@ export const PublicEventDetail: React.FC = () => {
                   type="text"
                   placeholder="000.000.000-00"
                   value={form.cpf}
-                  onChange={(changeEvent) => setForm((current) => ({ ...current, cpf: changeEvent.target.value }))}
+                  onChange={handleCpfChange}
                   disabled={event.inscricoesEncerradas || submitting}
                   required
                 />

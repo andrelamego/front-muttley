@@ -108,7 +108,8 @@ export interface Evento {
   localId?: string;
   descricao: string;
   status: StatusEvento;
-  qrCodeUrl?: string;
+  qrCodeInscricaoUrl?: string;
+  qrCodeConfirmacaoUrl?: string;
   disciplina?: Disciplina | null;
   patrocinador?: Patrocinador | null;
   local?: Local | null;

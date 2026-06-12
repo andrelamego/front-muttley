@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +13,29 @@ export const Register: React.FC = () => {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get('id');
+  const [isFromEmail, setIsFromEmail] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+
+    apiClient
+      .get(`/pessoa/dados-cadastro/${id}`)
+      .then((res) => {
+        const { nome, email, cpf} = res.data;
+
+        setNome(nome || '');
+        setEmail(email || '');
+        setCpf(cpf || '');
+
+        setIsFromEmail(true);
+      })
+      .catch((err) => {
+        setErro('Link de cadastro inválido.');
+        console.error(err);
+      });
+  }, [id]);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -49,15 +74,28 @@ export const Register: React.FC = () => {
       return;
     }
 
-    try {
-      await apiClient.post('/auth/register', {
-        nome,
-        email,
-        telefone,
-        cpf,
-        senha
-      });
+    
 
+    try {
+      if(isFromEmail){
+        await apiClient.put('/auth/register', {
+          nome,
+          email,
+          telefone,
+          cpf,
+          senha
+        });
+      }
+      else{
+        await apiClient.post('/auth/register', {
+          nome,
+          email,
+          telefone,
+          cpf,
+          senha
+        });
+      }
+      
       // Salva mensagem de sucesso e redireciona
       sessionStorage.setItem('muttley_register_msg', 'Cadastro realizado com sucesso! Faça login.');
       navigate('/login');
@@ -109,6 +147,7 @@ export const Register: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu.email@exemplo.com"
+                  disabled={isFromEmail}
                   required
                   className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
                 />
@@ -136,6 +175,7 @@ export const Register: React.FC = () => {
                   value={cpf}
                   onChange={handleCpfChange}
                   placeholder="000.000.000-00"
+                  disabled={isFromEmail}
                   required
                   className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
                 />

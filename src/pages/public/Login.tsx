@@ -148,7 +148,7 @@ export const Login: React.FC = () => {
 
           <div className="mt-6 text-center text-xs border-t border-brand-line pt-4">
             <p className="text-brand-muted">
-              Para testes: <strong className="text-brand-ink-strong">ana.souza@email.com</strong> | Senha <strong className="text-brand-ink-strong">muttley123</strong>
+              Para testes: <strong className="text-brand-ink-strong">ana.souza@email.com</strong> | Senha <strong className="text-brand-ink-strong">123456</strong>
             </p>
           </div>
         </section>

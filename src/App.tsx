@@ -8,6 +8,7 @@ import Register from './pages/public/Register';
 import CertificateView from './pages/public/CertificateView';
 import PublicEventList from './pages/public/PublicEventList';
 import PublicEventDetail from './pages/public/PublicEventDetail';
+import ConfirmarPresenca from './pages/public/ConfirmarPresenca';
 
 // User Pages
 import UserDashboard from './pages/user/UserDashboard';
@@ -48,6 +49,7 @@ const App: React.FC = () => {
         <Route path="/eventos" element={<Layout><PublicEventList /></Layout>} />
         <Route path="/eventos/:id" element={<Layout><PublicEventDetail /></Layout>} />
         <Route path="/certificados/:codigo" element={<CertificateView />} />
+        <Route path="/eventos/:id/confirmar-presenca" element={<ConfirmarPresenca />} />
 
         {/* User Routes */}
         <Route
