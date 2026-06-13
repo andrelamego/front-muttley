@@ -11,7 +11,15 @@ type FormFieldProps = {
   children: ReactNode
 }
 
-export function FormField({ label, htmlFor, required, help, error, className, children }: FormFieldProps) {
+export function FormField({
+  label,
+  htmlFor,
+  required,
+  help,
+  error,
+  className,
+  children,
+}: FormFieldProps) {
   return (
     <label className={cx('ui-form-field', className)} htmlFor={htmlFor}>
       <span>

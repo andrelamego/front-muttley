@@ -1,182 +1,209 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus } from 'lucide-react';
-import db from '../../data/mockDb';
-import type { Evento, Local, Discipline, Sponsor } from '../../data/types';
-import { ButtonLink, EmptyState, EventListSkeleton, PageHeader, StatusBadge } from '../../components/ui';
-import { toast } from '../../components/ui/Toast';
+import React, { useState, useMemo, useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Plus } from 'lucide-react'
+import db from '../../data/mockDb'
+import type { Evento, Local, Discipline, Sponsor } from '../../data/types'
+import {
+  ButtonLink,
+  EmptyState,
+  EventListSkeleton,
+  PageHeader,
+  StatusBadge,
+} from '../../components/ui'
+import { toast } from '../../components/ui/Toast'
 
 export const EventList: React.FC = () => {
-  const [busca, setBusca] = useState('');
-  const [statusFiltro, setStatusFiltro] = useState('');
-  const [ordenar, setOrdenar] = useState('data');
-  const [tamanho, setTamanho] = useState(10);
-  const [pagina, setPagina] = useState(0);
-  const [qrModalEvent, setQrModalEvent] = useState<Evento | null>(null);
-  const [qrCodeInscricaoUrl, setQrCodeInscricaoUrl] = useState('');
-  const [qrCodeConfirmacaoUrl, setQrCodeConfirmacaoUrl] = useState('');
-  const [qrCodeLoading, setQrCodeLoading] = useState(false);
+  const [busca, setBusca] = useState('')
+  const [statusFiltro, setStatusFiltro] = useState('')
+  const [ordenar, setOrdenar] = useState('data')
+  const [tamanho, setTamanho] = useState(10)
+  const [pagina, setPagina] = useState(0)
+  const [qrModalEvent, setQrModalEvent] = useState<Evento | null>(null)
+  const [qrCodeInscricaoUrl, setQrCodeInscricaoUrl] = useState('')
+  const [qrCodeConfirmacaoUrl, setQrCodeConfirmacaoUrl] = useState('')
+  const [qrCodeLoading, setQrCodeLoading] = useState(false)
 
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null)
 
   // Load state datasets
-  const [events, setEvents] = useState<Evento[]>([]);
-  const [locations, setLocations] = useState<Local[]>([]);
-  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
-  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<Evento[]>([])
+  const [locations, setLocations] = useState<Local[]>([])
+  const [disciplines, setDisciplines] = useState<Discipline[]>([])
+  const [sponsors, setSponsors] = useState<Sponsor[]>([])
+  const [loading, setLoading] = useState(true)
 
   const loadData = () => {
-    setLoading(true);
+    setLoading(true)
     Promise.all([
       db.getEvents(),
       db.getLocais(),
       db.getDisciplines(),
-      db.getSponsors()
-    ]).then(([evts, locs, discs, spons]) => {
-      setEvents(evts);
-      setLocations(locs);
-      setDisciplines(discs);
-      setSponsors(spons);
-    }).catch((err) => toast.error(err.message || 'Erro ao carregar eventos.'))
-      .finally(() => setLoading(false));
-  };
+      db.getSponsors(),
+    ])
+      .then(([evts, locs, discs, spons]) => {
+        setEvents(evts)
+        setLocations(locs)
+        setDisciplines(discs)
+        setSponsors(spons)
+      })
+      .catch((err) => toast.error(err.message || 'Erro ao carregar eventos.'))
+      .finally(() => setLoading(false))
+  }
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData()
+  }, [])
 
-  useEffect(() => () => {
-    if (qrCodeInscricaoUrl) {
-      URL.revokeObjectURL(qrCodeInscricaoUrl);
-    }
-    if (qrCodeConfirmacaoUrl) {
-      URL.revokeObjectURL(qrCodeConfirmacaoUrl);
-    }
-  }, [qrCodeInscricaoUrl, qrCodeConfirmacaoUrl]);
+  useEffect(
+    () => () => {
+      if (qrCodeInscricaoUrl) {
+        URL.revokeObjectURL(qrCodeInscricaoUrl)
+      }
+      if (qrCodeConfirmacaoUrl) {
+        URL.revokeObjectURL(qrCodeConfirmacaoUrl)
+      }
+    },
+    [qrCodeInscricaoUrl, qrCodeConfirmacaoUrl]
+  )
 
-  const activeEvents = useMemo(() => events.filter(e => e.status === 'EM_ANDAMENTO'), [events]);
+  const activeEvents = useMemo(
+    () => events.filter((e) => e.status === 'EM_ANDAMENTO'),
+    [events]
+  )
 
-  const [canScroll, setCanScroll] = useState(false);
+  const [canScroll, setCanScroll] = useState(false)
 
   const checkScroll = () => {
     if (carouselRef.current) {
-      const { scrollWidth, clientWidth } = carouselRef.current;
-      setCanScroll(scrollWidth > clientWidth);
+      const { scrollWidth, clientWidth } = carouselRef.current
+      setCanScroll(scrollWidth > clientWidth)
     }
-  };
+  }
 
   useEffect(() => {
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, [activeEvents]);
+    checkScroll()
+    window.addEventListener('resize', checkScroll)
+    return () => window.removeEventListener('resize', checkScroll)
+  }, [activeEvents])
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const scrollAmount = direction === 'left' ? -336 : 336;
-      carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      const scrollAmount = direction === 'left' ? -336 : 336
+      carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
     }
-  };
+  }
 
   const handleCancel = async (id: string) => {
     if (window.confirm('Cancelar este evento?')) {
       try {
-        await db.cancelEvent(id);
-        toast.success('Evento cancelado com sucesso.');
+        await db.cancelEvent(id)
+        toast.success('Evento cancelado com sucesso.')
         // Refresh event list
-        const evts = await db.getEvents();
-        setEvents(evts);
+        const evts = await db.getEvents()
+        setEvents(evts)
       } catch (err: any) {
-        toast.error(err.message || 'Erro ao cancelar evento.');
+        toast.error(err.message || 'Erro ao cancelar evento.')
       }
     }
-  };
+  }
 
   const openQrCodeModal = async (evento: Evento) => {
-    setQrModalEvent(evento);
-    setQrCodeLoading(true);
-    setQrCodeInscricaoUrl(prev => { if (prev) URL.revokeObjectURL(prev); return ''; });
-    setQrCodeConfirmacaoUrl(prev => { if (prev) URL.revokeObjectURL(prev); return ''; });
+    setQrModalEvent(evento)
+    setQrCodeLoading(true)
+    setQrCodeInscricaoUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev)
+      return ''
+    })
+    setQrCodeConfirmacaoUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev)
+      return ''
+    })
 
     try {
       const [blobInscricao, blobConfirmacao] = await Promise.all([
         db.getEventQrCodeInscricaoBlob(evento.id),
         db.getEventQrCodeConfirmacaoBlob(evento.id),
-      ]);
-      setQrCodeInscricaoUrl(URL.createObjectURL(blobInscricao));
-      setQrCodeConfirmacaoUrl(URL.createObjectURL(blobConfirmacao));
+      ])
+      setQrCodeInscricaoUrl(URL.createObjectURL(blobInscricao))
+      setQrCodeConfirmacaoUrl(URL.createObjectURL(blobConfirmacao))
     } catch (err: any) {
-      toast.error(err.message || 'Não foi possível carregar os QR Codes.');
+      toast.error(err.message || 'Não foi possível carregar os QR Codes.')
     } finally {
-      setQrCodeLoading(false);
+      setQrCodeLoading(false)
     }
-  };
+  }
 
   const closeQrCodeModal = () => {
-    setQrModalEvent(null);
-    setQrCodeLoading(false);
-    setQrCodeInscricaoUrl(prev => { if (prev) URL.revokeObjectURL(prev); return ''; });
-    setQrCodeConfirmacaoUrl(prev => { if (prev) URL.revokeObjectURL(prev); return ''; });
-  };
+    setQrModalEvent(null)
+    setQrCodeLoading(false)
+    setQrCodeInscricaoUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev)
+      return ''
+    })
+    setQrCodeConfirmacaoUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev)
+      return ''
+    })
+  }
 
   const handleDownloadQrCode = () => {
-    if (!qrModalEvent) return;
+    if (!qrModalEvent) return
     if (qrCodeInscricaoUrl) {
-      const a = document.createElement('a');
-      a.href = qrCodeInscricaoUrl;
-      a.download = `qrcode-inscricao-evento-${qrModalEvent.id || 'muttley'}.png`;
-      a.click();
+      const a = document.createElement('a')
+      a.href = qrCodeInscricaoUrl
+      a.download = `qrcode-inscricao-evento-${qrModalEvent.id || 'muttley'}.png`
+      a.click()
     }
     if (qrCodeConfirmacaoUrl) {
-      const a = document.createElement('a');
-      a.href = qrCodeConfirmacaoUrl;
-      a.download = `qrcode-confirmacao-evento-${qrModalEvent.id || 'muttley'}.png`;
-      a.click();
+      const a = document.createElement('a')
+      a.href = qrCodeConfirmacaoUrl
+      a.download = `qrcode-confirmacao-evento-${qrModalEvent.id || 'muttley'}.png`
+      a.click()
     }
-  };
+  }
 
   // Filter and sort events
   const filteredEvents = useMemo(() => {
-    let result = [...events];
+    let result = [...events]
 
     // Filter by search query
     if (busca.trim()) {
-      const query = busca.toLowerCase();
-      result = result.filter(e => 
-        e.tema.toLowerCase().includes(query) || 
-        (e.descricao && e.descricao.toLowerCase().includes(query))
-      );
+      const query = busca.toLowerCase()
+      result = result.filter(
+        (e) =>
+          e.tema.toLowerCase().includes(query) ||
+          (e.descricao && e.descricao.toLowerCase().includes(query))
+      )
     }
 
     // Filter by status
     if (statusFiltro) {
-      result = result.filter(e => e.status === statusFiltro);
+      result = result.filter((e) => e.status === statusFiltro)
     }
 
     // Sort
     result.sort((a, b) => {
       if (ordenar === 'tema') {
-        return a.tema.localeCompare(b.tema);
+        return a.tema.localeCompare(b.tema)
       }
-      const dateDiff = new Date(a.data).getTime() - new Date(b.data).getTime();
-      if (dateDiff !== 0) return dateDiff;
-      return (a.horarioInicio || '').localeCompare(b.horarioInicio || '');
-    });
+      const dateDiff = new Date(a.data).getTime() - new Date(b.data).getTime()
+      if (dateDiff !== 0) return dateDiff
+      return (a.horarioInicio || '').localeCompare(b.horarioInicio || '')
+    })
 
-    return result;
-  }, [events, busca, statusFiltro, ordenar]);
+    return result
+  }, [events, busca, statusFiltro, ordenar])
 
   // Paginated events
   const paginatedEvents = useMemo(() => {
-    const start = pagina * tamanho;
-    return filteredEvents.slice(start, start + tamanho);
-  }, [filteredEvents, pagina, tamanho]);
+    const start = pagina * tamanho
+    return filteredEvents.slice(start, start + tamanho)
+  }, [filteredEvents, pagina, tamanho])
 
-  const totalPages = Math.ceil(filteredEvents.length / tamanho);
+  const totalPages = Math.ceil(filteredEvents.length / tamanho)
 
   if (loading) {
-    return <EventListSkeleton />;
+    return <EventListSkeleton />
   }
 
   return (
@@ -186,16 +213,25 @@ export const EventList: React.FC = () => {
         title="Eventos"
         description="Cadastre, acompanhe e conclua atividades academicas com controle de inscricoes e certificados."
         actions={
-          <ButtonLink to="/admin/eventos/novo" icon={<Plus aria-hidden="true" />}>
+          <ButtonLink
+            to="/admin/eventos/novo"
+            icon={<Plus aria-hidden="true" />}
+          >
             Novo Evento
           </ButtonLink>
         }
       />
 
       {activeEvents.length > 0 && (
-        <section className="events-section mb-8" aria-labelledby="active-events-title">
+        <section
+          className="events-section mb-8"
+          aria-labelledby="active-events-title"
+        >
           <div className="section-heading mb-4">
-            <h2 id="active-events-title" className="text-lg font-bold text-brand-ink-strong">
+            <h2
+              id="active-events-title"
+              className="text-lg font-bold text-brand-ink-strong"
+            >
               Eventos em andamento
             </h2>
           </div>
@@ -215,27 +251,50 @@ export const EventList: React.FC = () => {
             )}
 
             <div className="events-row scroll-smooth" ref={carouselRef}>
-              {activeEvents.map(evento => {
-                const local = locations.find(l => l.id === evento.localId);
-                const dateObj = new Date(evento.data);
-                const day = evento.data ? dateObj.getDate() + 1 : 12;
-                const month = evento.data ? dateObj.toLocaleDateString('pt-BR', { month: '2-digit' }) : '05';
+              {activeEvents.map((evento) => {
+                const local = locations.find((l) => l.id === evento.localId)
+                const dateObj = new Date(evento.data)
+                const day = evento.data ? dateObj.getDate() + 1 : 12
+                const month = evento.data
+                  ? dateObj.toLocaleDateString('pt-BR', { month: '2-digit' })
+                  : '05'
 
                 return (
-                  <article key={evento.id} className="event-card flex flex-col p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm w-[320px] shrink-0 relative overflow-hidden">
+                  <article
+                    key={evento.id}
+                    className="event-card flex flex-col p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm w-[320px] shrink-0 relative overflow-hidden"
+                  >
                     <div className="event-main flex justify-between items-start">
-                      <h3 className="text-sm font-bold text-brand-ink-strong max-w-[200px]">{evento.tema}</h3>
+                      <h3 className="text-sm font-bold text-brand-ink-strong max-w-[200px]">
+                        {evento.tema}
+                      </h3>
                       <time className="px-2.5 py-1 bg-brand-primary-soft text-brand-primary-strong rounded-full text-xs font-bold flex items-center gap-1">
-                        <svg className="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24">
-                          <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+                        <svg
+                          className="w-3.5 h-3.5"
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                        >
+                          <rect
+                            x="4"
+                            y="5"
+                            width="16"
+                            height="15"
+                            rx="2"
+                          ></rect>
                           <path d="M8 3v4M16 3v4M4 10h16"></path>
                         </svg>
-                        <span>{day}/{month}</span>
+                        <span>
+                          {day}/{month}
+                        </span>
                       </time>
                     </div>
 
                     <p className="event-location flex items-center gap-1.5 text-xs text-brand-muted mt-2 font-semibold">
-                      <svg className="w-3.5 h-3.5 text-brand-primary" aria-hidden="true" viewBox="0 0 24 24">
+                      <svg
+                        className="w-3.5 h-3.5 text-brand-primary"
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                      >
                         <path d="M12 21s7-5.3 7-12a7 7 0 0 0-14 0c0 6.7 7 12 7 12z"></path>
                         <circle cx="12" cy="9" r="2.2"></circle>
                       </svg>
@@ -248,11 +307,17 @@ export const EventList: React.FC = () => {
 
                     <div className="event-footer flex items-center justify-between mt-4 text-xs text-brand-muted border-t border-brand-line/40 pt-2.5">
                       <span className="flex items-center gap-1">
-                        <svg className="w-3.5 h-3.5" aria-hidden="true" viewBox="0 0 24 24">
+                        <svg
+                          className="w-3.5 h-3.5"
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                        >
                           <circle cx="12" cy="12" r="9"></circle>
                           <path d="M12 7v5l4 2"></path>
                         </svg>
-                        <span>{evento.horarioInicio} - {evento.horarioFim}</span>
+                        <span>
+                          {evento.horarioInicio} - {evento.horarioFim}
+                        </span>
                       </span>
                       <Link
                         className="event-footer-action text-white bg-brand-primary px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-brand-primary-strong transition-colors"
@@ -262,7 +327,7 @@ export const EventList: React.FC = () => {
                       </Link>
                     </div>
                   </article>
-                );
+                )
               })}
             </div>
 
@@ -285,7 +350,11 @@ export const EventList: React.FC = () => {
       <section className="summary-grid grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
-            <svg aria-hidden="true" className="w-4 h-4 text-brand-primary" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 text-brand-primary"
+              viewBox="0 0 24 24"
+            >
               <rect x="4" y="5" width="16" height="15" rx="2"></rect>
               <path d="M8 3v4M16 3v4M4 10h16"></path>
             </svg>
@@ -298,7 +367,11 @@ export const EventList: React.FC = () => {
 
         <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
-            <svg aria-hidden="true" className="w-4 h-4 text-brand-primary" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 text-brand-primary"
+              viewBox="0 0 24 24"
+            >
               <rect x="4" y="5" width="16" height="15" rx="2"></rect>
               <path d="M8 3v4M16 3v4M4 10h16"></path>
             </svg>
@@ -311,7 +384,11 @@ export const EventList: React.FC = () => {
 
         <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
-            <svg aria-hidden="true" className="w-4 h-4 text-brand-primary" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 text-brand-primary"
+              viewBox="0 0 24 24"
+            >
               <path d="M16 21v-2a4 4 0 0 0-8 0v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
@@ -324,7 +401,11 @@ export const EventList: React.FC = () => {
 
         <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
-            <svg aria-hidden="true" className="w-4 h-4 text-brand-primary" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 text-brand-primary"
+              viewBox="0 0 24 24"
+            >
               <rect x="4" y="5" width="16" height="15" rx="2"></rect>
               <path d="M8 3v4M16 3v4M4 10h16"></path>
             </svg>
@@ -349,8 +430,8 @@ export const EventList: React.FC = () => {
             type="search"
             value={busca}
             onChange={(e) => {
-              setBusca(e.target.value);
-              setPagina(0);
+              setBusca(e.target.value)
+              setPagina(0)
             }}
             placeholder="Buscar evento"
             className="w-full text-sm outline-none bg-transparent"
@@ -369,8 +450,8 @@ export const EventList: React.FC = () => {
         <select
           value={statusFiltro}
           onChange={(e) => {
-            setStatusFiltro(e.target.value);
-            setPagina(0);
+            setStatusFiltro(e.target.value)
+            setPagina(0)
           }}
           className="border border-brand-line p-2 rounded-lg text-sm bg-brand-surface"
         >
@@ -384,8 +465,8 @@ export const EventList: React.FC = () => {
         <select
           value={tamanho}
           onChange={(e) => {
-            setTamanho(Number(e.target.value));
-            setPagina(0);
+            setTamanho(Number(e.target.value))
+            setPagina(0)
           }}
           className="border border-brand-line p-2 rounded-lg text-sm bg-brand-surface"
         >
@@ -398,10 +479,10 @@ export const EventList: React.FC = () => {
         <button
           type="button"
           onClick={() => {
-            setBusca('');
-            setStatusFiltro('');
-            setOrdenar('data');
-            setPagina(0);
+            setBusca('')
+            setStatusFiltro('')
+            setOrdenar('data')
+            setPagina(0)
           }}
           className="bg-brand-muted hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
         >
@@ -411,44 +492,68 @@ export const EventList: React.FC = () => {
 
       <section className="event-list flex flex-col gap-4">
         {paginatedEvents.length === 0 ? (
-          <EmptyState title="Nenhum evento encontrado" description="Ajuste os filtros ou cadastre um novo evento." />
+          <EmptyState
+            title="Nenhum evento encontrado"
+            description="Ajuste os filtros ou cadastre um novo evento."
+          />
         ) : (
-          paginatedEvents.map(evento => {
-            const local = locations.find(l => l.id === evento.localId);
-            const disc = disciplines.find(d => d.id === evento.disciplinaId);
-            const sponsor = sponsors.find(s => s.id === evento.patrocinadorId);
-            const isFinalized = evento.status === 'FINALIZADO';
-            const isCancelled = evento.status === 'CANCELADO';
-            const dateObj = new Date(evento.data);
-            const day = evento.data ? dateObj.getDate() + 1 : 12;
-            const month = evento.data ? dateObj.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '') : 'mai';
+          paginatedEvents.map((evento) => {
+            const local = locations.find((l) => l.id === evento.localId)
+            const disc = disciplines.find((d) => d.id === evento.disciplinaId)
+            const sponsor = sponsors.find((s) => s.id === evento.patrocinadorId)
+            const isFinalized = evento.status === 'FINALIZADO'
+            const isCancelled = evento.status === 'CANCELADO'
+            const dateObj = new Date(evento.data)
+            const day = evento.data ? dateObj.getDate() + 1 : 12
+            const month = evento.data
+              ? dateObj
+                  .toLocaleDateString('pt-BR', { month: 'short' })
+                  .replace('.', '')
+              : 'mai'
 
             return (
-              <article key={evento.id} className="event-list-card event-list-card--redesigned">
-                <div className="event-list-date" aria-label={`Data do evento: ${day} de ${month}`}>
+              <article
+                key={evento.id}
+                className="event-list-card event-list-card--redesigned"
+              >
+                <div
+                  className="event-list-date"
+                  aria-label={`Data do evento: ${day} de ${month}`}
+                >
                   <strong>{day}</strong>
                   <span>{month}</span>
                   <small>{evento.horarioInicio}</small>
                 </div>
                 <div className="event-list-meta flex flex-col gap-2 md:border-r border-brand-line md:pr-4 justify-center text-xs text-brand-muted">
                   <span className="flex items-center gap-1.5 font-semibold">
-                    <svg className="w-4 h-4 text-brand-primary" viewBox="0 0 24 24">
+                    <svg
+                      className="w-4 h-4 text-brand-primary"
+                      viewBox="0 0 24 24"
+                    >
                       <path d="M12 21s7-5.3 7-12a7 7 0 0 0-14 0c0 6.7 7 12 7 12z"></path>
                       <circle cx="12" cy="9" r="2.2"></circle>
                     </svg>
                     <span>{local?.nome || '—'}</span>
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-brand-primary" viewBox="0 0 24 24">
+                    <svg
+                      className="w-4 h-4 text-brand-primary"
+                      viewBox="0 0 24 24"
+                    >
                       <rect x="4" y="5" width="16" height="15" rx="2"></rect>
                       <path d="M8 3v4M16 3v4M4 10h16"></path>
                     </svg>
-                    <span>{day}/{month} | {evento.horarioInicio} - {evento.horarioFim}</span>
+                    <span>
+                      {day}/{month} | {evento.horarioInicio} -{' '}
+                      {evento.horarioFim}
+                    </span>
                   </span>
                 </div>
 
                 <div className="event-list-content min-w-0">
-                  <h2 className="text-lg font-bold text-brand-ink-strong truncate mb-2">{evento.tema}</h2>
+                  <h2 className="text-lg font-bold text-brand-ink-strong truncate mb-2">
+                    {evento.tema}
+                  </h2>
                   <div className="event-list-details">
                     <span>
                       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -469,7 +574,10 @@ export const EventList: React.FC = () => {
                     <StatusBadge status={evento.status} />
                     {disc && (
                       <span className="flex items-center gap-1">
-                        <svg className="w-3.5 h-3.5 text-brand-primary" viewBox="0 0 24 24">
+                        <svg
+                          className="w-3.5 h-3.5 text-brand-primary"
+                          viewBox="0 0 24 24"
+                        >
                           <path d="M4 19.5V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-1.5z"></path>
                         </svg>
                         <span>{disc.nome}</span>
@@ -477,7 +585,10 @@ export const EventList: React.FC = () => {
                     )}
                     {sponsor && (
                       <span className="flex items-center gap-1">
-                        <svg className="w-3.5 h-3.5 text-brand-primary" viewBox="0 0 24 24">
+                        <svg
+                          className="w-3.5 h-3.5 text-brand-primary"
+                          viewBox="0 0 24 24"
+                        >
                           <circle cx="12" cy="12" r="9"></circle>
                           <path d="M8 12h8M12 8v8"></path>
                         </svg>
@@ -501,7 +612,8 @@ export const EventList: React.FC = () => {
                     {isFinalized ? 'Ver detalhes' : 'Editar'}
                   </Link>
 
-                  {(evento.qrCodeInscricaoUrl || evento.qrCodeConfirmacaoUrl) && (
+                  {(evento.qrCodeInscricaoUrl ||
+                    evento.qrCodeConfirmacaoUrl) && (
                     <button
                       type="button"
                       onClick={() => openQrCodeModal(evento)}
@@ -530,7 +642,7 @@ export const EventList: React.FC = () => {
                   )}
                 </div>
               </article>
-            );
+            )
           })
         )}
       </section>
@@ -546,13 +658,13 @@ export const EventList: React.FC = () => {
             Primeiro
           </button>
           <button
-            onClick={() => setPagina(p => Math.max(0, p - 1))}
+            onClick={() => setPagina((p) => Math.max(0, p - 1))}
             disabled={pagina === 0}
             className={`px-3 py-1.5 rounded-full ${pagina === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-brand-primary hover:text-white'}`}
           >
             Anterior
           </button>
-          
+
           {Array.from({ length: totalPages }).map((_, idx) => (
             <button
               key={idx}
@@ -564,7 +676,7 @@ export const EventList: React.FC = () => {
           ))}
 
           <button
-            onClick={() => setPagina(p => Math.min(totalPages - 1, p + 1))}
+            onClick={() => setPagina((p) => Math.min(totalPages - 1, p + 1))}
             disabled={pagina === totalPages - 1}
             className={`px-3 py-1.5 rounded-full ${pagina === totalPages - 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-brand-primary hover:text-white'}`}
           >
@@ -582,47 +694,123 @@ export const EventList: React.FC = () => {
 
       {qrModalEvent && (
         <div className="modal-backdrop" role="presentation">
-          <section className="creation-confirmation-modal" role="dialog" aria-modal="true" aria-labelledby="event-qrcode-title">
-            <button className="modal-close-button" type="button" aria-label="Fechar" onClick={closeQrCodeModal}>
+          <section
+            className="creation-confirmation-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="event-qrcode-title"
+          >
+            <button
+              className="modal-close-button"
+              type="button"
+              aria-label="Fechar"
+              onClick={closeQrCodeModal}
+            >
               x
             </button>
 
             <div className="creation-confirmation-modal__header">
               <span>QR Codes</span>
               <h2 id="event-qrcode-title">{qrModalEvent.tema}</h2>
-              <p>Compartilhe os QR Codes com os participantes e organizadores.</p>
+              <p>
+                Compartilhe os QR Codes com os participantes e organizadores.
+              </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', margin: '1rem 0' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Inscrição
-                  </span>
-                  <div className="creation-confirmation-modal__qr">
-                    {qrCodeInscricaoUrl
-                      ? <img src={qrCodeInscricaoUrl} alt="QR Code de inscrição" />
-                      : <div className="creation-confirmation-modal__placeholder" role="status">Carregando...</div>
-                    }
-                  </div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textAlign: 'center' }}>
-                    Participante escaneia para se inscrever
-                  </span>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '1.5rem',
+                margin: '1rem 0',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold',
+                    color: 'var(--muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  Inscrição
+                </span>
+                <div className="creation-confirmation-modal__qr">
+                  {qrCodeInscricaoUrl ? (
+                    <img src={qrCodeInscricaoUrl} alt="QR Code de inscrição" />
+                  ) : (
+                    <div
+                      className="creation-confirmation-modal__placeholder"
+                      role="status"
+                    >
+                      Carregando...
+                    </div>
+                  )}
                 </div>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--muted)',
+                    textAlign: 'center',
+                  }}
+                >
+                  Participante escaneia para se inscrever
+                </span>
+              </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Confirmação de presença
-                  </span>
-                  <div className="creation-confirmation-modal__qr">
-                    {qrCodeConfirmacaoUrl
-                      ? <img src={qrCodeConfirmacaoUrl} alt="QR Code de confirmação de presença" />
-                      : <div className="creation-confirmation-modal__placeholder" role="status">Carregando...</div>
-                    }
-                  </div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textAlign: 'center' }}>
-                    Participante escaneia no dia do evento
-                  </span>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold',
+                    color: 'var(--muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  Confirmação de presença
+                </span>
+                <div className="creation-confirmation-modal__qr">
+                  {qrCodeConfirmacaoUrl ? (
+                    <img
+                      src={qrCodeConfirmacaoUrl}
+                      alt="QR Code de confirmação de presença"
+                    />
+                  ) : (
+                    <div
+                      className="creation-confirmation-modal__placeholder"
+                      role="status"
+                    >
+                      Carregando...
+                    </div>
+                  )}
                 </div>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--muted)',
+                    textAlign: 'center',
+                  }}
+                >
+                  Participante escaneia no dia do evento
+                </span>
+              </div>
             </div>
 
             <div className="creation-confirmation-modal__actions">
@@ -630,11 +818,18 @@ export const EventList: React.FC = () => {
                 className="link-action"
                 type="button"
                 onClick={handleDownloadQrCode}
-                disabled={(!qrCodeInscricaoUrl && !qrCodeConfirmacaoUrl) || qrCodeLoading}
+                disabled={
+                  (!qrCodeInscricaoUrl && !qrCodeConfirmacaoUrl) ||
+                  qrCodeLoading
+                }
               >
                 Baixar QR Codes
               </button>
-              <button className="primary-action" type="button" onClick={closeQrCodeModal}>
+              <button
+                className="primary-action"
+                type="button"
+                onClick={closeQrCodeModal}
+              >
                 Fechar
               </button>
             </div>
@@ -642,7 +837,7 @@ export const EventList: React.FC = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default EventList;
+export default EventList

@@ -1,54 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import db from '../../data/mockDb';
-import { FormSkeleton } from '../../components/ui';
-import { toast } from '../../components/ui/Toast';
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams, Link } from 'react-router-dom'
+import db from '../../data/mockDb'
+import { FormSkeleton } from '../../components/ui'
+import { toast } from '../../components/ui/Toast'
 
 export const AddressForm: React.FC = () => {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
 
-  const [estado, setEstado] = useState('');
-  const [cidade, setCidade] = useState('');
-  const [bairro, setBairro] = useState('');
-  const [numero, setNumero] = useState('');
-  const [logradouro, setLogradouro] = useState('');
-  const [complemento, setComplemento] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [estado, setEstado] = useState('')
+  const [cidade, setCidade] = useState('')
+  const [bairro, setBairro] = useState('')
+  const [numero, setNumero] = useState('')
+  const [logradouro, setLogradouro] = useState('')
+  const [complemento, setComplemento] = useState('')
+  const [loading, setLoading] = useState(false)
 
   // Load existing address
   useEffect(() => {
     if (id) {
       const loadAddress = async () => {
-        setLoading(true);
+        setLoading(true)
         try {
-          const addresses = await db.getAddresses();
-          const found = addresses.find(a => a.id === id);
+          const addresses = await db.getAddresses()
+          const found = addresses.find((a) => a.id === id)
           if (found) {
-            setEstado(found.estado);
-            setCidade(found.cidade);
-            setBairro(found.bairro);
-            setNumero(found.numero);
-            setLogradouro(found.logradouro);
-            setComplemento(found.complemento || '');
+            setEstado(found.estado)
+            setCidade(found.cidade)
+            setBairro(found.bairro)
+            setNumero(found.numero)
+            setLogradouro(found.logradouro)
+            setComplemento(found.complemento || '')
           } else {
-            toast.error('Endereço não encontrado.');
+            toast.error('Endereço não encontrado.')
           }
         } catch (err: any) {
-          toast.error(err.message || 'Erro ao carregar endereço.');
+          toast.error(err.message || 'Erro ao carregar endereço.')
         } finally {
-          setLoading(false);
+          setLoading(false)
         }
-      };
-      loadAddress();
+      }
+      loadAddress()
     }
-  }, [id]);
+  }, [id])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!estado || !cidade || !bairro || !numero || !logradouro) {
-      toast.warning('Por favor, preencha todos os campos obrigatórios.');
-      return;
+      toast.warning('Por favor, preencha todos os campos obrigatórios.')
+      return
     }
 
     try {
@@ -60,18 +60,24 @@ export const AddressForm: React.FC = () => {
         numero: String(Number(numero)),
         logradouro,
         complemento: complemento.trim() || '—', // Ensure non-blank complemento to satisfy @NotBlank backend validation
-      };
+      }
 
-      await db.saveAddress(payload);
-      toast.success(id ? 'Endereço atualizado com sucesso.' : 'Endereço criado com sucesso.');
-      navigate('/admin/locais');
+      await db.saveAddress(payload)
+      toast.success(
+        id ? 'Endereço atualizado com sucesso.' : 'Endereço criado com sucesso.'
+      )
+      navigate('/admin/locais')
     } catch (err: any) {
-      toast.error(err.message || 'Erro ao salvar endereço.');
+      toast.error(err.message || 'Erro ao salvar endereço.')
     }
-  };
+  }
 
   if (loading) {
-    return <div className="admin-page"><FormSkeleton fields={6} /></div>;
+    return (
+      <div className="admin-page">
+        <FormSkeleton fields={6} />
+      </div>
+    )
   }
 
   return (
@@ -155,7 +161,7 @@ export const AddressForm: React.FC = () => {
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default AddressForm;
+export default AddressForm

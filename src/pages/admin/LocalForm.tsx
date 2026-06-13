@@ -1,55 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import db from '../../data/mockDb';
-import type { Address } from '../../data/types';
-import { FormSkeleton } from '../../components/ui';
-import { toast } from '../../components/ui/Toast';
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams, Link } from 'react-router-dom'
+import db from '../../data/mockDb'
+import type { Address } from '../../data/types'
+import { FormSkeleton } from '../../components/ui'
+import { toast } from '../../components/ui/Toast'
 
 export const LocalForm: React.FC = () => {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
 
-  const [nome, setNome] = useState('');
-  const [capacidade, setCapacidade] = useState(10);
-  const [enderecoId, setEnderecoId] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [nome, setNome] = useState('')
+  const [capacidade, setCapacidade] = useState(10)
+  const [enderecoId, setEnderecoId] = useState('')
+  const [descricao, setDescricao] = useState('')
+  const [addresses, setAddresses] = useState<Address[]>([])
+  const [loading, setLoading] = useState(true)
 
   // Load existing local and addresses
   useEffect(() => {
     const init = async () => {
-      setLoading(true);
+      setLoading(true)
       try {
-        const addrs = await db.getAddresses();
-        setAddresses(addrs);
+        const addrs = await db.getAddresses()
+        setAddresses(addrs)
 
         if (id) {
-          const locais = await db.getLocais();
-          const found = locais.find(l => l.id === id);
+          const locais = await db.getLocais()
+          const found = locais.find((l) => l.id === id)
           if (found) {
-            setNome(found.nome);
-            setCapacidade(found.capacidade);
-            setEnderecoId(found.enderecoId);
-            setDescricao(found.descricao);
+            setNome(found.nome)
+            setCapacidade(found.capacidade)
+            setEnderecoId(found.enderecoId)
+            setDescricao(found.descricao)
           } else {
-            toast.error('Local não encontrado.');
+            toast.error('Local não encontrado.')
           }
         }
       } catch (err: any) {
-        toast.error(err.message || 'Erro ao carregar dados.');
+        toast.error(err.message || 'Erro ao carregar dados.')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    init();
-  }, [id]);
+    }
+    init()
+  }, [id])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!nome || !capacidade || !enderecoId) {
-      toast.warning('Por favor, preencha todos os campos obrigatórios.');
-      return;
+      toast.warning('Por favor, preencha todos os campos obrigatórios.')
+      return
     }
 
     try {
@@ -59,18 +59,24 @@ export const LocalForm: React.FC = () => {
         capacidade: Number(capacidade),
         enderecoId,
         descricao,
-      };
-      
-      await db.saveLocal(payload);
-      toast.success(id ? 'Local atualizado com sucesso.' : 'Local criado com sucesso.');
-      navigate('/admin/locais');
+      }
+
+      await db.saveLocal(payload)
+      toast.success(
+        id ? 'Local atualizado com sucesso.' : 'Local criado com sucesso.'
+      )
+      navigate('/admin/locais')
     } catch (err: any) {
-      toast.error(err.message || 'Erro ao salvar local.');
+      toast.error(err.message || 'Erro ao salvar local.')
     }
-  };
+  }
 
   if (loading) {
-    return <div className="admin-page"><FormSkeleton fields={4} /></div>;
+    return (
+      <div className="admin-page">
+        <FormSkeleton fields={4} />
+      </div>
+    )
   }
 
   return (
@@ -110,7 +116,7 @@ export const LocalForm: React.FC = () => {
               required
             >
               <option value="">Selecione um endereço</option>
-              {addresses.map(addr => (
+              {addresses.map((addr) => (
                 <option key={addr.id} value={addr.id}>
                   {addr.logradouro}, {addr.numero} - {addr.cidade}
                 </option>
@@ -137,7 +143,7 @@ export const LocalForm: React.FC = () => {
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default LocalForm;
+export default LocalForm

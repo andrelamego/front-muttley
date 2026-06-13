@@ -3,15 +3,28 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ExternalLink, Search, ShieldCheck } from 'lucide-react'
 import db from '../../data/mockDb'
 import type { CertificadoUsuarioResponse } from '../../data/types'
-import { ButtonAnchor, ButtonLink, Card, EmptyState, PageHeader, StatusBadge, UserCertificatesSkeleton } from '../../components/ui'
+import {
+  ButtonAnchor,
+  ButtonLink,
+  Card,
+  EmptyState,
+  PageHeader,
+  StatusBadge,
+  UserCertificatesSkeleton,
+} from '../../components/ui'
 import { toast } from '../../components/ui/Toast'
 
-const formatDate = (date: string) => (date ? new Date(`${date}T00:00:00`).toLocaleDateString('pt-BR') : 'Data nao informada')
+const formatDate = (date: string) =>
+  date
+    ? new Date(`${date}T00:00:00`).toLocaleDateString('pt-BR')
+    : 'Data nao informada'
 
 export const UserCertificates: React.FC = () => {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const [certificates, setCertificates] = useState<CertificadoUsuarioResponse[]>([])
+  const [certificates, setCertificates] = useState<
+    CertificadoUsuarioResponse[]
+  >([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -26,7 +39,9 @@ export const UserCertificates: React.FC = () => {
     setLoading(true)
     Promise.all([db.getMe(), db.getMyCertificates()])
       .then(([, certs]) => setCertificates(certs))
-      .catch((err) => toast.error(err.message || 'Erro ao carregar certificados.'))
+      .catch((err) =>
+        toast.error(err.message || 'Erro ao carregar certificados.')
+      )
       .finally(() => setLoading(false))
   }, [])
 
@@ -34,7 +49,9 @@ export const UserCertificates: React.FC = () => {
   if (loading) return <UserCertificatesSkeleton />
 
   const filteredCerts = certificates.filter((cert) =>
-    (cert.evento?.tema || 'Certificado Muttley').toLowerCase().includes(search.toLowerCase()),
+    (cert.evento?.tema || 'Certificado Muttley')
+      .toLowerCase()
+      .includes(search.toLowerCase())
   )
 
   return (
@@ -58,27 +75,43 @@ export const UserCertificates: React.FC = () => {
 
       {filteredCerts.length === 0 ? (
         <EmptyState
-          title={search ? 'Nenhum certificado encontrado' : 'Voce ainda nao tem certificados'}
-          description={search ? 'Tente buscar por outro nome de evento.' : 'Quando um evento for concluido, seus certificados aparecem aqui.'}
+          title={
+            search
+              ? 'Nenhum certificado encontrado'
+              : 'Voce ainda nao tem certificados'
+          }
+          description={
+            search
+              ? 'Tente buscar por outro nome de evento.'
+              : 'Quando um evento for concluido, seus certificados aparecem aqui.'
+          }
         />
       ) : (
         <div className="mobile-card-list">
           {filteredCerts.map((cert) => {
-            const issueDate = cert.dataEmissao ? new Date(`${cert.dataEmissao}T00:00:00`) : null
+            const issueDate = cert.dataEmissao
+              ? new Date(`${cert.dataEmissao}T00:00:00`)
+              : null
             const issueYear = issueDate?.getFullYear()
             const issueMonth = issueDate ? issueDate.getMonth() + 1 : undefined
             const eventName = cert.evento?.tema || 'Certificado Muttley'
-            const certUrl = window.location.origin + `/certificados/${cert.codigoValidacao}`
+            const certUrl =
+              window.location.origin + `/certificados/${cert.codigoValidacao}`
             const linkedinUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent(
-              eventName,
+              eventName
             )}&organizationName=${encodeURIComponent('FATEC Zona Leste')}${
-              issueYear ? `&issueYear=${issueYear}&issueMonth=${issueMonth}` : ''
+              issueYear
+                ? `&issueYear=${issueYear}&issueMonth=${issueMonth}`
+                : ''
             }&certUrl=${encodeURIComponent(certUrl)}&certId=${cert.codigoValidacao}`
 
             return (
               <Card key={cert.id} className="student-record-card">
                 <div className="student-record-card__top">
-                  <StatusBadge status="VALID" label={`Certificado de ${cert.tipoParticipacao || 'Participacao'}`} />
+                  <StatusBadge
+                    status="VALID"
+                    label={`Certificado de ${cert.tipoParticipacao || 'Participacao'}`}
+                  />
                   <ShieldCheck aria-hidden="true" />
                 </div>
 
@@ -97,10 +130,20 @@ export const UserCertificates: React.FC = () => {
                 </div>
 
                 <div className="student-record-card__actions">
-                  <ButtonLink to={`/certificados/${cert.codigoValidacao}`} size="sm">
+                  <ButtonLink
+                    to={`/certificados/${cert.codigoValidacao}`}
+                    size="sm"
+                  >
                     Visualizar
                   </ButtonLink>
-                  <ButtonAnchor href={linkedinUrl} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm" icon={<ExternalLink />}>
+                  <ButtonAnchor
+                    href={linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="secondary"
+                    size="sm"
+                    icon={<ExternalLink />}
+                  >
                     LinkedIn
                   </ButtonAnchor>
                 </div>

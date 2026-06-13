@@ -10,9 +10,22 @@ type PageHeaderProps = {
   className?: string
 }
 
-export function PageHeader({ eyebrow, title, description, actions, compact, className }: PageHeaderProps) {
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  actions,
+  compact,
+  className,
+}: PageHeaderProps) {
   return (
-    <header className={cx('ui-page-header', compact && 'ui-page-header--compact', className)}>
+    <header
+      className={cx(
+        'ui-page-header',
+        compact && 'ui-page-header--compact',
+        className
+      )}
+    >
       <div className="ui-page-header__copy">
         {eyebrow && <span className="ui-eyebrow">{eyebrow}</span>}
         <h1>{title}</h1>
@@ -30,7 +43,12 @@ type SectionHeaderProps = {
   className?: string
 }
 
-export function SectionHeader({ title, description, actions, className }: SectionHeaderProps) {
+export function SectionHeader({
+  title,
+  description,
+  actions,
+  className,
+}: SectionHeaderProps) {
   return (
     <div className={cx('ui-section-header', className)}>
       <div>

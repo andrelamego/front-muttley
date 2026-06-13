@@ -14,7 +14,13 @@ type TableSkeletonProps = {
 const widths = ['72%', '52%', '64%', '44%', '58%', '36%']
 
 export function Skeleton({ className, ...props }: SkeletonProps) {
-  return <span className={cx('ui-skeleton', className)} aria-hidden="true" {...props} />
+  return (
+    <span
+      className={cx('ui-skeleton', className)}
+      aria-hidden="true"
+      {...props}
+    />
+  )
 }
 
 export function PageHeaderSkeleton({ action = false }: { action?: boolean }) {
@@ -70,26 +76,44 @@ export function ToolbarSkeleton({ fields = 4 }: { fields?: number }) {
   return (
     <div className="ui-skeleton-toolbar" aria-hidden="true">
       {Array.from({ length: fields }).map((_, index) => (
-        <Skeleton className={index === 0 ? 'ui-skeleton-toolbar__search' : 'h-10'} key={index} />
+        <Skeleton
+          className={index === 0 ? 'ui-skeleton-toolbar__search' : 'h-10'}
+          key={index}
+        />
       ))}
     </div>
   )
 }
 
-export function TableSkeleton({ columns = 5, rows = 6, className }: TableSkeletonProps) {
+export function TableSkeleton({
+  columns = 5,
+  rows = 6,
+  className,
+}: TableSkeletonProps) {
   const gridStyle = { '--skeleton-columns': columns } as CSSProperties
 
   return (
     <div className={cx('ui-skeleton-table', className)} aria-hidden="true">
-      <div className="ui-skeleton-table__row ui-skeleton-table__head" style={gridStyle}>
+      <div
+        className="ui-skeleton-table__row ui-skeleton-table__head"
+        style={gridStyle}
+      >
         {Array.from({ length: columns }).map((_, index) => (
           <Skeleton className="h-3" key={index} />
         ))}
       </div>
       {Array.from({ length: rows }).map((_, rowIndex) => (
-        <div className="ui-skeleton-table__row" style={gridStyle} key={rowIndex}>
+        <div
+          className="ui-skeleton-table__row"
+          style={gridStyle}
+          key={rowIndex}
+        >
           {Array.from({ length: columns }).map((_, colIndex) => (
-            <Skeleton className="h-4" style={{ width: widths[(rowIndex + colIndex) % widths.length] }} key={colIndex} />
+            <Skeleton
+              className="h-4"
+              style={{ width: widths[(rowIndex + colIndex) % widths.length] }}
+              key={colIndex}
+            />
           ))}
         </div>
       ))}
@@ -97,7 +121,13 @@ export function TableSkeleton({ columns = 5, rows = 6, className }: TableSkeleto
   )
 }
 
-export function FormSkeleton({ fields = 5, steps = false }: { fields?: number; steps?: boolean }) {
+export function FormSkeleton({
+  fields = 5,
+  steps = false,
+}: {
+  fields?: number
+  steps?: boolean
+}) {
   return (
     <div className="ui-skeleton-form" aria-hidden="true">
       {steps && (
@@ -112,9 +142,19 @@ export function FormSkeleton({ fields = 5, steps = false }: { fields?: number; s
       )}
       <div className="ui-skeleton-form-grid">
         {Array.from({ length: fields }).map((_, index) => (
-          <div className={cx('ui-skeleton-field', index === fields - 1 && fields > 3 ? 'ui-skeleton-field--wide' : '')} key={index}>
+          <div
+            className={cx(
+              'ui-skeleton-field',
+              index === fields - 1 && fields > 3
+                ? 'ui-skeleton-field--wide'
+                : ''
+            )}
+            key={index}
+          >
             <Skeleton className="w-24 h-3" />
-            <Skeleton className={index === fields - 1 && fields > 3 ? 'h-24' : 'h-11'} />
+            <Skeleton
+              className={index === fields - 1 && fields > 3 ? 'h-24' : 'h-11'}
+            />
           </div>
         ))}
       </div>
@@ -160,7 +200,15 @@ export function EventListSkeleton() {
   )
 }
 
-export function TablePageSkeleton({ action = true, columns = 5, rows = 6 }: { action?: boolean; columns?: number; rows?: number }) {
+export function TablePageSkeleton({
+  action = true,
+  columns = 5,
+  rows = 6,
+}: {
+  action?: boolean
+  columns?: number
+  rows?: number
+}) {
   return (
     <div className="admin-page">
       <PageHeaderSkeleton action={action} />
@@ -237,7 +285,11 @@ function UserEventCardSkeleton() {
 
 export function UserDashboardSkeleton() {
   return (
-    <div className="user-dashboard-container mobile-stack user-page-skeleton" role="status" aria-label="Carregando seu painel">
+    <div
+      className="user-dashboard-container mobile-stack user-page-skeleton"
+      role="status"
+      aria-label="Carregando seu painel"
+    >
       <section className="student-hero user-dashboard-hero-skeleton">
         <Skeleton className="w-24 h-3" />
         <Skeleton className="w-64 max-w-full h-10" />
@@ -301,7 +353,11 @@ function UserRecordCardSkeleton() {
 
 export function UserCertificatesSkeleton() {
   return (
-    <div className="user-certs-container mobile-stack user-page-skeleton" role="status" aria-label="Carregando certificados">
+    <div
+      className="user-certs-container mobile-stack user-page-skeleton"
+      role="status"
+      aria-label="Carregando certificados"
+    >
       <UserPageHeadingSkeleton />
       <UserSearchSkeleton />
       <div className="mobile-card-list" aria-hidden="true">
@@ -334,7 +390,11 @@ function UserMedalCardSkeleton() {
 
 export function UserMedalsSkeleton() {
   return (
-    <div className="user-medals-container mobile-stack user-page-skeleton" role="status" aria-label="Carregando medalhas">
+    <div
+      className="user-medals-container mobile-stack user-page-skeleton"
+      role="status"
+      aria-label="Carregando medalhas"
+    >
       <UserPageHeadingSkeleton />
       <UserSearchSkeleton />
       <div className="achievement-grid" aria-hidden="true">
@@ -349,7 +409,11 @@ export function UserMedalsSkeleton() {
 
 export function UserEventDetailSkeleton() {
   return (
-    <div className="user-event-body min-h-screen py-6" role="status" aria-label="Carregando evento">
+    <div
+      className="user-event-body min-h-screen py-6"
+      role="status"
+      aria-label="Carregando evento"
+    >
       <main className="user-event-page">
         <Skeleton className="w-44 h-4 mb-7" />
         <section className="user-event-hero">
@@ -369,7 +433,9 @@ export function UserEventDetailSkeleton() {
             <article className="user-event-info-card" key={index}>
               <Skeleton className="w-20 h-3" />
               <Skeleton className="w-3/4 h-5" />
-              {index === 4 || index === 5 ? <Skeleton className="w-1/2 h-3" /> : null}
+              {index === 4 || index === 5 ? (
+                <Skeleton className="w-1/2 h-3" />
+              ) : null}
             </article>
           ))}
         </section>
@@ -403,7 +469,11 @@ function PublicEventCardSkeleton() {
 
 export function PublicEventListSkeleton() {
   return (
-    <main className="public-events-page user-page-skeleton" role="status" aria-label="Carregando eventos">
+    <main
+      className="public-events-page user-page-skeleton"
+      role="status"
+      aria-label="Carregando eventos"
+    >
       <section className="public-events-hero public-events-hero-skeleton">
         <div>
           <Skeleton className="w-28 h-3" />
@@ -413,7 +483,9 @@ export function PublicEventListSkeleton() {
         <Skeleton className="public-events-search-skeleton" />
       </section>
       <section className="public-events-grid" aria-hidden="true">
-        {Array.from({ length: 6 }).map((_, index) => <PublicEventCardSkeleton key={index} />)}
+        {Array.from({ length: 6 }).map((_, index) => (
+          <PublicEventCardSkeleton key={index} />
+        ))}
       </section>
     </main>
   )
@@ -421,7 +493,11 @@ export function PublicEventListSkeleton() {
 
 export function PublicEventDetailSkeleton() {
   return (
-    <main className="public-event-detail-page user-page-skeleton" role="status" aria-label="Carregando evento">
+    <main
+      className="public-event-detail-page user-page-skeleton"
+      role="status"
+      aria-label="Carregando evento"
+    >
       <Skeleton className="w-36 h-4" />
       <section className="public-event-detail-layout">
         <article className="public-event-detail-main">

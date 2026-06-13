@@ -3,7 +3,14 @@ import { Award, Copy, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import db from '../../data/mockDb'
 import type { MedalhaUsuarioResponse } from '../../data/types'
-import { Button, Card, EmptyState, PageHeader, StatusBadge, UserMedalsSkeleton } from '../../components/ui'
+import {
+  Button,
+  Card,
+  EmptyState,
+  PageHeader,
+  StatusBadge,
+  UserMedalsSkeleton,
+} from '../../components/ui'
 import { toast } from '../../components/ui/Toast'
 
 export const UserMedals: React.FC = () => {
@@ -35,7 +42,7 @@ export const UserMedals: React.FC = () => {
     (medal) =>
       medal.nome.toLowerCase().includes(search.toLowerCase()) ||
       medal.tipo.toLowerCase().includes(search.toLowerCase()) ||
-      (medal.evento?.tema || '').toLowerCase().includes(search.toLowerCase()),
+      (medal.evento?.tema || '').toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -59,8 +66,16 @@ export const UserMedals: React.FC = () => {
 
       {filteredMedals.length === 0 ? (
         <EmptyState
-          title={search ? 'Nenhuma medalha encontrada' : 'Voce ainda nao tem medalhas'}
-          description={search ? 'Tente outro termo de busca.' : 'As medalhas recebidas aparecerao aqui com o evento relacionado.'}
+          title={
+            search
+              ? 'Nenhuma medalha encontrada'
+              : 'Voce ainda nao tem medalhas'
+          }
+          description={
+            search
+              ? 'Tente outro termo de busca.'
+              : 'As medalhas recebidas aparecerao aqui com o evento relacionado.'
+          }
         />
       ) : (
         <div className="achievement-grid">
@@ -76,20 +91,25 @@ export const UserMedals: React.FC = () => {
                   <div className="achievement-card__mark">
                     <Award aria-hidden="true" />
                   </div>
-                  <span className={`medal-type-badge medal-type-badge--${medal.tipo.toLowerCase()}`}>
+                  <span
+                    className={`medal-type-badge medal-type-badge--${medal.tipo.toLowerCase()}`}
+                  >
                     {medal.tipo}
                   </span>
                 </div>
                 <StatusBadge status="FINALIZADO" label={eventName} />
                 <h2>{medal.nome}</h2>
-                <p>{medal.descricao || 'Reconhecimento recebido por participacao academica.'}</p>
+                <p>
+                  {medal.descricao ||
+                    'Reconhecimento recebido por participacao academica.'}
+                </p>
                 <Button
                   variant="secondary"
                   size="sm"
                   icon={<Copy aria-hidden="true" />}
                   onClick={() => {
                     navigator.clipboard?.writeText(
-                      `Recebi a medalha ${medal.tipo.toLowerCase()} "${medal.nome}" no evento ${eventName}.`,
+                      `Recebi a medalha ${medal.tipo.toLowerCase()} "${medal.nome}" no evento ${eventName}.`
                     )
                   }}
                 >

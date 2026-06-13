@@ -1,168 +1,197 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import db from '../../data/mockDb';
-import type { Event, Participation } from '../../data/types';
-import { CompletionSkeleton } from '../../components/ui';
-import { toast } from '../../components/ui/Toast';
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams, Link } from 'react-router-dom'
+import db from '../../data/mockDb'
+import type { Event, Participation } from '../../data/types'
+import { CompletionSkeleton } from '../../components/ui'
+import { toast } from '../../components/ui/Toast'
 // IMPORTA A FUNÇÃO DE UPLOAD
-import { concluirEAssinarEvento } from '../../services/apiClient';
+import { concluirEAssinarEvento } from '../../services/apiClient'
 
 export const EventConclude: React.FC = () => {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
 
-  const [event, setEvent] = useState<Event | null>(null);
-  const [participacoes, setParticipacoes] = useState<Participation[]>([]);
-  const [presentes, setPresentes] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'TODOS' | 'PRESENTES' | 'AUSENTES'>('TODOS');
-  const [currentPage, setCurrentPage] = useState(1);
-  const PAGE_SIZE = 20;
+  const [event, setEvent] = useState<Event | null>(null)
+  const [participacoes, setParticipacoes] = useState<Participation[]>([])
+  const [presentes, setPresentes] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeTab, setActiveTab] = useState<
+    'TODOS' | 'PRESENTES' | 'AUSENTES'
+  >('TODOS')
+  const [currentPage, setCurrentPage] = useState(1)
+  const PAGE_SIZE = 20
 
   // ESTADO PARA GUARDAR A IMAGEM
-  const [assinaturaFile, setAssinaturaFile] = useState<File | null>(null);
+  const [assinaturaFile, setAssinaturaFile] = useState<File | null>(null)
 
   useEffect(() => {
     const loadData = async () => {
-      if (!id) return;
-      setLoading(true);
+      if (!id) return
+      setLoading(true)
       try {
         const [evt, parts] = await Promise.all([
           db.getEventById(id),
-          db.getEventParticipations(id)
-        ]);
-        setEvent(evt);
-        setParticipacoes(parts);
+          db.getEventParticipations(id),
+        ])
+        setEvent(evt)
+        setParticipacoes(parts)
 
-        const initiallyPresent = parts.filter(p => p.presente).map(p => p.id);
-        setPresentes(initiallyPresent);
+        const initiallyPresent = parts
+          .filter((p) => p.presente)
+          .map((p) => p.id)
+        setPresentes(initiallyPresent)
       } catch (err: any) {
-        toast.error(err.message || 'Erro ao carregar dados do evento.');
+        toast.error(err.message || 'Erro ao carregar dados do evento.')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    loadData();
-  }, [id]);
+    }
+    loadData()
+  }, [id])
 
-  const parsedParticipacoes = participacoes.map(part => {
+  const parsedParticipacoes = participacoes.map((part) => {
     return {
       ...part,
       nome: part.pessoa?.nome || 'Participante nao informado',
       email: part.pessoa?.email || '-',
-    };
-  });
+    }
+  })
 
-  const searchQueryLower = searchQuery.toLowerCase();
-  const searchedParticipacoes = parsedParticipacoes.filter(part => {
-    const matchesName = part.nome.toLowerCase().includes(searchQueryLower);
-    const matchesEmail = part.email.toLowerCase().includes(searchQueryLower);
-    const matchesInscricao = part.inscricao.toString().includes(searchQueryLower);
-    return matchesName || matchesEmail || matchesInscricao;
-  });
+  const searchQueryLower = searchQuery.toLowerCase()
+  const searchedParticipacoes = parsedParticipacoes.filter((part) => {
+    const matchesName = part.nome.toLowerCase().includes(searchQueryLower)
+    const matchesEmail = part.email.toLowerCase().includes(searchQueryLower)
+    const matchesInscricao = part.inscricao
+      .toString()
+      .includes(searchQueryLower)
+    return matchesName || matchesEmail || matchesInscricao
+  })
 
-  const filteredParticipacoes = searchedParticipacoes.filter(part => {
-    const isPresent = presentes.includes(part.id);
-    if (activeTab === 'PRESENTES') return isPresent;
-    if (activeTab === 'AUSENTES') return !isPresent;
-    return true;
-  });
+  const filteredParticipacoes = searchedParticipacoes.filter((part) => {
+    const isPresent = presentes.includes(part.id)
+    if (activeTab === 'PRESENTES') return isPresent
+    if (activeTab === 'AUSENTES') return !isPresent
+    return true
+  })
 
-  const totalItems = filteredParticipacoes.length;
-  const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+  const totalItems = filteredParticipacoes.length
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1
 
   useEffect(() => {
     if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
+      setCurrentPage(totalPages)
     }
-  }, [totalPages, currentPage]);
+  }, [totalPages, currentPage])
 
-  const startIndex = (currentPage - 1) * PAGE_SIZE;
-  const endIndex = Math.min(startIndex + PAGE_SIZE, totalItems);
-  const paginatedParticipacoes = filteredParticipacoes.slice(startIndex, endIndex);
+  const startIndex = (currentPage - 1) * PAGE_SIZE
+  const endIndex = Math.min(startIndex + PAGE_SIZE, totalItems)
+  const paginatedParticipacoes = filteredParticipacoes.slice(
+    startIndex,
+    endIndex
+  )
 
-  const visibleSelected = paginatedParticipacoes.length > 0 && paginatedParticipacoes.every(p => presentes.includes(p.id));
+  const visibleSelected =
+    paginatedParticipacoes.length > 0 &&
+    paginatedParticipacoes.every((p) => presentes.includes(p.id))
 
   const handleToggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const visibleIds = paginatedParticipacoes.map(p => p.id);
+    const visibleIds = paginatedParticipacoes.map((p) => p.id)
     if (e.target.checked) {
-      setPresentes(prev => {
-        const next = [...prev];
-        visibleIds.forEach(vid => {
+      setPresentes((prev) => {
+        const next = [...prev]
+        visibleIds.forEach((vid) => {
           if (!next.includes(vid)) {
-            next.push(vid);
+            next.push(vid)
           }
-        });
-        return next;
-      });
+        })
+        return next
+      })
     } else {
-      setPresentes(prev => prev.filter(vid => !visibleIds.includes(vid)));
+      setPresentes((prev) => prev.filter((vid) => !visibleIds.includes(vid)))
     }
-  };
+  }
 
   const handleCheckboxChange = (partId: string, checked: boolean) => {
     if (checked) {
-      setPresentes(prev => [...prev, partId]);
+      setPresentes((prev) => [...prev, partId])
     } else {
-      setPresentes(prev => prev.filter(vid => vid !== partId));
+      setPresentes((prev) => prev.filter((vid) => vid !== partId))
     }
-  };
+  }
 
-// LÓGICA DE SUBMISSÃO COM A IMAGEM E LISTA DE PRESENTES
+  // LÓGICA DE SUBMISSÃO COM A IMAGEM E LISTA DE PRESENTES
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!event) return;
+    e.preventDefault()
+    if (!event) return
 
     if (!assinaturaFile) {
-      toast.warning('Selecione o arquivo da assinatura antes de concluir o evento.');
-      return;
+      toast.warning(
+        'Selecione o arquivo da assinatura antes de concluir o evento.'
+      )
+      return
     }
 
     try {
-      setLoading(true);
+      setLoading(true)
 
       // NOVO: Chama a nossa API enviando o ID do evento, a lista de presentes e a imagem
-      await concluirEAssinarEvento(event.id, presentes, assinaturaFile);
+      await concluirEAssinarEvento(event.id, presentes, assinaturaFile)
 
-      toast.success('Evento concluído com sucesso e certificados gerados com a assinatura.');
-      navigate('/admin/certificados');
-
+      toast.success(
+        'Evento concluído com sucesso e certificados gerados com a assinatura.'
+      )
+      navigate('/admin/certificados')
     } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || 'Erro ao processar e concluir o evento. Verifique se o Back-end está rodando.');
-      setLoading(false);
+      console.error(err)
+      toast.error(
+        err.message ||
+          'Erro ao processar e concluir o evento. Verifique se o Back-end está rodando.'
+      )
+      setLoading(false)
     }
-  };
+  }
 
-  if (loading && !event) return <CompletionSkeleton />;
+  if (loading && !event) return <CompletionSkeleton />
 
   if (!event) {
     return (
       <div className="admin-page text-center py-12">
         <h2 className="text-xl text-brand-danger">Evento não encontrado.</h2>
-        <Link to="/admin/eventos" className="primary-action mt-4">Voltar</Link>
+        <Link to="/admin/eventos" className="primary-action mt-4">
+          Voltar
+        </Link>
       </div>
-    );
+    )
   }
 
-  const percentPresent = parsedParticipacoes.length > 0
-    ? Math.round((presentes.length / parsedParticipacoes.length) * 100) : 0;
+  const percentPresent =
+    parsedParticipacoes.length > 0
+      ? Math.round((presentes.length / parsedParticipacoes.length) * 100)
+      : 0
 
   return (
     <div className="admin-page">
       <div className="page-title-row">
         <div>
           <h1>Concluir evento</h1>
-          <p className="completion-subtitle text-sm text-brand-muted mt-1">{event.tema}</p>
+          <p className="completion-subtitle text-sm text-brand-muted mt-1">
+            {event.tema}
+          </p>
         </div>
-        <Link className="link-action" to="/admin/eventos">Voltar</Link>
+        <Link className="link-action" to="/admin/eventos">
+          Voltar
+        </Link>
       </div>
 
       <div className="completion-hero grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 mb-8">
         <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
-            <svg aria-hidden="true" className="w-4 h-4 text-brand-primary" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 text-brand-primary"
+              viewBox="0 0 24 24"
+            >
               <rect x="4" y="5" width="16" height="15" rx="2"></rect>
               <path d="M8 3v4M16 3v4M4 10h16"></path>
             </svg>
@@ -178,7 +207,11 @@ export const EventConclude: React.FC = () => {
 
         <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
-            <svg aria-hidden="true" className="w-4 h-4 text-brand-primary" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 text-brand-primary"
+              viewBox="0 0 24 24"
+            >
               <circle cx="12" cy="12" r="9"></circle>
               <path d="M12 7v5l3 3"></path>
             </svg>
@@ -193,55 +226,157 @@ export const EventConclude: React.FC = () => {
         </article>
       </div>
 
-      <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-          <span style={{ fontWeight: 'bold', color: 'var(--ink-strong)' }}>Taxa de Presença Geral</span>
-          <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>{percentPresent}% ({presentes.length} de {parsedParticipacoes.length})</span>
+      <div
+        style={{
+          marginBottom: '1.5rem',
+          padding: '1rem',
+          backgroundColor: 'var(--surface)',
+          border: '1px solid var(--line)',
+          borderRadius: 'var(--radius)',
+          boxShadow: 'var(--shadow-sm)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '0.5rem',
+            fontSize: '0.85rem',
+          }}
+        >
+          <span style={{ fontWeight: 'bold', color: 'var(--ink-strong)' }}>
+            Taxa de Presença Geral
+          </span>
+          <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>
+            {percentPresent}% ({presentes.length} de{' '}
+            {parsedParticipacoes.length})
+          </span>
         </div>
-        <div style={{ width: '100%', height: '0.6rem', backgroundColor: 'var(--line)', borderRadius: '999px', overflow: 'hidden' }}>
-          <div style={{ width: `${percentPresent}%`, height: '100%', backgroundColor: 'var(--primary)', transition: 'width 0.3s ease-out' }} />
+        <div
+          style={{
+            width: '100%',
+            height: '0.6rem',
+            backgroundColor: 'var(--line)',
+            borderRadius: '999px',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: `${percentPresent}%`,
+              height: '100%',
+              backgroundColor: 'var(--primary)',
+              transition: 'width 0.3s ease-out',
+            }}
+          />
         </div>
       </div>
 
-      <div className="flex border-b border-brand-line mb-4" style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--line)', marginBottom: '1.5rem' }}>
-        {(['TODOS', 'PRESENTES', 'AUSENTES'] as const).map(tab => {
+      <div
+        className="flex border-b border-brand-line mb-4"
+        style={{
+          display: 'flex',
+          gap: '1rem',
+          borderBottom: '1px solid var(--line)',
+          marginBottom: '1.5rem',
+        }}
+      >
+        {(['TODOS', 'PRESENTES', 'AUSENTES'] as const).map((tab) => {
           const count =
-            tab === 'TODOS' ? parsedParticipacoes.length :
-            tab === 'PRESENTES' ? presentes.length :
-            parsedParticipacoes.length - presentes.length;
+            tab === 'TODOS'
+              ? parsedParticipacoes.length
+              : tab === 'PRESENTES'
+                ? presentes.length
+                : parsedParticipacoes.length - presentes.length
 
-          const label = tab === 'TODOS' ? 'Todos' : tab === 'PRESENTES' ? 'Presentes' : 'Não Confirmados';
-          const isActive = activeTab === tab;
+          const label =
+            tab === 'TODOS'
+              ? 'Todos'
+              : tab === 'PRESENTES'
+                ? 'Presentes'
+                : 'Não Confirmados'
+          const isActive = activeTab === tab
 
           return (
             <button
               key={tab}
               type="button"
-              onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
+              onClick={() => {
+                setActiveTab(tab)
+                setCurrentPage(1)
+              }}
               style={{
-                background: 'none', border: 'none', padding: '0.75rem 0.5rem', cursor: 'pointer',
-                borderBottom: isActive ? '2px solid var(--primary)' : '2px solid transparent',
-                color: isActive ? 'var(--primary)' : 'var(--muted)', fontWeight: isActive ? 'bold' : 'normal',
-                fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem',
+                background: 'none',
+                border: 'none',
+                padding: '0.75rem 0.5rem',
+                cursor: 'pointer',
+                borderBottom: isActive
+                  ? '2px solid var(--primary)'
+                  : '2px solid transparent',
+                color: isActive ? 'var(--primary)' : 'var(--muted)',
+                fontWeight: isActive ? 'bold' : 'normal',
+                fontSize: '0.9rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
               }}
             >
               <span>{label}</span>
-              <span style={{
-                fontSize: '0.75rem', padding: '0.1rem 0.45rem',
-                backgroundColor: isActive ? 'var(--primary-soft)' : 'var(--surface-soft)',
-                color: isActive ? 'var(--primary-strong)' : 'var(--muted)',
-                borderRadius: '999px', fontWeight: 'bold',
-              }}>
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  padding: '0.1rem 0.45rem',
+                  backgroundColor: isActive
+                    ? 'var(--primary-soft)'
+                    : 'var(--surface-soft)',
+                  color: isActive ? 'var(--primary-strong)' : 'var(--muted)',
+                  borderRadius: '999px',
+                  fontWeight: 'bold',
+                }}
+              >
                 {count}
               </span>
             </button>
-          );
+          )
         })}
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--line)', borderRadius: 'var(--radius)', backgroundColor: 'var(--surface)', padding: '0 0.75rem', flex: 1, minWidth: '260px', height: '2.55rem' }}>
-          <svg style={{ color: 'var(--muted)', marginRight: '0.5rem', width: '1rem', height: '1rem' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <div
+        style={{
+          display: 'flex',
+          gap: '1rem',
+          marginBottom: '1rem',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            border: '1px solid var(--line)',
+            borderRadius: 'var(--radius)',
+            backgroundColor: 'var(--surface)',
+            padding: '0 0.75rem',
+            flex: 1,
+            minWidth: '260px',
+            height: '2.55rem',
+          }}
+        >
+          <svg
+            style={{
+              color: 'var(--muted)',
+              marginRight: '0.5rem',
+              width: '1rem',
+              height: '1rem',
+            }}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
@@ -249,14 +384,34 @@ export const EventConclude: React.FC = () => {
             type="text"
             placeholder="Buscar por nome, e-mail ou inscrição..."
             value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-            style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.88rem', backgroundColor: 'transparent', color: 'var(--ink)' }}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              setCurrentPage(1)
+            }}
+            style={{
+              border: 'none',
+              outline: 'none',
+              width: '100%',
+              fontSize: '0.88rem',
+              backgroundColor: 'transparent',
+              color: 'var(--ink)',
+            }}
           />
           {searchQuery && (
             <button
               type="button"
-              onClick={() => { setSearchQuery(''); setCurrentPage(1); }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontWeight: 'bold', fontSize: '1.1rem' }}
+              onClick={() => {
+                setSearchQuery('')
+                setCurrentPage(1)
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--muted)',
+                fontWeight: 'bold',
+                fontSize: '1.1rem',
+              }}
             >
               ×
             </button>
@@ -271,20 +426,26 @@ export const EventConclude: React.FC = () => {
               onChange={handleToggleSelectAll}
               className="accent-brand-primary"
             />
-            <span>Selecionar todos visíveis ({paginatedParticipacoes.length})</span>
+            <span>
+              Selecionar todos visíveis ({paginatedParticipacoes.length})
+            </span>
           </label>
         )}
       </div>
 
-      <form className="completion-form flex flex-col gap-4" onSubmit={handleSubmit}>
-
+      <form
+        className="completion-form flex flex-col gap-4"
+        onSubmit={handleSubmit}
+      >
         {/* CAIXA DE UPLOAD DA ASSINATURA */}
         <div className="p-4 border border-brand-primary/30 rounded-lg bg-blue-50/30">
           <label className="block text-sm font-bold text-brand-ink-strong mb-2">
             Assinatura do Documento (Obrigatório)
           </label>
           <p className="text-xs text-brand-muted mb-3">
-            Selecione o arquivo PNG ou JPG contendo a assinatura do responsável. Esta imagem será aplicada automaticamente em todos os certificados gerados.
+            Selecione o arquivo PNG ou JPG contendo a assinatura do responsável.
+            Esta imagem será aplicada automaticamente em todos os certificados
+            gerados.
           </p>
           <input
             type="file"
@@ -292,14 +453,17 @@ export const EventConclude: React.FC = () => {
             required
             onChange={(e) => {
               if (e.target.files && e.target.files[0]) {
-                setAssinaturaFile(e.target.files[0]);
+                setAssinaturaFile(e.target.files[0])
               }
             }}
             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-brand-primary file:text-white hover:file:bg-brand-primary-strong cursor-pointer bg-white border border-brand-line p-1"
           />
         </div>
 
-        <section className="participants-section mt-2" aria-labelledby="participacoes-title">
+        <section
+          className="participants-section mt-2"
+          aria-labelledby="participacoes-title"
+        >
           {paginatedParticipacoes.length === 0 ? (
             <div className="empty-state compact-empty p-8 bg-brand-surface border border-brand-line rounded-lg text-center text-brand-muted">
               <p>Nenhuma participação encontrada para os filtros aplicados.</p>
@@ -317,8 +481,8 @@ export const EventConclude: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedParticipacoes.map(part => {
-                    const isChecked = presentes.includes(part.id);
+                  {paginatedParticipacoes.map((part) => {
+                    const isChecked = presentes.includes(part.id)
                     return (
                       <tr key={part.id}>
                         <td className="text-center">
@@ -327,29 +491,47 @@ export const EventConclude: React.FC = () => {
                               type="checkbox"
                               name="presentes"
                               checked={isChecked}
-                              onChange={(e) => handleCheckboxChange(part.id, e.target.checked)}
+                              onChange={(e) =>
+                                handleCheckboxChange(part.id, e.target.checked)
+                              }
                               className="w-4 h-4 accent-brand-primary"
                             />
                           </label>
                         </td>
                         <td>#{part.inscricao}</td>
-                        <td><strong>{part.nome}</strong></td>
+                        <td>
+                          <strong>{part.nome}</strong>
+                        </td>
                         <td>{part.tipo}</td>
                         <td>{part.email}</td>
                       </tr>
-                    );
+                    )
                   })}
                 </tbody>
               </table>
 
               {totalPages > 1 && (
-                <div className="pagination" style={{ display: 'flex', justifyContent: 'center', gap: '0.85rem', marginTop: '1.5rem', alignItems: 'center' }}>
+                <div
+                  className="pagination"
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '0.85rem',
+                    marginTop: '1.5rem',
+                    alignItems: 'center',
+                  }}
+                >
                   <button
                     type="button"
                     disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
                     className="table-action"
-                    style={{ cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.5 : 1 }}
+                    style={{
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      opacity: currentPage === 1 ? 0.5 : 1,
+                    }}
                   >
                     Anterior
                   </button>
@@ -359,9 +541,15 @@ export const EventConclude: React.FC = () => {
                   <button
                     type="button"
                     disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                     className="table-action"
-                    style={{ cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.5 : 1 }}
+                    style={{
+                      cursor:
+                        currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      opacity: currentPage === totalPages ? 0.5 : 1,
+                    }}
                   >
                     Próxima
                   </button>
@@ -372,7 +560,10 @@ export const EventConclude: React.FC = () => {
         </section>
 
         <div className="form-actions completion-actions flex justify-end gap-3 mt-6">
-          <Link to="/admin/eventos" className="px-4 py-2 border border-brand-line rounded-lg text-sm text-brand-muted hover:bg-slate-100">
+          <Link
+            to="/admin/eventos"
+            className="px-4 py-2 border border-brand-line rounded-lg text-sm text-brand-muted hover:bg-slate-100"
+          >
             Cancelar
           </Link>
           <button
@@ -385,7 +576,7 @@ export const EventConclude: React.FC = () => {
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default EventConclude;
+export default EventConclude

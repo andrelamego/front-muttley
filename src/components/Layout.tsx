@@ -15,13 +15,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const path = location.pathname
   const isAdmin = path.startsWith('/admin')
   const loggedUser = db.getLoggedUser()
-  const isUserPage = path.startsWith('/user') || (Boolean(loggedUser) && (path === '/' || path.startsWith('/eventos')))
+  const isUserPage =
+    path.startsWith('/user') ||
+    (Boolean(loggedUser) && (path === '/' || path.startsWith('/eventos')))
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   if (isAdmin) {
     return (
-      <div className={`admin-layout-wrapper ${isSidebarCollapsed ? 'sidebar-is-collapsed' : ''}`}>
+      <div
+        className={`admin-layout-wrapper ${isSidebarCollapsed ? 'sidebar-is-collapsed' : ''}`}
+      >
         <Sidebar
           isOpen={isSidebarOpen}
           isCollapsed={isSidebarCollapsed}
@@ -48,13 +52,22 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Header />
         <main className="public-layout-full">{children}</main>
 
-        <nav className="user-bottom-nav" aria-label="Navegacao movel do usuario">
-          <Link to="/user/inicio" className={`user-bottom-nav-link ${path === '/user/inicio' ? 'active' : ''}`}>
+        <nav
+          className="user-bottom-nav"
+          aria-label="Navegacao movel do usuario"
+        >
+          <Link
+            to="/user/inicio"
+            className={`user-bottom-nav-link ${path === '/user/inicio' ? 'active' : ''}`}
+          >
             <Home aria-hidden="true" />
             <span>Inicio</span>
           </Link>
 
-          <Link to="/eventos" className={`user-bottom-nav-link ${path === '/' || path.startsWith('/eventos') ? 'active' : ''}`}>
+          <Link
+            to="/eventos"
+            className={`user-bottom-nav-link ${path === '/' || path.startsWith('/eventos') ? 'active' : ''}`}
+          >
             <CalendarDays aria-hidden="true" />
             <span>Eventos</span>
           </Link>
@@ -86,7 +99,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="public-app-shell">
       <Header />
-      <main className={isAuthPage ? 'public-layout-container' : 'public-layout-full'}>{children}</main>
+      <main
+        className={
+          isAuthPage ? 'public-layout-container' : 'public-layout-full'
+        }
+      >
+        {children}
+      </main>
       <Footer />
     </div>
   )

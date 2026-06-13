@@ -9,7 +9,13 @@ export const Footer: React.FC = () => {
           <small>Eventos academicos da Fatec Zona Leste</small>
         </div>
         <nav aria-label="Links do rodape">
-          <a href="https://fateczl.cps.sp.gov.br/" target="_blank" rel="noopener noreferrer">Fatec ZL</a>
+          <a
+            href="https://fateczl.cps.sp.gov.br/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Fatec ZL
+          </a>
         </nav>
       </div>
     </footer>

@@ -20,7 +20,9 @@ export const ConfirmarPresenca: React.FC = () => {
     event.preventDefault()
 
     if (!id) {
-      toast.error('Evento não identificado. Verifique o QR Code e tente novamente.')
+      toast.error(
+        'Evento não identificado. Verifique o QR Code e tente novamente.'
+      )
       return
     }
     if (!cpf.trim()) {
@@ -34,11 +36,20 @@ export const ConfirmarPresenca: React.FC = () => {
 
     try {
       setLoading(true)
-      const response = await apiClient.post(`/eventos/${id}/confirmar-presenca/${cpf}`)
-      toast.success(response.data?.message ?? response.data ?? 'Presença confirmada com sucesso!')
+      const response = await apiClient.post(
+        `/eventos/${id}/confirmar-presenca/${cpf}`
+      )
+      toast.success(
+        response.data?.message ??
+          response.data ??
+          'Presença confirmada com sucesso!'
+      )
       setCpf('')
     } catch (err: any) {
-      toast.error(err.message || 'Não foi possível confirmar sua presença. Tente novamente.')
+      toast.error(
+        err.message ||
+          'Não foi possível confirmar sua presença. Tente novamente.'
+      )
     } finally {
       setLoading(false)
     }

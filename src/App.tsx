@@ -1,40 +1,45 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
-import Layout from './components/Layout';
+import React from 'react'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+} from 'react-router-dom'
+import Layout from './components/Layout'
 
 // Public Pages
-import Login from './pages/public/Login';
-import Register from './pages/public/Register';
-import CertificateView from './pages/public/CertificateView';
-import PublicEventList from './pages/public/PublicEventList';
-import PublicEventDetail from './pages/public/PublicEventDetail';
-import ConfirmarPresenca from './pages/public/ConfirmarPresenca';
+import Login from './pages/public/Login'
+import Register from './pages/public/Register'
+import CertificateView from './pages/public/CertificateView'
+import PublicEventList from './pages/public/PublicEventList'
+import PublicEventDetail from './pages/public/PublicEventDetail'
+import ConfirmarPresenca from './pages/public/ConfirmarPresenca'
 
 // User Pages
-import UserDashboard from './pages/user/UserDashboard';
-import UserCertificates from './pages/user/UserCertificates';
-import UserMedals from './pages/user/UserMedals';
-
+import UserDashboard from './pages/user/UserDashboard'
+import UserCertificates from './pages/user/UserCertificates'
+import UserMedals from './pages/user/UserMedals'
 
 // Admin Pages
-import Dashboard from './pages/admin/Dashboard';
-import EventList from './pages/admin/EventList';
-import EventForm from './pages/admin/EventForm';
-import EventConclude from './pages/admin/EventConclude';
-import MedalList from './pages/admin/MedalList';
-import MedalForm from './pages/admin/MedalForm';
-import CertificateList from './pages/admin/CertificateList';
-import LocalList from './pages/admin/LocalList';
-import LocalForm from './pages/admin/LocalForm';
-import AddressForm from './pages/admin/AddressForm';
-import ParticipantList from './pages/admin/ParticipantList';
-import DisciplineList from './pages/admin/DisciplineList';
-import DisciplineForm from './pages/admin/DisciplineForm';
+import Dashboard from './pages/admin/Dashboard'
+import EventList from './pages/admin/EventList'
+import EventForm from './pages/admin/EventForm'
+import EventConclude from './pages/admin/EventConclude'
+import MedalList from './pages/admin/MedalList'
+import MedalForm from './pages/admin/MedalForm'
+import CertificateList from './pages/admin/CertificateList'
+import LocalList from './pages/admin/LocalList'
+import LocalForm from './pages/admin/LocalForm'
+import AddressForm from './pages/admin/AddressForm'
+import ParticipantList from './pages/admin/ParticipantList'
+import DisciplineList from './pages/admin/DisciplineList'
+import DisciplineForm from './pages/admin/DisciplineForm'
 
 const UserEventRedirect: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  return <Navigate to={id ? `/eventos/${id}` : '/eventos'} replace />;
-};
+  const { id } = useParams<{ id: string }>()
+  return <Navigate to={id ? `/eventos/${id}` : '/eventos'} replace />
+}
 
 const App: React.FC = () => {
   return (
@@ -53,10 +58,27 @@ const App: React.FC = () => {
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/eventos" element={<Layout><PublicEventList /></Layout>} />
-        <Route path="/eventos/:id" element={<Layout><PublicEventDetail /></Layout>} />
+        <Route
+          path="/eventos"
+          element={
+            <Layout>
+              <PublicEventList />
+            </Layout>
+          }
+        />
+        <Route
+          path="/eventos/:id"
+          element={
+            <Layout>
+              <PublicEventDetail />
+            </Layout>
+          }
+        />
         <Route path="/certificados/:codigo" element={<CertificateView />} />
-        <Route path="/eventos/:id/confirmar-presenca" element={<ConfirmarPresenca />} />
+        <Route
+          path="/eventos/:id/confirmar-presenca"
+          element={<ConfirmarPresenca />}
+        />
 
         {/* User Routes */}
         <Route
@@ -242,7 +264,7 @@ const App: React.FC = () => {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
-  );
-};
+  )
+}
 
-export default App;
+export default App
