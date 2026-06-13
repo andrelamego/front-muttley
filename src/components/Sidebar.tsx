@@ -31,7 +31,14 @@ type SidebarLink = {
 const menuGroups: Array<{ title: string; links: SidebarLink[] }> = [
   {
     title: 'Geral',
-    links: [{ to: '/admin/inicio', label: 'Inicio', icon: <Home aria-hidden="true" />, routes: ['/admin/inicio'] }],
+    links: [
+      {
+        to: '/admin/inicio',
+        label: 'Inicio',
+        icon: <Home aria-hidden="true" />,
+        routes: ['/admin/inicio'],
+      },
+    ],
   },
   {
     title: 'Gestao',
@@ -81,7 +88,12 @@ const menuGroups: Array<{ title: string; links: SidebarLink[] }> = [
   },
 ]
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onClose, onToggleCollapsed }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  isCollapsed,
+  onClose,
+  onToggleCollapsed,
+}) => {
   const location = useLocation()
   const navigate = useNavigate()
   const path = location.pathname
@@ -92,25 +104,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onClose, 
     navigate('/login')
   }
 
-  const isActive = (routes: string[]) => routes.some((route) => path.startsWith(route))
+  const isActive = (routes: string[]) =>
+    routes.some((route) => path.startsWith(route))
 
   return (
-    <aside className={`sidebar sidebar--redesign ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
+    <aside
+      className={`sidebar sidebar--redesign ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}
+    >
       <div className="sidebar-header">
-        <Link className="brand sidebar-brand" to="/admin/inicio" onClick={onClose}>
+        <Link
+          className="brand sidebar-brand"
+          to="/admin/inicio"
+          onClick={onClose}
+        >
           Muttley
         </Link>
         <button
           className="sidebar-collapse-toggle"
           type="button"
           onClick={onToggleCollapsed}
-          aria-label={isCollapsed ? 'Expandir barra lateral' : 'Compactar barra lateral'}
+          aria-label={
+            isCollapsed ? 'Expandir barra lateral' : 'Compactar barra lateral'
+          }
           aria-pressed={isCollapsed}
-          title={isCollapsed ? 'Expandir barra lateral' : 'Compactar barra lateral'}
+          title={
+            isCollapsed ? 'Expandir barra lateral' : 'Compactar barra lateral'
+          }
         >
-          {isCollapsed ? <PanelLeftOpen aria-hidden="true" /> : <PanelLeftClose aria-hidden="true" />}
+          {isCollapsed ? (
+            <PanelLeftOpen aria-hidden="true" />
+          ) : (
+            <PanelLeftClose aria-hidden="true" />
+          )}
         </button>
-        <button className="sidebar-close" type="button" onClick={onClose} aria-label="Fechar navegacao">
+        <button
+          className="sidebar-close"
+          type="button"
+          onClick={onClose}
+          aria-label="Fechar navegacao"
+        >
           <PanelLeftClose aria-hidden="true" />
         </button>
       </div>
@@ -141,11 +173,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onClose, 
           <span className="avatar" aria-hidden="true">
             {loggedUser?.nome?.charAt(0) || 'A'}
           </span>
-          <span className="sidebar-profile-name" title={loggedUser?.nome || 'Administrador'}>
+          <span
+            className="sidebar-profile-name"
+            title={loggedUser?.nome || 'Administrador'}
+          >
             {loggedUser?.nome?.split(' ')[0] || 'Admin'}
           </span>
         </div>
-        <button onClick={handleLogout} className="sidebar-logout" title="Fazer logout" type="button">
+        <button
+          onClick={handleLogout}
+          className="sidebar-logout"
+          title="Fazer logout"
+          type="button"
+        >
           <LogOut aria-hidden="true" />
         </button>
       </div>

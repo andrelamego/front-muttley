@@ -1,128 +1,145 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import apiClient from '../../services/apiClient';
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { toast } from '../../components/ui/Toast';
+import React, { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import apiClient from '../../services/apiClient'
+import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { toast } from '../../components/ui/Toast'
 
 export const Register: React.FC = () => {
-  const navigate = useNavigate();
-  const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [cpf, setCpf] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmarSenha, setConfirmarSenha] = useState('');
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get('id');
-  const [isFromEmail, setIsFromEmail] = useState(false);
+  const navigate = useNavigate()
+  const [nome, setNome] = useState('')
+  const [email, setEmail] = useState('')
+  const [telefone, setTelefone] = useState('')
+  const [cpf, setCpf] = useState('')
+  const [senha, setSenha] = useState('')
+  const [confirmarSenha, setConfirmarSenha] = useState('')
+  const [searchParams] = useSearchParams()
+  const id = searchParams.get('id')
+  const [isFromEmail, setIsFromEmail] = useState(false)
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) return
 
     apiClient
       .get(`/pessoa/dados-cadastro/${id}`)
       .then((res) => {
-        const { nome, email, cpf} = res.data;
+        const { nome, email, cpf } = res.data
 
-        setNome(nome || '');
-        setEmail(email || '');
-        setCpf(cpf || '');
+        setNome(nome || '')
+        setEmail(email || '')
+        setCpf(cpf || '')
 
-        setIsFromEmail(true);
+        setIsFromEmail(true)
       })
       .catch((err) => {
-        toast.error('Link de cadastro inválido.');
-        console.error(err);
-      });
-  }, [id]);
+        toast.error('Link de cadastro inválido.')
+        console.error(err)
+      })
+  }, [id])
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 11) value = value.slice(0, 11);
-    
-    value = value.replace(/(\d{3})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    
-    setCpf(value);
-  };
+    let value = e.target.value.replace(/\D/g, '')
+    if (value.length > 11) value = value.slice(0, 11)
+
+    value = value.replace(/(\d{3})(\d)/, '$1.$2')
+    value = value.replace(/(\d{3})(\d)/, '$1.$2')
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+
+    setCpf(value)
+  }
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 11) value = value.slice(0, 11);
-    
+    let value = e.target.value.replace(/\D/g, '')
+    if (value.length > 11) value = value.slice(0, 11)
+
     if (value.length > 10) {
-      value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+      value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3')
     } else if (value.length > 5) {
-      value = value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, '($1) $2-$3');
+      value = value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, '($1) $2-$3')
     } else if (value.length > 2) {
-      value = value.replace(/^(\d{2})(\d{0,5})$/, '($1) $2');
+      value = value.replace(/^(\d{2})(\d{0,5})$/, '($1) $2')
     } else if (value.length > 0) {
-      value = value.replace(/^(\d*)$/, '($1');
+      value = value.replace(/^(\d*)$/, '($1')
     }
-    
-    setTelefone(value);
-  };
+
+    setTelefone(value)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (senha !== confirmarSenha) {
-      toast.warning('As senhas não coincidem.');
-      return;
+      toast.warning('As senhas não coincidem.')
+      return
     }
 
-    
-
     try {
-      if(isFromEmail){
+      if (isFromEmail) {
         await apiClient.put('/auth/register', {
           nome,
           email,
           telefone,
           cpf,
-          senha
-        });
-      }
-      else{
+          senha,
+        })
+      } else {
         await apiClient.post('/auth/register', {
           nome,
           email,
           telefone,
           cpf,
-          senha
-        });
+          senha,
+        })
       }
-      
-      toast.success('Cadastro realizado com sucesso! Faça login.');
-      navigate('/login');
+
+      toast.success('Cadastro realizado com sucesso! Faça login.')
+      navigate('/login')
     } catch (err: any) {
-      toast.error(err.message || 'Erro ao realizar cadastro.');
+      toast.error(err.message || 'Erro ao realizar cadastro.')
     }
-  };
+  }
 
   return (
     <div className="auth-body min-h-screen flex items-center justify-center">
       <main className="auth-page register-page w-full max-w-4xl grid md:grid-cols-2 bg-brand-surface rounded-xl shadow-lg overflow-hidden border border-brand-line">
         <section className="auth-visual register-visual hidden md:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-brand-primary to-brand-primary-strong text-white text-center">
-          <Link className="brand text-white text-3xl font-extrabold" to="/login">
+          <Link
+            className="brand text-white text-3xl font-extrabold"
+            to="/login"
+          >
             Muttley
           </Link>
           <p className="mt-4 text-brand-primary-soft max-w-xs text-sm leading-relaxed">
-            Cadastre-se para participar de palestras, workshops e simpósios promovidos pela FATEC Zona Leste e emitir seus certificados de participação.
+            Cadastre-se para participar de palestras, workshops e simpósios
+            promovidos pela FATEC Zona Leste e emitir seus certificados de
+            participação.
           </p>
         </section>
 
-        <section className="auth-panel register-panel p-8 md:p-12 flex flex-col justify-center" aria-labelledby="register-title">
+        <section
+          className="auth-panel register-panel p-8 md:p-12 flex flex-col justify-center"
+          aria-labelledby="register-title"
+        >
           <div className="auth-heading mb-6">
-            <span className="auth-kicker text-brand-primary font-bold text-xs uppercase tracking-wider">Cadastro</span>
-            <h1 id="register-title" className="text-2xl font-extrabold text-brand-ink-strong mt-1">Criar cadastro</h1>
+            <span className="auth-kicker text-brand-primary font-bold text-xs uppercase tracking-wider">
+              Cadastro
+            </span>
+            <h1
+              id="register-title"
+              className="text-2xl font-extrabold text-brand-ink-strong mt-1"
+            >
+              Criar cadastro
+            </h1>
           </div>
 
-          <form className="event-form auth-form register-form flex flex-col gap-4 !mt-0 !p-0 !border-0 !shadow-none !bg-transparent" onSubmit={handleSubmit}>
+          <form
+            className="event-form auth-form register-form flex flex-col gap-4 !mt-0 !p-0 !border-0 !shadow-none !bg-transparent"
+            onSubmit={handleSubmit}
+          >
             <div className="form-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="field col-span-1 sm:col-span-2">
-                <span className="text-sm font-semibold text-brand-ink-strong">Nome completo</span>
+                <span className="text-sm font-semibold text-brand-ink-strong">
+                  Nome completo
+                </span>
                 <input
                   type="text"
                   name="nome"
@@ -133,9 +150,10 @@ export const Register: React.FC = () => {
                   className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
                 />
               </label>
-
               <label className="field">
-                <span className="text-sm font-semibold text-brand-ink-strong">Email</span>
+                <span className="text-sm font-semibold text-brand-ink-strong">
+                  Email
+                </span>
                 <input
                   type="email"
                   name="email"
@@ -147,9 +165,10 @@ export const Register: React.FC = () => {
                   className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
                 />
               </label>
-
               <label className="field">
-                <span className="text-sm font-semibold text-brand-ink-strong">Telefone</span>
+                <span className="text-sm font-semibold text-brand-ink-strong">
+                  Telefone
+                </span>
                 <input
                   type="tel"
                   name="telefone"
@@ -160,9 +179,10 @@ export const Register: React.FC = () => {
                   className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
                 />
               </label>
-
               <label className="field">
-                <span className="text-sm font-semibold text-brand-ink-strong">CPF</span>
+                <span className="text-sm font-semibold text-brand-ink-strong">
+                  CPF
+                </span>
                 <input
                   type="text"
                   name="cpf"
@@ -175,11 +195,11 @@ export const Register: React.FC = () => {
                   className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
                 />
               </label>
-
               <div className="hidden sm:block"></div> {/* Spacer */}
-
               <label className="field">
-                <span className="text-sm font-semibold text-brand-ink-strong">Senha</span>
+                <span className="text-sm font-semibold text-brand-ink-strong">
+                  Senha
+                </span>
                 <input
                   type="password"
                   name="senha"
@@ -190,9 +210,10 @@ export const Register: React.FC = () => {
                   className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
                 />
               </label>
-
               <label className="field">
-                <span className="text-sm font-semibold text-brand-ink-strong">Confirmar senha</span>
+                <span className="text-sm font-semibold text-brand-ink-strong">
+                  Confirmar senha
+                </span>
                 <input
                   type="password"
                   name="confirmarSenha"
@@ -206,10 +227,16 @@ export const Register: React.FC = () => {
             </div>
 
             <div className="form-actions auth-actions flex items-center justify-between mt-6">
-              <Link className="text-xs text-brand-primary font-bold hover:underline" to="/login">
+              <Link
+                className="text-xs text-brand-primary font-bold hover:underline"
+                to="/login"
+              >
                 Já tenho conta
               </Link>
-              <button className="primary-action px-6 py-2.5 bg-brand-primary text-white font-bold rounded-lg hover:bg-brand-primary-strong transition-colors cursor-pointer" type="submit">
+              <button
+                className="primary-action px-6 py-2.5 bg-brand-primary text-white font-bold rounded-lg hover:bg-brand-primary-strong transition-colors cursor-pointer"
+                type="submit"
+              >
                 Criar cadastro
               </button>
             </div>
@@ -217,7 +244,7 @@ export const Register: React.FC = () => {
         </section>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register

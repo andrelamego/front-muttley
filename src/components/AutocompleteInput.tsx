@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react'
 
 interface Option {
-  id: string;
-  label: string;
+  id: string
+  label: string
 }
 
 interface AutocompleteInputProps {
-  options: Option[];
-  value: string;
-  onChange: (id: string) => void;
-  placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
+  options: Option[]
+  value: string
+  onChange: (id: string) => void
+  placeholder?: string
+  required?: boolean
+  disabled?: boolean
 }
 
 export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
@@ -22,74 +22,83 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   required = false,
   disabled = false,
 }) => {
-  const [query, setQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [query, setQuery] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
+  const [highlightedIndex, setHighlightedIndex] = useState(-1)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Synchronize initial input text if a value is selected
   useEffect(() => {
-    const selectedOption = options.find(opt => String(opt.id) === String(value));
+    const selectedOption = options.find(
+      (opt) => String(opt.id) === String(value)
+    )
     if (selectedOption) {
-      setQuery(selectedOption.label);
+      setQuery(selectedOption.label)
     } else if (!value) {
-      setQuery('');
+      setQuery('')
     }
-  }, [value, options]);
+  }, [value, options])
 
   // Filter options based on input query
-  const filteredOptions = options.filter(opt =>
+  const filteredOptions = options.filter((opt) =>
     opt.label.toLowerCase().includes(query.toLowerCase())
-  );
+  )
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false)
       }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (disabled) return;
+    if (disabled) return
 
     if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setIsOpen(true);
-      setHighlightedIndex(prev => 
+      e.preventDefault()
+      setIsOpen(true)
+      setHighlightedIndex((prev) =>
         prev < filteredOptions.length - 1 ? prev + 1 : prev
-      );
+      )
     } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setHighlightedIndex(prev => (prev > 0 ? prev - 1 : 0));
+      e.preventDefault()
+      setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : 0))
     } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (isOpen && highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
-        const selected = filteredOptions[highlightedIndex];
-        onChange(selected.id);
-        setQuery(selected.label);
-        setIsOpen(false);
+      e.preventDefault()
+      if (
+        isOpen &&
+        highlightedIndex >= 0 &&
+        highlightedIndex < filteredOptions.length
+      ) {
+        const selected = filteredOptions[highlightedIndex]
+        onChange(selected.id)
+        setQuery(selected.label)
+        setIsOpen(false)
       }
     } else if (e.key === 'Escape') {
-      setIsOpen(false);
+      setIsOpen(false)
     }
-  };
+  }
 
   const handleSelect = (option: Option) => {
-    onChange(String(option.id));
-    setQuery(option.label);
-    setIsOpen(false);
-  };
+    onChange(String(option.id))
+    setQuery(option.label)
+    setIsOpen(false)
+  }
 
   const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange('');
-    setQuery('');
-    setIsOpen(false);
-  };
+    e.stopPropagation()
+    onChange('')
+    setQuery('')
+    setIsOpen(false)
+  }
 
   return (
     <div ref={containerRef} className="autocomplete-field relative w-full">
@@ -98,12 +107,12 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           type="text"
           value={query}
           onChange={(e) => {
-            setQuery(e.target.value);
-            setIsOpen(true);
-            setHighlightedIndex(-1);
+            setQuery(e.target.value)
+            setIsOpen(true)
+            setHighlightedIndex(-1)
             // If query is cleared, clear selection
             if (e.target.value === '') {
-              onChange('');
+              onChange('')
             }
           }}
           onFocus={() => setIsOpen(true)}
@@ -129,8 +138,8 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       {isOpen && !disabled && filteredOptions.length > 0 && (
         <ul className="absolute left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-brand-surface border border-brand-line rounded-lg shadow-lg z-50 py-1 text-sm">
           {filteredOptions.map((opt, index) => {
-            const isSelected = String(opt.id) === String(value);
-            const isHighlighted = index === highlightedIndex;
+            const isSelected = String(opt.id) === String(value)
+            const isHighlighted = index === highlightedIndex
 
             return (
               <li
@@ -138,17 +147,21 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
                 onMouseDown={() => handleSelect(opt)}
                 onMouseEnter={() => setHighlightedIndex(index)}
                 className={`px-4 py-2.5 cursor-pointer flex justify-between items-center transition-colors ${
-                  isHighlighted ? 'bg-brand-surface-tint text-brand-primary-strong' : ''
+                  isHighlighted
+                    ? 'bg-brand-surface-tint text-brand-primary-strong'
+                    : ''
                 } ${
                   isSelected ? 'font-bold text-brand-primary' : 'text-brand-ink'
                 }`}
               >
                 <span>{opt.label}</span>
                 {isSelected && (
-                  <span className="text-brand-primary font-bold text-xs">✓</span>
+                  <span className="text-brand-primary font-bold text-xs">
+                    ✓
+                  </span>
                 )}
               </li>
-            );
+            )
           })}
         </ul>
       )}
@@ -159,7 +172,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default AutocompleteInput;
+export default AutocompleteInput

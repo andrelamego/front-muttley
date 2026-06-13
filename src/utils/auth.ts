@@ -16,7 +16,10 @@ const roleFromValue = (value: unknown): AuthRole | null => {
 
   if (typeof value !== 'string') return null
 
-  const normalized = value.trim().toUpperCase().replace(/^ROLE_/, '')
+  const normalized = value
+    .trim()
+    .toUpperCase()
+    .replace(/^ROLE_/, '')
   if (normalized === 'ADMIN' || normalized === 'USER') return normalized
   return null
 }
@@ -40,7 +43,12 @@ export const getRoleFromToken = (token: string | null): AuthRole | null => {
     const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=')
     const claims = JSON.parse(atob(padded)) as Record<string, unknown>
 
-    return normalizeAuthRole(claims.role, claims.roles, claims.authorities, claims.scope)
+    return normalizeAuthRole(
+      claims.role,
+      claims.roles,
+      claims.authorities,
+      claims.scope
+    )
   } catch {
     return null
   }

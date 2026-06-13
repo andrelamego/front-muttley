@@ -1,25 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import db from '../../data/mockDb';
-import { toast } from '../../components/ui/Toast';
-import type { Person, Student, Professor, Speaker, Organizer, Collaborator } from '../../data/types';
-import { PageHeader, TablePageSkeleton } from '../../components/ui';
+import React, { useState, useEffect } from 'react'
+import db from '../../data/mockDb'
+import { toast } from '../../components/ui/Toast'
+import type {
+  Person,
+  Student,
+  Professor,
+  Speaker,
+  Organizer,
+  Collaborator,
+} from '../../data/types'
+import { PageHeader, TablePageSkeleton } from '../../components/ui'
 
-type TabType = 'alunos' | 'professores' | 'palestrantes' | 'organizadores' | 'colaboradores';
+type TabType =
+  | 'alunos'
+  | 'professores'
+  | 'palestrantes'
+  | 'organizadores'
+  | 'colaboradores'
 
 export const ParticipantList: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('alunos');
+  const [activeTab, setActiveTab] = useState<TabType>('alunos')
 
-  const [people, setPeople] = useState<Person[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [professors, setProfessors] = useState<Professor[]>([]);
-  const [speakers, setSpeakers] = useState<Speaker[]>([]);
-  const [organizers, setOrganizers] = useState<Organizer[]>([]);
-  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [people, setPeople] = useState<Person[]>([])
+  const [students, setStudents] = useState<Student[]>([])
+  const [professors, setProfessors] = useState<Professor[]>([])
+  const [speakers, setSpeakers] = useState<Speaker[]>([])
+  const [organizers, setOrganizers] = useState<Organizer[]>([])
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const init = async () => {
-      setLoading(true);
+      setLoading(true)
       try {
         const [pps, stds, profs, spks, orgs, colls] = await Promise.all([
           db.getPeople(),
@@ -27,27 +39,29 @@ export const ParticipantList: React.FC = () => {
           db.getProfessors(),
           db.getSpeakers(),
           db.getOrganizers(),
-          db.getCollaborators()
-        ]);
-        setPeople(pps);
-        setStudents(stds);
-        setProfessors(profs);
-        setSpeakers(spks);
-        setOrganizers(orgs);
-        setCollaborators(colls);
+          db.getCollaborators(),
+        ])
+        setPeople(pps)
+        setStudents(stds)
+        setProfessors(profs)
+        setSpeakers(spks)
+        setOrganizers(orgs)
+        setCollaborators(colls)
       } catch (err) {
-        console.error('Error loading participants:', err);
-        toast.error(err instanceof Error ? err.message : 'Erro ao carregar participantes.');
+        console.error('Error loading participants:', err)
+        toast.error(
+          err instanceof Error ? err.message : 'Erro ao carregar participantes.'
+        )
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    init();
-  }, []);
+    }
+    init()
+  }, [])
 
   // Map students
-  const listAlunos = students.map(s => {
-    const p = people.find(person => person.id === s.pessoaId);
+  const listAlunos = students.map((s) => {
+    const p = people.find((person) => person.id === s.pessoaId)
     return {
       id: s.id,
       matricula: s.matricula,
@@ -55,12 +69,12 @@ export const ParticipantList: React.FC = () => {
       email: p?.email || '-',
       telefone: p?.telefone || '-',
       instituicao: s.instituicao,
-    };
-  });
+    }
+  })
 
   // Map professors
-  const listProfessores = professors.map(prof => {
-    const p = people.find(person => person.id === prof.pessoaId);
+  const listProfessores = professors.map((prof) => {
+    const p = people.find((person) => person.id === prof.pessoaId)
     return {
       id: prof.id,
       nome: p?.nome || '-',
@@ -68,12 +82,12 @@ export const ParticipantList: React.FC = () => {
       telefone: p?.telefone || '-',
       area: prof.areaFormacao,
       titulacao: prof.titulacao,
-    };
-  });
+    }
+  })
 
   // Map speakers
-  const listPalestrantes = speakers.map(s => {
-    const p = people.find(person => person.id === s.pessoaId);
+  const listPalestrantes = speakers.map((s) => {
+    const p = people.find((person) => person.id === s.pessoaId)
     return {
       id: s.id,
       nome: p?.nome || '-',
@@ -81,12 +95,12 @@ export const ParticipantList: React.FC = () => {
       empresa: s.empresaAtual,
       cargo: s.cargo,
       resumo: s.resumoProfissional,
-    };
-  });
+    }
+  })
 
   // Map organizers
-  const listOrganizadores = organizers.map(o => {
-    const p = people.find(person => person.id === o.pessoaId);
+  const listOrganizadores = organizers.map((o) => {
+    const p = people.find((person) => person.id === o.pessoaId)
     return {
       id: o.id,
       nome: p?.nome || '-',
@@ -94,12 +108,12 @@ export const ParticipantList: React.FC = () => {
       telefone: p?.telefone || '-',
       instituicao: o.instituicao,
       cargo: o.cargo,
-    };
-  });
+    }
+  })
 
   // Map collaborators
-  const listColaboradores = collaborators.map(c => {
-    const p = people.find(person => person.id === c.pessoaId);
+  const listColaboradores = collaborators.map((c) => {
+    const p = people.find((person) => person.id === c.pessoaId)
     return {
       id: c.id,
       nome: p?.nome || '-',
@@ -107,11 +121,11 @@ export const ParticipantList: React.FC = () => {
       funcao: c.funcao,
       disponibilidade: c.disponibilidade,
       tipo: c.tipo,
-    };
-  });
+    }
+  })
 
   if (loading) {
-    return <TablePageSkeleton action={false} columns={5} rows={7} />;
+    return <TablePageSkeleton action={false} columns={5} rows={7} />
   }
 
   return (
@@ -136,28 +150,32 @@ export const ParticipantList: React.FC = () => {
           onClick={() => setActiveTab('professores')}
           type="button"
         >
-          Professores <span className="tab-badge">{listProfessores.length}</span>
+          Professores{' '}
+          <span className="tab-badge">{listProfessores.length}</span>
         </button>
         <button
           className={`tab-button ${activeTab === 'palestrantes' ? 'active' : ''}`}
           onClick={() => setActiveTab('palestrantes')}
           type="button"
         >
-          Palestrantes <span className="tab-badge">{listPalestrantes.length}</span>
+          Palestrantes{' '}
+          <span className="tab-badge">{listPalestrantes.length}</span>
         </button>
         <button
           className={`tab-button ${activeTab === 'organizadores' ? 'active' : ''}`}
           onClick={() => setActiveTab('organizadores')}
           type="button"
         >
-          Organizadores <span className="tab-badge">{listOrganizadores.length}</span>
+          Organizadores{' '}
+          <span className="tab-badge">{listOrganizadores.length}</span>
         </button>
         <button
           className={`tab-button ${activeTab === 'colaboradores' ? 'active' : ''}`}
           onClick={() => setActiveTab('colaboradores')}
           type="button"
         >
-          Colaboradores <span className="tab-badge">{listColaboradores.length}</span>
+          Colaboradores{' '}
+          <span className="tab-badge">{listColaboradores.length}</span>
         </button>
       </div>
 
@@ -176,10 +194,12 @@ export const ParticipantList: React.FC = () => {
             <tbody>
               {listAlunos.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center">Nenhum aluno cadastrado.</td>
+                  <td colSpan={5} className="text-center">
+                    Nenhum aluno cadastrado.
+                  </td>
                 </tr>
               ) : (
-                listAlunos.map(item => (
+                listAlunos.map((item) => (
                   <tr key={item.id}>
                     <td>{item.matricula}</td>
                     <td>{item.nome}</td>
@@ -207,10 +227,12 @@ export const ParticipantList: React.FC = () => {
             <tbody>
               {listProfessores.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center">Nenhum professor cadastrado.</td>
+                  <td colSpan={5} className="text-center">
+                    Nenhum professor cadastrado.
+                  </td>
                 </tr>
               ) : (
-                listProfessores.map(item => (
+                listProfessores.map((item) => (
                   <tr key={item.id}>
                     <td>{item.nome}</td>
                     <td>{item.email}</td>
@@ -238,16 +260,20 @@ export const ParticipantList: React.FC = () => {
             <tbody>
               {listPalestrantes.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center">Nenhum palestrante cadastrado.</td>
+                  <td colSpan={5} className="text-center">
+                    Nenhum palestrante cadastrado.
+                  </td>
                 </tr>
               ) : (
-                listPalestrantes.map(item => (
+                listPalestrantes.map((item) => (
                   <tr key={item.id}>
                     <td>{item.nome}</td>
                     <td>{item.email}</td>
                     <td>{item.empresa}</td>
                     <td>{item.cargo}</td>
-                    <td className="max-w-xs truncate" title={item.resumo}>{item.resumo}</td>
+                    <td className="max-w-xs truncate" title={item.resumo}>
+                      {item.resumo}
+                    </td>
                   </tr>
                 ))
               )}
@@ -269,10 +295,12 @@ export const ParticipantList: React.FC = () => {
             <tbody>
               {listOrganizadores.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center">Nenhum organizador cadastrado.</td>
+                  <td colSpan={5} className="text-center">
+                    Nenhum organizador cadastrado.
+                  </td>
                 </tr>
               ) : (
-                listOrganizadores.map(item => (
+                listOrganizadores.map((item) => (
                   <tr key={item.id}>
                     <td>{item.nome}</td>
                     <td>{item.email}</td>
@@ -300,10 +328,12 @@ export const ParticipantList: React.FC = () => {
             <tbody>
               {listColaboradores.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center">Nenhum colaborador cadastrado.</td>
+                  <td colSpan={5} className="text-center">
+                    Nenhum colaborador cadastrado.
+                  </td>
                 </tr>
               ) : (
-                listColaboradores.map(item => (
+                listColaboradores.map((item) => (
                   <tr key={item.id}>
                     <td>{item.nome}</td>
                     <td>{item.email}</td>
@@ -318,7 +348,7 @@ export const ParticipantList: React.FC = () => {
         )}
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default ParticipantList;
+export default ParticipantList

@@ -8,10 +8,22 @@ type CardProps = HTMLAttributes<HTMLElement> & {
   children: ReactNode
 }
 
-export function Card({ as: Component = 'article', interactive, elevated, className, children, ...props }: CardProps) {
+export function Card({
+  as: Component = 'article',
+  interactive,
+  elevated,
+  className,
+  children,
+  ...props
+}: CardProps) {
   return (
     <Component
-      className={cx('ui-card', interactive && 'ui-card--interactive', elevated && 'ui-card--elevated', className)}
+      className={cx(
+        'ui-card',
+        interactive && 'ui-card--interactive',
+        elevated && 'ui-card--elevated',
+        className
+      )}
       {...props}
     >
       {children}

@@ -1,6 +1,16 @@
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Award, CalendarDays, FileBadge, Home, LogIn, LogOut, Menu, ShieldCheck, UserRound } from 'lucide-react'
+import {
+  Award,
+  CalendarDays,
+  FileBadge,
+  Home,
+  LogIn,
+  LogOut,
+  Menu,
+  ShieldCheck,
+  UserRound,
+} from 'lucide-react'
 import db from '../data/mockDb'
 import { ButtonLink } from './ui'
 
@@ -24,39 +34,71 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     <header className="app-header app-header--redesign">
       <div className="app-header__left">
         {isAdmin && (
-          <button className="topbar-hamburger" type="button" onClick={onToggleSidebar} aria-label="Abrir navegacao">
+          <button
+            className="topbar-hamburger"
+            type="button"
+            onClick={onToggleSidebar}
+            aria-label="Abrir navegacao"
+          >
             <Menu aria-hidden="true" />
           </button>
         )}
 
-        <Link className="brand" to={isAdmin ? '/admin/inicio' : loggedUser ? '/user/inicio' : '/eventos'}>
+        <Link
+          className="brand"
+          to={
+            isAdmin ? '/admin/inicio' : loggedUser ? '/user/inicio' : '/eventos'
+          }
+        >
           Muttley
         </Link>
       </div>
 
       {!isAdmin && !loggedUser && (
         <nav className="main-nav" aria-label="Navegacao publica">
-          <Link to="/eventos" className={path === '/' || path.startsWith('/eventos') ? 'active' : ''}>
+          <Link
+            to="/eventos"
+            className={
+              path === '/' || path.startsWith('/eventos') ? 'active' : ''
+            }
+          >
             Eventos
           </Link>
         </nav>
       )}
 
       {!isAdmin && loggedUser && (
-        <nav className="main-nav user-desktop-nav" aria-label="Navegacao principal do usuario">
-          <Link to="/user/inicio" className={path === '/user/inicio' ? 'active' : ''}>
+        <nav
+          className="main-nav user-desktop-nav"
+          aria-label="Navegacao principal do usuario"
+        >
+          <Link
+            to="/user/inicio"
+            className={path === '/user/inicio' ? 'active' : ''}
+          >
             <Home aria-hidden="true" />
             Inicio
           </Link>
-          <Link to="/eventos" className={path === '/' || path.startsWith('/eventos') ? 'active' : ''}>
+          <Link
+            to="/eventos"
+            className={
+              path === '/' || path.startsWith('/eventos') ? 'active' : ''
+            }
+          >
             <CalendarDays aria-hidden="true" />
             Eventos
           </Link>
-          <Link to="/user/certificados" className={path.startsWith('/user/certificados') ? 'active' : ''}>
+          <Link
+            to="/user/certificados"
+            className={path.startsWith('/user/certificados') ? 'active' : ''}
+          >
             <FileBadge aria-hidden="true" />
             Certificados
           </Link>
-          <Link to="/user/medalhas" className={path.startsWith('/user/medalhas') ? 'active' : ''}>
+          <Link
+            to="/user/medalhas"
+            className={path.startsWith('/user/medalhas') ? 'active' : ''}
+          >
             <Award aria-hidden="true" />
             Medalhas
           </Link>
@@ -67,7 +109,11 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         {loggedUser ? (
           <>
             {!isAdmin && loggedUser.role === 'ADMIN' && (
-              <Link className="admin-panel-shortcut" to="/admin/inicio" aria-label="Abrir painel administrativo">
+              <Link
+                className="admin-panel-shortcut"
+                to="/admin/inicio"
+                aria-label="Abrir painel administrativo"
+              >
                 <ShieldCheck aria-hidden="true" />
                 <span>Painel admin</span>
               </Link>
@@ -75,14 +121,25 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             <span className="avatar" aria-hidden="true">
               <UserRound />
             </span>
-            <span className="user-display-name">{loggedUser.nome.split(' ')[0]}</span>
-            <button onClick={handleLogout} className="header-logout" type="button">
+            <span className="user-display-name">
+              {loggedUser.nome.split(' ')[0]}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="header-logout"
+              type="button"
+            >
               <LogOut aria-hidden="true" />
               <span>Sair</span>
             </button>
           </>
         ) : (
-          <ButtonLink to="/login" variant="secondary" size="sm" icon={<LogIn aria-hidden="true" />}>
+          <ButtonLink
+            to="/login"
+            variant="secondary"
+            size="sm"
+            icon={<LogIn aria-hidden="true" />}
+          >
             Entrar
           </ButtonLink>
         )}

@@ -8,7 +8,13 @@ type StatCardProps = {
   tone?: 'primary' | 'success' | 'accent' | 'neutral'
 }
 
-export function StatCard({ label, value, helper, icon, tone = 'primary' }: StatCardProps) {
+export function StatCard({
+  label,
+  value,
+  helper,
+  icon,
+  tone = 'primary',
+}: StatCardProps) {
   return (
     <article className={`ui-stat-card ui-stat-card--${tone}`}>
       <div className="ui-stat-card__top">

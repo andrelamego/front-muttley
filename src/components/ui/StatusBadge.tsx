@@ -20,8 +20,16 @@ const statusLabels: Record<string, string> = {
 
 export function StatusBadge({ status, label, className }: StatusBadgeProps) {
   return (
-    <span className={cx('ui-status', `ui-status--${status.toLowerCase()}`, className)}>
-      {label || statusLabels[status] || status.replaceAll('_', ' ').toLowerCase()}
+    <span
+      className={cx(
+        'ui-status',
+        `ui-status--${status.toLowerCase()}`,
+        className
+      )}
+    >
+      {label ||
+        statusLabels[status] ||
+        status.replaceAll('_', ' ').toLowerCase()}
     </span>
   )
 }

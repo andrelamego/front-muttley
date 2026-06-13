@@ -1,104 +1,122 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { CalendarDays, Clock, MapPin } from 'lucide-react';
-import db from '../../data/mockDb';
-import type { PublicEvent } from '../../data/types';
-import { PublicEventDetailSkeleton, StatusBadge } from '../../components/ui';
-import { toast } from '../../components/ui/Toast';
+import React, { useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { CalendarDays, Clock, MapPin } from 'lucide-react'
+import db from '../../data/mockDb'
+import type { PublicEvent } from '../../data/types'
+import { PublicEventDetailSkeleton, StatusBadge } from '../../components/ui'
+import { toast } from '../../components/ui/Toast'
 
 export const PublicEventDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const loggedUser = db.getLoggedUser();
-  const [event, setEvent] = useState<PublicEvent | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const { id } = useParams<{ id: string }>()
+  const loggedUser = db.getLoggedUser()
+  const [event, setEvent] = useState<PublicEvent | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({
     nomeCompleto: '',
     cpf: '',
     email: '',
-  });
+  })
 
   useEffect(() => {
-    if (!id) return;
-    setLoading(true);
+    if (!id) return
+    setLoading(true)
     db.getPublicEventById(id)
       .then(setEvent)
       .catch((err) => toast.error(err.message || 'Evento nao encontrado.'))
-      .finally(() => setLoading(false));
-  }, [id]);
+      .finally(() => setLoading(false))
+  }, [id])
 
-  const handleCpfChange = (changeEvent: React.ChangeEvent<HTMLInputElement>) => {
-    let value = changeEvent.target.value.replace(/\D/g, '');
-    if (value.length > 11) value = value.slice(0, 11);
+  const handleCpfChange = (
+    changeEvent: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let value = changeEvent.target.value.replace(/\D/g, '')
+    if (value.length > 11) value = value.slice(0, 11)
 
-    value = value.replace(/(\d{3})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d)/, '$1.$2');
-    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    value = value.replace(/(\d{3})(\d)/, '$1.$2')
+    value = value.replace(/(\d{3})(\d)/, '$1.$2')
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2')
 
-    setForm((current) => ({ ...current, cpf: value }));
-  };
+    setForm((current) => ({ ...current, cpf: value }))
+  }
 
   const submitInscription = async (
     payload: { nomeCompleto: string; cpf: string; email: string },
-    options: { fromLoggedUser?: boolean } = {},
+    options: { fromLoggedUser?: boolean } = {}
   ) => {
-    if (!id || !event) return;
+    if (!id || !event) return
 
     const normalizedPayload = {
       nomeCompleto: payload.nomeCompleto.trim(),
       cpf: payload.cpf.trim(),
       email: payload.email.trim(),
-    };
+    }
 
-    if (!normalizedPayload.nomeCompleto || !normalizedPayload.email || !normalizedPayload.cpf) {
-      toast.warning(options.fromLoggedUser
-        ? 'Nao foi possivel localizar nome, CPF e e-mail da sua conta. Saia e entre novamente.'
-        : 'Preencha nome, CPF e e-mail para concluir a inscricao.');
-      return;
+    if (
+      !normalizedPayload.nomeCompleto ||
+      !normalizedPayload.email ||
+      !normalizedPayload.cpf
+    ) {
+      toast.warning(
+        options.fromLoggedUser
+          ? 'Nao foi possivel localizar nome, CPF e e-mail da sua conta. Saia e entre novamente.'
+          : 'Preencha nome, CPF e e-mail para concluir a inscricao.'
+      )
+      return
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true)
       const response = await db.createPublicInscription(id, {
         nomeCompleto: normalizedPayload.nomeCompleto,
         cpf: normalizedPayload.cpf,
         email: normalizedPayload.email,
-      });
-      toast.success(`${response.message} Numero de inscricao: #${response.inscricao}`);
-      setForm({ nomeCompleto: '', cpf: '', email: '' });
+      })
+      toast.success(
+        `${response.message} Numero de inscricao: #${response.inscricao}`
+      )
+      setForm({ nomeCompleto: '', cpf: '', email: '' })
     } catch (err: any) {
-      toast.error(err.message || 'Nao foi possivel realizar sua inscricao.');
+      toast.error(err.message || 'Nao foi possivel realizar sua inscricao.')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const handleSubmit = async (submitEvent: React.FormEvent) => {
-    submitEvent.preventDefault();
-    await submitInscription(form);
-  };
+    submitEvent.preventDefault()
+    await submitInscription(form)
+  }
 
   const handleLoggedUserSignup = async () => {
-    if (!loggedUser) return;
+    if (!loggedUser) return
 
-    let userData = loggedUser;
+    let userData = loggedUser
 
     try {
-      userData = await db.getMe();
+      userData = await db.getMe()
     } catch (err) {
-      console.error('Nao foi possivel atualizar os dados do usuario logado pelo endpoint /me.', err);
-      toast.warning('Não foi possível atualizar os dados da sua conta. Usaremos os dados salvos neste dispositivo.');
+      console.error(
+        'Nao foi possivel atualizar os dados do usuario logado pelo endpoint /me.',
+        err
+      )
+      toast.warning(
+        'Não foi possível atualizar os dados da sua conta. Usaremos os dados salvos neste dispositivo.'
+      )
     }
 
-    await submitInscription({
-      nomeCompleto: userData.nome,
-      cpf: userData.cpf,
-      email: userData.email,
-    }, { fromLoggedUser: true });
-  };
+    await submitInscription(
+      {
+        nomeCompleto: userData.nome,
+        cpf: userData.cpf,
+        email: userData.email,
+      },
+      { fromLoggedUser: true }
+    )
+  }
 
   if (loading) {
-    return <PublicEventDetailSkeleton />;
+    return <PublicEventDetailSkeleton />
   }
 
   if (!event) {
@@ -106,30 +124,38 @@ export const PublicEventDetail: React.FC = () => {
       <main className="public-event-detail-page">
         <div className="public-event-not-found">
           <h1>Evento nao encontrado</h1>
-          <Link className="primary-action" to="/eventos">Voltar aos eventos</Link>
+          <Link className="primary-action" to="/eventos">
+            Voltar aos eventos
+          </Link>
         </div>
       </main>
-    );
+    )
   }
 
-  const date = event.data ? new Date(`${event.data}T00:00:00`) : null;
-  const formattedDate = date ? date.toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }) : 'Data nao informada';
+  const date = event.data ? new Date(`${event.data}T00:00:00`) : null
+  const formattedDate = date
+    ? date.toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      })
+    : 'Data nao informada'
 
   return (
     <main className="public-event-detail-page">
-      <Link className="public-event-back" to="/eventos">Voltar aos eventos</Link>
+      <Link className="public-event-back" to="/eventos">
+        Voltar aos eventos
+      </Link>
 
       <section className="public-event-detail-layout">
         <article className="public-event-detail-main">
           <div className="public-event-detail-kicker">
             <StatusBadge
               status={event.inscricoesEncerradas ? 'FINALIZADO' : event.status}
-              label={event.inscricoesEncerradas ? 'Inscricoes encerradas' : undefined}
+              label={
+                event.inscricoesEncerradas ? 'Inscricoes encerradas' : undefined
+              }
             />
             <span>{event.modalidade.toLowerCase()}</span>
           </div>
@@ -138,9 +164,18 @@ export const PublicEventDetail: React.FC = () => {
           <p>{event.descricao || 'Evento academico da Fatec Zona Leste.'}</p>
 
           <div className="public-event-detail-meta">
-            <span><CalendarDays aria-hidden="true" />{formattedDate}</span>
-            <span><Clock aria-hidden="true" />{event.horarioInicio} - {event.horarioFim}</span>
-            <span><MapPin aria-hidden="true" />{event.local || 'Local nao informado'}</span>
+            <span>
+              <CalendarDays aria-hidden="true" />
+              {formattedDate}
+            </span>
+            <span>
+              <Clock aria-hidden="true" />
+              {event.horarioInicio} - {event.horarioFim}
+            </span>
+            <span>
+              <MapPin aria-hidden="true" />
+              {event.local || 'Local nao informado'}
+            </span>
           </div>
 
           {event.disciplina && (
@@ -153,15 +188,30 @@ export const PublicEventDetail: React.FC = () => {
 
         <aside className="public-event-signup-panel">
           <span>Inscricao</span>
-          <h2>{event.inscricoesEncerradas ? 'Inscricoes encerradas' : 'Reserve sua participacao'}</h2>
+          <h2>
+            {event.inscricoesEncerradas
+              ? 'Inscricoes encerradas'
+              : 'Reserve sua participacao'}
+          </h2>
 
           {loggedUser ? (
             <div className="public-event-logged-signup">
-              <p>Vamos usar os dados da sua conta para confirmar a inscricao.</p>
+              <p>
+                Vamos usar os dados da sua conta para confirmar a inscricao.
+              </p>
               <strong>{loggedUser.nome}</strong>
               <small>{loggedUser.email}</small>
-              <button className="primary-action" type="button" onClick={handleLoggedUserSignup} disabled={event.inscricoesEncerradas || submitting}>
-                {submitting ? 'Enviando...' : event.inscricoesEncerradas ? 'Inscricoes encerradas' : 'Inscrever-se'}
+              <button
+                className="primary-action"
+                type="button"
+                onClick={handleLoggedUserSignup}
+                disabled={event.inscricoesEncerradas || submitting}
+              >
+                {submitting
+                  ? 'Enviando...'
+                  : event.inscricoesEncerradas
+                    ? 'Inscricoes encerradas'
+                    : 'Inscrever-se'}
               </button>
             </div>
           ) : (
@@ -172,7 +222,12 @@ export const PublicEventDetail: React.FC = () => {
                   type="text"
                   placeholder="Seu nome completo"
                   value={form.nomeCompleto}
-                  onChange={(changeEvent) => setForm((current) => ({ ...current, nomeCompleto: changeEvent.target.value }))}
+                  onChange={(changeEvent) =>
+                    setForm((current) => ({
+                      ...current,
+                      nomeCompleto: changeEvent.target.value,
+                    }))
+                  }
                   disabled={event.inscricoesEncerradas || submitting}
                   required
                 />
@@ -196,22 +251,34 @@ export const PublicEventDetail: React.FC = () => {
                   type="email"
                   placeholder="seu.email@exemplo.com"
                   value={form.email}
-                  onChange={(changeEvent) => setForm((current) => ({ ...current, email: changeEvent.target.value }))}
+                  onChange={(changeEvent) =>
+                    setForm((current) => ({
+                      ...current,
+                      email: changeEvent.target.value,
+                    }))
+                  }
                   disabled={event.inscricoesEncerradas || submitting}
                   required
                 />
               </label>
 
-              <button className="primary-action" type="submit" disabled={event.inscricoesEncerradas || submitting}>
-                {submitting ? 'Enviando...' : event.inscricoesEncerradas ? 'Inscricoes encerradas' : 'Inscrever-se'}
+              <button
+                className="primary-action"
+                type="submit"
+                disabled={event.inscricoesEncerradas || submitting}
+              >
+                {submitting
+                  ? 'Enviando...'
+                  : event.inscricoesEncerradas
+                    ? 'Inscricoes encerradas'
+                    : 'Inscrever-se'}
               </button>
             </form>
           )}
         </aside>
       </section>
-
     </main>
-  );
-};
+  )
+}
 
-export default PublicEventDetail;
+export default PublicEventDetail
