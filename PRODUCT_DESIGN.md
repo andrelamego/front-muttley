@@ -111,10 +111,16 @@ Adote WCAG 2.2 nível AA como referência de acessibilidade e registre os crité
 
 Migração para Next.js, pagamentos, chat, verificação de email e novas regras de gamificação não fazem parte desta etapa. A substituição final do frontend depende de conferir o inventário funcional e a compatibilidade de integração; a implementação antiga pode permanecer apenas no histórico do Git após essa transição.
 
-## Decisões de design ainda abertas
+## Decisões de design concluídas — Contrato visual formalizado (04/09/2026)
 
-- Nova paleta, tipografia, linguagem visual e densidade após avaliar as três telas de referência.
-- Conjunto de filtros viável com o contrato da API e o volume real de eventos.
-- Informações de disponibilidade que precisam ser acrescentadas ao contrato público.
+Conforme estabelecido no refinamento da reconstrução:
+
+1. **Personalidade e tom:** Editorial acadêmico contemporâneo — limpo, estruturado e legível como uma publicação científica de ponta. Foco no conteúdo do evento (tema, agenda, horários, local, modalidade) e na utilidade das ações.
+2. **Tipografia de títulos e leitura:** Stack de sistema de alta legibilidade (`system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`). Suporte nativo completo à acentuação do português brasileiro, pesos reais (400 regular, 500 medium, 600 semibold, 700 bold, 900 black), zero CLS e zero requisições externas de fontes que possam degradar com conexão instável.
+3. **Paleta semântica:** Azul acadêmico profundo (`#1d4ed8` / `--color-primary-600`) com superfície neutra Slate (`slate-50`, `slate-100` e branco puro). Contraste verificado conforme WCAG 2.2 nível AA (mínimo de 4.5:1 para texto normal e 3:1 para controles e títulos).
+4. **Densidade administrativa:** Desktop-first com menu lateral persistente na administração, tabelas contidas com rolagem horizontal restrita ao container e métricas reais com períodos explicados.
+5. **Alvos de toque e botões:** Botão `Button` com caixa padronizada, borda de 1px reservada em todas as variantes para evitar saltos visuais, altura mínima de 44px para toque mobile (`h-11`) e alinhamento estável em estados de carregamento.
+6. **Iconografia semântica:** Uso exclusivo de SVGs desenhados com precisão e rótulos acessíveis. **Proibição estrita de emojis** em ícones de sistema e navegação.
 
 Registre decisões concluídas e evidências no [plano de reconstrução](docs/PLANO_FRONTEND.md). Use as [skills por etapa](docs/SKILLS_FRONTEND.md) para sustentar as decisões, sem deixar que uma preferência estética de uma skill se sobreponha às necessidades dos usuários.
+

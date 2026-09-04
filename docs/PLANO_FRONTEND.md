@@ -162,6 +162,35 @@ Seguir [SKILLS_FRONTEND.md](SKILLS_FRONTEND.md). Não carregar todas as skills n
   - 4. Rotas Públicas (Descoberta de eventos, detalhes, presença rápida e validação de certificados).
 - **Estado final:** Aplicação reconstruída do zero, modular, performática e pronta para implantação.
 
+### Entrega 5 (04/09/2026) — Refinamento Pós-Reconstrução: Isolamento de Sessão, Shell Desktop-First, QR Codes Desacoplados e Landing Editorial
+
+- **Objetivo:** Cumprir integralmente os ajustes e refinamentos solicitados em `docs/AJUSTES_FRONTEND_GEMINI.md` e os contratos do backend em `../Backend-Muttley/docs/correcoes-integracao-2026-09-04.md`:
+  1. Corrigir troca de contas ADMIN → sair → login USER para navegar a `/user/inicio` sem loops ou resíduos de rotas proibidas; o inverso navega para `/admin/inicio`.
+  2. Implementar política pura e testável de destino pós-login (`resolveLoginDestination`) com blindagem contra open redirects, protocolos e loops para `/login`.
+  3. Descartar respostas assíncronas de sessões anteriores (401 atrasados e validação `/me`) e sincronizar o novo token no transporte HTTP de forma imediata.
+  4. Tela dedicada e acessível de `AccessDenied` para usuários autenticados sem permissão de papel, com atalho para retornar ao próprio painel sem deslogamento forçado.
+  5. Desacoplar o modal de QR Codes em `AdminEventListPage`: carregamento, estado (loading, pronto, erro, retentativa) e liberação de `URL.revokeObjectURL` 100% independentes para inscrição e presença, normalizando erros de Blob (503, 404, 401, 403) sem vazamento de SQL ou exceções internas.
+  6. Shell administrativo em `AdminLayout.tsx` com Sidebar persistente no desktop (largura útil, navegação vertical, perfil e botão de sair), menu drawer móvel com suporte a teclado/Escape, e skip link acessível para pular ao conteúdo.
+  7. Dashboard administrativo (`AdminDashboardPage.tsx`) adaptado aos dados reais do backend (exibição de disciplina e local normalizados como texto e correção de links para `/admin/eventos/:id/editar` e `/admin/eventos/:id/concluir`).
+  8. Formalização do contrato visual em `PRODUCT_DESIGN.md`, tokens em `tokens.css` e padronização do `Button.tsx` (borda reservada em todas as variantes para evitar deslocamento de layout em loading e touch target móvel >= 44px).
+  9. Nova Landing Page editorial em `/` com carrossel acessível de eventos reais da API (`GET /api/eventos`), sem autoplay (WCAG 2.2 AA), com swipe de toque, navegação por teclado, fluxo explicativo da participação em 4 etapas e validador de certificados; catálogo preservado em `/eventos`.
+- **Módulos afetados:** `src/modules/auth/`, `src/app/`, `src/shared/`, `src/modules/admin-eventos/`, `src/modules/painel/`, `src/modules/eventos/`, `src/styles/`, `PRODUCT_DESIGN.md` e `tests/`.
+- **Skills aplicadas:**
+  - `api-patterns`: isolamento e tratamento do ciclo de vida dos Bearer tokens no cliente Axios; normalização de payloads de erro da API retornados como Blobs.
+  - `architecture`: política de roteamento pura sem acoplamento com o React Router (`resolveLoginDestination`); lógica do carrossel pura em `carouselLogic.ts`.
+  - `accessibility-compliance-accessibility-audit`: skip links, contenção de foco e Escape em modais e gaveta móvel; carrossel sem autoplay distrativo; botões com rótulos e estados focáveis consistentes; **zero emojis em toda a aplicação**.
+- **Comandos e resultados comprovados:**
+  - `npm test`: **53 testes passando** (20 autenticação legado + 4 erros HTTP + 2 certificados + 5 admin eventos + 9 política de destino + 3 troca de sessão + 5 erros de QR Code blob + 5 carrossel/datas).
+  - `npm run build`: **compilação limpa em 330ms** (`tsc -b && vite build` com zero erros).
+  - `npm run lint`: **0 erros e 0 avisos em todo o código** (`eslint . --max-warnings 0`).
+- **Telas e jornadas verificadas:**
+  - Landing Page (`/`): hero editorial, carrossel de eventos com navegação manual, fluxo em 4 etapas e consulta de certificados.
+  - Catálogo de Eventos (`/eventos`) e Detalhes (`/eventos/:id`): preservados e integrados.
+  - Login e Troca de Sessão (`/login`): fluxo bidirecional ADMIN ↔ USER testado e validado.
+  - Painel Administrativo (`/admin/inicio`): sidebar desktop, rotas reais de ação rápida e tabela de próximos eventos com dados normalizados.
+  - Gestão de Eventos (`/admin/eventos`): modal de QR Code com slots desacoplados de inscrição e presença, teste de falha parcial e retentativa isolada.
+
+
 
 
 
