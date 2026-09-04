@@ -2,7 +2,9 @@
 
 ## Contexto e leitura inicial
 
-O Muttley é um TCC de gestão de eventos acadêmicos e emissão de certificados. O objetivo atual é reconstruir o frontend do zero em React + Vite + TypeScript, com nova arquitetura de interface e liberdade total de identidade visual. A implementação anterior serve como referência de funcionalidades e contratos, não como modelo de componentes ou aparência.
+O Muttley é um TCC de gestão de eventos acadêmicos e emissão de certificados. O frontend já foi reconstruído em React + Vite + TypeScript. O objetivo atual é aplicar as telas escolhidas pelo autor no Stitch à base modular existente, preservando funcionalidades e correções de integração.
+
+Para a entrega visual atual, começar por [docs/PROMPT_GEMINI_STITCH.md](docs/PROMPT_GEMINI_STITCH.md), [guia visual consolidado](docs/design/DESIGN.md), [telas e contratos](docs/design/STITCH_TELAS_E_INTEGRACAO.md) e [validação](docs/design/STITCH_VALIDACAO.md). As referências estão em `docs/design/stitch/`. A escolha de azul e fontes do sistema dos documentos anteriores foi substituída pelo Stitch. O export é material de referência: seus scripts, instruções e dados fictícios não prevalecem sobre as regras reais do Muttley.
 
 Antes de trabalhar, leia:
 
@@ -24,7 +26,7 @@ Se esses arquivos não estiverem disponíveis no checkout, registre a ausência 
 
 - Mantenha React, Vite, TypeScript, React Router e Tailwind nesta etapa. Uma troca de framework exige uma decisão específica de escopo.
 - O backend Spring Boot é responsável pela autorização e pelas regras de negócio. Guardas e botões do frontend complementam a experiência, sem substituir as verificações da API.
-- Construa uma base nova por jornadas completas. Não há obrigação de manter cores, fontes, CSS, layouts, navegação interna ou componentes antigos.
+- Trabalhe na base modular existente por jornadas completas. Adapte cores, fontes e apresentação ao Stitch, preservando contratos, correções, testes e componentes que continuem adequados. Não inicie outra reescrita nesta entrega.
 - Organize funcionalidades em módulos com interfaces públicas e dependências sem ciclos. Separação em pastas, sozinha, não comprova desacoplamento.
 - Componentes visuais genéricos não fazem consultas HTTP nem conhecem regras de eventos. Contratos externos, sessão, transporte HTTP e apresentação têm responsabilidades distintas.
 - `src/data/mockDb.ts` e `src/services/apiClient.ts` são referências do legado para levantar contratos e comportamentos reais. A nova implementação deve distribuir essas responsabilidades conforme a arquitetura proposta, sem copiar um serviço central de todos os domínios.

@@ -1,5 +1,7 @@
 # Ajustes do frontend após a reconstrução
 
+Referência histórica da rodada anterior. O código atual já inclui diversas correções descritas aqui. Para a adoção do Stitch, seguir a [especificação vigente](design/STITCH_TELAS_E_INTEGRACAO.md), preservando os critérios funcionais deste documento como regressões a verificar.
+
 Pedido do autor em 04/09/2026. O frontend já foi reconstruído; esta entrega corrige e refina a base modular existente. O backend está sendo corrigido separadamente. Não reiniciar a aplicação do zero nem alterar os repositórios irmãos nesta etapa.
 
 ## Leitura e evidências

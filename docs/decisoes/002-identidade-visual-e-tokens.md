@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aprovado e adotado para a reconstrução do frontend.
+Histórico da reconstrução. A escolha de cores e tipografia foi substituída em 04/09/2026 pela [direção Stitch escolhida pelo autor](../design/DESIGN.md). Centralização de tokens, consistência e acessibilidade permanecem válidas; não restaurar azul/fontes de sistema como identidade principal na entrega atual.
 
 ## Contexto
 

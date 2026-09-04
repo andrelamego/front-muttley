@@ -1,5 +1,21 @@
 # Plano de reconstrução do frontend
 
+## Entrega atual — aplicar as telas escolhidas no Stitch
+
+A reconstrução e o refinamento abaixo estão registrados como histórico. A implementação atual já possui landing, sidebar, tratamento de sessão e QR Codes. O novo objetivo é adaptar essa base às referências escolhidas, sem outra reescrita.
+
+- [x] Extrair e preservar nove arquivos originais: três telas, logo e DESIGN.
+- [x] Inspecionar os PNGs, estilos exportados e contratos atuais.
+- [x] Consolidar [identidade](design/DESIGN.md), [telas/integração](design/STITCH_TELAS_E_INTEGRACAO.md), [validação](design/STITCH_VALIDACAO.md) e [prompt do Gemini](PROMPT_GEMINI_STITCH.md).
+- [x] Implementar tokens, fontes, logo e componentes compartilhados.
+- [x] Adaptar landing, dashboard administrativo e painel pessoal.
+- [x] Conferir demais rotas, integrações e regressões.
+- [x] Inspecionar as telas e registrar testes, capturas e desvios justificados em [docs/design/RELATORIO_STITCH.md](design/RELATORIO_STITCH.md).
+
+Nesta entrega foram implementadas e verificadas todas as adaptações visuais e funcionais às referências escolhidas no Stitch, mantendo 100% de compatibilidade com os contratos reais da API, arquitetura modular e suíte de testes passando.
+
+## Histórico do plano de reconstrução
+
 Revisão de 04/09/2026: este plano substitui a proposta anterior de melhorias incrementais da interface. O autor decidiu recomeçar o frontend do zero, com identidade visual nova, fundamentos de IHC/UI/UX e uma base desacoplada e modular.
 
 A reconstrução inclui implementação, componentes, estilos e organização do frontend. Backend, regras de negócio e contratos existentes continuam como referência. React + Vite + TypeScript permanece como direção técnica; recomeçar não exige trocar o framework.

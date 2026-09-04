@@ -1,8 +1,8 @@
 # Muttley — frontend
 
-Interface do sistema de gestão de eventos acadêmicos e emissão de certificados, desenvolvido como TCC. O objetivo atual é reconstruir o frontend do zero, com nova identidade visual e arquitetura modular, mantendo React, Vite, TypeScript, React Router e Tailwind como base e o backend separado em Spring Boot.
+Interface do sistema de gestão de eventos acadêmicos e emissão de certificados, desenvolvido como TCC. A base modular usa React, Vite, TypeScript, React Router e Tailwind, com backend separado em Spring Boot.
 
-Esta preparação altera o planejamento. O código executável ainda é a versão anterior; a nova implementação não começou. Os comandos e caminhos abaixo descrevem essa base e deverão ser atualizados quando a nova estrutura for criada.
+A reconstrução e o primeiro refinamento já estão no código. A próxima entrega aplica as telas escolhidas no Stitch: landing, dashboard administrativo e painel do participante. Comece pelo [prompt do Gemini](docs/PROMPT_GEMINI_STITCH.md). O [guia visual](docs/design/DESIGN.md), a [especificação das telas](docs/design/STITCH_TELAS_E_INTEGRACAO.md) e as [referências extraídas](docs/design/stitch/README.md) estão prontos; a implementação desse visual ainda está pendente.
 
 ## Documentos do projeto
 
@@ -41,7 +41,7 @@ npm run build
 npm run lint
 ```
 
-Os testes atuais exercitam utilitários de autenticação. Inspeção no navegador e testes E2E são etapas adicionais para validar telas e jornadas. Existem apontamentos históricos de lint; execute o comando para conhecer o estado atual e diferencie erros anteriores de regressões.
+A suíte contém testes de autenticação, política de destino, troca de sessão, erros HTTP/QR, carrossel, certificados e administração. Inspeção no navegador e testes E2E são etapas adicionais para validar telas e jornadas. Execute os comandos para conhecer o estado atual e diferencie falhas anteriores de regressões; resultados históricos não comprovam a nova entrega visual.
 
 O guia da [suíte integrada](../Backend-Muttley/docs/testes-prioritarios-2026-09-03.md) explica como verificar também o backend e os microsserviços.
 

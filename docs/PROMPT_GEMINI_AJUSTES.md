@@ -1,5 +1,7 @@
 # Prompt para o Gemini
 
+Este prompt registra a rodada anterior de ajustes, já implementada no código. Para a entrega visual atual, usar [PROMPT_GEMINI_STITCH.md](PROMPT_GEMINI_STITCH.md), que parte das telas escolhidas e preserva as correções existentes.
+
 Copie o texto abaixo no Gemini, com `front-muttley` como diretório de trabalho:
 
 ```text

@@ -1,6 +1,6 @@
 # Arquitetura do novo frontend
 
-Diretriz para implementação; a estrutura descrita ainda não foi criada. Referências: [plano](PLANO_FRONTEND.md) e [ADR inicial](decisoes/001-frontend-modular.md).
+Diretriz da base modular já implementada. A árvore abaixo descreve responsabilidades e possibilidades, não uma obrigação de criar cada pasta. A entrega atual aplica o [visual Stitch](design/DESIGN.md), preservando os limites existentes. Referências: [plano](PLANO_FRONTEND.md) e [ADR inicial](decisoes/001-frontend-modular.md).
 
 ## Objetivo
 
