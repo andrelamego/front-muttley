@@ -15,23 +15,23 @@ export const Alert: React.FC<AlertProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    info: 'bg-sky-50 border-sky-200 text-sky-900',
-    success: 'bg-emerald-50 border-emerald-200 text-emerald-900',
-    warning: 'bg-amber-50 border-amber-200 text-amber-900',
-    error: 'bg-red-50 border-red-200 text-red-900',
+    info: 'bg-[#dce1ff] border-[#b6c4ff] text-[#1d3989]',
+    success: 'bg-[#beeeca] border-[#a2d2af] text-[#244f34]',
+    warning: 'bg-[#ffdad2] border-[#ffa996] text-[#822713]',
+    error: 'bg-[#ffdad6] border-[#ffb4a3] text-[#93000a]',
   }[variant]
 
   const titleStyles = {
-    info: 'text-sky-950',
-    success: 'text-emerald-950',
-    warning: 'text-amber-950',
-    error: 'text-red-950',
+    info: 'text-[#00164e]',
+    success: 'text-[#00210f]',
+    warning: 'text-[#3d0600]',
+    error: 'text-[#410002]',
   }[variant]
 
   return (
     <div
       role="alert"
-      className={`p-4 rounded-xl border flex items-start gap-3 text-sm ${variantStyles} ${className}`}
+      className={`p-4 rounded-lg border flex items-start gap-3 text-sm ${variantStyles} ${className}`}
       {...props}
     >
       <div className="flex-1 flex flex-col gap-0.5">

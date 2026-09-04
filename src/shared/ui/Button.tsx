@@ -27,7 +27,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   // Borda reservada em todas as variantes (border) garante geometria identica e sem saltos de layout
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none box-border border text-center'
+    'inline-flex items-center justify-center font-medium rounded transition-all duration-150 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none box-border border text-center font-sans'
 
   // Alturas padronizadas: no mobile, alvos de toque respeitam o minimo recomendado (44px)
   const sizeStyles = {
@@ -38,15 +38,15 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      'border-transparent bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus-visible:ring-blue-600 focus-visible:ring-offset-white shadow-xs',
+      'border-transparent bg-[#6b1705] text-white hover:bg-[#8b2e19] active:bg-[#3d0600] focus-visible:ring-[#6b1705] focus-visible:ring-offset-white shadow-xs',
     secondary:
-      'border-transparent bg-slate-100 text-slate-900 hover:bg-slate-200 active:bg-slate-300 focus-visible:ring-slate-500 focus-visible:ring-offset-white',
+      'border-transparent bg-[#f0edea] text-[#1c1c1a] hover:bg-[#ebe8e4] active:bg-[#e5e2de] focus-visible:ring-[#6b1705] focus-visible:ring-offset-white',
     outline:
-      'border-slate-300 text-slate-800 bg-white hover:bg-slate-50 active:bg-slate-100 focus-visible:ring-blue-600 focus-visible:ring-offset-white shadow-xs',
+      'border-[#ddc0ba] text-[#1c1c1a] bg-white hover:bg-[#f6f3ef] active:bg-[#f0edea] focus-visible:ring-[#6b1705] focus-visible:ring-offset-white shadow-xs',
     ghost:
-      'border-transparent text-slate-700 hover:bg-slate-100 active:bg-slate-200 focus-visible:ring-slate-500 focus-visible:ring-offset-white',
+      'border-transparent text-[#57423d] hover:bg-[#f0edea] hover:text-[#1c1c1a] active:bg-[#e5e2de] focus-visible:ring-[#6b1705] focus-visible:ring-offset-white',
     danger:
-      'border-transparent bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-600 focus-visible:ring-offset-white shadow-xs',
+      'border-transparent bg-[#ba1a1a] text-white hover:bg-[#93000a] active:bg-[#680005] focus-visible:ring-[#ba1a1a] focus-visible:ring-offset-white shadow-xs',
   }[variant]
 
   const widthStyle = fullWidth ? 'w-full' : ''

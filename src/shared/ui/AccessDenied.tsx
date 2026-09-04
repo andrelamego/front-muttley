@@ -14,18 +14,18 @@ export const AccessDenied: React.FC<AccessDeniedProps> = ({
   returnUrl = '/user/inicio',
 }) => {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      <Card className="max-w-md w-full border-slate-200 shadow-md bg-white">
+    <div className="min-h-screen bg-[#fcf9f5] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <Card className="max-w-md w-full border-[#ddc0ba] shadow-sm bg-white">
         <CardContent className="p-6 sm:p-8 text-center flex flex-col items-center">
-          <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
+          <div className="w-12 h-12 rounded-full bg-[#ffdad2] text-[#822713] flex items-center justify-center mb-4">
             <AlertCircleIcon size={28} />
           </div>
 
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-xl font-bold text-[#1c1c1a] tracking-tight font-serif">
             Acesso Restrito
           </h1>
 
-          <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+          <p className="mt-2 text-sm text-[#57423d] leading-relaxed">
             Esta área é de uso exclusivo de administradores. Sua conta atual
             está autenticada como participante e não possui autorização para
             visualizar este conteúdo.

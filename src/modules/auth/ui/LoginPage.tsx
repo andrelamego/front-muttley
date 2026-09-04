@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../application/useAuth'
 import { LoginForm } from './LoginForm'
-import { Alert, Card, CardContent } from '../../../shared/ui'
+import { Alert, Card, CardContent, Logo } from '../../../shared/ui'
 import type { LoginCredentials } from '../domain/authTypes'
 import { resolveLoginDestination } from '../domain/loginDestinationPolicy'
 
@@ -69,23 +69,21 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#fcf9f5] flex flex-col justify-center items-center px-4 py-8 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
-        {/* Cabeçalho de Identificação */}
-        <div className="text-center mb-6">
+        {/* Cabeçalho de Identificação com Logo Único */}
+        <div className="text-center mb-6 flex flex-col items-center">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-2xl font-black text-blue-600 tracking-tight hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-lg px-2 py-1"
+            className="inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705] rounded p-1 mb-2"
+            aria-label="Voltar para página inicial"
           >
-            <span>Muttley</span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-              FATEC
-            </span>
+            <Logo className="h-9 w-auto" />
           </Link>
-          <h1 className="mt-3 text-xl font-bold text-slate-900 tracking-tight">
-            Gestão de Eventos Acadêmicos
+          <h1 className="font-serif text-2xl font-bold text-[#1c1c1a] tracking-tight">
+            Acesso à Plataforma
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-[#57423d]">
             Acesse suas inscrições, presença e certificados
           </p>
         </div>
@@ -111,7 +109,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Cartão principal do formulário */}
-        <Card className="shadow-md border-slate-200 bg-white">
+        <Card className="shadow-xs border-[#ddc0ba] bg-white">
           <CardContent className="p-6 sm:p-8">
             <LoginForm
               onSubmit={handleLoginSubmit}
@@ -120,12 +118,12 @@ export const LoginPage: React.FC = () => {
               onClearError={() => setErrorMessage(null)}
             />
 
-            <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col gap-3 text-center text-sm text-slate-600">
+            <div className="mt-6 pt-5 border-t border-[#f0edea] flex flex-col gap-3 text-center text-sm text-[#57423d]">
               <p>
                 Ainda não possui conta?{' '}
                 <Link
                   to="/register"
-                  className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded px-1"
+                  className="font-semibold text-[#6b1705] hover:text-[#8b2e19] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705] rounded px-1"
                 >
                   Cadastre-se gratuitamente
                 </Link>
@@ -134,9 +132,9 @@ export const LoginPage: React.FC = () => {
               <div>
                 <Link
                   to="/eventos"
-                  className="text-xs text-slate-500 hover:text-slate-800 underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded px-1"
+                  className="text-xs text-[#8a726c] hover:text-[#1c1c1a] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705] rounded px-1"
                 >
-                  Ver eventos acadêmicos sem fazer login →
+                  Ver eventos acadêmicos sem fazer login &rarr;
                 </Link>
               </div>
             </div>
@@ -144,8 +142,9 @@ export const LoginPage: React.FC = () => {
         </Card>
 
         {/* Rodapé informativo */}
-        <p className="mt-6 text-center text-xs text-slate-400">
-          Muttley &copy; 2026 — Plataforma de Eventos FATEC
+        <p className="mt-6 text-center text-xs text-[#8a726c]">
+          Muttley &copy; {new Date().getFullYear()} — Plataforma de Eventos
+          Acadêmicos
         </p>
       </div>
     </div>

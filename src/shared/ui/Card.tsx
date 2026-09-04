@@ -11,14 +11,14 @@ export const Card: React.FC<CardProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    default: 'bg-white border border-slate-200 shadow-sm',
-    subtle: 'bg-slate-50 border border-slate-200',
-    outline: 'bg-transparent border border-slate-200',
+    default: 'bg-white border border-[#ddc0ba] shadow-xs',
+    subtle: 'bg-[#f6f3ef] border border-[#ddc0ba]',
+    outline: 'bg-transparent border border-[#ddc0ba]',
   }[variant]
 
   return (
     <div
-      className={`rounded-xl overflow-hidden transition-all ${variantStyles} ${className}`}
+      className={`rounded-lg overflow-hidden transition-all ${variantStyles} ${className}`}
       {...props}
     >
       {children}
@@ -32,7 +32,7 @@ export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => (
   <div
-    className={`px-5 py-4 border-b border-slate-100 flex flex-col gap-1 ${className}`}
+    className={`px-5 py-4 border-b border-[#f0edea] flex flex-col gap-1 ${className}`}
     {...props}
   >
     {children}
@@ -45,7 +45,7 @@ export const CardTitle: React.FC<
   const Tag = as
   return (
     <Tag
-      className={`text-lg font-semibold text-slate-900 tracking-tight ${className}`}
+      className={`text-lg font-semibold text-[#1c1c1a] tracking-tight font-serif ${className}`}
       {...props}
     >
       {children}
@@ -56,7 +56,7 @@ export const CardTitle: React.FC<
 export const CardDescription: React.FC<
   React.HTMLAttributes<HTMLParagraphElement>
 > = ({ children, className = '', ...props }) => (
-  <p className={`text-sm text-slate-500 ${className}`} {...props}>
+  <p className={`text-sm text-[#57423d] ${className}`} {...props}>
     {children}
   </p>
 )
@@ -77,7 +77,7 @@ export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => (
   <div
-    className={`px-5 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between ${className}`}
+    className={`px-5 py-3.5 bg-[#f6f3ef] border-t border-[#f0edea] flex items-center justify-between ${className}`}
     {...props}
   >
     {children}

@@ -30,13 +30,13 @@ export const Input: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-sm font-medium text-slate-800 flex items-center justify-between"
+          className="text-sm font-medium text-[#1c1c1a] flex items-center justify-between font-sans"
         >
           <span>
             {label}
             {required && (
               <span
-                className="text-red-600 ml-1"
+                className="text-[#ba1a1a] ml-1"
                 aria-label="campo obrigatório"
               >
                 *
@@ -55,10 +55,10 @@ export const Input: React.FC<InputProps> = ({
           aria-describedby={
             hasError ? errorId : helperText ? helperId : undefined
           }
-          className={`w-full min-h-[44px] px-3.5 py-2.5 text-sm rounded-lg border bg-white text-slate-900 placeholder:text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed ${
+          className={`w-full min-h-[44px] px-3.5 py-2.5 text-sm rounded border bg-white text-[#1c1c1a] placeholder:text-[#8a726c] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-[#f6f3ef] disabled:text-[#8a726c] disabled:cursor-not-allowed ${
             hasError
-              ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-              : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600'
+              ? 'border-[#ba1a1a] focus:border-[#ba1a1a] focus:ring-[#ba1a1a]'
+              : 'border-[#ddc0ba] focus:border-[#6b1705] focus:ring-[#6b1705]'
           } ${rightElement ? 'pr-11' : ''} ${className}`}
           {...props}
         />
