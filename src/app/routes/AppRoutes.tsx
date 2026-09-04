@@ -11,6 +11,7 @@ import {
   PublicEventListPage,
   PublicEventDetailPage,
   ConfirmarPresencaPage,
+  PARTICIPANT_EVENTS_PATH,
 } from '../../modules/eventos'
 import {
   ParticipantDashboardPage,
@@ -26,6 +27,11 @@ import {
   AdminEventFormPage,
   AdminEventConcludePage,
 } from '../../modules/admin-eventos'
+import {
+  AdminCatalogsPage,
+  AdminCertificatesPage,
+  AdminPeoplePage,
+} from '../../modules/admin-cadastros'
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -58,6 +64,27 @@ export const AppRoutes: React.FC = () => {
         }
       >
         <Route path="inicio" element={<ParticipantDashboardPage />} />
+        <Route
+          path="eventos"
+          element={
+            <PublicEventListPage
+              eventRouteBase={PARTICIPANT_EVENTS_PATH}
+              participantView
+            />
+          }
+        />
+        <Route
+          path="eventos/:id"
+          element={
+            <PublicEventDetailPage eventRouteBase={PARTICIPANT_EVENTS_PATH} />
+          }
+        />
+        <Route
+          path="eventos/:id/confirmar-presenca"
+          element={
+            <ConfirmarPresencaPage eventRouteBase={PARTICIPANT_EVENTS_PATH} />
+          }
+        />
         <Route path="certificados" element={<UserCertificatesPage />} />
         <Route path="medalhas" element={<UserMedalsPage />} />
       </Route>
@@ -79,6 +106,9 @@ export const AppRoutes: React.FC = () => {
           path="eventos/:id/concluir"
           element={<AdminEventConcludePage />}
         />
+        <Route path="certificados" element={<AdminCertificatesPage />} />
+        <Route path="pessoas" element={<AdminPeoplePage />} />
+        <Route path="cadastros" element={<AdminCatalogsPage />} />
       </Route>
 
       {/* Fallback */}

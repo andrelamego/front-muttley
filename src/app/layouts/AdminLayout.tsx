@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../modules/auth'
+import { PageTransition } from '../../shared/motion'
 import {
   Button,
   DashboardIcon,
@@ -11,6 +12,10 @@ import {
   XIcon,
   LogOutIcon,
   Logo,
+  ThemeToggle,
+  AwardIcon,
+  UsersIcon,
+  BookOpenIcon,
 } from '../../shared/ui'
 
 export const AdminLayout: React.FC = () => {
@@ -73,6 +78,24 @@ export const AdminLayout: React.FC = () => {
       icon: <PlusIcon size={18} />,
       isActive: location.pathname === '/admin/eventos/novo',
     },
+    {
+      to: '/admin/certificados',
+      label: 'Certificados',
+      icon: <AwardIcon size={18} />,
+      isActive: location.pathname === '/admin/certificados',
+    },
+    {
+      to: '/admin/pessoas',
+      label: 'Pessoas',
+      icon: <UsersIcon size={18} />,
+      isActive: location.pathname === '/admin/pessoas',
+    },
+    {
+      to: '/admin/cadastros',
+      label: 'Cadastros',
+      icon: <BookOpenIcon size={18} />,
+      isActive: location.pathname === '/admin/cadastros',
+    },
   ]
 
   // Iniciais do usuário para avatar
@@ -84,46 +107,49 @@ export const AdminLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcf9f5] flex flex-col lg:flex-row text-[#1c1c1a] font-sans antialiased selection:bg-[#ffdad2] selection:text-[#3d0600]">
+    <div className="min-h-screen bg-[var(--color-bg-page)] flex flex-col lg:flex-row text-[var(--color-text-primary)] font-sans antialiased selection:bg-[var(--color-primary-subtle)] selection:text-[var(--color-primary-active)]">
       {/* Skip Link para acessibilidade de teclado */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#6b1705] focus:text-white focus:rounded focus:shadow-md focus:outline-none"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-primary)] focus:text-white focus:rounded-none focus:shadow-md focus:outline-none"
       >
         Pular para o conteúdo principal
       </a>
 
       {/* Barra de Topo no Mobile (< lg) */}
-      <header className="lg:hidden bg-[#f6f3ef] text-[#1c1c1a] px-4 h-16 flex items-center justify-between border-b border-[#ddc0ba] sticky top-0 z-30 shadow-xs">
+      <header className="lg:hidden bg-[var(--color-bg-subtle)] text-[var(--color-text-primary)] px-4 h-16 flex items-center justify-between border-b border-[var(--color-border)] sticky top-0 z-30 shadow-xs">
         <Link
           to="/admin/inicio"
-          className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705] rounded p-1"
+          className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none p-1"
           aria-label="Painel Administrativo Muttley"
         >
           <Logo className="h-7 w-auto" />
         </Link>
 
-        <button
-          ref={menuTriggerRef}
-          type="button"
-          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-          aria-expanded={isMobileMenuOpen}
-          aria-controls="admin-drawer"
-          aria-label={
-            isMobileMenuOpen
-              ? 'Fechar menu de navegação'
-              : 'Abrir menu de navegação'
-          }
-          className="p-2 rounded text-[#57423d] hover:text-[#1c1c1a] hover:bg-[#f0edea] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705]"
-        >
-          {isMobileMenuOpen ? <XIcon size={22} /> : <MenuIcon size={22} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            ref={menuTriggerRef}
+            type="button"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="admin-drawer"
+            aria-label={
+              isMobileMenuOpen
+                ? 'Fechar menu de navegação'
+                : 'Abrir menu de navegação'
+            }
+            className="p-2 rounded-none text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+          >
+            {isMobileMenuOpen ? <XIcon size={22} /> : <MenuIcon size={22} />}
+          </button>
+        </div>
       </header>
 
       {/* Drawer Móvel Backdrop */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-[#1c1c1a]/40 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-[var(--color-text-primary)]/40 backdrop-blur-xs lg:hidden"
           onClick={closeMobileMenu}
           aria-hidden="true"
         />
@@ -133,34 +159,37 @@ export const AdminLayout: React.FC = () => {
       <aside
         id="admin-drawer"
         ref={drawerRef}
-        className={`fixed inset-y-0 left-0 z-50 w-64 min-w-[256px] bg-[#f6f3ef] text-[#1c1c1a] flex flex-col border-r border-[#ddc0ba] transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 min-w-[256px] bg-[var(--color-bg-subtle)] text-[var(--color-text-primary)] flex flex-col border-r border-[var(--color-border)] transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Navegação administrativa"
       >
         {/* Cabeçalho da Sidebar com Logo Único */}
-        <div className="h-16 px-6 flex items-center justify-between border-b border-[#ddc0ba]/60 shrink-0">
+        <div className="h-16 px-6 flex items-center justify-between border-b border-[var(--color-border)]/60 shrink-0">
           <Link
             to="/admin/inicio"
             onClick={closeMobileMenu}
-            className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705] rounded"
+            className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none"
           >
             <Logo className="h-7 w-auto" />
           </Link>
 
-          <button
-            type="button"
-            onClick={closeMobileMenu}
-            aria-label="Fechar menu lateral"
-            className="lg:hidden p-1.5 rounded text-[#57423d] hover:text-[#1c1c1a] hover:bg-[#f0edea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705]"
-          >
-            <XIcon size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle className="hidden lg:inline-flex" />
+            <button
+              type="button"
+              onClick={closeMobileMenu}
+              aria-label="Fechar menu lateral"
+              className="lg:hidden p-1.5 rounded-none text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+            >
+              <XIcon size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Links Principais de Navegação */}
         <div className="flex-1 px-4 py-6 overflow-y-auto space-y-1.5">
-          <div className="px-3 pb-2 font-mono text-[11px] font-semibold text-[#8a726c] uppercase tracking-wider">
+          <div className="px-3 pb-2 font-mono text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
             Módulos Principais
           </div>
 
@@ -169,10 +198,10 @@ export const AdminLayout: React.FC = () => {
               key={item.to}
               to={item.to}
               onClick={closeMobileMenu}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705] ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-none text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] ${
                 item.isActive
-                  ? 'bg-[#6b1705] text-white shadow-xs font-semibold'
-                  : 'text-[#57423d] hover:bg-[#f0edea] hover:text-[#1c1c1a]'
+                  ? 'bg-[var(--color-primary)] text-white shadow-xs font-semibold'
+                  : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text-primary)]'
               }`}
             >
               <span className="shrink-0">{item.icon}</span>
@@ -181,36 +210,39 @@ export const AdminLayout: React.FC = () => {
           ))}
 
           <div className="pt-4 pb-2 px-3">
-            <hr className="border-[#ddc0ba]/60" />
+            <hr className="border-[var(--color-border)]/60" />
           </div>
 
-          <div className="px-3 pb-2 font-mono text-[11px] font-semibold text-[#8a726c] uppercase tracking-wider">
+          <div className="px-3 pb-2 font-mono text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
             Visão Externa
           </div>
 
           <Link
             to="/eventos"
             onClick={closeMobileMenu}
-            className="flex items-center justify-between px-3 py-2.5 rounded text-sm text-[#57423d] hover:bg-[#f0edea] hover:text-[#1c1c1a] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705]"
+            className="flex items-center justify-between px-3 py-2.5 rounded-none text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text-primary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
           >
             <span className="flex items-center gap-3">
-              <ExternalLinkIcon size={18} className="shrink-0 text-[#8a726c]" />
+              <ExternalLinkIcon
+                size={18}
+                className="shrink-0 text-[var(--color-text-muted)]"
+              />
               <span>Ver página pública</span>
             </span>
           </Link>
         </div>
 
         {/* Rodapé da Sidebar: Usuário e Sair */}
-        <div className="p-4 border-t border-[#ddc0ba] bg-[#f0edea]/50 shrink-0">
+        <div className="p-4 border-t border-[var(--color-border)] bg-[var(--color-bg-muted)]/50 shrink-0">
           <div className="flex items-center gap-3 mb-3 px-1">
-            <div className="w-9 h-9 rounded-full bg-[#ffdad2] text-[#6b1705] font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-[#ddc0ba]">
+            <div className="w-9 h-9 rounded-full bg-[var(--color-primary-subtle)] text-[var(--color-primary-text)] font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-[var(--color-border)]">
               {getInitials(user?.nome)}
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-xs font-semibold text-[#1c1c1a] block truncate">
+              <span className="text-xs font-semibold text-[var(--color-text-primary)] block truncate">
                 {user?.nome || 'Prof. Dr. Administrador'}
               </span>
-              <span className="text-[11px] text-[#57423d] block truncate">
+              <span className="text-[11px] text-[var(--color-text-secondary)] block truncate">
                 Comissão Organizadora
               </span>
             </div>
@@ -221,7 +253,7 @@ export const AdminLayout: React.FC = () => {
             size="sm"
             onClick={handleLogout}
             fullWidth
-            className="border-[#ddc0ba] bg-white text-[#57423d] hover:text-[#6b1705] hover:bg-[#f6f3ef] justify-center gap-2 text-xs"
+            className="border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary-text)] hover:bg-[var(--color-bg-subtle)] justify-center gap-2 text-xs"
             leftIcon={<LogOutIcon size={14} />}
           >
             Sair
@@ -230,16 +262,18 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Conteúdo Principal com Container Desktop-First */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
         <main
           id="main-content"
           tabIndex={-1}
           className="flex-1 focus:outline-none"
         >
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </main>
 
-        <footer className="border-t border-[#ddc0ba]/60 bg-[#f6f3ef] py-4 px-6 text-center text-xs text-[#8a726c]">
+        <footer className="border-t border-[var(--color-border)]/60 bg-[var(--color-bg-subtle)] py-4 px-6 text-center text-xs text-[var(--color-text-muted)]">
           Área de Gestão Muttley &copy; {new Date().getFullYear()} — Plataforma
           de Eventos Acadêmicos
         </footer>
