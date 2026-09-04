@@ -16,6 +16,10 @@ export const setUnauthorizedHandler = (handler: () => void) => {
   unauthorizedHandler = handler
 }
 
+export const clearAuthToken = () => {
+  authTokenGetter = () => null
+}
+
 export const apiClient: AxiosInstance = axios.create({
   baseURL: env.apiBaseUrl,
   headers: {
@@ -33,6 +37,10 @@ apiClient.interceptors.request.use(
     const isAuthRoute =
       url.includes('/auth/login') || url.includes('/auth/register')
 
+    // Vincula o token utilizado nesta requisição específica
+    ;(config as unknown as Record<string, unknown>).__muttleyRequestToken =
+      token
+
     if (token && !isAuthRoute) {
       config.headers.set('Authorization', `Bearer ${token}`)
     } else if (isAuthRoute) {
@@ -49,13 +57,27 @@ apiClient.interceptors.response.use(
     const status = error.response?.status
 
     if (status === 401) {
-      if (unauthorizedHandler) {
-        unauthorizedHandler()
-      } else {
-        localStorage.removeItem('token')
-        localStorage.removeItem('role')
-        localStorage.removeItem('usuario')
-        window.dispatchEvent(new CustomEvent('muttley:unauthorized'))
+      const activeToken = authTokenGetter
+        ? authTokenGetter()
+        : localStorage.getItem('token')
+      const requestToken = (
+        error.config as unknown as Record<string, unknown> | undefined
+      )?.__muttleyRequestToken
+
+      // Se a resposta 401 pertencer a uma requisição antiga cujo token já foi substituído
+      // ou se o usuário já realizou logout voluntário, descarta o efeito colateral sobre a nova sessão.
+      const isStaleSession =
+        !activeToken || (requestToken && requestToken !== activeToken)
+
+      if (!isStaleSession) {
+        if (unauthorizedHandler) {
+          unauthorizedHandler()
+        } else {
+          localStorage.removeItem('token')
+          localStorage.removeItem('role')
+          localStorage.removeItem('usuario')
+          window.dispatchEvent(new CustomEvent('muttley:unauthorized'))
+        }
       }
     }
 

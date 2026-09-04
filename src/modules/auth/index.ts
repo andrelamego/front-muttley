@@ -1,5 +1,6 @@
 export * from './domain/authTypes'
 export * from './domain/tokenUtils'
+export * from './domain/loginDestinationPolicy'
 export * from './api/authApi'
 export * from './application/AuthContext'
 export * from './application/useAuth'

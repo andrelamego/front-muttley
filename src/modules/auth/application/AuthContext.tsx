@@ -9,6 +9,7 @@ import { loginApi, getMeApi } from '../api/authApi'
 import {
   setAuthTokenGetter,
   setUnauthorizedHandler,
+  clearAuthToken,
 } from '../../../shared/http'
 
 export interface AuthContextValue {
@@ -57,6 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [session.token])
 
   const logout = useCallback(() => {
+    clearAuthToken()
     localStorage.removeItem('token')
     localStorage.removeItem('role')
     localStorage.removeItem('usuario')
@@ -86,18 +88,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [handleUnauthorized])
 
-  // Validação opcional de fundo do usuário logado contra o backend
+  // Validação em segundo plano do usuário logado contra o backend
   useEffect(() => {
-    if (session.token && !session.user?.cpf) {
+    let isCurrent = true
+    const currentToken = session.token
+
+    if (currentToken && !session.user?.cpf) {
       getMeApi()
         .then((freshUser) => {
+          if (!isCurrent) return
           setSession((prev) => ({ ...prev, user: freshUser }))
           localStorage.setItem('usuario', JSON.stringify(freshUser))
           localStorage.setItem('role', freshUser.role)
         })
         .catch(() => {
-          // Se der 401, o interceptor já aciona handleUnauthorized
+          // Se der 401 com o token ativo, o interceptor do apiClient trata
         })
+    }
+
+    return () => {
+      isCurrent = false
     }
   }, [session.token, session.user?.cpf])
 
@@ -107,6 +117,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setSessionExpiredMessage(null)
       try {
         const authSession = await loginApi(credentials)
+        // Sincroniza o token no cliente HTTP imediatamente antes de resolver
+        setAuthTokenGetter(() => authSession.token)
         localStorage.setItem('token', authSession.token)
         localStorage.setItem('role', authSession.user.role)
         localStorage.setItem('usuario', JSON.stringify(authSession.user))

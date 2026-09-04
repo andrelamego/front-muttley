@@ -4,6 +4,7 @@ import { useAuth } from '../application/useAuth'
 import { LoginForm } from './LoginForm'
 import { Alert, Card, CardContent } from '../../../shared/ui'
 import type { LoginCredentials } from '../domain/authTypes'
+import { resolveLoginDestination } from '../domain/loginDestinationPolicy'
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate()
@@ -11,6 +12,8 @@ export const LoginPage: React.FC = () => {
   const {
     login,
     isLoading,
+    isAuthenticated,
+    role,
     sessionExpiredMessage,
     clearSessionExpiredMessage,
   } = useAuth()
@@ -19,20 +22,41 @@ export const LoginPage: React.FC = () => {
 
   // Mensagem opcional de acesso negado vinda do redirecionamento
   const locationState = location.state as
-    | { accessDenied?: boolean; from?: { pathname: string } }
+    | {
+        accessDenied?: boolean
+        from?: { pathname: string; search?: string; hash?: string } | string
+      }
     | undefined
   const accessDenied = locationState?.accessDenied
-  const returnTo = locationState?.from?.pathname
+
+  // Determina o caminho pretendido preservando search e hash se houver
+  const searchParams = new URLSearchParams(location.search)
+  const queryReturnTo = searchParams.get('returnTo')
+
+  let rawTarget: string | undefined
+  if (typeof locationState?.from === 'string') {
+    rawTarget = locationState.from
+  } else if (locationState?.from?.pathname) {
+    rawTarget = `${locationState.from.pathname}${locationState.from.search || ''}${locationState.from.hash || ''}`
+  } else if (queryReturnTo) {
+    rawTarget = queryReturnTo
+  }
+
+  // Se o usuário já estiver autenticado ao acessar a página de login, redireciona ao seu destino
+  React.useEffect(() => {
+    if (isAuthenticated && role) {
+      const destination = resolveLoginDestination(rawTarget, role)
+      navigate(destination, { replace: true })
+    }
+  }, [isAuthenticated, role, rawTarget, navigate])
 
   const handleLoginSubmit = async (credentials: LoginCredentials) => {
     setErrorMessage(null)
     clearSessionExpiredMessage()
     try {
       const session = await login(credentials)
-      const destination =
-        returnTo ||
-        (session.user.role === 'ADMIN' ? '/admin/inicio' : '/user/inicio')
-      navigate(destination, { replace: true })
+      const destination = resolveLoginDestination(rawTarget, session.user.role)
+      navigate(destination, { replace: true, state: {} })
     } catch (err: unknown) {
       if (err instanceof Error) {
         setErrorMessage(err.message)
