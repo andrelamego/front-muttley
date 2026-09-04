@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback, useId } from 'react'
+import React, { useState, useEffect, useCallback, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import {
   getAdminEventosApi,
   cancelarAdminEventoApi,
   getEventQrCodeInscricaoBlobApi,
   getEventQrCodeConfirmacaoBlobApi,
+  parseBlobErrorMessage,
 } from '../api/adminEventosApi'
 import type { AdminEvento, StatusEvento } from '../domain/adminEventoTypes'
 import {
@@ -78,12 +79,27 @@ export const AdminEventListPage: React.FC = () => {
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const searchInputId = useId()
 
-  // Estado do Modal de QR Code
+  interface QrItemState {
+    status: 'idle' | 'loading' | 'success' | 'error'
+    url: string | null
+    error: string | null
+  }
+
+  // Estado do Modal de QR Code desacoplado
   const [qrModalEvent, setQrModalEvent] = useState<AdminEvento | null>(null)
-  const [qrInscricaoUrl, setQrInscricaoUrl] = useState<string | null>(null)
-  const [qrConfirmacaoUrl, setQrConfirmacaoUrl] = useState<string | null>(null)
-  const [isQrLoading, setIsQrLoading] = useState<boolean>(false)
-  const [qrError, setQrError] = useState<string | null>(null)
+  const [qrInscricao, setQrInscricao] = useState<QrItemState>({
+    status: 'idle',
+    url: null,
+    error: null,
+  })
+  const [qrConfirmacao, setQrConfirmacao] = useState<QrItemState>({
+    status: 'idle',
+    url: null,
+    error: null,
+  })
+
+  const activeEventIdRef = useRef<number | null>(null)
+  const modalTriggerRef = useRef<HTMLElement | null>(null)
 
   const loadEvents = useCallback(async () => {
     setIsLoading(true)
@@ -126,36 +142,107 @@ export const AdminEventListPage: React.FC = () => {
     }
   }, [])
 
-  // Limpeza de Blobs ao fechar modal
-  const handleCloseQrModal = () => {
-    if (qrInscricaoUrl) URL.revokeObjectURL(qrInscricaoUrl)
-    if (qrConfirmacaoUrl) URL.revokeObjectURL(qrConfirmacaoUrl)
-    setQrInscricaoUrl(null)
-    setQrConfirmacaoUrl(null)
-    setQrModalEvent(null)
-    setQrError(null)
-  }
-
-  const handleOpenQrModal = async (evt: AdminEvento) => {
-    handleCloseQrModal()
-    setQrModalEvent(evt)
-    setIsQrLoading(true)
-    setQrError(null)
-
+  // Carregamento independente de QR Code de Inscrição
+  const carregarInscricao = useCallback(async (eventId: number) => {
+    setQrInscricao((prev) => {
+      if (prev.url) URL.revokeObjectURL(prev.url)
+      return { status: 'loading', url: null, error: null }
+    })
     try {
-      const [inscricaoBlob, confirmacaoBlob] = await Promise.all([
-        getEventQrCodeInscricaoBlobApi(evt.id),
-        getEventQrCodeConfirmacaoBlobApi(evt.id),
-      ])
-
-      setQrInscricaoUrl(URL.createObjectURL(inscricaoBlob))
-      setQrConfirmacaoUrl(URL.createObjectURL(confirmacaoBlob))
-    } catch {
-      setQrError('Não foi possível carregar os QR Codes do evento.')
-    } finally {
-      setIsQrLoading(false)
+      const blob = await getEventQrCodeInscricaoBlobApi(eventId)
+      if (activeEventIdRef.current !== eventId) return
+      const url = URL.createObjectURL(blob)
+      setQrInscricao({ status: 'success', url, error: null })
+    } catch (err: unknown) {
+      if (activeEventIdRef.current !== eventId) return
+      const message = await parseBlobErrorMessage(
+        err,
+        'Não foi possível gerar o QR Code de inscrição.'
+      )
+      setQrInscricao({ status: 'error', url: null, error: message })
     }
+  }, [])
+
+  // Carregamento independente de QR Code de Presença
+  const carregarConfirmacao = useCallback(async (eventId: number) => {
+    setQrConfirmacao((prev) => {
+      if (prev.url) URL.revokeObjectURL(prev.url)
+      return { status: 'loading', url: null, error: null }
+    })
+    try {
+      const blob = await getEventQrCodeConfirmacaoBlobApi(eventId)
+      if (activeEventIdRef.current !== eventId) return
+      const url = URL.createObjectURL(blob)
+      setQrConfirmacao({ status: 'success', url, error: null })
+    } catch (err: unknown) {
+      if (activeEventIdRef.current !== eventId) return
+      const message = await parseBlobErrorMessage(
+        err,
+        'Não foi possível gerar o QR Code de confirmação de presença.'
+      )
+      setQrConfirmacao({ status: 'error', url: null, error: message })
+    }
+  }, [])
+
+  // Fechamento do Modal com devolução de foco ao elemento disparador e liberação de Blobs
+  const handleCloseQrModal = useCallback(() => {
+    activeEventIdRef.current = null
+    setQrModalEvent(null)
+    setQrInscricao((prev) => {
+      if (prev.url) URL.revokeObjectURL(prev.url)
+      return { status: 'idle', url: null, error: null }
+    })
+    setQrConfirmacao((prev) => {
+      if (prev.url) URL.revokeObjectURL(prev.url)
+      return { status: 'idle', url: null, error: null }
+    })
+    if (modalTriggerRef.current) {
+      modalTriggerRef.current.focus()
+      modalTriggerRef.current = null
+    }
+  }, [])
+
+  // Abertura do Modal guardando disparador e disparando ambas as chamadas independentes
+  const handleOpenQrModal = (
+    evt: AdminEvento,
+    triggerElement?: HTMLElement
+  ) => {
+    if (triggerElement) {
+      modalTriggerRef.current = triggerElement
+    }
+    // Libera Blobs anteriores se houver
+    if (qrInscricao.url) URL.revokeObjectURL(qrInscricao.url)
+    if (qrConfirmacao.url) URL.revokeObjectURL(qrConfirmacao.url)
+
+    activeEventIdRef.current = evt.id
+    setQrModalEvent(evt)
+
+    // Dispara carregamentos independentes
+    carregarInscricao(evt.id)
+    carregarConfirmacao(evt.id)
   }
+
+  // Fecha modal com Escape
+  useEffect(() => {
+    if (!qrModalEvent) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleCloseQrModal()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [qrModalEvent, handleCloseQrModal])
+
+  // Liberação de Blobs na desmontagem do componente
+  useEffect(() => {
+    return () => {
+      if (qrInscricao.url) URL.revokeObjectURL(qrInscricao.url)
+      if (qrConfirmacao.url) URL.revokeObjectURL(qrConfirmacao.url)
+    }
+  }, [qrInscricao.url, qrConfirmacao.url])
 
   const handleCancelEvent = async (evt: AdminEvento) => {
     const confirmMessage = `Tem certeza que deseja cancelar o evento "${evt.tema}"?\nEsta ação mudará o status para CANCELADO.`
@@ -465,9 +552,11 @@ export const AdminEventListPage: React.FC = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleOpenQrModal(evt)}
+                                onClick={(e) =>
+                                  handleOpenQrModal(evt, e.currentTarget)
+                                }
                                 title="Visualizar QR Codes do evento"
-                                aria-label="Visualizar QR Codes"
+                                aria-label={`Visualizar QR Codes do evento ${evt.tema}`}
                                 className="text-slate-600 hover:text-slate-900"
                               >
                                 <QrCodeIcon size={16} />
@@ -532,25 +621,28 @@ export const AdminEventListPage: React.FC = () => {
         </>
       )}
 
-      {/* Modal de QR Codes */}
+      {/* Modal de QR Codes com Estados e Tentativas Independentes */}
       {qrModalEvent && (
         <div
-          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-qrcode-titulo"
         >
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 my-8">
+            <div className="flex items-start justify-between pb-4 border-b border-slate-100 gap-4">
               <div>
+                <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+                  Códigos de Acesso Rápido
+                </span>
                 <h3
                   id="modal-qrcode-titulo"
-                  className="text-lg font-bold text-slate-900"
+                  className="text-xl font-black text-slate-900 tracking-tight"
                 >
                   QR Codes do Evento
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
-                  {qrModalEvent.tema}
+                <p className="text-xs text-slate-500 mt-1 line-clamp-1">
+                  {qrModalEvent.tema} &bull; {formatDate(qrModalEvent.data)}
                 </p>
               </div>
 
@@ -558,101 +650,182 @@ export const AdminEventListPage: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleCloseQrModal}
-                aria-label="Fechar modal"
-                className="text-slate-500 hover:text-slate-800"
+                aria-label="Fechar modal de QR Codes"
+                className="text-slate-400 hover:text-slate-800"
               >
-                <XIcon size={18} />
+                <XIcon size={20} />
               </Button>
             </div>
 
             <div className="py-6">
-              {isQrLoading && (
-                <div className="flex flex-col items-center justify-center py-10 gap-3 text-slate-500">
-                  <Spinner size="lg" className="text-blue-600" />
-                  <p className="text-sm font-medium">
-                    Gerando QR Codes na API...
-                  </p>
-                </div>
-              )}
-
-              {qrError && (
-                <Alert variant="error" title="Erro">
-                  {qrError}
-                </Alert>
-              )}
-
-              {!isQrLoading && !qrError && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* QR Code de Inscrição */}
-                  <div className="flex flex-col items-center p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* 1. Painel de Inscrição Pública */}
+                <div className="flex flex-col items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200 min-h-[340px]">
+                  <div className="w-full text-center mb-3">
+                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
                       Inscrição Pública
                     </span>
-                    {qrInscricaoUrl ? (
-                      <img
-                        src={qrInscricaoUrl}
-                        alt="QR Code para Inscrição no Evento"
-                        className="w-36 h-36 bg-white p-1 rounded-lg border border-slate-200"
-                      />
-                    ) : (
-                      <div className="w-36 h-36 flex items-center justify-center text-xs text-slate-400">
-                        Indisponível
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Direciona para a página de inscrição do evento
+                    </p>
+                  </div>
+
+                  <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
+                    {qrInscricao.status === 'loading' && (
+                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-slate-500">
+                        <Spinner size="md" className="text-blue-600" />
+                        <span className="text-xs font-medium">
+                          Gerando código...
+                        </span>
                       </div>
                     )}
-                    {qrInscricaoUrl && (
-                      <a
-                        href={qrInscricaoUrl}
-                        download={`QRCode_Inscricao_${qrModalEvent.id}.png`}
-                        className="mt-3"
-                      >
-                        <Button variant="outline" size="sm" className="gap-1.5">
-                          <DownloadIcon size={14} />
-                          Baixar PNG
+
+                    {qrInscricao.status === 'error' && (
+                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-red-50/80 rounded-lg border border-red-200 text-center w-full">
+                        <p className="text-xs text-red-700 leading-snug">
+                          {qrInscricao.error || 'Falha ao carregar QR Code.'}
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => carregarInscricao(qrModalEvent.id)}
+                          className="text-xs text-red-700 border-red-300 hover:bg-red-100"
+                        >
+                          Tentar novamente
                         </Button>
-                      </a>
+                      </div>
+                    )}
+
+                    {qrInscricao.status === 'success' && qrInscricao.url && (
+                      <div className="flex flex-col items-center">
+                        <img
+                          src={qrInscricao.url}
+                          alt={`QR Code para inscrição no evento ${qrModalEvent.tema}`}
+                          className="w-40 h-40 bg-white p-2 rounded-xl border border-slate-200 shadow-xs object-contain"
+                        />
+                      </div>
                     )}
                   </div>
 
-                  {/* QR Code de Presença */}
-                  <div className="flex flex-col items-center p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                      Confirmar Presença
-                    </span>
-                    {qrConfirmacaoUrl ? (
-                      <img
-                        src={qrConfirmacaoUrl}
-                        alt="QR Code para Confirmação de Presença"
-                        className="w-36 h-36 bg-white p-1 rounded-lg border border-slate-200"
-                      />
-                    ) : (
-                      <div className="w-36 h-36 flex items-center justify-center text-xs text-slate-400">
-                        Indisponível
-                      </div>
-                    )}
-                    {qrConfirmacaoUrl && (
+                  <div className="w-full pt-3 mt-auto border-t border-slate-200/60 flex justify-center">
+                    {qrInscricao.status === 'success' && qrInscricao.url ? (
                       <a
-                        href={qrConfirmacaoUrl}
-                        download={`QRCode_Presenca_${qrModalEvent.id}.png`}
-                        className="mt-3"
+                        href={qrInscricao.url}
+                        download={`qrcode-inscricao-evento-${qrModalEvent.id}.png`}
+                        className="w-full"
                       >
-                        <Button variant="outline" size="sm" className="gap-1.5">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          fullWidth
+                          className="gap-1.5 text-xs"
+                        >
                           <DownloadIcon size={14} />
                           Baixar PNG
                         </Button>
                       </a>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 py-1.5">
+                        {qrInscricao.status === 'loading'
+                          ? 'Aguardando processamento...'
+                          : 'Download indisponível'}
+                      </span>
                     )}
                   </div>
                 </div>
-              )}
+
+                {/* 2. Painel de Confirmação de Presença */}
+                <div className="flex flex-col items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200 min-h-[340px]">
+                  <div className="w-full text-center mb-3">
+                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                      Confirmar Presença
+                    </span>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Check-in por leitura de câmera no local
+                    </p>
+                  </div>
+
+                  <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
+                    {qrConfirmacao.status === 'loading' && (
+                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-slate-500">
+                        <Spinner size="md" className="text-blue-600" />
+                        <span className="text-xs font-medium">
+                          Gerando código...
+                        </span>
+                      </div>
+                    )}
+
+                    {qrConfirmacao.status === 'error' && (
+                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-red-50/80 rounded-lg border border-red-200 text-center w-full">
+                        <p className="text-xs text-red-700 leading-snug">
+                          {qrConfirmacao.error || 'Falha ao carregar QR Code.'}
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => carregarConfirmacao(qrModalEvent.id)}
+                          className="text-xs text-red-700 border-red-300 hover:bg-red-100"
+                        >
+                          Tentar novamente
+                        </Button>
+                      </div>
+                    )}
+
+                    {qrConfirmacao.status === 'success' &&
+                      qrConfirmacao.url && (
+                        <div className="flex flex-col items-center">
+                          <img
+                            src={qrConfirmacao.url}
+                            alt={`QR Code para confirmação de presença no evento ${qrModalEvent.tema}`}
+                            className="w-40 h-40 bg-white p-2 rounded-xl border border-slate-200 shadow-xs object-contain"
+                          />
+                        </div>
+                      )}
+                  </div>
+
+                  <div className="w-full pt-3 mt-auto border-t border-slate-200/60 flex justify-center">
+                    {qrConfirmacao.status === 'success' && qrConfirmacao.url ? (
+                      <a
+                        href={qrConfirmacao.url}
+                        download={`qrcode-presenca-evento-${qrModalEvent.id}.png`}
+                        className="w-full"
+                      >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          fullWidth
+                          className="gap-1.5 text-xs"
+                        >
+                          <DownloadIcon size={14} />
+                          Baixar PNG
+                        </Button>
+                      </a>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 py-1.5">
+                        {qrConfirmacao.status === 'loading'
+                          ? 'Aguardando processamento...'
+                          : 'Download indisponível'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex justify-end">
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span className="text-xs text-slate-400">
+                Pressione{' '}
+                <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-mono text-slate-600">
+                  Esc
+                </kbd>{' '}
+                para fechar a qualquer momento
+              </span>
               <Button
                 variant="secondary"
                 size="md"
                 onClick={handleCloseQrModal}
               >
-                Fechar
+                Fechar Janela
               </Button>
             </div>
           </div>

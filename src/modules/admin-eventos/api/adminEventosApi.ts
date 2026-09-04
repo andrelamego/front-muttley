@@ -164,3 +164,5 @@ export async function getAuxiliaresEventoApi(): Promise<{
 
   return { locais, disciplinas, patrocinadores }
 }
+
+export { parseBlobErrorMessage } from '../domain/qrCodeErrorUtils'
