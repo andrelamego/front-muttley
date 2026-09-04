@@ -124,8 +124,26 @@ Seguir [SKILLS_FRONTEND.md](SKILLS_FRONTEND.md). Não carregar todas as skills n
   - Meus Certificados (`/user/certificados`): listagem responsiva, busca por texto, cópia rápida de código com feedback visual, download direto de PDF e adição direta ao LinkedIn.
   - Minhas Medalhas (`/user/medalhas`): gamificação com abas de filtro por nível (Todas, Ouro, Prata, Bronze), badges temáticos e ação de copiar texto de conquista.
   - Navegação do Participante (`ParticipantLayout`): abas de navegação responsivas ("Meu Painel", "Meus Certificados", "Minhas Medalhas", "Explorar Eventos") com indicação ativa de rota.
-  - Painel do Participante (`/user/inicio`): cartões de resumo ("Certificados" e "Medalhas") integrados como links diretos com hover e foco visível.
 - **Próxima entrega:** Etapa 6 — Migração modular da gestão e conclusão de eventos pelo administrador (`src/modules/admin-eventos/` e conclusão com lote de assinaturas).
+
+### Entrega 3 (04/09/2026) — Módulo Administrativo de Gestão e Conclusão de Eventos (Etapa 6)
+
+- **Objetivo:** Construir o módulo administrativo de gestão e ciclo de vida de eventos acadêmicos (`/admin/eventos`, `/admin/eventos/novo`, `/admin/eventos/:id/editar`, `/admin/eventos/:id/concluir`), desktop-first, com geração e download de QR Codes, conferência de presença em lote, upload de assinatura digital e emissão em massa de certificados.
+- **Módulos afetados:** `src/modules/admin-eventos/` (`domain/`, `api/`, `ui/`, `index.ts`), `src/shared/ui/icons.tsx` (novos ícones `PlusIcon`, `EditIcon`, `TrashIcon`, `QrCodeIcon`, `UploadIcon`, `FilterIcon`, `UsersIcon`, `XIcon`), `src/app/routes/AppRoutes.tsx`, `docs/PLANO_FRONTEND.md` e `tests/adminEventos.test.mjs`.
+- **Skills aplicadas:**
+  - `architecture`: criação do módulo `admin-eventos` isolado, sem acoplamento com o legado, respeitando fronteiras estritas de DTO e regras de apresentação pura em `domain/`.
+  - `api-patterns`: consumo dos endpoints `GET /admin/eventos`, `POST/PUT /admin/eventos`, `DELETE /admin/eventos/:id`, `GET /admin/eventos/:id/qrcode-*` (Blobs binários) e `POST /admin/eventos/:id/concluir` com envio multipart/form-data de imagem de assinatura e lista de presenças.
+  - `accessibility-compliance-accessibility-audit`: interface desktop-first rica, navegação acessível por teclado, modais com foco e ARIA dialog (`role="dialog"` e `aria-modal="true"`), checkboxes com labels individuais e master, zero emojis em toda a experiência.
+- **Comandos e resultados comprovados:**
+  - `npm test`: 31 testes passando (20 autenticação + 4 erros HTTP + 2 certificados + 5 novos testes de validação temporal e controle de presentes em `tests/adminEventos.test.mjs`).
+  - `npm run build`: build de produção executado em ~540ms com 0 erros.
+  - `npx eslint src/app src/modules src/shared src/utils src/App.tsx src/main.tsx`: 0 erros e 0 avisos.
+- **Telas e jornadas verificadas:**
+  - Lista Administrativa (`/admin/eventos`): tabela desktop rica com status (`Badge`), busca por texto, filtro por abas (Todos, Em Andamento, Programados, Finalizados, Cancelados), modal com visualização e download dos QR Codes (inscrição e presença) e cancelamento seguro.
+  - Formulário de Evento (`/admin/eventos/novo` e `/admin/eventos/:id/editar`): cadastro com validações de data/horário, seleção de modalidade (Presencial, Online, Híbrido), local, disciplina e patrocinador.
+  - Conclusão e Emissão de Certificados (`/admin/eventos/:id/concluir`): conferência de presenças com busca e filtros, upload de imagem de assinatura digital do coordenador com preview imediato e disparo de emissão em lote.
+- **Próxima entrega:** Etapa 7 — Limpeza final da fundação legada, verificação integrada das jornadas e homologação para substituição completa.
+
 
 
 ## Critério para substituir a versão anterior
