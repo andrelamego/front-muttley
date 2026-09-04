@@ -25,26 +25,28 @@ export const Button: React.FC<ButtonProps> = ({
   type = 'button',
   ...props
 }) => {
+  // Borda reservada em todas as variantes (border) garante geometria identica e sem saltos de layout
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-lg transition-colors cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none'
+    'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none box-border border text-center'
 
+  // Alturas padronizadas: no mobile, alvos de toque respeitam o minimo recomendado (44px)
   const sizeStyles = {
-    sm: 'min-h-[36px] px-3 py-1.5 text-xs gap-1.5',
-    md: 'min-h-[44px] px-4 py-2.5 text-sm gap-2', // mínimo 44px de altura para toque em celular
-    lg: 'min-h-[48px] px-6 py-3 text-base gap-2.5',
+    sm: 'min-h-[40px] sm:min-h-[36px] h-10 sm:h-9 px-3 text-xs gap-1.5 leading-none',
+    md: 'min-h-[44px] h-11 px-4 text-sm gap-2 leading-none',
+    lg: 'min-h-[48px] h-12 px-6 text-base gap-2.5 leading-none font-semibold',
   }[size]
 
   const variantStyles = {
     primary:
-      'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus-visible:ring-blue-600 focus-visible:ring-offset-white',
+      'border-transparent bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 focus-visible:ring-blue-600 focus-visible:ring-offset-white shadow-xs',
     secondary:
-      'bg-slate-100 text-slate-900 hover:bg-slate-200 active:bg-slate-300 focus-visible:ring-slate-500 focus-visible:ring-offset-white',
+      'border-transparent bg-slate-100 text-slate-900 hover:bg-slate-200 active:bg-slate-300 focus-visible:ring-slate-500 focus-visible:ring-offset-white',
     outline:
-      'border border-slate-300 text-slate-800 bg-white hover:bg-slate-50 active:bg-slate-100 focus-visible:ring-blue-600 focus-visible:ring-offset-white',
+      'border-slate-300 text-slate-800 bg-white hover:bg-slate-50 active:bg-slate-100 focus-visible:ring-blue-600 focus-visible:ring-offset-white shadow-xs',
     ghost:
-      'text-slate-700 hover:bg-slate-100 active:bg-slate-200 focus-visible:ring-slate-500 focus-visible:ring-offset-white',
+      'border-transparent text-slate-700 hover:bg-slate-100 active:bg-slate-200 focus-visible:ring-slate-500 focus-visible:ring-offset-white',
     danger:
-      'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-600 focus-visible:ring-offset-white',
+      'border-transparent bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus-visible:ring-red-600 focus-visible:ring-offset-white shadow-xs',
   }[variant]
 
   const widthStyle = fullWidth ? 'w-full' : ''
@@ -58,16 +60,30 @@ export const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {isLoading ? (
-        <>
-          <Spinner size="sm" className="text-current" />
+        <span className="inline-flex items-center justify-center gap-2">
+          <Spinner size="sm" className="text-current shrink-0" />
           <span>{loadingText || children}</span>
-        </>
+        </span>
       ) : (
-        <>
-          {leftIcon && <span aria-hidden="true">{leftIcon}</span>}
+        <span className="inline-flex items-center justify-center gap-2">
+          {leftIcon && (
+            <span
+              aria-hidden="true"
+              className="shrink-0 inline-flex items-center"
+            >
+              {leftIcon}
+            </span>
+          )}
           <span>{children}</span>
-          {rightIcon && <span aria-hidden="true">{rightIcon}</span>}
-        </>
+          {rightIcon && (
+            <span
+              aria-hidden="true"
+              className="shrink-0 inline-flex items-center"
+            >
+              {rightIcon}
+            </span>
+          )}
+        </span>
       )}
     </button>
   )
