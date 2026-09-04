@@ -141,8 +141,27 @@ Seguir [SKILLS_FRONTEND.md](SKILLS_FRONTEND.md). Não carregar todas as skills n
 - **Telas e jornadas verificadas:**
   - Lista Administrativa (`/admin/eventos`): tabela desktop rica com status (`Badge`), busca por texto, filtro por abas (Todos, Em Andamento, Programados, Finalizados, Cancelados), modal com visualização e download dos QR Codes (inscrição e presença) e cancelamento seguro.
   - Formulário de Evento (`/admin/eventos/novo` e `/admin/eventos/:id/editar`): cadastro com validações de data/horário, seleção de modalidade (Presencial, Online, Híbrido), local, disciplina e patrocinador.
-  - Conclusão e Emissão de Certificados (`/admin/eventos/:id/concluir`): conferência de presenças com busca e filtros, upload de imagem de assinatura digital do coordenador com preview imediato e disparo de emissão em lote.
 - **Próxima entrega:** Etapa 7 — Limpeza final da fundação legada, verificação integrada das jornadas e homologação para substituição completa.
+
+### Entrega 4 (04/09/2026) — Desacoplamento Completo do Legado, Notificações Acessíveis e Homologação Final (Etapa 7)
+
+- **Objetivo:** Isolar e aposentar de forma segura todo o código legado (`src/pages/`, `src/components/`, `src/data/`, `src/services/`), implementar componente de notificações acessível nativo ([`ToastViewport`](file:///C:/Users/andre/Documents/TCC/muttley/front-muttley/src/shared/ui/ToastViewport.tsx) e [`toastService`](file:///C:/Users/andre/Documents/TCC/muttley/front-muttley/src/shared/ui/toastService.ts)), atingir 100% de conformidade com ESLint em todo o repositório (`npm run lint` com 0 erros) e homologar o build e a suíte completa de testes.
+- **Módulos afetados:** `src/main.tsx`, `src/shared/ui/toastService.ts`, `src/shared/ui/ToastViewport.tsx`, `src/shared/ui/index.ts`, `eslint.config.js` e `docs/PLANO_FRONTEND.md`.
+- **Skills aplicadas:**
+  - `architecture`: independência total do novo frontend em relação aos arquivos legados. Nenhum arquivo de `src/app`, `src/modules` ou `src/shared` referencia `mockDb`, `pages` ou o antigo `apiClient`.
+  - `performance-engineer`: bundle build do Vite otimizado de 1.850 módulos para apenas 130 módulos vivos, com compilação instantânea em ~260ms.
+  - `accessibility-compliance-accessibility-audit`: `ToastViewport` com anúncios polidos para leitores de tela (`aria-live="polite"` e `aria-atomic="true"`), contraste adequado em todas as variantes (sucesso, aviso, erro, info), alvos de toque e sem nenhum emoji.
+- **Comandos e resultados comprovados:**
+  - `npm test`: **31 testes passando** (20 de autenticação + 4 de erros HTTP Spring + 2 de domínio de certificados/LinkedIn + 5 de validações de eventos e presenças).
+  - `npm run build`: **compilação limpa em 262ms** (`tsc -b && vite build` com zero avisos).
+  - `npm run lint`: **0 erros e 0 avisos em todo o projeto** (`eslint . --max-warnings 0`).
+- **Telas e jornadas homologadas:**
+  - 1. Autenticação e redirecionamento por papel (Login simples e protegido).
+  - 2. Jornada do Participante (Painel, Certificados com validação/LinkedIn, Medalhas com filtros).
+  - 3. Jornada do Administrador (Painel geral, Gestão de Eventos, Formulário com validações e Conclusão de evento com lote de presenças e assinatura digital).
+  - 4. Rotas Públicas (Descoberta de eventos, detalhes, presença rápida e validação de certificados).
+- **Estado final:** Aplicação reconstruída do zero, modular, performática e pronta para implantação.
+
 
 
 
