@@ -91,7 +91,6 @@ export const MedalList: React.FC = () => {
         <table className="participants-table">
           <thead>
             <tr>
-
               <th className="header-default">Posição</th>
               <th className="header-default">Participante</th>
               <th className="header-gold">Ouro</th>
@@ -126,7 +125,6 @@ export const MedalList: React.FC = () => {
                   <td>
                     <strong>{item.total}</strong>
                   </td>
-                  
                 </tr>
               ))
             )}
