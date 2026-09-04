@@ -1,10 +1,16 @@
 import React from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../modules/auth'
 import { Button } from '../../shared/ui'
 
 export const PublicLayout: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true, state: {} })
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
@@ -44,7 +50,7 @@ export const PublicLayout: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={logout}
+                  onClick={handleLogout}
                   aria-label="Encerrar sessão"
                 >
                   Sair

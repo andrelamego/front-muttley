@@ -1,11 +1,17 @@
 import React from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../modules/auth'
 import { Button } from '../../shared/ui'
 
 export const ParticipantLayout: React.FC = () => {
   const { user, logout } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true, state: {} })
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
@@ -35,7 +41,7 @@ export const ParticipantLayout: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={logout}
+              onClick={handleLogout}
               aria-label="Sair da conta"
             >
               Sair

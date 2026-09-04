@@ -184,18 +184,24 @@ export const AdminDashboardPage: React.FC = () => {
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Ações Rápidas
               </span>
-              <div className="flex flex-col gap-2 mt-2">
+              <div className="flex flex-col gap-2.5 mt-2">
                 <Link
-                  to="/admin/eventos"
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-800 underline underline-offset-2"
+                  to="/admin/eventos/novo"
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
                 >
-                  → Gerenciar Lista de Eventos
+                  <span>+</span> Cadastrar Novo Evento
                 </Link>
                 <Link
-                  to="/admin/certificados"
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-800 underline underline-offset-2"
+                  to="/admin/eventos"
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
                 >
-                  → Consultar Certificados Emitidos
+                  <span>&rarr;</span> Gerenciar Todos os Eventos
+                </Link>
+                <Link
+                  to="/eventos"
+                  className="text-xs font-semibold text-slate-600 hover:text-slate-800 hover:underline inline-flex items-center gap-1"
+                >
+                  <span>&rarr;</span> Acessar Catálogo Público
                 </Link>
               </div>
             </Card>
@@ -254,19 +260,28 @@ export const AdminDashboardPage: React.FC = () => {
                           className="hover:bg-slate-50/50 transition-colors"
                         >
                           <td className="py-3 px-4 font-medium text-slate-900">
-                            <div>{evt.tema}</div>
-                            {evt.local && (
-                              <div className="text-xs text-slate-500 font-normal">
-                                {evt.local}
-                              </div>
-                            )}
+                            <div className="font-semibold text-slate-900 line-clamp-1">
+                              {evt.tema}
+                            </div>
+                            <div className="text-xs text-slate-500 font-normal mt-0.5 line-clamp-1">
+                              {evt.disciplina && (
+                                <span className="font-medium text-slate-600">
+                                  {evt.disciplina} &bull;{' '}
+                                </span>
+                              )}
+                              {evt.local ||
+                                (evt.modalidade === 'ONLINE'
+                                  ? 'Online'
+                                  : 'Presencial')}
+                            </div>
                           </td>
                           <td className="py-3 px-4 text-slate-600 text-xs">
                             <span className="font-semibold text-slate-800">
                               {evt.data}
                             </span>
                             <div className="text-slate-500">
-                              {evt.horarioInicio} - {evt.horarioFim}
+                              {evt.horarioInicio || '--:--'} às{' '}
+                              {evt.horarioFim || '--:--'}
                             </div>
                           </td>
                           <td className="py-3 px-4">
@@ -285,18 +300,22 @@ export const AdminDashboardPage: React.FC = () => {
                               }
                               size="sm"
                             >
-                              {evt.status}
+                              {evt.status === 'CRIADO'
+                                ? 'Programado'
+                                : evt.status === 'EM_ANDAMENTO'
+                                  ? 'Em Andamento'
+                                  : evt.status}
                             </Badge>
                           </td>
                           <td className="py-3 px-4 text-right">
                             <div className="inline-flex items-center gap-1.5">
-                              <Link to={`/admin/eventos/editar/${evt.id}`}>
+                              <Link to={`/admin/eventos/${evt.id}/editar`}>
                                 <Button variant="outline" size="sm">
                                   Editar
                                 </Button>
                               </Link>
                               {evt.status === 'EM_ANDAMENTO' && (
-                                <Link to={`/admin/eventos/concluir/${evt.id}`}>
+                                <Link to={`/admin/eventos/${evt.id}/concluir`}>
                                   <Button variant="primary" size="sm">
                                     Concluir
                                   </Button>
