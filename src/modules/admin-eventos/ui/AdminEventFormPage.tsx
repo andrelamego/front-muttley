@@ -20,9 +20,9 @@ import {
   Button,
   Input,
   Alert,
-  Spinner,
-  ArrowLeftIcon,
 } from '../../../shared/ui'
+import { AdminEventFormSkeleton } from './skeletons'
+import { HistoryBackButton } from '../../../shared/navigation'
 
 export const AdminEventFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -168,24 +168,18 @@ export const AdminEventFormPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Navegação superior e Título */}
-      <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
-        <Link
-          to="/admin/eventos"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors p-1 rounded focus-visible:ring-2 focus-visible:ring-blue-600"
-        >
-          <ArrowLeftIcon size={16} />
-          Voltar para Lista
-        </Link>
+      <div className="flex items-center gap-3 border-b border-[var(--color-border)] pb-4">
+        <HistoryBackButton label="Voltar para a página anterior" />
       </div>
 
       <div>
-        <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
           {isEditing ? 'Atualização de Cadastro' : 'Novo Registro'}
         </span>
-        <h1 className="text-2xl lg:text-3xl font-black text-slate-900 mt-1">
+        <h1 className="text-2xl lg:text-3xl font-black text-[var(--color-text-primary)] mt-1">
           {isEditing ? 'Editar Evento Acadêmico' : 'Cadastrar Novo Evento'}
         </h1>
-        <p className="text-sm text-slate-500 mt-0.5">
+        <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
           Preencha os dados abaixo com o planejamento de data, horário, local e
           modalidade.
         </p>
@@ -210,18 +204,12 @@ export const AdminEventFormPage: React.FC = () => {
 
       {/* Estado de carregamento inicial */}
       {isLoading ? (
-        <div
-          className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500"
-          aria-live="polite"
-        >
-          <Spinner size="lg" className="text-blue-600" />
-          <p className="text-sm font-medium">Carregando dados do evento...</p>
-        </div>
+        <AdminEventFormSkeleton />
       ) : (
         <form onSubmit={handleSubmit}>
-          <Card className="bg-white border-slate-200 shadow-xs">
-            <CardHeader className="border-b border-slate-100">
-              <CardTitle className="text-base font-bold text-slate-900">
+          <Card className="surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-xs">
+            <CardHeader className="border-b border-[var(--color-border-subtle)]">
+              <CardTitle className="text-base font-bold text-[var(--color-text-primary)]">
                 Informações Principais
               </CardTitle>
             </CardHeader>
@@ -231,7 +219,7 @@ export const AdminEventFormPage: React.FC = () => {
               <div>
                 <label
                   htmlFor={temaId}
-                  className="block text-xs font-semibold text-slate-700 mb-1"
+                  className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                 >
                   Tema / Título do Evento *
                 </label>
@@ -249,14 +237,14 @@ export const AdminEventFormPage: React.FC = () => {
               <div>
                 <label
                   htmlFor={descricaoId}
-                  className="block text-xs font-semibold text-slate-700 mb-1"
+                  className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                 >
                   Descrição e Objetivos
                 </label>
                 <textarea
                   id={descricaoId}
                   rows={3}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                  className="w-full rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   placeholder="Descreva a programação, palestrantes ou tópicos que serão abordados..."
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
@@ -268,7 +256,7 @@ export const AdminEventFormPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor={dataId}
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                   >
                     Data do Evento *
                   </label>
@@ -284,7 +272,7 @@ export const AdminEventFormPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor={inicioId}
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                   >
                     Horário de Início *
                   </label>
@@ -300,7 +288,7 @@ export const AdminEventFormPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor={fimId}
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                   >
                     Horário de Término *
                   </label>
@@ -319,7 +307,7 @@ export const AdminEventFormPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor={modalidadeId}
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                   >
                     Modalidade *
                   </label>
@@ -329,7 +317,7 @@ export const AdminEventFormPage: React.FC = () => {
                     onChange={(e) =>
                       setModalidade(e.target.value as ModalidadeEvento)
                     }
-                    className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:border-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   >
                     <option value="PRESENCIAL">Presencial</option>
                     <option value="ONLINE">Online</option>
@@ -340,7 +328,7 @@ export const AdminEventFormPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor={localIdSelect}
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                   >
                     Local / Sala (Campus)
                   </label>
@@ -348,7 +336,7 @@ export const AdminEventFormPage: React.FC = () => {
                     id={localIdSelect}
                     value={localId}
                     onChange={(e) => setLocalId(e.target.value)}
-                    className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:border-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   >
                     <option value="">Selecione um local cadastrado...</option>
                     {locais.map((loc) => (
@@ -368,7 +356,7 @@ export const AdminEventFormPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor={disciplinaIdSelect}
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                   >
                     Disciplina Vinculada (Opcional)
                   </label>
@@ -376,7 +364,7 @@ export const AdminEventFormPage: React.FC = () => {
                     id={disciplinaIdSelect}
                     value={disciplinaId}
                     onChange={(e) => setDisciplinaId(e.target.value)}
-                    className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:border-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   >
                     <option value="">Nenhuma disciplina vinculada</option>
                     {disciplinas.map((disc) => (
@@ -390,7 +378,7 @@ export const AdminEventFormPage: React.FC = () => {
                 <div>
                   <label
                     htmlFor={patrocinadorIdSelect}
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                   >
                     Patrocinador / Parceiro (Opcional)
                   </label>
@@ -398,7 +386,7 @@ export const AdminEventFormPage: React.FC = () => {
                     id={patrocinadorIdSelect}
                     value={patrocinadorId}
                     onChange={(e) => setPatrocinadorId(e.target.value)}
-                    className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:border-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   >
                     <option value="">Nenhum parceiro vinculado</option>
                     {patrocinadores.map((pat) => (
@@ -411,7 +399,7 @@ export const AdminEventFormPage: React.FC = () => {
               </div>
             </CardContent>
 
-            <CardFooter className="bg-slate-50/70 border-t border-slate-100 flex items-center justify-between p-4 sm:px-6">
+            <CardFooter className="bg-[var(--color-bg-subtle)]/70 border-t border-[var(--color-border-subtle)] flex items-center justify-between p-4 sm:px-6">
               <Link to="/admin/eventos">
                 <Button variant="outline" size="md" type="button">
                   Cancelar

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useId } from 'react'
 import { Link } from 'react-router-dom'
+import { PARTICIPANT_EVENTS_PATH } from '../../eventos'
 import { getMeMedalhasApi } from '../api/medalhasApi'
 import type { MedalhaUsuario, TipoMedalha } from '../domain/medalhaTypes'
 import {
@@ -11,13 +12,14 @@ import {
   Badge,
   Button,
   Alert,
-  Spinner,
   Input,
   MedalIcon,
   SearchIcon,
   CopyIcon,
   CheckIcon,
 } from '../../../shared/ui'
+import { MedalGridSkeleton } from './skeletons'
+import { HistoryBackButton } from '../../../shared/navigation'
 
 const getMedalBadgeVariant = (tipo: TipoMedalha): 'warning' | 'default' => {
   switch (tipo) {
@@ -34,9 +36,9 @@ const getMedalBadgeVariant = (tipo: TipoMedalha): 'warning' | 'default' => {
 const getMedalBorderClass = (tipo: TipoMedalha) => {
   switch (tipo) {
     case 'OURO':
-      return 'border-amber-300 bg-amber-50/30'
+      return 'border-[var(--color-warning-border)] bg-[var(--color-warning-bg)]/30'
     case 'PRATA':
-      return 'border-slate-300 bg-slate-50/40'
+      return 'border-[var(--color-border-strong)] bg-[var(--color-bg-subtle)]/40'
     case 'BRONZE':
     default:
       return 'border-orange-200 bg-orange-50/20'
@@ -46,9 +48,9 @@ const getMedalBorderClass = (tipo: TipoMedalha) => {
 const getMedalIconClass = (tipo: TipoMedalha) => {
   switch (tipo) {
     case 'OURO':
-      return 'bg-amber-100 text-amber-700 ring-amber-300'
+      return 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] ring-[var(--color-warning-border)]'
     case 'PRATA':
-      return 'bg-slate-200 text-slate-700 ring-slate-300'
+      return 'bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] ring-[var(--color-border-strong)]'
     case 'BRONZE':
     default:
       return 'bg-orange-100 text-orange-700 ring-orange-200'
@@ -137,25 +139,21 @@ export const UserMedalsPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
       {/* Cabeçalho da Página */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[var(--color-border)] pb-5">
         <div>
-          <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
             Gamificação e Conquistas
           </span>
-          <h1 className="text-2xl font-bold text-slate-900 mt-1">
+          <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mt-1">
             Minhas Medalhas
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Reconhecimentos de destaque atribuídos pela participação em eventos
             acadêmicos.
           </p>
         </div>
 
-        <Link to="/user/inicio">
-          <Button variant="outline" size="sm">
-            Voltar ao Painel
-          </Button>
-        </Link>
+        <HistoryBackButton label="Voltar para a página anterior" />
       </div>
 
       {/* Alertas */}
@@ -173,7 +171,7 @@ export const UserMedalsPage: React.FC = () => {
         <div className="max-w-md flex-1">
           <label
             htmlFor={searchInputId}
-            className="block text-xs font-semibold text-slate-700 mb-1"
+            className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
           >
             Buscar medalhas
           </label>
@@ -186,7 +184,7 @@ export const UserMedalsPage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
               <SearchIcon size={16} />
             </div>
           </div>
@@ -201,10 +199,10 @@ export const UserMedalsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setTypeFilter('TODAS')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
               typeFilter === 'TODAS'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'bg-[var(--color-primary)] text-white shadow-sm'
+                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
             }`}
           >
             Todas ({medals.length})
@@ -212,10 +210,10 @@ export const UserMedalsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setTypeFilter('OURO')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
               typeFilter === 'OURO'
-                ? 'bg-amber-500 text-white shadow-sm'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'bg-[var(--color-warning)] text-white shadow-sm'
+                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
             }`}
           >
             Ouro ({countOuro})
@@ -223,10 +221,10 @@ export const UserMedalsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setTypeFilter('PRATA')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
               typeFilter === 'PRATA'
-                ? 'bg-slate-500 text-white shadow-sm'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'bg-[var(--color-text-muted)] text-white shadow-sm'
+                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
             }`}
           >
             Prata ({countPrata})
@@ -234,10 +232,10 @@ export const UserMedalsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setTypeFilter('BRONZE')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
               typeFilter === 'BRONZE'
                 ? 'bg-orange-500 text-white shadow-sm'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
             }`}
           >
             Bronze ({countBronze})
@@ -246,31 +244,23 @@ export const UserMedalsPage: React.FC = () => {
       </div>
 
       {/* Estado de Carregamento */}
-      {isLoading && (
-        <div
-          className="flex flex-col items-center justify-center py-16 gap-3 text-slate-500"
-          aria-live="polite"
-        >
-          <Spinner size="lg" className="text-blue-600" />
-          <p className="text-sm font-medium">Buscando suas conquistas...</p>
-        </div>
-      )}
+      {isLoading && <MedalGridSkeleton />}
 
       {/* Grid de Medalhas */}
       {!isLoading && !error && (
         <>
           {filteredMedals.length === 0 ? (
-            <Card className="bg-white border-dashed border-slate-300 p-10 text-center">
+            <Card className="bg-[var(--color-bg-surface)] border-dashed border-[var(--color-border-strong)] p-10 text-center">
               <div className="max-w-sm mx-auto flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] flex items-center justify-center">
                   <MedalIcon size={24} />
                 </div>
-                <h2 className="text-base font-semibold text-slate-900">
+                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
                   {searchTerm || typeFilter !== 'TODAS'
                     ? 'Nenhuma medalha corresponde aos filtros'
                     : 'Você ainda não possui medalhas'}
                 </h2>
-                <p className="text-sm text-slate-500 leading-relaxed">
+                <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
                   {searchTerm || typeFilter !== 'TODAS'
                     ? 'Tente remover os filtros ou pesquisar por outro termo.'
                     : 'As medalhas são atribuídas a participantes e organizadores como reconhecimento pelo engajamento em palestras, cursos e workshops.'}
@@ -287,7 +277,7 @@ export const UserMedalsPage: React.FC = () => {
                     Redefinir filtros
                   </Button>
                 ) : (
-                  <Link to="/eventos" className="mt-2">
+                  <Link to={PARTICIPANT_EVENTS_PATH} className="mt-2">
                     <Button variant="primary" size="md">
                       Explorar Eventos Disponíveis
                     </Button>
@@ -304,7 +294,7 @@ export const UserMedalsPage: React.FC = () => {
                 return (
                   <Card
                     key={medal.id}
-                    className={`bg-white transition-all hover:shadow-md flex flex-col justify-between ${getMedalBorderClass(medal.tipo)}`}
+                    className={`surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] transition-all hover:shadow-md flex flex-col justify-between ${getMedalBorderClass(medal.tipo)}`}
                   >
                     <div>
                       <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -319,27 +309,27 @@ export const UserMedalsPage: React.FC = () => {
                       </CardHeader>
 
                       <CardContent className="space-y-2">
-                        <CardTitle className="text-base font-bold text-slate-900">
+                        <CardTitle className="text-base font-bold text-[var(--color-text-primary)]">
                           {medal.nome}
                         </CardTitle>
-                        <p className="text-xs text-slate-600 leading-relaxed">
+                        <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
                           {medal.descricao ||
                             'Reconhecimento concedido por destaque e participação exemplar.'}
                         </p>
 
-                        <div className="pt-2 border-t border-slate-100">
-                          <span className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                        <div className="pt-2 border-t border-[var(--color-border-subtle)]">
+                          <span className="block text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
                             Evento
                           </span>
-                          <span className="text-xs font-medium text-slate-800 line-clamp-1">
+                          <span className="text-xs font-medium text-[var(--color-text-primary)] line-clamp-1">
                             {eventName}
                           </span>
                         </div>
                       </CardContent>
                     </div>
 
-                    <CardFooter className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-400">
+                    <CardFooter className="pt-2 border-t border-[var(--color-border-subtle)] flex items-center justify-between">
+                      <span className="text-[11px] text-[var(--color-text-muted)]">
                         Inscrição #{medal.inscricao}
                       </span>
 
@@ -347,11 +337,11 @@ export const UserMedalsPage: React.FC = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopyAchievement(medal)}
-                        className="text-xs text-slate-600 hover:text-slate-900"
+                        className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
                         title="Copiar texto da conquista"
                       >
                         {isCopied ? (
-                          <span className="flex items-center gap-1 text-emerald-600 font-semibold">
+                          <span className="flex items-center gap-1 text-[var(--color-success-text)] font-semibold">
                             <CheckIcon size={14} />
                             Copiado!
                           </span>

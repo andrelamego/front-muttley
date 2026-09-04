@@ -5,13 +5,13 @@ import type { AdminDashboardData, EventoResumo } from '../domain/painelTypes'
 import {
   Button,
   Alert,
-  Spinner,
   CalendarIcon,
   PlusIcon,
   ClockIcon,
   ArrowUpRightIcon,
   AwardIcon,
 } from '../../../shared/ui'
+import { AdminDashboardSkeleton } from './skeletons'
 
 // Helper seguro para analisar data e hora de eventos
 const parseEventDateTime = (dateStr: string, timeStr: string): Date | null => {
@@ -127,32 +127,32 @@ export const AdminDashboardPage: React.FC = () => {
     switch (status) {
       case 'EM_ANDAMENTO':
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded bg-[#dce1ff] text-[#1d3989] font-medium inline-flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#1d3989]" />
+          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium inline-flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-info-text)]" />
             Em Andamento
           </span>
         )
       case 'PROGRAMADO':
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded bg-[#f0edea] text-[#57423d] font-medium">
+          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
             Programado
           </span>
         )
       case 'FINALIZADO':
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded bg-[#beeeca] text-[#244f34] font-medium">
+          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
             Finalizado
           </span>
         )
       case 'CANCELADO':
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded bg-[#ffdad6] text-[#93000a] font-medium">
+          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] font-medium">
             Cancelado
           </span>
         )
       default:
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded bg-[#f0edea] text-[#57423d] font-medium">
+          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
             {status}
           </span>
         )
@@ -162,15 +162,15 @@ export const AdminDashboardPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-8 w-full max-w-[76rem] mx-auto py-8 px-4 sm:px-6 lg:px-8">
       {/* Barra de Título e Ações Principais do Administrador */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 pb-6 border-b border-[#ddc0ba]/60">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 pb-6 border-b border-[var(--color-border)]/60">
         <div>
-          <div className="font-mono text-xs uppercase tracking-wider text-[#8a726c] font-semibold mb-1">
+          <div className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold mb-1">
             Sessão Acadêmica • Comissão de Extensão e Pesquisa
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl text-[#1c1c1a] tracking-tight">
+          <h1 className="font-serif text-3xl sm:text-4xl text-[var(--color-text-primary)] tracking-tight">
             Painel de Gestão
           </h1>
-          <p className="text-sm text-[#57423d] mt-1 max-w-2xl leading-relaxed">
+          <p className="text-sm text-[var(--color-text-secondary)] mt-1 max-w-2xl leading-relaxed">
             Bem-vindo à sala de coordenação. Visualize o status operacional dos
             eventos, controle a abertura do credenciamento e valide as atas de
             conclusão.
@@ -216,43 +216,35 @@ export const AdminDashboardPage: React.FC = () => {
       )}
 
       {/* Estado de carregamento */}
-      {isLoading && !data && (
-        <div
-          className="flex flex-col items-center justify-center py-16 gap-3 text-[#57423d]"
-          role="status"
-        >
-          <Spinner size="lg" className="text-[#6b1705]" />
-          <p className="text-sm font-medium">Carregando painel de gestão...</p>
-        </div>
-      )}
+      {isLoading && !data && <AdminDashboardSkeleton />}
 
-      {!isLoading && data && (
+      {data && (
         <>
           {/* BANNER: Eventos Aguardando Conclusão (quando houver) */}
           {eventoPendente && (
             <section
               aria-labelledby="pendencias-heading"
-              className="p-6 rounded-lg bg-[#ffdad2] border border-[#ffa996] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs"
+              className="p-6 rounded-none bg-[var(--color-primary-subtle)] border border-[var(--color-warning-border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs"
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#6b1705] text-white flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center shrink-0 mt-0.5">
                   <AwardIcon size={20} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h2
                       id="pendencias-heading"
-                      className="text-base font-bold text-[#3d0600]"
+                      className="text-base font-bold text-[var(--color-primary-active)]"
                     >
                       Eventos Aguardando Conclusão e Emissão
                     </h2>
-                    <span className="font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#6b1705] text-white">
+                    <span className="font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded-none bg-[var(--color-primary)] text-white">
                       Ação Necessária
                     </span>
                   </div>
-                  <p className="text-xs text-[#822713] leading-relaxed">
+                  <p className="text-xs text-[var(--color-warning-text)] leading-relaxed">
                     O evento{' '}
-                    <strong className="text-[#3d0600] font-semibold">
+                    <strong className="text-[var(--color-primary-active)] font-semibold">
                       {eventoPendente.tema}
                     </strong>{' '}
                     já encerrou seu horário previsto. Revise as presenças e faça
@@ -285,33 +277,33 @@ export const AdminDashboardPage: React.FC = () => {
             </h2>
 
             {/* Indicador 1 */}
-            <div className="flex flex-col justify-between p-6 bg-white rounded-lg border border-[#ddc0ba] shadow-xs relative overflow-hidden">
+            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[#8a726c] font-semibold block">
+                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
                     Ciclo Vigente
                   </span>
-                  <span className="text-base font-bold text-[#1c1c1a] mt-1 block">
+                  <span className="text-base font-bold text-[var(--color-text-primary)] mt-1 block">
                     Eventos Ativos
                   </span>
                 </div>
-                <div className="w-10 h-10 rounded bg-[#f6f3ef] flex items-center justify-center text-[#6b1705]">
+                <div className="w-10 h-10 rounded-none bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-primary-text)]">
                   <CalendarIcon size={20} />
                 </div>
               </div>
               <div className="mt-6 flex items-baseline justify-between">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl sm:text-5xl text-[#6b1705] font-bold leading-none">
+                  <span className="font-serif text-4xl sm:text-5xl text-[var(--color-primary-text)] font-bold leading-none">
                     {data.eventosAtivos}
                   </span>
-                  <span className="text-xs text-[#57423d]">
+                  <span className="text-xs text-[var(--color-text-secondary)]">
                     em curso ou abertura
                   </span>
                 </div>
               </div>
-              <div className="mt-4 w-full bg-[#f0edea] h-1.5 rounded-full overflow-hidden">
+              <div className="mt-4 w-full bg-[var(--color-bg-muted)] h-1.5 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#6b1705] h-full rounded-full"
+                  className="bg-[var(--color-primary)] h-full rounded-full"
                   style={{
                     width: `${Math.min(100, Math.max(15, data.eventosAtivos * 12))}%`,
                   }}
@@ -320,33 +312,33 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {/* Indicador 2 */}
-            <div className="flex flex-col justify-between p-6 bg-white rounded-lg border border-[#ddc0ba] shadow-xs relative overflow-hidden">
+            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[#8a726c] font-semibold block">
+                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
                     Projeção Imediata
                   </span>
-                  <span className="text-base font-bold text-[#1c1c1a] mt-1 block">
+                  <span className="text-base font-bold text-[var(--color-text-primary)] mt-1 block">
                     Próximos 7 Dias
                   </span>
                 </div>
-                <div className="w-10 h-10 rounded bg-[#f6f3ef] flex items-center justify-center text-[#1d3989]">
+                <div className="w-10 h-10 rounded-none bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-info-text)]">
                   <ClockIcon size={20} />
                 </div>
               </div>
               <div className="mt-6 flex items-baseline justify-between">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl sm:text-5xl text-[#1c1c1a] font-bold leading-none">
+                  <span className="font-serif text-4xl sm:text-5xl text-[var(--color-text-primary)] font-bold leading-none">
                     {data.eventosAtivosNaSemana}
                   </span>
-                  <span className="text-xs text-[#57423d]">
+                  <span className="text-xs text-[var(--color-text-secondary)]">
                     com inscrições ativas
                   </span>
                 </div>
               </div>
-              <div className="mt-4 w-full bg-[#f0edea] h-1.5 rounded-full overflow-hidden">
+              <div className="mt-4 w-full bg-[var(--color-bg-muted)] h-1.5 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#1d3989] h-full rounded-full"
+                  className="bg-[var(--color-info-text)] h-full rounded-full"
                   style={{
                     width: `${Math.min(100, Math.max(15, data.eventosAtivosNaSemana * 20))}%`,
                   }}
@@ -355,37 +347,39 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {/* Indicador 3 */}
-            <div className="flex flex-col justify-between p-6 bg-white rounded-lg border border-[#ddc0ba] shadow-xs relative overflow-hidden">
+            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[#8a726c] font-semibold block">
+                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
                     Autenticação Pública
                   </span>
-                  <span className="text-base font-bold text-[#1c1c1a] mt-1 block truncate">
+                  <span className="text-base font-bold text-[var(--color-text-primary)] mt-1 block truncate">
                     Certificados (30 dias)
                   </span>
                 </div>
-                <div className="w-10 h-10 rounded bg-[#f6f3ef] flex items-center justify-center text-[#244f34]">
+                <div className="w-10 h-10 rounded-none bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-success-text)]">
                   <AwardIcon size={20} />
                 </div>
               </div>
               <div className="mt-6 flex items-baseline justify-between flex-wrap gap-2">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl sm:text-5xl text-[#244f34] font-bold leading-none">
+                  <span className="font-serif text-4xl sm:text-5xl text-[var(--color-success-text)] font-bold leading-none">
                     {data.certificadosUltimos30Dias.toLocaleString('pt-BR')}
                   </span>
-                  <span className="text-xs text-[#57423d]">emitidos</span>
+                  <span className="text-xs text-[var(--color-text-secondary)]">
+                    emitidos
+                  </span>
                 </div>
                 {data.variacaoCertificadosUltimos30Dias !== 0 && (
-                  <span className="font-mono text-xs text-[#244f34] font-semibold flex items-center gap-1">
+                  <span className="font-mono text-xs text-[var(--color-success-text)] font-semibold flex items-center gap-1">
                     {data.variacaoCertificadosUltimos30Dias > 0 ? '+' : ''}
                     {data.variacaoCertificadosUltimos30Dias}%
                   </span>
                 )}
               </div>
-              <div className="mt-4 w-full bg-[#f0edea] h-1.5 rounded-full overflow-hidden">
+              <div className="mt-4 w-full bg-[var(--color-bg-muted)] h-1.5 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#244f34] h-full rounded-full"
+                  className="bg-[var(--color-success-text)] h-full rounded-full"
                   style={{ width: '85%' }}
                 />
               </div>
@@ -395,24 +389,24 @@ export const AdminDashboardPage: React.FC = () => {
           {/* AGENDA DOS PRÓXIMOS EVENTOS */}
           <section
             aria-labelledby="agenda-heading"
-            className="bg-white p-6 sm:p-8 rounded-lg border border-[#ddc0ba] shadow-xs flex flex-col gap-6"
+            className="surface-depth bg-[var(--color-bg-surface)] p-6 sm:p-8 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col gap-6"
           >
-            <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-[#f0edea] gap-3">
+            <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-[var(--color-bg-muted)] gap-3">
               <div>
-                <span className="font-mono text-xs uppercase tracking-widest text-[#8a726c] font-semibold block mb-0.5">
+                <span className="font-mono text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-semibold block mb-0.5">
                   Fluxo Presencial e Digital
                 </span>
                 <h2
                   id="agenda-heading"
-                  className="font-serif text-2xl text-[#1c1c1a] font-bold"
+                  className="font-serif text-2xl text-[var(--color-text-primary)] font-bold"
                 >
                   Agenda dos Próximos Eventos
                 </h2>
               </div>
 
-              <div className="flex items-center gap-2 p-2 bg-[#f6f3ef] rounded border border-[#ddc0ba]/60 text-xs text-[#57423d]">
+              <div className="flex items-center gap-2 p-2 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)]/60 text-xs text-[var(--color-text-secondary)]">
                 <span
-                  className="w-2 h-2 rounded-full bg-[#6b1705]"
+                  className="w-2 h-2 rounded-full bg-[var(--color-primary)]"
                   aria-hidden="true"
                 />
                 <span>
@@ -423,7 +417,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {data.proximosEventos.length === 0 ? (
-              <p className="text-sm text-[#57423d] py-6 text-center">
+              <p className="text-sm text-[var(--color-text-secondary)] py-6 text-center">
                 Não há eventos agendados para os próximos dias.
               </p>
             ) : (
@@ -439,16 +433,16 @@ export const AdminDashboardPage: React.FC = () => {
                   return (
                     <article
                       key={evento.id}
-                      className="p-5 rounded-lg bg-[#f6f3ef] border border-[#ddc0ba]/60 flex flex-col justify-between gap-4"
+                      className="p-5 rounded-none bg-[var(--color-bg-subtle)] border border-[var(--color-border)]/60 flex flex-col justify-between gap-4"
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2 mb-3">
-                          <span className="font-mono text-xs uppercase tracking-wider font-semibold text-[#57423d]">
+                          <span className="font-mono text-xs uppercase tracking-wider font-semibold text-[var(--color-text-secondary)]">
                             {day} {monthYear}
                           </span>
                           {janelaAberta ? (
-                            <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 rounded bg-[#beeeca] text-[#244f34] font-bold flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#244f34] animate-pulse" />
+                            <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-bold flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success-text)] animate-pulse" />
                               Janela Aberta
                             </span>
                           ) : (
@@ -456,19 +450,22 @@ export const AdminDashboardPage: React.FC = () => {
                           )}
                         </div>
 
-                        <h3 className="font-serif text-lg font-bold text-[#1c1c1a] mb-2 line-clamp-2">
+                        <h3 className="font-serif text-lg font-bold text-[var(--color-text-primary)] mb-2 line-clamp-2">
                           {evento.tema}
                         </h3>
 
-                        <div className="space-y-1 text-xs text-[#57423d]">
+                        <div className="space-y-1 text-xs text-[var(--color-text-secondary)]">
                           <div className="flex items-center gap-1.5">
-                            <ClockIcon size={14} className="text-[#8a726c]" />
+                            <ClockIcon
+                              size={14}
+                              className="text-[var(--color-text-muted)]"
+                            />
                             <span>
                               {evento.horarioInicio} às {evento.horarioFim}
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[10px] uppercase text-[#8a726c]">
+                            <span className="font-mono text-[10px] uppercase text-[var(--color-text-muted)]">
                               Local:
                             </span>
                             <span className="truncate">
@@ -480,13 +477,13 @@ export const AdminDashboardPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="pt-3 border-t border-[#ddc0ba]/60 flex items-center justify-between">
-                        <span className="font-mono text-[11px] text-[#57423d] uppercase font-medium">
+                      <div className="pt-3 border-t border-[var(--color-border)]/60 flex items-center justify-between">
+                        <span className="font-mono text-[11px] text-[var(--color-text-secondary)] uppercase font-medium">
                           {evento.modalidade}
                         </span>
                         <Link
                           to={`/admin/eventos/${evento.id}/editar`}
-                          className="text-xs font-semibold text-[#6b1705] hover:underline inline-flex items-center gap-1"
+                          className="text-xs font-semibold text-[var(--color-primary-text)] hover:underline inline-flex items-center gap-1"
                         >
                           <span>Gerenciar</span>
                           <ArrowUpRightIcon size={14} />
@@ -502,16 +499,16 @@ export const AdminDashboardPage: React.FC = () => {
           {/* CATÁLOGO RESUMIDO DE EVENTOS CADASTRADOS */}
           <section
             aria-labelledby="catalog-heading"
-            className="bg-white p-6 sm:p-8 rounded-lg border border-[#ddc0ba] shadow-xs flex flex-col gap-6"
+            className="surface-depth bg-[var(--color-bg-surface)] p-6 sm:p-8 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col gap-6"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#f0edea] gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[var(--color-bg-muted)] gap-4">
               <div>
-                <span className="font-mono text-xs uppercase tracking-wider text-[#8a726c] font-semibold block mb-0.5">
+                <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block mb-0.5">
                   Registro Geral
                 </span>
                 <h2
                   id="catalog-heading"
-                  className="font-serif text-2xl text-[#1c1c1a] font-bold"
+                  className="font-serif text-2xl text-[var(--color-text-primary)] font-bold"
                 >
                   Eventos Cadastrados no Sistema
                 </h2>
@@ -528,7 +525,7 @@ export const AdminDashboardPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-[#ddc0ba] text-[11px] font-mono uppercase tracking-wider text-[#8a726c]">
+                  <tr className="border-b border-[var(--color-border)] text-[11px] font-mono uppercase tracking-wider text-[var(--color-text-muted)]">
                     <th scope="col" className="pb-3 pr-4 font-semibold">
                       Tema do Evento
                     </th>
@@ -549,12 +546,12 @@ export const AdminDashboardPage: React.FC = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f0edea]">
+                <tbody className="divide-y divide-[var(--color-bg-muted)]">
                   {data.proximosEventos.length === 0 ? (
                     <tr>
                       <td
                         colSpan={5}
-                        className="py-8 text-center text-[#57423d]"
+                        className="py-8 text-center text-[var(--color-text-secondary)]"
                       >
                         Nenhum evento registrado no catálogo.
                       </td>
@@ -563,24 +560,24 @@ export const AdminDashboardPage: React.FC = () => {
                     data.proximosEventos.map((evento) => (
                       <tr
                         key={evento.id}
-                        className="hover:bg-[#fcf9f5] transition-colors"
+                        className="hover:bg-[var(--color-bg-page)] transition-colors"
                       >
                         <td className="py-4 pr-4">
-                          <span className="font-semibold text-[#1c1c1a] block">
+                          <span className="font-semibold text-[var(--color-text-primary)] block">
                             {evento.tema}
                           </span>
-                          <span className="text-xs text-[#8a726c] block">
+                          <span className="text-xs text-[var(--color-text-muted)] block">
                             {evento.local || evento.disciplina || 'Campus'}
                           </span>
                         </td>
-                        <td className="py-4 px-4 font-mono text-xs text-[#57423d] whitespace-nowrap">
+                        <td className="py-4 px-4 font-mono text-xs text-[var(--color-text-secondary)] whitespace-nowrap">
                           <div>{evento.data}</div>
-                          <div className="text-[11px] text-[#8a726c]">
+                          <div className="text-[11px] text-[var(--color-text-muted)]">
                             {evento.horarioInicio} - {evento.horarioFim}
                           </div>
                         </td>
                         <td className="py-4 px-4 whitespace-nowrap">
-                          <span className="font-mono text-xs uppercase text-[#57423d]">
+                          <span className="font-mono text-xs uppercase text-[var(--color-text-secondary)]">
                             {evento.modalidade}
                           </span>
                         </td>
@@ -590,7 +587,7 @@ export const AdminDashboardPage: React.FC = () => {
                         <td className="py-4 pl-4 text-right whitespace-nowrap">
                           <Link
                             to={`/admin/eventos/${evento.id}/editar`}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#6b1705] hover:underline"
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-primary-text)] hover:underline"
                           >
                             <span>Gerenciar</span>
                             <ArrowUpRightIcon size={14} />

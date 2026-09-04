@@ -2,6 +2,7 @@ import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth, type AuthRole } from '../../modules/auth'
 import { AccessDenied } from '../../shared/ui'
+import { SessionSkeleton } from './SessionSkeleton'
 
 export interface ProtectedRouteProps {
   requiredRole?: AuthRole
@@ -16,13 +17,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const location = useLocation()
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-sm font-medium text-slate-500">
-          Verificando autenticação...
-        </div>
-      </div>
-    )
+    return <SessionSkeleton />
   }
 
   if (!isAuthenticated) {

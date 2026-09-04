@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { getEventosPublicosApi } from '../api/eventosApi'
 import type { EventoPublico } from '../domain/eventoTypes'
+import { buildEventPath, PUBLIC_EVENTS_PATH } from '../domain/eventRoutes'
 import {
   Card,
   CardHeader,
@@ -11,12 +12,20 @@ import {
   Badge,
   Button,
   Alert,
-  Spinner,
   Input,
   SearchIcon,
 } from '../../../shared/ui'
+import { EventListSkeleton } from './skeletons'
 
-export const PublicEventListPage: React.FC = () => {
+interface PublicEventListPageProps {
+  eventRouteBase?: string
+  participantView?: boolean
+}
+
+export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
+  eventRouteBase = PUBLIC_EVENTS_PATH,
+  participantView = false,
+}) => {
   const [eventos, setEventos] = useState<EventoPublico[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -78,17 +87,20 @@ export const PublicEventListPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto py-6 px-4 sm:px-6">
       {/* Hero / Cabeçalho da página pública */}
-      <div className="text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-[#ddc0ba]/60">
+      <div className="text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-[var(--color-border)]/60">
         <div>
-          <span className="font-mono text-xs font-semibold text-[#6b1705] uppercase tracking-wider">
-            Compêndio Acadêmico • Catálogo Geral
+          <span className="font-mono text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
+            {participantView
+              ? 'Área do participante • Eventos disponíveis'
+              : 'Compêndio Acadêmico • Catálogo Geral'}
           </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1c1c1a] tracking-tight mt-1">
-            Programação Aberta
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)] tracking-tight mt-1">
+            {participantView ? 'Explorar eventos' : 'Programação Aberta'}
           </h1>
-          <p className="text-sm text-[#57423d] mt-1">
-            Inscreva-se em palestras, workshops e simpósios com emissão de
-            certificados
+          <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+            {participantView
+              ? 'Encontre novas atividades e faça sua inscrição sem sair do painel.'
+              : 'Inscreva-se em palestras, workshops e simpósios com emissão de certificados'}
           </p>
         </div>
 
@@ -118,29 +130,21 @@ export const PublicEventListPage: React.FC = () => {
       )}
 
       {/* Estado de Carregamento */}
-      {isLoading && (
-        <div
-          className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500"
-          role="status"
-        >
-          <Spinner size="lg" className="text-blue-600" />
-          <p className="text-sm font-medium">Buscando eventos disponíveis...</p>
-        </div>
-      )}
+      {isLoading && eventos.length === 0 && <EventListSkeleton />}
 
       {/* Grid de Eventos */}
-      {!isLoading && (
+      {(!isLoading || eventos.length > 0) && (
         <>
           {filteredEventos.length === 0 ? (
-            <Card className="bg-white border-dashed border-slate-300 p-12 text-center">
+            <Card className="bg-[var(--color-bg-surface)] border-dashed border-[var(--color-border-strong)] p-12 text-center">
               <div className="max-w-md mx-auto flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                <div className="w-12 h-12 rounded-full bg-[var(--color-bg-muted)] flex items-center justify-center text-[var(--color-text-muted)]">
                   <SearchIcon size={24} />
                 </div>
-                <h2 className="text-base font-semibold text-slate-900">
+                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
                   Nenhum evento encontrado
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-[var(--color-text-muted)]">
                   {searchTerm
                     ? 'Nenhum evento corresponde à busca informada. Tente outros termos.'
                     : 'Não há eventos abertos para inscrição no momento. Volte em breve!'}
@@ -161,9 +165,9 @@ export const PublicEventListPage: React.FC = () => {
               {filteredEventos.map((evt) => (
                 <Card
                   key={evt.id}
-                  className="bg-white border-[#ddc0ba] flex flex-col justify-between hover:shadow-md transition-shadow"
+                  className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] border-[var(--color-border)] flex flex-col justify-between hover:shadow-md transition-shadow"
                 >
-                  <CardHeader className="flex-row items-center justify-between gap-2 border-b border-[#f0edea]">
+                  <CardHeader className="flex-row items-center justify-between gap-2 border-b border-[var(--color-bg-muted)]">
                     <Badge
                       variant={evt.inscricoesEncerradas ? 'danger' : 'success'}
                     >
@@ -179,45 +183,50 @@ export const PublicEventListPage: React.FC = () => {
                   <CardContent className="flex flex-col gap-3">
                     <CardTitle
                       as="h2"
-                      className="text-xl text-[#1c1c1a] font-serif"
+                      className="text-xl text-[var(--color-text-primary)] font-serif"
                     >
                       {evt.tema}
                     </CardTitle>
 
                     {evt.descricao && (
-                      <p className="text-xs text-[#57423d] line-clamp-3 leading-relaxed">
+                      <p className="text-xs text-[var(--color-text-secondary)] line-clamp-3 leading-relaxed">
                         {evt.descricao}
                       </p>
                     )}
 
-                    <div className="bg-[#f6f3ef] rounded p-3 grid grid-cols-2 gap-2 text-xs text-[#57423d] mt-2 font-mono">
+                    <div className="bg-[var(--color-bg-subtle)] rounded-none p-3 grid grid-cols-2 gap-2 text-xs text-[var(--color-text-secondary)] mt-2 font-mono">
                       <div>
-                        <span className="block text-[#8a726c] font-medium uppercase text-[10px]">
+                        <span className="block text-[var(--color-text-muted)] font-medium uppercase text-[10px]">
                           Data:
                         </span>
-                        <strong className="text-[#1c1c1a]">{evt.data}</strong>
+                        <strong className="text-[var(--color-text-primary)]">
+                          {evt.data}
+                        </strong>
                       </div>
                       <div>
-                        <span className="block text-[#8a726c] font-medium uppercase text-[10px]">
+                        <span className="block text-[var(--color-text-muted)] font-medium uppercase text-[10px]">
                           Horário:
                         </span>
-                        <strong className="text-[#1c1c1a]">
+                        <strong className="text-[var(--color-text-primary)]">
                           {evt.horarioInicio} às {evt.horarioFim}
                         </strong>
                       </div>
                       <div className="col-span-2">
-                        <span className="block text-[#8a726c] font-medium uppercase text-[10px]">
+                        <span className="block text-[var(--color-text-muted)] font-medium uppercase text-[10px]">
                           Local / Polo:
                         </span>
-                        <span className="text-[#1c1c1a] truncate block font-sans">
+                        <span className="text-[var(--color-text-primary)] truncate block font-sans">
                           {evt.local || evt.disciplina || 'Campus FATEC'}
                         </span>
                       </div>
                     </div>
                   </CardContent>
 
-                  <CardFooter className="bg-[#f6f3ef] border-t border-[#f0edea]">
-                    <Link to={`/eventos/${evt.id}`} className="w-full">
+                  <CardFooter className="bg-[var(--color-bg-subtle)] border-t border-[var(--color-bg-muted)]">
+                    <Link
+                      to={buildEventPath(eventRouteBase, evt.id)}
+                      className="w-full"
+                    >
                       <Button
                         variant={
                           evt.inscricoesEncerradas ? 'outline' : 'primary'

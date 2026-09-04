@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import apiClient from '../../../shared/http/apiClient'
 import {
   Card,
@@ -8,13 +8,13 @@ import {
   Button,
   Badge,
   Alert,
-  Spinner,
-  ArrowLeftIcon,
   CopyIcon,
   CheckIcon,
   DownloadIcon,
   ExternalLinkIcon,
 } from '../../../shared/ui'
+import { PublicCertificateSkeleton } from './skeletons'
+import { HistoryBackButton } from '../../../shared/navigation'
 
 interface CertificadoPublicoData {
   certificado: {
@@ -91,13 +91,7 @@ export const PublicCertificateViewPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 w-full max-w-3xl mx-auto py-8 px-4 sm:px-6">
       <div>
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors rounded focus-visible:ring-2 px-1"
-        >
-          <ArrowLeftIcon size={14} />
-          Voltar ao Início
-        </Link>
+        <HistoryBackButton label="Voltar para a página anterior" />
       </div>
 
       {error && (
@@ -106,24 +100,14 @@ export const PublicCertificateViewPage: React.FC = () => {
         </Alert>
       )}
 
-      {isLoading && (
-        <div
-          className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500"
-          role="status"
-        >
-          <Spinner size="lg" className="text-blue-600" />
-          <p className="text-sm font-medium">
-            Consultando registro do certificado...
-          </p>
-        </div>
-      )}
+      {isLoading && <PublicCertificateSkeleton />}
 
       {!isLoading && data && (
-        <Card className="bg-white border-slate-200 shadow-sm overflow-hidden">
-          <CardHeader className="bg-slate-50/70 border-b border-slate-100 flex-row items-center justify-between flex-wrap gap-2">
+        <Card className="surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-sm overflow-hidden">
+          <CardHeader className="bg-[var(--color-bg-subtle)]/70 border-b border-[var(--color-border-subtle)] flex-row items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <Badge variant="success">Certificado Autêntico</Badge>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-[var(--color-text-muted)]">
                 Emissão: {data.certificado.dataEmissao}
               </span>
             </div>
@@ -136,7 +120,10 @@ export const PublicCertificateViewPage: React.FC = () => {
             >
               {copied ? (
                 <>
-                  <CheckIcon size={14} className="text-emerald-600" />
+                  <CheckIcon
+                    size={14}
+                    className="text-[var(--color-success-text)]"
+                  />
                   <span>Código Copiado!</span>
                 </>
               ) : (
@@ -149,36 +136,36 @@ export const PublicCertificateViewPage: React.FC = () => {
           </CardHeader>
 
           <CardContent className="p-6 sm:p-8 flex flex-col gap-6">
-            <div className="text-center py-4 border-b border-slate-100">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <div className="text-center py-4 border-b border-[var(--color-border-subtle)]">
+              <span className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest">
                 FATEC Zona Leste — Certificado de Participação
               </span>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] mt-2 tracking-tight">
                 {data.certificado.participacao?.pessoa?.nome || 'Participante'}
               </h1>
-              <p className="text-sm text-slate-600 mt-2 max-w-xl mx-auto">
+              <p className="text-sm text-[var(--color-text-secondary)] mt-2 max-w-xl mx-auto">
                 Participou com êxito do evento acadêmico{' '}
-                <strong className="text-slate-900">
+                <strong className="text-[var(--color-text-primary)]">
                   {data.certificado.participacao?.evento?.tema || 'Evento'}
                 </strong>
                 .
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-[var(--color-bg-subtle)] p-4 rounded-none border border-[var(--color-border-subtle)]">
               <div>
-                <span className="text-slate-400 font-medium block">
+                <span className="text-[var(--color-text-muted)] font-medium block">
                   Código de Autenticidade (UUID):
                 </span>
-                <span className="font-mono text-slate-800 break-all">
+                <span className="font-mono text-[var(--color-text-primary)] break-all">
                   {data.certificado.codigoValidacao}
                 </span>
               </div>
               <div>
-                <span className="text-slate-400 font-medium block">
+                <span className="text-[var(--color-text-muted)] font-medium block">
                   Assinatura Digital:
                 </span>
-                <span className="text-slate-800 font-medium">
+                <span className="text-[var(--color-text-primary)] font-medium">
                   {data.certificado.assinatura || 'Coordenação FATEC'}
                 </span>
               </div>

@@ -1,4 +1,5 @@
 export * from './domain/eventoTypes'
+export * from './domain/eventRoutes'
 export * from './api/eventosApi'
 export * from './ui/LandingPage'
 export * from './ui/PublicEventListPage'

@@ -13,7 +13,8 @@ import {
   Badge,
   Button,
   Alert,
-  Spinner,
+  LoadingDots,
+  SkeletonBlock,
   Input,
   SearchIcon,
   PlusIcon,
@@ -26,6 +27,7 @@ import {
   DownloadIcon,
   XIcon,
 } from '../../../shared/ui'
+import { AdminEventListSkeleton } from './skeletons'
 
 const getStatusBadgeVariant = (status: StatusEvento) => {
   switch (status) {
@@ -290,15 +292,15 @@ export const AdminEventListPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Cabeçalho da Gestão de Eventos */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[var(--color-border)] pb-5">
         <div>
-          <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
             Área do Administrador
           </span>
-          <h1 className="text-2xl lg:text-3xl font-black text-slate-900 mt-1">
+          <h1 className="text-2xl lg:text-3xl font-black text-[var(--color-text-primary)] mt-1">
             Gestão de Eventos
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Cadastre, organize horários, acompanhe presenças e conclua eventos
             acadêmicos.
           </p>
@@ -335,11 +337,11 @@ export const AdminEventListPage: React.FC = () => {
       )}
 
       {/* Barra de Filtros e Busca */}
-      <div className="flex flex-col md:flex-row md:items-end gap-4 justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-end gap-4 justify-between surface-depth bg-[var(--color-bg-surface)] p-4 rounded-none border border-[var(--color-border)] shadow-xs">
         <div className="max-w-md flex-1">
           <label
             htmlFor={searchInputId}
-            className="block text-xs font-semibold text-slate-700 mb-1"
+            className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
           >
             Buscar eventos
           </label>
@@ -352,7 +354,7 @@ export const AdminEventListPage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
               <SearchIcon size={16} />
             </div>
           </div>
@@ -367,10 +369,10 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('TODOS')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
               statusFilter === 'TODOS'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                ? 'bg-[var(--color-primary)] text-white shadow-xs'
+                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
             }`}
           >
             Todos ({events.length})
@@ -378,10 +380,10 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('EM_ANDAMENTO')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
               statusFilter === 'EM_ANDAMENTO'
-                ? 'bg-sky-600 text-white shadow-xs'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                ? 'bg-[var(--color-info)] text-white shadow-xs'
+                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
             }`}
           >
             Em Andamento ({countEmAndamento})
@@ -389,10 +391,10 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('CRIADO')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
               statusFilter === 'CRIADO'
-                ? 'bg-slate-700 text-white shadow-xs'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                ? 'bg-[var(--color-text-secondary)] text-white shadow-xs'
+                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
             }`}
           >
             Programados ({countCriado})
@@ -400,10 +402,10 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('FINALIZADO')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
               statusFilter === 'FINALIZADO'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                ? 'bg-[var(--color-success)] text-white shadow-xs'
+                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
             }`}
           >
             Finalizados ({countFinalizado})
@@ -411,10 +413,10 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('CANCELADO')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
               statusFilter === 'CANCELADO'
-                ? 'bg-red-600 text-white shadow-xs'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                ? 'bg-[var(--color-danger)] text-white shadow-xs'
+                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
             }`}
           >
             Cancelados ({countCancelado})
@@ -423,33 +425,23 @@ export const AdminEventListPage: React.FC = () => {
       </div>
 
       {/* Estado de Carregamento */}
-      {isLoading && (
-        <div
-          className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500"
-          aria-live="polite"
-        >
-          <Spinner size="lg" className="text-blue-600" />
-          <p className="text-sm font-medium">
-            Carregando eventos acadêmicos...
-          </p>
-        </div>
-      )}
+      {isLoading && <AdminEventListSkeleton />}
 
       {/* Tabela de Eventos (Desktop-First) */}
       {!isLoading && !error && (
         <>
           {filteredEvents.length === 0 ? (
-            <Card className="bg-white border-dashed border-slate-300 p-12 text-center">
+            <Card className="bg-[var(--color-bg-surface)] border-dashed border-[var(--color-border-strong)] p-12 text-center">
               <div className="max-w-md mx-auto flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-[var(--color-info-bg)] text-[var(--color-primary-text)] flex items-center justify-center">
                   <CalendarIcon size={24} />
                 </div>
-                <h2 className="text-base font-semibold text-slate-900">
+                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
                   {searchTerm || statusFilter !== 'TODOS'
                     ? 'Nenhum evento corresponde aos filtros informados'
                     : 'Nenhum evento acadêmico cadastrado'}
                 </h2>
-                <p className="text-sm text-slate-500 leading-relaxed">
+                <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
                   {searchTerm || statusFilter !== 'TODOS'
                     ? 'Tente remover os filtros ou pesquisar por outro termo.'
                     : 'Comece criando o primeiro evento para permitir inscrições e emissão de certificados.'}
@@ -476,10 +468,10 @@ export const AdminEventListPage: React.FC = () => {
               </div>
             </Card>
           ) : (
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+            <div className="surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm border-collapse">
-                  <thead className="bg-slate-50/80 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  <thead className="bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
                     <tr>
                       <th className="py-3.5 px-4">Evento</th>
                       <th className="py-3.5 px-4">Data e Horário</th>
@@ -490,7 +482,7 @@ export const AdminEventListPage: React.FC = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-[var(--color-border-subtle)]">
                     {filteredEvents.map((evt) => {
                       const isCancelled = evt.status === 'CANCELADO'
                       const isFinished = evt.status === 'FINALIZADO'
@@ -503,27 +495,30 @@ export const AdminEventListPage: React.FC = () => {
                       return (
                         <tr
                           key={evt.id}
-                          className="hover:bg-slate-50/60 transition-colors"
+                          className="hover:bg-[var(--color-bg-subtle)]/60 transition-colors"
                         >
                           <td className="py-4 px-4">
-                            <div className="font-semibold text-slate-900 line-clamp-1">
+                            <div className="font-semibold text-[var(--color-text-primary)] line-clamp-1">
                               {evt.tema}
                             </div>
-                            <div className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                            <div className="text-xs text-[var(--color-text-muted)] mt-0.5 line-clamp-1">
                               {localNome}
                             </div>
                           </td>
 
-                          <td className="py-4 px-4 whitespace-nowrap text-slate-700">
+                          <td className="py-4 px-4 whitespace-nowrap text-[var(--color-text-secondary)]">
                             <div className="flex items-center gap-1.5 text-xs font-medium">
                               <CalendarIcon
                                 size={14}
-                                className="text-slate-400"
+                                className="text-[var(--color-text-muted)]"
                               />
                               <span>{formatDate(evt.data)}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
-                              <ClockIcon size={14} className="text-slate-400" />
+                            <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)] mt-0.5">
+                              <ClockIcon
+                                size={14}
+                                className="text-[var(--color-text-muted)]"
+                              />
                               <span>
                                 {evt.horarioInicio || '--:--'} às{' '}
                                 {evt.horarioFim || '--:--'}
@@ -557,7 +552,7 @@ export const AdminEventListPage: React.FC = () => {
                                 }
                                 title="Visualizar QR Codes do evento"
                                 aria-label={`Visualizar QR Codes do evento ${evt.tema}`}
-                                className="text-slate-600 hover:text-slate-900"
+                                className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
                               >
                                 <QrCodeIcon size={16} />
                               </Button>
@@ -569,7 +564,7 @@ export const AdminEventListPage: React.FC = () => {
                                   size="sm"
                                   title="Editar evento"
                                   aria-label="Editar evento"
-                                  className="text-slate-600 hover:text-slate-900"
+                                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
                                 >
                                   <EditIcon size={16} />
                                 </Button>
@@ -582,7 +577,7 @@ export const AdminEventListPage: React.FC = () => {
                                     variant="outline"
                                     size="sm"
                                     title="Concluir evento e emitir certificados"
-                                    className="gap-1 text-emerald-700 border-emerald-300 hover:bg-emerald-50 text-xs"
+                                    className="gap-1 text-[var(--color-success-text)] border-[var(--color-success-border)] hover:bg-[var(--color-success-bg)] text-xs"
                                   >
                                     <CheckCircleIcon size={14} />
                                     Concluir
@@ -599,10 +594,10 @@ export const AdminEventListPage: React.FC = () => {
                                   disabled={isDeleting}
                                   title="Cancelar evento"
                                   aria-label="Cancelar evento"
-                                  className="text-red-600 hover:bg-red-50"
+                                  className="text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)]"
                                 >
                                   {isDeleting ? (
-                                    <Spinner size="sm" />
+                                    <LoadingDots label="Cancelando evento" />
                                   ) : (
                                     <TrashIcon size={16} />
                                   )}
@@ -624,24 +619,24 @@ export const AdminEventListPage: React.FC = () => {
       {/* Modal de QR Codes com Estados e Tentativas Independentes */}
       {qrModalEvent && (
         <div
-          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          className="fixed inset-0 z-50 bg-[var(--color-backdrop)] backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-qrcode-titulo"
         >
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 my-8">
-            <div className="flex items-start justify-between pb-4 border-b border-slate-100 gap-4">
+          <div className="surface-depth bg-[var(--color-bg-surface)] rounded-none max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[var(--color-border)] animate-in fade-in zoom-in-95 my-8">
+            <div className="flex items-start justify-between pb-4 border-b border-[var(--color-border-subtle)] gap-4">
               <div>
-                <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-[var(--color-primary-text)] uppercase tracking-wider">
                   Códigos de Acesso Rápido
                 </span>
                 <h3
                   id="modal-qrcode-titulo"
-                  className="text-xl font-black text-slate-900 tracking-tight"
+                  className="text-xl font-black text-[var(--color-text-primary)] tracking-tight"
                 >
                   QR Codes do Evento
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 line-clamp-1">
+                <p className="text-xs text-[var(--color-text-muted)] mt-1 line-clamp-1">
                   {qrModalEvent.tema} &bull; {formatDate(qrModalEvent.data)}
                 </p>
               </div>
@@ -651,7 +646,7 @@ export const AdminEventListPage: React.FC = () => {
                 size="sm"
                 onClick={handleCloseQrModal}
                 aria-label="Fechar modal de QR Codes"
-                className="text-slate-400 hover:text-slate-800"
+                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
               >
                 <XIcon size={20} />
               </Button>
@@ -660,20 +655,20 @@ export const AdminEventListPage: React.FC = () => {
             <div className="py-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* 1. Painel de Inscrição Pública */}
-                <div className="flex flex-col items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200 min-h-[340px]">
+                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)] min-h-[340px]">
                   <div className="w-full text-center mb-3">
-                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                    <span className="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider block">
                       Inscrição Pública
                     </span>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
+                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
                       Direciona para a página de inscrição do evento
                     </p>
                   </div>
 
                   <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
                     {qrInscricao.status === 'loading' && (
-                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-slate-500">
-                        <Spinner size="md" className="text-blue-600" />
+                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
+                        <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
                         <span className="text-xs font-medium">
                           Gerando código...
                         </span>
@@ -681,15 +676,15 @@ export const AdminEventListPage: React.FC = () => {
                     )}
 
                     {qrInscricao.status === 'error' && (
-                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-red-50/80 rounded-lg border border-red-200 text-center w-full">
-                        <p className="text-xs text-red-700 leading-snug">
+                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-none border border-[var(--color-danger-border)] text-center w-full">
+                        <p className="text-xs text-[var(--color-danger-text)] leading-snug">
                           {qrInscricao.error || 'Falha ao carregar QR Code.'}
                         </p>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => carregarInscricao(qrModalEvent.id)}
-                          className="text-xs text-red-700 border-red-300 hover:bg-red-100"
+                          className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
                         >
                           Tentar novamente
                         </Button>
@@ -701,13 +696,13 @@ export const AdminEventListPage: React.FC = () => {
                         <img
                           src={qrInscricao.url}
                           alt={`QR Code para inscrição no evento ${qrModalEvent.tema}`}
-                          className="w-40 h-40 bg-white p-2 rounded-xl border border-slate-200 shadow-xs object-contain"
+                          className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-none border border-[var(--color-border)] shadow-xs object-contain"
                         />
                       </div>
                     )}
                   </div>
 
-                  <div className="w-full pt-3 mt-auto border-t border-slate-200/60 flex justify-center">
+                  <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
                     {qrInscricao.status === 'success' && qrInscricao.url ? (
                       <a
                         href={qrInscricao.url}
@@ -725,7 +720,7 @@ export const AdminEventListPage: React.FC = () => {
                         </Button>
                       </a>
                     ) : (
-                      <span className="text-[11px] text-slate-400 py-1.5">
+                      <span className="text-[11px] text-[var(--color-text-muted)] py-1.5">
                         {qrInscricao.status === 'loading'
                           ? 'Aguardando processamento...'
                           : 'Download indisponível'}
@@ -735,20 +730,20 @@ export const AdminEventListPage: React.FC = () => {
                 </div>
 
                 {/* 2. Painel de Confirmação de Presença */}
-                <div className="flex flex-col items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200 min-h-[340px]">
+                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)] min-h-[340px]">
                   <div className="w-full text-center mb-3">
-                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                    <span className="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider block">
                       Confirmar Presença
                     </span>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
+                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
                       Check-in por leitura de câmera no local
                     </p>
                   </div>
 
                   <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
                     {qrConfirmacao.status === 'loading' && (
-                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-slate-500">
-                        <Spinner size="md" className="text-blue-600" />
+                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
+                        <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
                         <span className="text-xs font-medium">
                           Gerando código...
                         </span>
@@ -756,15 +751,15 @@ export const AdminEventListPage: React.FC = () => {
                     )}
 
                     {qrConfirmacao.status === 'error' && (
-                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-red-50/80 rounded-lg border border-red-200 text-center w-full">
-                        <p className="text-xs text-red-700 leading-snug">
+                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-none border border-[var(--color-danger-border)] text-center w-full">
+                        <p className="text-xs text-[var(--color-danger-text)] leading-snug">
                           {qrConfirmacao.error || 'Falha ao carregar QR Code.'}
                         </p>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => carregarConfirmacao(qrModalEvent.id)}
-                          className="text-xs text-red-700 border-red-300 hover:bg-red-100"
+                          className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
                         >
                           Tentar novamente
                         </Button>
@@ -777,13 +772,13 @@ export const AdminEventListPage: React.FC = () => {
                           <img
                             src={qrConfirmacao.url}
                             alt={`QR Code para confirmação de presença no evento ${qrModalEvent.tema}`}
-                            className="w-40 h-40 bg-white p-2 rounded-xl border border-slate-200 shadow-xs object-contain"
+                            className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-none border border-[var(--color-border)] shadow-xs object-contain"
                           />
                         </div>
                       )}
                   </div>
 
-                  <div className="w-full pt-3 mt-auto border-t border-slate-200/60 flex justify-center">
+                  <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
                     {qrConfirmacao.status === 'success' && qrConfirmacao.url ? (
                       <a
                         href={qrConfirmacao.url}
@@ -801,7 +796,7 @@ export const AdminEventListPage: React.FC = () => {
                         </Button>
                       </a>
                     ) : (
-                      <span className="text-[11px] text-slate-400 py-1.5">
+                      <span className="text-[11px] text-[var(--color-text-muted)] py-1.5">
                         {qrConfirmacao.status === 'loading'
                           ? 'Aguardando processamento...'
                           : 'Download indisponível'}
@@ -812,10 +807,10 @@ export const AdminEventListPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <span className="text-xs text-slate-400">
+            <div className="pt-4 border-t border-[var(--color-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span className="text-xs text-[var(--color-text-muted)]">
                 Pressione{' '}
-                <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-mono text-slate-600">
+                <kbd className="px-1.5 py-0.5 bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-none text-[10px] font-mono text-[var(--color-text-secondary)]">
                   Esc
                 </kbd>{' '}
                 para fechar a qualquer momento

@@ -20,13 +20,13 @@ import {
   Input,
   Badge,
   Alert,
-  Spinner,
-  ArrowLeftIcon,
   CheckCircleIcon,
   SearchIcon,
   UploadIcon,
   UsersIcon,
 } from '../../../shared/ui'
+import { AdminEventConcludeSkeleton } from './skeletons'
+import { HistoryBackButton } from '../../../shared/navigation'
 
 export const AdminEventConcludePage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -182,34 +182,30 @@ export const AdminEventConcludePage: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Navegação superior e Título */}
-      <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
-        <Link
-          to="/admin/eventos"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors p-1 rounded focus-visible:ring-2 focus-visible:ring-blue-600"
-        >
-          <ArrowLeftIcon size={16} />
-          Voltar para Lista de Eventos
-        </Link>
+      <div className="flex items-center gap-3 border-b border-[var(--color-border)] pb-4">
+        <HistoryBackButton label="Voltar para a página anterior" />
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-[var(--color-success-text)] uppercase tracking-wider">
             Fechamento de Atividades
           </span>
-          <h1 className="text-2xl lg:text-3xl font-black text-slate-900 mt-1">
+          <h1 className="text-2xl lg:text-3xl font-black text-[var(--color-text-primary)] mt-1">
             Conclusão e Emissão de Certificados
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Valide as presenças dos inscritos, anexe a assinatura do coordenador
             e emita os certificados em lote.
           </p>
         </div>
 
         {event && (
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs flex flex-col items-end">
-            <span className="font-semibold text-slate-900">{event.tema}</span>
-            <span className="text-slate-500 mt-0.5">
+          <div className="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-none p-3 text-xs flex flex-col items-end">
+            <span className="font-semibold text-[var(--color-text-primary)]">
+              {event.tema}
+            </span>
+            <span className="text-[var(--color-text-muted)] mt-0.5">
               Data: {event.data} ({event.horarioInicio} às {event.horarioFim})
             </span>
           </div>
@@ -225,33 +221,27 @@ export const AdminEventConcludePage: React.FC = () => {
 
       {/* Sucesso após conclusão */}
       {concludeResult && (
-        <Card className="bg-emerald-50/50 border-emerald-300 p-6 sm:p-8 text-center space-y-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center">
+        <Card className="bg-[var(--color-success-bg)]/50 border-[var(--color-success-border)] p-6 sm:p-8 text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success-text)] mx-auto flex items-center justify-center">
             <CheckCircleIcon size={28} />
           </div>
           <div className="max-w-md mx-auto">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-[var(--color-text-primary)]">
               Evento Concluído com Sucesso!
             </h2>
-            <p className="text-sm text-slate-600 mt-2 leading-relaxed">
+            <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
               {concludeResult.message ||
                 'Os certificados foram gerados e autenticados digitalmente.'}
             </p>
             {concludeResult.certificadosGerados !== undefined && (
-              <p className="text-xs font-semibold text-emerald-700 mt-1">
+              <p className="text-xs font-semibold text-[var(--color-success-text)] mt-1">
                 Total de certificados emitidos:{' '}
                 {concludeResult.certificadosGerados}
               </p>
             )}
           </div>
           <div className="pt-2 flex justify-center gap-3">
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => navigate('/admin/eventos')}
-            >
-              Voltar para Gestão de Eventos
-            </Button>
+            <HistoryBackButton label="Voltar para a página anterior" />
             <Button
               variant="outline"
               size="md"
@@ -267,16 +257,16 @@ export const AdminEventConcludePage: React.FC = () => {
       {!concludeResult && !isLoading && (
         <div className="space-y-6">
           {/* Card de Assinatura Digital do Coordenador */}
-          <Card className="bg-white border-slate-200 shadow-xs">
-            <CardHeader className="border-b border-slate-100">
-              <CardTitle className="text-base font-bold text-slate-900">
+          <Card className="surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-xs">
+            <CardHeader className="border-b border-[var(--color-border-subtle)]">
+              <CardTitle className="text-base font-bold text-[var(--color-text-primary)]">
                 1. Assinatura Digital do Responsável / Coordenador
               </CardTitle>
             </CardHeader>
 
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div className="w-48 h-24 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
+                <div className="w-48 h-24 rounded-none border-2 border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-subtle)] flex items-center justify-center overflow-hidden shrink-0">
                   {assinaturaPreviewUrl ? (
                     <img
                       src={assinaturaPreviewUrl}
@@ -284,7 +274,7 @@ export const AdminEventConcludePage: React.FC = () => {
                       className="max-h-full max-w-full object-contain p-2"
                     />
                   ) : (
-                    <div className="text-center p-2 text-xs text-slate-400">
+                    <div className="text-center p-2 text-xs text-[var(--color-text-muted)]">
                       Nenhuma imagem anexada
                     </div>
                   )}
@@ -293,12 +283,15 @@ export const AdminEventConcludePage: React.FC = () => {
                 <div className="space-y-2 flex-1">
                   <label
                     htmlFor={fileInputId}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-slate-700"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-text-secondary)]"
                   >
-                    <UploadIcon size={16} className="text-slate-500" />
+                    <UploadIcon
+                      size={16}
+                      className="text-[var(--color-text-muted)]"
+                    />
                     <span>Arquivo de Imagem da Assinatura (PNG ou JPEG)</span>
                   </label>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-text-muted)]">
                     A imagem enviada será inserida nos certificados emitidos em
                     lote para os participantes confirmados.
                   </p>
@@ -308,10 +301,10 @@ export const AdminEventConcludePage: React.FC = () => {
                       type="file"
                       accept="image/png, image/jpeg, image/webp"
                       onChange={handleFileChange}
-                      className="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border file:border-slate-300 file:bg-white file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-50"
+                      className="text-xs text-[var(--color-text-secondary)] file:mr-3 file:py-1.5 file:px-3 file:rounded-none file:border file:border-[var(--color-border-strong)] file:bg-[var(--color-bg-surface)] file:text-xs file:font-semibold file:text-[var(--color-text-secondary)] hover:file:bg-[var(--color-bg-subtle)]"
                     />
                     {assinaturaFile && (
-                      <span className="text-xs text-emerald-600 font-medium">
+                      <span className="text-xs text-[var(--color-success-text)] font-medium">
                         Arquivo pronto
                       </span>
                     )}
@@ -322,13 +315,13 @@ export const AdminEventConcludePage: React.FC = () => {
           </Card>
 
           {/* Card de Lista de Presenças */}
-          <Card className="bg-white border-slate-200 shadow-xs">
-            <CardHeader className="border-b border-slate-100 flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <Card className="surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-xs">
+            <CardHeader className="border-b border-[var(--color-border-subtle)] flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <CardTitle className="text-base font-bold text-slate-900">
+                <CardTitle className="text-base font-bold text-[var(--color-text-primary)]">
                   2. Conferência de Participantes e Presenças
                 </CardTitle>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
                   Selecione quem realmente compareceu ao evento para emissão dos
                   certificados.
                 </p>
@@ -347,7 +340,7 @@ export const AdminEventConcludePage: React.FC = () => {
                 <div className="max-w-md flex-1">
                   <label
                     htmlFor={searchInputId}
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
                   >
                     Buscar participante
                   </label>
@@ -360,7 +353,7 @@ export const AdminEventConcludePage: React.FC = () => {
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-9"
                     />
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
                       <SearchIcon size={16} />
                     </div>
                   </div>
@@ -375,10 +368,10 @@ export const AdminEventConcludePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFilterTab('TODOS')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
                       filterTab === 'TODOS'
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-[var(--color-primary)] text-white shadow-xs'
+                        : 'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
                     }`}
                   >
                     Todos ({participacoes.length})
@@ -386,10 +379,10 @@ export const AdminEventConcludePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFilterTab('PRESENTES')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
                       filterTab === 'PRESENTES'
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-[var(--color-success)] text-white shadow-xs'
+                        : 'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
                     }`}
                   >
                     Presentes ({presentesIds.length})
@@ -397,10 +390,10 @@ export const AdminEventConcludePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFilterTab('AUSENTES')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
                       filterTab === 'AUSENTES'
-                        ? 'bg-amber-600 text-white shadow-xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-[var(--color-warning)] text-white shadow-xs'
+                        : 'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
                     }`}
                   >
                     Ausentes ({participacoes.length - presentesIds.length})
@@ -410,19 +403,19 @@ export const AdminEventConcludePage: React.FC = () => {
 
               {/* Tabela de Participações */}
               {participacoes.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 border border-dashed rounded-xl">
+                <div className="p-8 text-center text-[var(--color-text-muted)] border border-dashed rounded-none">
                   <UsersIcon
                     size={32}
-                    className="mx-auto text-slate-300 mb-2"
+                    className="mx-auto text-[var(--color-text-subtle)] mb-2"
                   />
-                  <p className="text-sm font-medium text-slate-600">
+                  <p className="text-sm font-medium text-[var(--color-text-secondary)]">
                     Nenhum participante inscrito neste evento.
                   </p>
                 </div>
               ) : (
-                <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <div className="border border-[var(--color-border)] rounded-none overflow-hidden">
                   <table className="w-full text-left text-sm border-collapse">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600">
+                    <thead className="bg-[var(--color-bg-subtle)] border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)]">
                       <tr>
                         <th className="py-3 px-4 w-12 text-center">
                           <input
@@ -432,7 +425,7 @@ export const AdminEventConcludePage: React.FC = () => {
                               handleToggleSelectAll(e.target.checked)
                             }
                             aria-label="Marcar todos os participantes visíveis"
-                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-600 w-4 h-4 cursor-pointer"
+                            className="rounded-none border-[var(--color-border-strong)] text-[var(--color-primary-text)] focus:ring-[var(--focus-ring-color)] w-4 h-4 cursor-pointer"
                           />
                         </th>
                         <th className="py-3 px-4">Participante</th>
@@ -441,14 +434,14 @@ export const AdminEventConcludePage: React.FC = () => {
                         <th className="py-3 px-4 text-center">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-[var(--color-border-subtle)]">
                       {filteredParticipacoes.map((part) => {
                         const isPresent = presentesIds.includes(part.id)
                         return (
                           <tr
                             key={part.id}
-                            className={`hover:bg-slate-50/70 transition-colors ${
-                              isPresent ? 'bg-emerald-50/20' : ''
+                            className={`hover:bg-[var(--color-bg-subtle)]/70 transition-colors ${
+                              isPresent ? 'bg-[var(--color-success-bg)]/20' : ''
                             }`}
                           >
                             <td className="py-3 px-4 text-center">
@@ -457,21 +450,21 @@ export const AdminEventConcludePage: React.FC = () => {
                                 checked={isPresent}
                                 onChange={() => handleTogglePresente(part.id)}
                                 aria-label={`Marcar presença de ${part.pessoa?.nome || 'participante'}`}
-                                className="rounded border-slate-300 text-blue-600 focus:ring-blue-600 w-4 h-4 cursor-pointer"
+                                className="rounded-none border-[var(--color-border-strong)] text-[var(--color-primary-text)] focus:ring-[var(--focus-ring-color)] w-4 h-4 cursor-pointer"
                               />
                             </td>
                             <td className="py-3 px-4">
-                              <div className="font-semibold text-slate-900">
+                              <div className="font-semibold text-[var(--color-text-primary)]">
                                 {part.pessoa?.nome || 'Participante'}
                               </div>
-                              <div className="text-xs text-slate-500">
+                              <div className="text-xs text-[var(--color-text-muted)]">
                                 {part.pessoa?.email || '-'}
                               </div>
                             </td>
-                            <td className="py-3 px-4 font-mono text-xs text-slate-600">
+                            <td className="py-3 px-4 font-mono text-xs text-[var(--color-text-secondary)]">
                               #{part.inscricao}
                             </td>
-                            <td className="py-3 px-4 text-xs text-slate-700">
+                            <td className="py-3 px-4 text-xs text-[var(--color-text-secondary)]">
                               <Badge variant="default" size="sm">
                                 {part.tipo || 'Aluno'}
                               </Badge>
@@ -496,9 +489,9 @@ export const AdminEventConcludePage: React.FC = () => {
               )}
             </CardContent>
 
-            <CardFooter className="bg-slate-50/80 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:px-6">
-              <div className="text-xs text-slate-500">
-                <span className="font-semibold text-slate-800">
+            <CardFooter className="bg-[var(--color-bg-subtle)]/80 border-t border-[var(--color-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:px-6">
+              <div className="text-xs text-[var(--color-text-muted)]">
+                <span className="font-semibold text-[var(--color-text-primary)]">
                   {presentesIds.length}
                 </span>{' '}
                 certificados serão emitidos após a confirmação.
@@ -517,7 +510,7 @@ export const AdminEventConcludePage: React.FC = () => {
                   onClick={handleConcludeEvent}
                   disabled={isConcluding}
                   isLoading={isConcluding}
-                  className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+                  className="gap-2 bg-[var(--color-success)] hover:bg-[var(--color-success)]"
                 >
                   <CheckCircleIcon size={18} />
                   {isConcluding
@@ -531,17 +524,7 @@ export const AdminEventConcludePage: React.FC = () => {
       )}
 
       {/* Loading inicial */}
-      {isLoading && (
-        <div
-          className="flex flex-col items-center justify-center py-20 gap-3 text-slate-500"
-          aria-live="polite"
-        >
-          <Spinner size="lg" className="text-blue-600" />
-          <p className="text-sm font-medium">
-            Carregando dados para conclusão...
-          </p>
-        </div>
-      )}
+      {isLoading && <AdminEventConcludeSkeleton />}
     </div>
   )
 }

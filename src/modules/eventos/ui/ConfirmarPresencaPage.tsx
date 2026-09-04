@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { confirmarPresencaApi } from '../api/eventosApi'
+import { PUBLIC_EVENTS_PATH } from '../domain/eventRoutes'
 import { useAuth } from '../../auth'
 import {
   Card,
@@ -11,8 +12,15 @@ import {
   Input,
   Alert,
 } from '../../../shared/ui'
+import { HistoryBackButton } from '../../../shared/navigation'
 
-export const ConfirmarPresencaPage: React.FC = () => {
+interface ConfirmarPresencaPageProps {
+  eventRouteBase?: string
+}
+
+export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
+  eventRouteBase = PUBLIC_EVENTS_PATH,
+}) => {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
 
@@ -50,15 +58,15 @@ export const ConfirmarPresencaPage: React.FC = () => {
 
   return (
     <div className="min-h-[80vh] flex flex-col justify-center items-center px-4 py-8 max-w-md mx-auto">
-      <Card className="w-full bg-white border-slate-200 shadow-md">
+      <Card className="w-full surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-md">
         <CardHeader className="text-center pb-4">
-          <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">
+          <span className="text-xs font-bold text-[var(--color-primary-text)] uppercase tracking-wider">
             Validação de Presença
           </span>
           <CardTitle as="h1" className="text-xl font-bold mt-1">
             Confirmar Presença no Evento
           </CardTitle>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">
             Informe o seu CPF cadastrado na inscrição deste evento
           </p>
         </CardHeader>
@@ -74,7 +82,7 @@ export const ConfirmarPresencaPage: React.FC = () => {
                       Ver Minhas Conquistas
                     </Button>
                   </Link>
-                  <Link to="/eventos">
+                  <Link to={eventRouteBase}>
                     <Button variant="outline" size="sm" fullWidth>
                       Ir para Lista de Eventos
                     </Button>
@@ -114,18 +122,13 @@ export const ConfirmarPresencaPage: React.FC = () => {
                 fullWidth
                 isLoading={isSubmitting}
                 loadingText="Validando presença..."
-                className="mt-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 focus-visible:ring-emerald-600"
+                className="mt-2 bg-[var(--color-success)] hover:bg-[var(--color-success)] active:bg-[var(--color-success)] focus-visible:ring-[var(--color-success)]"
               >
                 Confirmar Presença Agora
               </Button>
 
               <div className="text-center pt-2">
-                <Link
-                  to={id ? `/eventos/${id}` : '/eventos'}
-                  className="text-xs text-slate-500 hover:text-slate-800 underline underline-offset-2 focus-visible:ring-2 rounded p-1"
-                >
-                  ← Voltar para o evento
-                </Link>
+                <HistoryBackButton label="Voltar para a página anterior" />
               </div>
             </form>
           )}
