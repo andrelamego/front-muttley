@@ -9,6 +9,11 @@ import {
   Badge,
   Alert,
   Spinner,
+  ArrowLeftIcon,
+  CopyIcon,
+  CheckIcon,
+  DownloadIcon,
+  ExternalLinkIcon,
 } from '../../../shared/ui'
 
 interface CertificadoPublicoData {
@@ -88,9 +93,10 @@ export const PublicCertificateViewPage: React.FC = () => {
       <div>
         <Link
           to="/"
-          className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors rounded focus-visible:ring-2 px-1"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors rounded focus-visible:ring-2 px-1"
         >
-          ← Início
+          <ArrowLeftIcon size={14} />
+          Voltar ao Início
         </Link>
       </div>
 
@@ -122,8 +128,23 @@ export const PublicCertificateViewPage: React.FC = () => {
               </span>
             </div>
 
-            <Button variant="outline" size="sm" onClick={handleCopyCode}>
-              {copied ? 'Código Copiado!' : 'Copiar Código'}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopyCode}
+              className="gap-1.5"
+            >
+              {copied ? (
+                <>
+                  <CheckIcon size={14} className="text-emerald-600" />
+                  <span>Código Copiado!</span>
+                </>
+              ) : (
+                <>
+                  <CopyIcon size={14} />
+                  <span>Copiar Código</span>
+                </>
+              )}
             </Button>
           </CardHeader>
 
@@ -171,7 +192,8 @@ export const PublicCertificateViewPage: React.FC = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <Button variant="primary" size="md" fullWidth>
+                <Button variant="primary" size="md" fullWidth className="gap-2">
+                  <DownloadIcon size={16} />
                   Baixar Certificado (PDF)
                 </Button>
               </a>
@@ -194,8 +216,14 @@ export const PublicCertificateViewPage: React.FC = () => {
                   rel="noreferrer"
                   className="w-full sm:w-auto"
                 >
-                  <Button variant="secondary" size="md" fullWidth>
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    fullWidth
+                    className="gap-2"
+                  >
                     Compartilhar no LinkedIn
+                    <ExternalLinkIcon size={14} />
                   </Button>
                 </a>
               )}

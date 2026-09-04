@@ -45,12 +45,12 @@ export const ParticipantLayout: React.FC = () => {
 
         {/* Abas de Navegação */}
         <nav
-          className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center gap-6 text-sm border-t border-slate-100"
+          className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center gap-4 sm:gap-6 text-sm border-t border-slate-100 overflow-x-auto"
           aria-label="Navegação do participante"
         >
           <Link
             to="/user/inicio"
-            className={`py-2.5 font-medium border-b-2 transition-colors ${
+            className={`py-2.5 font-medium border-b-2 whitespace-nowrap transition-colors ${
               location.pathname === '/user/inicio'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-slate-600 hover:text-slate-900'
@@ -59,8 +59,28 @@ export const ParticipantLayout: React.FC = () => {
             Meu Painel
           </Link>
           <Link
+            to="/user/certificados"
+            className={`py-2.5 font-medium border-b-2 whitespace-nowrap transition-colors ${
+              location.pathname.startsWith('/user/certificados')
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Meus Certificados
+          </Link>
+          <Link
+            to="/user/medalhas"
+            className={`py-2.5 font-medium border-b-2 whitespace-nowrap transition-colors ${
+              location.pathname.startsWith('/user/medalhas')
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Minhas Medalhas
+          </Link>
+          <Link
             to="/eventos"
-            className={`py-2.5 font-medium border-b-2 transition-colors ${
+            className={`py-2.5 font-medium border-b-2 whitespace-nowrap transition-colors ${
               location.pathname === '/eventos'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-slate-600 hover:text-slate-900'

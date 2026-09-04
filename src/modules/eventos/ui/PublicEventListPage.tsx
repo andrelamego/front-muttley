@@ -13,6 +13,7 @@ import {
   Alert,
   Spinner,
   Input,
+  SearchIcon,
 } from '../../../shared/ui'
 
 export const PublicEventListPage: React.FC = () => {
@@ -133,7 +134,9 @@ export const PublicEventListPage: React.FC = () => {
           {filteredEventos.length === 0 ? (
             <Card className="bg-white border-dashed border-slate-300 p-12 text-center">
               <div className="max-w-md mx-auto flex flex-col items-center gap-3">
-                <span className="text-3xl">🔍</span>
+                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                  <SearchIcon size={24} />
+                </div>
                 <h2 className="text-base font-semibold text-slate-900">
                   Nenhum evento encontrado
                 </h2>

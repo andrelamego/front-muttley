@@ -15,7 +15,11 @@ import {
   ParticipantDashboardPage,
   AdminDashboardPage,
 } from '../../modules/painel'
-import { PublicCertificateViewPage } from '../../modules/certificados/ui/PublicCertificateViewPage'
+import {
+  PublicCertificateViewPage,
+  UserCertificatesPage,
+} from '../../modules/certificados'
+import { UserMedalsPage } from '../../modules/medalhas'
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -48,6 +52,8 @@ export const AppRoutes: React.FC = () => {
         }
       >
         <Route path="inicio" element={<ParticipantDashboardPage />} />
+        <Route path="certificados" element={<UserCertificatesPage />} />
+        <Route path="medalhas" element={<UserMedalsPage />} />
       </Route>
 
       {/* Rotas Administrativas (Desktop-First) */}

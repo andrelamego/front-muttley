@@ -15,6 +15,7 @@ import {
   Button,
   Alert,
   Spinner,
+  CalendarIcon,
 } from '../../../shared/ui'
 
 const parseEventDateTime = (dateStr: string, timeStr: string): Date | null => {
@@ -269,8 +270,8 @@ export const ParticipantDashboardPage: React.FC = () => {
             ) : (
               <Card className="bg-white border-dashed border-slate-300 p-8 text-center">
                 <div className="max-w-sm mx-auto flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl">
-                    📅
+                  <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <CalendarIcon size={24} />
                   </div>
                   <h3 className="text-base font-semibold text-slate-900">
                     Nenhuma inscrição ativa
@@ -311,29 +312,49 @@ export const ParticipantDashboardPage: React.FC = () => {
                 </p>
               </Card>
 
-              <Card className="p-4 bg-white">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Certificados
-                </span>
-                <p className="text-2xl font-black text-blue-600 mt-1">
-                  {data.certificados.length}
-                </p>
-                <p className="text-xs text-slate-400 mt-1">
-                  Emitidos e disponíveis para download
-                </p>
-              </Card>
+              <Link
+                to="/user/certificados"
+                className="block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-xl"
+              >
+                <Card className="p-4 bg-white transition-all group-hover:border-blue-300 group-hover:shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Certificados
+                    </span>
+                    <span className="text-xs font-semibold text-blue-600 group-hover:underline">
+                      Ver todos &rarr;
+                    </span>
+                  </div>
+                  <p className="text-2xl font-black text-blue-600 mt-1">
+                    {data.certificados.length}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Emitidos e disponíveis para download
+                  </p>
+                </Card>
+              </Link>
 
-              <Card className="p-4 bg-white">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Medalhas
-                </span>
-                <p className="text-2xl font-black text-amber-600 mt-1">
-                  {data.medalhas.length}
-                </p>
-                <p className="text-xs text-slate-400 mt-1">
-                  Reconhecimentos de participação
-                </p>
-              </Card>
+              <Link
+                to="/user/medalhas"
+                className="block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-xl"
+              >
+                <Card className="p-4 bg-white transition-all group-hover:border-amber-300 group-hover:shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      Medalhas
+                    </span>
+                    <span className="text-xs font-semibold text-amber-600 group-hover:underline">
+                      Ver todas &rarr;
+                    </span>
+                  </div>
+                  <p className="text-2xl font-black text-amber-600 mt-1">
+                    {data.medalhas.length}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Reconhecimentos de participação
+                  </p>
+                </Card>
+              </Link>
             </div>
           </section>
         </>

@@ -108,6 +108,26 @@ Seguir [SKILLS_FRONTEND.md](SKILLS_FRONTEND.md). Não carregar todas as skills n
   - Validação E2E com backend em execução local requer o serviço Spring Boot online na porta 8083.
 - **Próxima entrega:** Etapa 5 (Refinamento da jornada completa de inscrição, presença e certificados do participante) e Etapa 6 (Migração modular da gestão e conclusão de eventos pelo administrador).
 
+### Entrega 2 (04/09/2026) — Refinamento da Jornada do Participante (Certificados, Medalhas e Eliminação de Emojis)
+
+- **Objetivo:** Implementar as páginas e módulos dedicados de certificados (`/user/certificados`) e medalhas/gamificação (`/user/medalhas`) do participante, adicionar testes unitários de domínio e substituir completamente qualquer emoji por ícones SVG semânticos e acessíveis.
+- **Módulos afetados:** `src/modules/certificados/`, `src/modules/medalhas/`, `src/modules/painel/`, `src/modules/eventos/`, `src/shared/ui/` (novos ícones `CopyIcon`, `CheckIcon`), `src/app/layouts/ParticipantLayout.tsx`, `src/app/routes/AppRoutes.tsx` e `tests/certificados.test.mjs`.
+- **Skills aplicadas:**
+  - `architecture`: criação dos módulos autônomos `certificados` e `medalhas` com camadas deliberadas (`domain/`, `api/`, `ui/` e `index.ts`), sem ciclos e com limites explícitos de dependência.
+  - `api-patterns`: consumo direto dos endpoints reais `GET /me/certificados` e `GET /me/medalhas`, suporte ao download binário de PDF via `GET /certificados/{codigo}/download` e compartilhamento com parâmetros oficiais do LinkedIn Add Certification.
+  - `accessibility-compliance-accessibility-audit`: eliminação integral de emojis de todo o fluxo de usuário novo, adoção de ícones SVG com rótulos e acessibilidade (`aria-hidden` e labels visíveis), feedback tátil de cópia ("Copiado!" temporário com `CheckIcon`), alvos de toque >= 44px e foco visível em todos os controles.
+- **Comandos e resultados comprovados:**
+  - `npm test`: 26 testes passando (20 autenticação + 4 normalização de erros HTTP + 2 testes unitários de LinkedIn URL e domínio de certificados).
+  - `npm run build`: compilação TypeScript limpa e build Vite de produção executado em ~530ms com 0 erros.
+  - `npx eslint src/app src/modules src/shared src/utils src/App.tsx src/main.tsx`: 0 erros e 0 avisos.
+- **Telas e jornadas verificadas:**
+  - Meus Certificados (`/user/certificados`): listagem responsiva, busca por texto, cópia rápida de código com feedback visual, download direto de PDF e adição direta ao LinkedIn.
+  - Minhas Medalhas (`/user/medalhas`): gamificação com abas de filtro por nível (Todas, Ouro, Prata, Bronze), badges temáticos e ação de copiar texto de conquista.
+  - Navegação do Participante (`ParticipantLayout`): abas de navegação responsivas ("Meu Painel", "Meus Certificados", "Minhas Medalhas", "Explorar Eventos") com indicação ativa de rota.
+  - Painel do Participante (`/user/inicio`): cartões de resumo ("Certificados" e "Medalhas") integrados como links diretos com hover e foco visível.
+- **Próxima entrega:** Etapa 6 — Migração modular da gestão e conclusão de eventos pelo administrador (`src/modules/admin-eventos/` e conclusão com lote de assinaturas).
+
+
 ## Critério para substituir a versão anterior
 
 - Jornadas essenciais e funcionalidades do inventário implementadas ou mudanças de escopo explicitamente registradas.
