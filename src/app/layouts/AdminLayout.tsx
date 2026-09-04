@@ -3,7 +3,6 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../modules/auth'
 import {
   Button,
-  Badge,
   DashboardIcon,
   CalendarIcon,
   PlusIcon,
@@ -11,6 +10,7 @@ import {
   MenuIcon,
   XIcon,
   LogOutIcon,
+  Logo,
 } from '../../shared/ui'
 
 export const AdminLayout: React.FC = () => {
@@ -48,7 +48,7 @@ export const AdminLayout: React.FC = () => {
     }
   }, [isMobileMenuOpen, closeMobileMenu])
 
-  // Checa se Gestão de Eventos está ativa (inclui edição e conclusão)
+  // Checa se Gestão de Eventos está ativa
   const isGestaoEventosActive =
     location.pathname === '/admin/eventos' ||
     (location.pathname.startsWith('/admin/eventos/') &&
@@ -57,44 +57,50 @@ export const AdminLayout: React.FC = () => {
   const navItems = [
     {
       to: '/admin/inicio',
-      label: 'Painel Geral',
+      label: 'Painel',
       icon: <DashboardIcon size={18} />,
       isActive: location.pathname === '/admin/inicio',
     },
     {
       to: '/admin/eventos',
-      label: 'Gestão de Eventos',
+      label: 'Eventos',
       icon: <CalendarIcon size={18} />,
       isActive: isGestaoEventosActive,
     },
     {
       to: '/admin/eventos/novo',
-      label: 'Novo Evento',
+      label: 'Criar Evento',
       icon: <PlusIcon size={18} />,
       isActive: location.pathname === '/admin/eventos/novo',
     },
   ]
 
+  // Iniciais do usuário para avatar
+  const getInitials = (name?: string) => {
+    if (!name) return 'AD'
+    const parts = name.trim().split(' ')
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase()
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  }
+
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col lg:flex-row text-slate-900">
+    <div className="min-h-screen bg-[#fcf9f5] flex flex-col lg:flex-row text-[#1c1c1a] font-sans antialiased selection:bg-[#ffdad2] selection:text-[#3d0600]">
       {/* Skip Link para acessibilidade de teclado */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-md focus:shadow-lg focus:outline-none"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#6b1705] focus:text-white focus:rounded focus:shadow-md focus:outline-none"
       >
         Pular para o conteúdo principal
       </a>
 
       {/* Barra de Topo no Mobile (< lg) */}
-      <header className="lg:hidden bg-slate-900 text-white px-4 h-16 flex items-center justify-between border-b border-slate-800 sticky top-0 z-30 shadow-sm">
+      <header className="lg:hidden bg-[#f6f3ef] text-[#1c1c1a] px-4 h-16 flex items-center justify-between border-b border-[#ddc0ba] sticky top-0 z-30 shadow-xs">
         <Link
           to="/admin/inicio"
-          className="flex items-center gap-2 text-lg font-black tracking-tight text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded px-1"
+          className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705] rounded p-1"
+          aria-label="Painel Administrativo Muttley"
         >
-          <span>Muttley</span>
-          <Badge variant="warning" size="sm">
-            ADMIN
-          </Badge>
+          <Logo className="h-7 w-auto" />
         </Link>
 
         <button
@@ -108,7 +114,7 @@ export const AdminLayout: React.FC = () => {
               ? 'Fechar menu de navegação'
               : 'Abrir menu de navegação'
           }
-          className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+          className="p-2 rounded text-[#57423d] hover:text-[#1c1c1a] hover:bg-[#f0edea] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705]"
         >
           {isMobileMenuOpen ? <XIcon size={22} /> : <MenuIcon size={22} />}
         </button>
@@ -117,47 +123,45 @@ export const AdminLayout: React.FC = () => {
       {/* Drawer Móvel Backdrop */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-[#1c1c1a]/40 backdrop-blur-xs lg:hidden"
           onClick={closeMobileMenu}
           aria-hidden="true"
         />
       )}
 
-      {/* Sidebar Persistente no Desktop / Drawer no Mobile */}
+      {/* Sidebar Persistente no Desktop (256px) / Drawer no Mobile */}
       <aside
         id="admin-drawer"
         ref={drawerRef}
-        className={`fixed inset-y-0 left-0 z-50 w-72 lg:w-64 bg-slate-900 text-slate-200 flex flex-col border-r border-slate-800 transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 min-w-[256px] bg-[#f6f3ef] text-[#1c1c1a] flex flex-col border-r border-[#ddc0ba] transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Navegação administrativa"
       >
-        {/* Cabeçalho da Sidebar */}
-        <div className="h-16 px-6 flex items-center justify-between border-b border-slate-800 shrink-0">
+        {/* Cabeçalho da Sidebar com Logo Único */}
+        <div className="h-16 px-6 flex items-center justify-between border-b border-[#ddc0ba]/60 shrink-0">
           <Link
             to="/admin/inicio"
-            className="flex items-center gap-2 text-xl font-black text-white tracking-tight hover:text-blue-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded"
+            onClick={closeMobileMenu}
+            className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705] rounded"
           >
-            <span>Muttley</span>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-              ADMIN
-            </span>
+            <Logo className="h-7 w-auto" />
           </Link>
 
           <button
             type="button"
             onClick={closeMobileMenu}
             aria-label="Fechar menu lateral"
-            className="lg:hidden p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="lg:hidden p-1.5 rounded text-[#57423d] hover:text-[#1c1c1a] hover:bg-[#f0edea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705]"
           >
             <XIcon size={20} />
           </button>
         </div>
 
         {/* Links Principais de Navegação */}
-        <div className="flex-1 px-3 py-6 overflow-y-auto space-y-1">
-          <div className="px-3 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            Gestão &amp; Eventos
+        <div className="flex-1 px-4 py-6 overflow-y-auto space-y-1.5">
+          <div className="px-3 pb-2 font-mono text-[11px] font-semibold text-[#8a726c] uppercase tracking-wider">
+            Módulos Principais
           </div>
 
           {navItems.map((item) => (
@@ -165,10 +169,10 @@ export const AdminLayout: React.FC = () => {
               key={item.to}
               to={item.to}
               onClick={closeMobileMenu}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705] ${
                 item.isActive
-                  ? 'bg-blue-600 text-white shadow-xs font-semibold'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-[#6b1705] text-white shadow-xs font-semibold'
+                  : 'text-[#57423d] hover:bg-[#f0edea] hover:text-[#1c1c1a]'
               }`}
             >
               <span className="shrink-0">{item.icon}</span>
@@ -176,38 +180,40 @@ export const AdminLayout: React.FC = () => {
             </Link>
           ))}
 
-          <div className="pt-4 pb-1 px-3">
-            <hr className="border-slate-800" />
+          <div className="pt-4 pb-2 px-3">
+            <hr className="border-[#ddc0ba]/60" />
           </div>
 
-          <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            Portais
+          <div className="px-3 pb-2 font-mono text-[11px] font-semibold text-[#8a726c] uppercase tracking-wider">
+            Visão Externa
           </div>
 
           <Link
             to="/eventos"
             onClick={closeMobileMenu}
-            className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="flex items-center justify-between px-3 py-2.5 rounded text-sm text-[#57423d] hover:bg-[#f0edea] hover:text-[#1c1c1a] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b1705]"
           >
             <span className="flex items-center gap-3">
-              <ExternalLinkIcon size={18} className="shrink-0 text-slate-400" />
-              <span>Visão Pública</span>
-            </span>
-            <span className="text-[10px] font-semibold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
-              Catálogo
+              <ExternalLinkIcon size={18} className="shrink-0 text-[#8a726c]" />
+              <span>Ver página pública</span>
             </span>
           </Link>
         </div>
 
         {/* Rodapé da Sidebar: Usuário e Sair */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/50 shrink-0">
-          <div className="mb-3 px-1">
-            <span className="text-xs font-semibold text-white block truncate">
-              {user?.nome || 'Administrador'}
-            </span>
-            <span className="text-[11px] text-slate-400 block truncate">
-              {user?.email || 'admin@fatec.sp.gov.br'}
-            </span>
+        <div className="p-4 border-t border-[#ddc0ba] bg-[#f0edea]/50 shrink-0">
+          <div className="flex items-center gap-3 mb-3 px-1">
+            <div className="w-9 h-9 rounded-full bg-[#ffdad2] text-[#6b1705] font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-[#ddc0ba]">
+              {getInitials(user?.nome)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-xs font-semibold text-[#1c1c1a] block truncate">
+                {user?.nome || 'Prof. Dr. Administrador'}
+              </span>
+              <span className="text-[11px] text-[#57423d] block truncate">
+                Comissão Organizadora
+              </span>
+            </div>
           </div>
 
           <Button
@@ -215,10 +221,10 @@ export const AdminLayout: React.FC = () => {
             size="sm"
             onClick={handleLogout}
             fullWidth
-            className="border-slate-700 bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white justify-center gap-2 text-xs"
+            className="border-[#ddc0ba] bg-white text-[#57423d] hover:text-[#6b1705] hover:bg-[#f6f3ef] justify-center gap-2 text-xs"
             leftIcon={<LogOutIcon size={14} />}
           >
-            Encerrar Sessão
+            Sair
           </Button>
         </div>
       </aside>
@@ -233,8 +239,9 @@ export const AdminLayout: React.FC = () => {
           <Outlet />
         </main>
 
-        <footer className="border-t border-slate-200 bg-white py-4 px-6 text-center text-xs text-slate-500">
-          Área de Gestão Muttley &copy; 2026 — Plataforma de Eventos Acadêmicos
+        <footer className="border-t border-[#ddc0ba]/60 bg-[#f6f3ef] py-4 px-6 text-center text-xs text-[#8a726c]">
+          Área de Gestão Muttley &copy; {new Date().getFullYear()} — Plataforma
+          de Eventos Acadêmicos
         </footer>
       </div>
     </div>
