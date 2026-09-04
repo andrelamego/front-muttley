@@ -7,6 +7,7 @@ import { ProtectedRoute } from './ProtectedRoute'
 
 import { LoginPage } from '../../modules/auth'
 import {
+  LandingPage,
   PublicEventListPage,
   PublicEventDetailPage,
   ConfirmarPresencaPage,
@@ -31,7 +32,7 @@ export const AppRoutes: React.FC = () => {
     <Routes>
       {/* Rotas Públicas */}
       <Route element={<PublicLayout />}>
-        <Route path="/" element={<PublicEventListPage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/eventos" element={<PublicEventListPage />} />
         <Route path="/eventos/:id" element={<PublicEventDetailPage />} />
         <Route
