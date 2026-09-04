@@ -155,7 +155,7 @@ export const CertificateList: React.FC = () => {
                 return (
                   <article
                     key={evento.id}
-                    className="event-card flex flex-col p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm w-[320px] shrink-0 relative overflow-hidden"
+                    className="event-card flex flex-col p-4 bg-brand-surface border border-brand-line rounded-none shadow-sm w-[320px] shrink-0 relative overflow-hidden"
                   >
                     <div className="event-main flex justify-between items-start">
                       <h3 className="text-sm font-bold text-brand-ink-strong max-w-[200px]">
@@ -213,7 +213,7 @@ export const CertificateList: React.FC = () => {
                         </span>
                       </span>
                       <Link
-                        className="event-footer-action text-white bg-brand-primary px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-brand-primary-strong transition-colors"
+                        className="event-footer-action text-white bg-brand-primary px-3 py-1.5 rounded-none text-xs font-bold hover:bg-brand-primary-strong transition-colors"
                         to={`/admin/eventos/concluir/${evento.id}`}
                       >
                         Concluir evento
@@ -238,7 +238,7 @@ export const CertificateList: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="empty-state p-8 bg-brand-surface border border-brand-line rounded-lg text-center text-brand-muted">
+          <div className="empty-state p-8 bg-brand-surface border border-brand-line rounded-none text-center text-brand-muted">
             <p>Nenhum evento em andamento aguardando emissão.</p>
           </div>
         )}
@@ -297,7 +297,7 @@ export const CertificateList: React.FC = () => {
                         <img
                           src={`${import.meta.env.VITE_API_BASE_URL || '/api'}/admin/certificados/${cert.id}/assinatura-visual`}
                           alt="Sem Assinatura"
-                          className="h-10 w-24 object-contain bg-gray-50 border rounded"
+                          className="h-10 w-24 object-contain bg-[var(--color-bg-subtle)] border rounded-none"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none'
                           }}

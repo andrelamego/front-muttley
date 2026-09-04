@@ -120,14 +120,14 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           placeholder={placeholder}
           required={required && !value}
           disabled={disabled}
-          className="w-full min-h-[2.55rem] border border-brand-line rounded-lg px-3 pr-10 text-sm bg-brand-surface text-brand-ink focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10 transition-all disabled:bg-slate-100 disabled:cursor-not-allowed"
+          className="w-full min-h-[2.55rem] border border-brand-line rounded-none px-3 pr-10 text-sm bg-brand-surface text-brand-ink focus:border-brand-primary focus:outline-none focus:ring-4 focus:ring-brand-primary/10 transition-all disabled:bg-[var(--color-bg-muted)] disabled:cursor-not-allowed"
         />
 
         {query && !disabled && (
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-ink text-lg font-bold flex items-center justify-center w-5 h-5 rounded-full hover:bg-slate-100 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-ink text-lg font-bold flex items-center justify-center w-5 h-5 rounded-full hover:bg-[var(--color-bg-muted)] transition-colors"
             title="Limpar campo"
           >
             ×
@@ -136,7 +136,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       </div>
 
       {isOpen && !disabled && filteredOptions.length > 0 && (
-        <ul className="absolute left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-brand-surface border border-brand-line rounded-lg shadow-lg z-50 py-1 text-sm">
+        <ul className="absolute left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-brand-surface border border-brand-line rounded-none shadow-lg z-50 py-1 text-sm">
           {filteredOptions.map((opt, index) => {
             const isSelected = String(opt.id) === String(value)
             const isHighlighted = index === highlightedIndex
@@ -167,7 +167,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       )}
 
       {isOpen && !disabled && query && filteredOptions.length === 0 && (
-        <div className="absolute left-0 right-0 mt-1 p-4 bg-brand-surface border border-brand-line rounded-lg shadow-lg z-50 text-center text-xs text-brand-muted">
+        <div className="absolute left-0 right-0 mt-1 p-4 bg-brand-surface border border-brand-line rounded-none shadow-lg z-50 text-center text-xs text-brand-muted">
           Nenhum resultado encontrado.
         </div>
       )}

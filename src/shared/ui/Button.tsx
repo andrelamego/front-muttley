@@ -1,5 +1,5 @@
 import React from 'react'
-import { Spinner } from './Spinner'
+import { LoadingDots } from './LoadingDots'
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
@@ -27,7 +27,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   // Borda reservada em todas as variantes (border) garante geometria identica e sem saltos de layout
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded transition-all duration-150 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none box-border border text-center font-sans'
+    'inline-flex flex-row flex-nowrap items-center justify-center font-medium rounded-none transition-all duration-150 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none box-border border text-center font-sans'
 
   // Alturas padronizadas: no mobile, alvos de toque respeitam o minimo recomendado (44px)
   const sizeStyles = {
@@ -38,15 +38,15 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      'border-transparent bg-[#6b1705] text-white hover:bg-[#8b2e19] active:bg-[#3d0600] focus-visible:ring-[#6b1705] focus-visible:ring-offset-white shadow-xs',
+      'border-transparent bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] active:bg-[var(--color-primary-active)] focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-[var(--color-bg-surface)] shadow-xs',
     secondary:
-      'border-transparent bg-[#f0edea] text-[#1c1c1a] hover:bg-[#ebe8e4] active:bg-[#e5e2de] focus-visible:ring-[#6b1705] focus-visible:ring-offset-white',
+      'border-transparent bg-[var(--color-bg-muted)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] active:bg-[var(--color-bg-active)] focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-[var(--color-bg-surface)]',
     outline:
-      'border-[#ddc0ba] text-[#1c1c1a] bg-white hover:bg-[#f6f3ef] active:bg-[#f0edea] focus-visible:ring-[#6b1705] focus-visible:ring-offset-white shadow-xs',
+      'border-[var(--color-border)] text-[var(--color-text-primary)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-subtle)] active:bg-[var(--color-bg-muted)] focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-[var(--color-bg-surface)] shadow-xs',
     ghost:
-      'border-transparent text-[#57423d] hover:bg-[#f0edea] hover:text-[#1c1c1a] active:bg-[#e5e2de] focus-visible:ring-[#6b1705] focus-visible:ring-offset-white',
+      'border-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text-primary)] active:bg-[var(--color-bg-active)] focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-[var(--color-bg-surface)]',
     danger:
-      'border-transparent bg-[#ba1a1a] text-white hover:bg-[#93000a] active:bg-[#680005] focus-visible:ring-[#ba1a1a] focus-visible:ring-offset-white shadow-xs',
+      'border-transparent bg-[var(--color-danger)] text-white hover:bg-[var(--color-danger-text)] active:bg-[var(--color-danger)] focus-visible:ring-[var(--color-danger)] focus-visible:ring-offset-[var(--color-bg-surface)] shadow-xs',
   }[variant]
 
   const widthStyle = fullWidth ? 'w-full' : ''
@@ -60,12 +60,12 @@ export const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {isLoading ? (
-        <span className="inline-flex items-center justify-center gap-2">
-          <Spinner size="sm" className="text-current shrink-0" />
+        <span className="inline-flex flex-row flex-nowrap items-center justify-center gap-2">
+          <LoadingDots label={loadingText || 'Processando'} />
           <span>{loadingText || children}</span>
         </span>
       ) : (
-        <span className="inline-flex items-center justify-center gap-2">
+        <span className="inline-flex flex-row flex-nowrap items-center justify-center gap-2">
           {leftIcon && (
             <span
               aria-hidden="true"

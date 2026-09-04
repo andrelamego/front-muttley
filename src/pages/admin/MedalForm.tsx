@@ -198,7 +198,7 @@ export const MedalForm: React.FC = () => {
           </fieldset>
 
           {selectedPart && selectedPerson && selectedEvent && (
-            <div className="selected-participation description-field col-span-2 p-4 bg-brand-surface-soft border border-brand-line rounded-lg flex flex-col gap-1">
+            <div className="selected-participation description-field col-span-2 p-4 bg-brand-surface-soft border border-brand-line rounded-none flex flex-col gap-1">
               <span className="text-[10px] uppercase font-bold text-brand-muted">
                 Participante Selecionado
               </span>

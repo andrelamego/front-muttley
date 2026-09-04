@@ -100,7 +100,7 @@ export const Register: React.FC = () => {
 
   return (
     <div className="auth-body min-h-screen flex items-center justify-center">
-      <main className="auth-page register-page w-full max-w-4xl grid md:grid-cols-2 bg-brand-surface rounded-xl shadow-lg overflow-hidden border border-brand-line">
+      <main className="auth-page register-page w-full max-w-4xl grid md:grid-cols-2 bg-brand-surface rounded-none shadow-lg overflow-hidden border border-brand-line">
         <section className="auth-visual register-visual hidden md:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-brand-primary to-brand-primary-strong text-white text-center">
           <Link
             className="brand text-white text-3xl font-extrabold"
@@ -147,7 +147,7 @@ export const Register: React.FC = () => {
                   onChange={(e) => setNome(e.target.value)}
                   placeholder="Nome completo"
                   required
-                  className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
+                  className="w-full px-4 py-2 border border-brand-line rounded-none focus:border-brand-primary focus:outline-none"
                 />
               </label>
               <label className="field">
@@ -162,7 +162,7 @@ export const Register: React.FC = () => {
                   placeholder="seu.email@exemplo.com"
                   disabled={isFromEmail}
                   required
-                  className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
+                  className="w-full px-4 py-2 border border-brand-line rounded-none focus:border-brand-primary focus:outline-none"
                 />
               </label>
               <label className="field">
@@ -176,7 +176,7 @@ export const Register: React.FC = () => {
                   onChange={handlePhoneChange}
                   placeholder="(11) 99999-9999"
                   required
-                  className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
+                  className="w-full px-4 py-2 border border-brand-line rounded-none focus:border-brand-primary focus:outline-none"
                 />
               </label>
               <label className="field">
@@ -192,7 +192,7 @@ export const Register: React.FC = () => {
                   placeholder="000.000.000-00"
                   disabled={isFromEmail}
                   required
-                  className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
+                  className="w-full px-4 py-2 border border-brand-line rounded-none focus:border-brand-primary focus:outline-none"
                 />
               </label>
               <div className="hidden sm:block"></div> {/* Spacer */}
@@ -207,7 +207,7 @@ export const Register: React.FC = () => {
                   onChange={(e) => setSenha(e.target.value)}
                   placeholder="Crie uma senha"
                   required
-                  className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
+                  className="w-full px-4 py-2 border border-brand-line rounded-none focus:border-brand-primary focus:outline-none"
                 />
               </label>
               <label className="field">
@@ -221,7 +221,7 @@ export const Register: React.FC = () => {
                   onChange={(e) => setConfirmarSenha(e.target.value)}
                   placeholder="Repita a senha"
                   required
-                  className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
+                  className="w-full px-4 py-2 border border-brand-line rounded-none focus:border-brand-primary focus:outline-none"
                 />
               </label>
             </div>
@@ -234,7 +234,7 @@ export const Register: React.FC = () => {
                 Já tenho conta
               </Link>
               <button
-                className="primary-action px-6 py-2.5 bg-brand-primary text-white font-bold rounded-lg hover:bg-brand-primary-strong transition-colors cursor-pointer"
+                className="primary-action px-6 py-2.5 bg-brand-primary text-white font-bold rounded-none hover:bg-brand-primary-strong transition-colors cursor-pointer"
                 type="submit"
               >
                 Criar cadastro

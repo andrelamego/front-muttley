@@ -18,7 +18,14 @@ export const Logo: React.FC<LogoProps> = ({
         className={className}
         aria-label="Muttley"
       >
-        <rect x="2" y="2" width="28" height="28" rx="4" fill="#8b2e19" />
+        <rect
+          x="2"
+          y="2"
+          width="28"
+          height="28"
+          rx="4"
+          fill="var(--color-primary-hover)"
+        />
         <path
           d="M9 21V10L16 16.5L23 10V21M9 21H12M20 21H23"
           stroke="#FCF9F5"
@@ -39,7 +46,14 @@ export const Logo: React.FC<LogoProps> = ({
       className={className}
       aria-label="Muttley acadêmico"
     >
-      <rect x="2" y="6" width="28" height="28" rx="4" fill="#8b2e19" />
+      <rect
+        x="2"
+        y="6"
+        width="28"
+        height="28"
+        rx="4"
+        fill="var(--color-primary-hover)"
+      />
       <path
         d="M9 25V14L16 20.5L23 14V25M9 25H12M20 25H23"
         stroke="#FCF9F5"
@@ -54,7 +68,7 @@ export const Logo: React.FC<LogoProps> = ({
         fontFamily="'Newsreader', Georgia, serif"
         fontSize="22"
         fontWeight="700"
-        fill="#1c1c1a"
+        fill="var(--color-text-primary)"
         letterSpacing="-0.5"
       >
         Muttley
@@ -66,7 +80,7 @@ export const Logo: React.FC<LogoProps> = ({
         fontSize="9"
         fontStyle="italic"
         fontWeight="500"
-        fill="#8b2e19"
+        fill="var(--color-primary-hover)"
       >
         acadêmico
       </text>

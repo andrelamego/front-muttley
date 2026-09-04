@@ -30,13 +30,13 @@ export const Input: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-sm font-medium text-[#1c1c1a] flex items-center justify-between font-sans"
+          className="text-sm font-medium text-[var(--color-text-primary)] flex items-center justify-between font-sans"
         >
           <span>
             {label}
             {required && (
               <span
-                className="text-[#ba1a1a] ml-1"
+                className="text-[var(--color-danger)] ml-1"
                 aria-label="campo obrigatório"
               >
                 *
@@ -55,10 +55,10 @@ export const Input: React.FC<InputProps> = ({
           aria-describedby={
             hasError ? errorId : helperText ? helperId : undefined
           }
-          className={`w-full min-h-[44px] px-3.5 py-2.5 text-sm rounded border bg-white text-[#1c1c1a] placeholder:text-[#8a726c] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-[#f6f3ef] disabled:text-[#8a726c] disabled:cursor-not-allowed ${
+          className={`w-full min-h-[44px] px-3.5 py-2.5 text-sm rounded-none border bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-[var(--color-bg-subtle)] disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed ${
             hasError
-              ? 'border-[#ba1a1a] focus:border-[#ba1a1a] focus:ring-[#ba1a1a]'
-              : 'border-[#ddc0ba] focus:border-[#6b1705] focus:ring-[#6b1705]'
+              ? 'border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]'
+              : 'border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]'
           } ${rightElement ? 'pr-11' : ''} ${className}`}
           {...props}
         />
@@ -74,14 +74,14 @@ export const Input: React.FC<InputProps> = ({
         <p
           id={errorId}
           role="alert"
-          className="text-xs font-medium text-red-600"
+          className="text-xs font-medium text-[var(--color-danger)]"
         >
           {error}
         </p>
       )}
 
       {!hasError && helperText && (
-        <p id={helperId} className="text-xs text-slate-500">
+        <p id={helperId} className="text-xs text-[var(--color-text-muted)]">
           {helperText}
         </p>
       )}

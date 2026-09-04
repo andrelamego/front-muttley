@@ -61,7 +61,7 @@ export const UserEventDetail: React.FC = () => {
   if (!event) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center p-8 bg-brand-surface rounded-xl border border-brand-line shadow-md">
+        <div className="text-center p-8 bg-brand-surface rounded-none border border-brand-line shadow-md">
           <h2 className="text-xl font-bold text-brand-danger">
             Evento não encontrado
           </h2>
@@ -142,7 +142,7 @@ export const UserEventDetail: React.FC = () => {
         </div>
 
         <section className="user-event-hero grid grid-cols-[auto_1fr] gap-6 items-start mt-6">
-          <div className="user-event-date-card flex flex-col items-center justify-center p-3 w-20 h-24 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
+          <div className="user-event-date-card flex flex-col items-center justify-center p-3 w-20 h-24 bg-brand-surface border border-brand-line rounded-none shadow-sm">
             <span className="text-3xl font-extrabold text-brand-ink-strong">
               {day}
             </span>
@@ -175,7 +175,7 @@ export const UserEventDetail: React.FC = () => {
 
         <section className="user-event-action-panel mt-6">
           {isEnrolled ? (
-            <div className="p-4 bg-brand-surface-soft border border-brand-primary/30 rounded-lg text-brand-primary-strong text-sm font-semibold text-center flex items-center justify-center gap-2">
+            <div className="p-4 bg-brand-surface-soft border border-brand-primary/30 rounded-none text-brand-primary-strong text-sm font-semibold text-center flex items-center justify-center gap-2">
               <svg
                 className="w-5 h-5 text-brand-primary"
                 fill="none"
@@ -193,9 +193,9 @@ export const UserEventDetail: React.FC = () => {
             </div>
           ) : (
             <button
-              className={`event-signup-button w-full py-3 bg-brand-primary text-white font-bold rounded-lg hover:bg-brand-primary-strong transition-colors cursor-pointer text-base ${
+              className={`event-signup-button w-full py-3 bg-brand-primary text-white font-bold rounded-none hover:bg-brand-primary-strong transition-colors cursor-pointer text-base ${
                 inscricoesEncerradas
-                  ? 'is-muted !bg-slate-400 !cursor-not-allowed'
+                  ? 'is-muted !bg-[var(--color-border-strong)] !cursor-not-allowed'
                   : ''
               }`}
               type="button"
@@ -213,7 +213,7 @@ export const UserEventDetail: React.FC = () => {
           className="user-event-details grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8"
           aria-label="Informações do evento"
         >
-          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-lg shadow-sm flex flex-col">
+          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-none shadow-sm flex flex-col">
             <span className="text-xs text-brand-muted font-bold uppercase tracking-wider">
               Data
             </span>
@@ -224,7 +224,7 @@ export const UserEventDetail: React.FC = () => {
             </strong>
           </article>
 
-          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-lg shadow-sm flex flex-col">
+          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-none shadow-sm flex flex-col">
             <span className="text-xs text-brand-muted font-bold uppercase tracking-wider">
               Horário
             </span>
@@ -233,7 +233,7 @@ export const UserEventDetail: React.FC = () => {
             </strong>
           </article>
 
-          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-lg shadow-sm flex flex-col">
+          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-none shadow-sm flex flex-col">
             <span className="text-xs text-brand-muted font-bold uppercase tracking-wider">
               Modalidade
             </span>
@@ -242,7 +242,7 @@ export const UserEventDetail: React.FC = () => {
             </strong>
           </article>
 
-          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-lg shadow-sm flex flex-col">
+          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-none shadow-sm flex flex-col">
             <span className="text-xs text-brand-muted font-bold uppercase tracking-wider">
               Disciplina Vinculada
             </span>
@@ -251,7 +251,7 @@ export const UserEventDetail: React.FC = () => {
             </strong>
           </article>
 
-          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-lg shadow-sm flex flex-col">
+          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-none shadow-sm flex flex-col">
             <span className="text-xs text-brand-muted font-bold uppercase tracking-wider">
               Local
             </span>
@@ -265,7 +265,7 @@ export const UserEventDetail: React.FC = () => {
             )}
           </article>
 
-          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-lg shadow-sm flex flex-col">
+          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-none shadow-sm flex flex-col">
             <span className="text-xs text-brand-muted font-bold uppercase tracking-wider">
               Endereço
             </span>
@@ -281,7 +281,7 @@ export const UserEventDetail: React.FC = () => {
             )}
           </article>
 
-          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-lg shadow-sm flex flex-col">
+          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-none shadow-sm flex flex-col">
             <span className="text-xs text-brand-muted font-bold uppercase tracking-wider">
               Capacidade
             </span>
@@ -292,7 +292,7 @@ export const UserEventDetail: React.FC = () => {
             </strong>
           </article>
 
-          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-lg shadow-sm flex flex-col">
+          <article className="user-event-info-card bg-brand-surface p-4 border border-brand-line rounded-none shadow-sm flex flex-col">
             <span className="text-xs text-brand-muted font-bold uppercase tracking-wider">
               Patrocinador
             </span>

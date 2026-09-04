@@ -179,7 +179,7 @@ export const Dashboard: React.FC = () => {
             Próximos eventos
           </h2>
           <Link
-            className="new-event-button px-4 py-2 bg-brand-primary text-white font-bold rounded-lg hover:bg-brand-primary-strong transition-colors cursor-pointer text-xs"
+            className="new-event-button px-4 py-2 bg-brand-primary text-white font-bold rounded-none hover:bg-brand-primary-strong transition-colors cursor-pointer text-xs"
             to="/admin/eventos/novo"
           >
             Novo Evento
@@ -213,7 +213,7 @@ export const Dashboard: React.FC = () => {
                 return (
                   <article
                     key={evento.id}
-                    className="event-card clickable-event-card flex flex-col p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm w-[320px] shrink-0 cursor-pointer hover:border-brand-primary/50 relative overflow-hidden"
+                    className="event-card clickable-event-card flex flex-col p-4 bg-brand-surface border border-brand-line rounded-none shadow-sm w-[320px] shrink-0 cursor-pointer hover:border-brand-primary/50 relative overflow-hidden"
                     onClick={() => handleCardClick(evento.id)}
                     role="link"
                     tabIndex={0}
@@ -275,7 +275,7 @@ export const Dashboard: React.FC = () => {
                       </span>
                       {evento.status === 'EM_ANDAMENTO' && (
                         <Link
-                          className="event-footer-action text-white bg-brand-ink-strong px-2 py-1 rounded text-[10px] font-bold hover:bg-black transition-colors"
+                          className="event-footer-action text-white bg-brand-ink-strong px-2 py-1 rounded-none text-[10px] font-bold hover:bg-black transition-colors"
                           to={`/admin/eventos/concluir/${evento.id}`}
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -302,7 +302,7 @@ export const Dashboard: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="empty-state p-8 bg-brand-surface border border-brand-line rounded-lg text-center text-brand-muted">
+          <div className="empty-state p-8 bg-brand-surface border border-brand-line rounded-none text-center text-brand-muted">
             <p>Nenhum evento futuro cadastrado.</p>
           </div>
         )}
@@ -318,7 +318,7 @@ export const Dashboard: React.FC = () => {
 
         <div className="bento-grid grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
           {/* Card 1: Visão Geral (col-span-2) */}
-          <article className="bento-card bento-kpi bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-2 flex flex-col justify-between min-h-[180px]">
+          <article className="bento-card bento-kpi bg-brand-surface border border-brand-line rounded-none p-5 shadow-sm md:col-span-2 flex flex-col justify-between min-h-[180px]">
             <div>
               <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">
                 Visão Geral
@@ -328,7 +328,7 @@ export const Dashboard: React.FC = () => {
               </h3>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <div className="text-center p-2 bg-brand-surface-soft rounded-lg border border-brand-line/50">
+              <div className="text-center p-2 bg-brand-surface-soft rounded-none border border-brand-line/50">
                 <span className="text-xl md:text-2xl font-extrabold text-brand-primary block">
                   {totalInscricoes}
                 </span>
@@ -336,7 +336,7 @@ export const Dashboard: React.FC = () => {
                   Inscrições
                 </span>
               </div>
-              <div className="text-center p-2 bg-brand-surface-soft rounded-lg border border-brand-line/50">
+              <div className="text-center p-2 bg-brand-surface-soft rounded-none border border-brand-line/50">
                 <span className="text-xl md:text-2xl font-extrabold text-teal-600 block">
                   {totalCertificados}
                 </span>
@@ -344,8 +344,8 @@ export const Dashboard: React.FC = () => {
                   Diplomas
                 </span>
               </div>
-              <div className="text-center p-2 bg-brand-surface-soft rounded-lg border border-brand-line/50">
-                <span className="text-xl md:text-2xl font-extrabold text-amber-500 block">
+              <div className="text-center p-2 bg-brand-surface-soft rounded-none border border-brand-line/50">
+                <span className="text-xl md:text-2xl font-extrabold text-[var(--color-warning-text)] block">
                   {totalMedalhas}
                 </span>
                 <span className="text-[9px] text-brand-muted font-bold uppercase tracking-wider block mt-1">
@@ -356,7 +356,7 @@ export const Dashboard: React.FC = () => {
           </article>
 
           {/* Card 2: Taxa de Presença (col-span-1) */}
-          <article className="bento-card bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-1 flex flex-col justify-between min-h-[180px]">
+          <article className="bento-card bg-brand-surface border border-brand-line rounded-none p-5 shadow-sm md:col-span-1 flex flex-col justify-between min-h-[180px]">
             <div>
               <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">
                 Engajamento
@@ -372,7 +372,7 @@ export const Dashboard: React.FC = () => {
                 </strong>
                 <span className="text-xs text-brand-muted">comparecimento</span>
               </div>
-              <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden mt-1 border border-brand-line/30">
+              <div className="w-full bg-[var(--color-bg-muted)] rounded-full h-2.5 overflow-hidden mt-1 border border-brand-line/30">
                 <div
                   className="bg-brand-primary h-full rounded-full"
                   style={{ width: `${taxaPresenca}%` }}
@@ -382,7 +382,7 @@ export const Dashboard: React.FC = () => {
           </article>
 
           {/* Card 3: Disciplina Destaque (col-span-1) */}
-          <article className="bento-card bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-1 flex flex-col justify-between min-h-[180px]">
+          <article className="bento-card bg-brand-surface border border-brand-line rounded-none p-5 shadow-sm md:col-span-1 flex flex-col justify-between min-h-[180px]">
             <div>
               <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">
                 Atividade Acadêmica
@@ -411,7 +411,7 @@ export const Dashboard: React.FC = () => {
           </article>
 
           {/* Card 4: Gráfico de Certificados por Evento (col-span-2) */}
-          <article className="bento-card bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-2 flex flex-col min-h-[280px]">
+          <article className="bento-card bg-brand-surface border border-brand-line rounded-none p-5 shadow-sm md:col-span-2 flex flex-col min-h-[280px]">
             <div>
               <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">
                 Certificação
@@ -421,14 +421,14 @@ export const Dashboard: React.FC = () => {
               </h3>
             </div>
             {certsWithPercentage.length > 0 ? (
-              <div className="bar-chart vertical flex-grow grid grid-flow-col gap-3 p-3 bg-brand-surface-soft rounded-lg items-end justify-start overflow-x-auto border border-brand-line/30">
+              <div className="bar-chart vertical flex-grow grid grid-flow-col gap-3 p-3 bg-brand-surface-soft rounded-none items-end justify-start overflow-x-auto border border-brand-line/30">
                 {certsWithPercentage.map((item, idx) => (
                   <div
                     key={idx}
                     className="bar-item flex flex-col items-center gap-1 w-16 text-center"
                   >
                     <div
-                      className="w-4 bg-brand-primary rounded-t-sm"
+                      className="w-4 bg-brand-primary rounded-none"
                       style={{
                         height: `${Math.max(10, item.percentual * 1.5)}px`,
                       }}
@@ -453,7 +453,7 @@ export const Dashboard: React.FC = () => {
           </article>
 
           {/* Card 5: Ranking de Medalhas (col-span-2) */}
-          <article className="bento-card bg-brand-surface border border-brand-line rounded-xl p-5 shadow-sm md:col-span-2 flex flex-col min-h-[280px]">
+          <article className="bento-card bg-brand-surface border border-brand-line rounded-none p-5 shadow-sm md:col-span-2 flex flex-col min-h-[280px]">
             <div>
               <span className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">
                 Reconhecimento
@@ -481,7 +481,7 @@ export const Dashboard: React.FC = () => {
                         (item.label.split(' ')[1] || '')}
                     </span>
                     <div className="flex items-center gap-2">
-                      <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-brand-line/30 flex-grow">
+                      <div className="w-full bg-[var(--color-bg-muted)] rounded-full h-3 overflow-hidden border border-brand-line/30 flex-grow">
                         <div
                           className="bg-brand-accent h-full rounded-full"
                           style={{ width: `${item.percentual}%` }}

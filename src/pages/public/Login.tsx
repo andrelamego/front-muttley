@@ -100,7 +100,7 @@ export const Login: React.FC = () => {
 
   return (
     <div className="auth-body min-h-screen flex items-center justify-center">
-      <main className="auth-page w-full max-w-4xl grid md:grid-cols-2 bg-brand-surface rounded-xl shadow-lg overflow-hidden border border-brand-line">
+      <main className="auth-page w-full max-w-4xl grid md:grid-cols-2 bg-brand-surface rounded-none shadow-lg overflow-hidden border border-brand-line">
         <section className="auth-visual hidden md:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-brand-primary to-brand-primary-strong text-white text-center">
           <Link
             className="brand text-white text-3xl font-extrabold"
@@ -147,7 +147,7 @@ export const Login: React.FC = () => {
                 placeholder="seu.email@exemplo.com"
                 autoComplete="email"
                 required
-                className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
+                className="w-full px-4 py-2 border border-brand-line rounded-none focus:border-brand-primary focus:outline-none"
               />
             </label>
 
@@ -163,7 +163,7 @@ export const Login: React.FC = () => {
                 placeholder="Sua senha"
                 autoComplete="current-password"
                 required
-                className="w-full px-4 py-2 border border-brand-line rounded-lg focus:border-brand-primary focus:outline-none"
+                className="w-full px-4 py-2 border border-brand-line rounded-none focus:border-brand-primary focus:outline-none"
               />
             </label>
 
@@ -185,7 +185,7 @@ export const Login: React.FC = () => {
             </div>
 
             <button
-              className="primary-action auth-submit mt-6 w-full py-3 bg-brand-primary text-white font-bold rounded-lg hover:bg-brand-primary-strong transition-colors cursor-pointer"
+              className="primary-action auth-submit mt-6 w-full py-3 bg-brand-primary text-white font-bold rounded-none hover:bg-brand-primary-strong transition-colors cursor-pointer"
               type="submit"
             >
               Entrar

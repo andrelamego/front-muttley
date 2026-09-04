@@ -185,7 +185,7 @@ export const EventConclude: React.FC = () => {
       </div>
 
       <div className="completion-hero grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 mb-8">
-        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
+        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-none shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
             <svg
               aria-hidden="true"
@@ -205,7 +205,7 @@ export const EventConclude: React.FC = () => {
           </small>
         </article>
 
-        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
+        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-none shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
             <svg
               aria-hidden="true"
@@ -438,7 +438,7 @@ export const EventConclude: React.FC = () => {
         onSubmit={handleSubmit}
       >
         {/* CAIXA DE UPLOAD DA ASSINATURA */}
-        <div className="p-4 border border-brand-primary/30 rounded-lg bg-blue-50/30">
+        <div className="p-4 border border-brand-primary/30 rounded-none bg-[var(--color-info-bg)]/30">
           <label className="block text-sm font-bold text-brand-ink-strong mb-2">
             Assinatura do Documento (Obrigatório)
           </label>
@@ -456,7 +456,7 @@ export const EventConclude: React.FC = () => {
                 setAssinaturaFile(e.target.files[0])
               }
             }}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-brand-primary file:text-white hover:file:bg-brand-primary-strong cursor-pointer bg-white border border-brand-line p-1"
+            className="block w-full text-sm text-[var(--color-text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-none file:border-0 file:bg-brand-primary file:text-white hover:file:bg-brand-primary-strong cursor-pointer bg-[var(--color-bg-surface)] border border-brand-line p-1"
           />
         </div>
 
@@ -465,7 +465,7 @@ export const EventConclude: React.FC = () => {
           aria-labelledby="participacoes-title"
         >
           {paginatedParticipacoes.length === 0 ? (
-            <div className="empty-state compact-empty p-8 bg-brand-surface border border-brand-line rounded-lg text-center text-brand-muted">
+            <div className="empty-state compact-empty p-8 bg-brand-surface border border-brand-line rounded-none text-center text-brand-muted">
               <p>Nenhuma participação encontrada para os filtros aplicados.</p>
             </div>
           ) : (
@@ -562,12 +562,12 @@ export const EventConclude: React.FC = () => {
         <div className="form-actions completion-actions flex justify-end gap-3 mt-6">
           <Link
             to="/admin/eventos"
-            className="px-4 py-2 border border-brand-line rounded-lg text-sm text-brand-muted hover:bg-slate-100"
+            className="px-4 py-2 border border-brand-line rounded-none text-sm text-brand-muted hover:bg-[var(--color-bg-muted)]"
           >
             Cancelar
           </Link>
           <button
-            className="primary-action px-6 py-2 bg-brand-primary text-white font-bold rounded-lg hover:bg-brand-primary-strong transition-colors cursor-pointer text-sm"
+            className="primary-action px-6 py-2 bg-brand-primary text-white font-bold rounded-none hover:bg-brand-primary-strong transition-colors cursor-pointer text-sm"
             type="submit"
             disabled={loading || participacoes.length === 0}
           >

@@ -115,7 +115,7 @@ export const CertificateView: React.FC = () => {
   if (hasError || !data?.certificado) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center p-8 bg-brand-surface rounded-xl border border-brand-line shadow-md max-w-md">
+        <div className="text-center p-8 bg-brand-surface rounded-none border border-brand-line shadow-md max-w-md">
           <h2 className="text-2xl font-bold text-brand-danger">
             Certificado nao encontrado
           </h2>
@@ -200,7 +200,7 @@ export const CertificateView: React.FC = () => {
               )}
             {linkedinUrl && (
               <a
-                className="primary-action linkedin-action px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-bold"
+                className="primary-action linkedin-action px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-none text-xs font-bold"
                 href={linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -209,7 +209,7 @@ export const CertificateView: React.FC = () => {
               </a>
             )}
             <a
-              className="primary-action px-4 py-2 bg-brand-primary hover:bg-brand-primary-strong text-white rounded-lg text-xs font-bold"
+              className="primary-action px-4 py-2 bg-brand-primary hover:bg-brand-primary-strong text-white rounded-none text-xs font-bold"
               href={downloadUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -219,17 +219,17 @@ export const CertificateView: React.FC = () => {
           </div>
         </div>
 
-        <div className="certificate-preview-shell border border-brand-line rounded-xl overflow-hidden shadow-md bg-white w-full aspect-[1.414/1]">
+        <div className="certificate-preview-shell border border-brand-line rounded-none overflow-hidden shadow-md bg-[var(--color-bg-surface)] w-full aspect-[1.414/1]">
           <iframe
             title="Preview do certificado emitido"
             src={previewUrl}
-            className="w-full h-full border-0 bg-white"
+            className="w-full h-full border-0 bg-[var(--color-bg-surface)]"
           />
         </div>
       </section>
 
       <section className="w-full">
-        <article className="stat-panel bg-brand-surface border border-brand-line rounded-xl p-6 shadow-sm">
+        <article className="stat-panel bg-brand-surface border border-brand-line rounded-none p-6 shadow-sm">
           <h3 className="text-lg font-bold text-brand-ink-strong mb-4">
             Dados de Registro
           </h3>
@@ -295,7 +295,7 @@ export const CertificateView: React.FC = () => {
               <dt className="text-xs text-brand-muted font-bold uppercase">
                 Assinatura Digital (Hash)
               </dt>
-              <dd className="text-xs font-mono break-all bg-brand-surface-soft p-2.5 rounded border border-brand-line mt-1">
+              <dd className="text-xs font-mono break-all bg-brand-surface-soft p-2.5 rounded-none border border-brand-line mt-1">
                 {certificado.assinatura}
               </dd>
             </div>
@@ -309,7 +309,7 @@ export const CertificateView: React.FC = () => {
                 <img
                   src={`${import.meta.env.VITE_API_BASE_URL || '/api'}/certificados/${certificado.id}/assinatura-visual`}
                   alt="Assinatura não encontrada ou não cadastrada"
-                  className="h-20 object-contain rounded"
+                  className="h-20 object-contain rounded-none"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none'
                   }}

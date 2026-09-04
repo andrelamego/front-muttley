@@ -18,16 +18,20 @@ export const Badge: React.FC<BadgeProps> = ({
   }[size]
 
   const variantStyles = {
-    default: 'bg-[#f0edea] text-[#57423d] border-[#ddc0ba]',
-    success: 'bg-[#beeeca] text-[#244f34] border-[#a2d2af]',
-    warning: 'bg-[#ffdad2] text-[#822713] border-[#ffa996]',
-    danger: 'bg-[#ffdad6] text-[#93000a] border-[#ffb4a3]',
-    info: 'bg-[#dce1ff] text-[#1d3989] border-[#b6c4ff]',
+    default:
+      'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] border-[var(--color-border)]',
+    success:
+      'bg-[var(--color-success-bg)] text-[var(--color-success-text)] border-[var(--color-success-border)]',
+    warning:
+      'bg-[var(--color-primary-subtle)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]',
+    danger:
+      'bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] border-[var(--color-danger-border)]',
+    info: 'bg-[var(--color-info-bg)] text-[var(--color-info-text)] border-[var(--color-info-border)]',
   }[variant]
 
   return (
     <span
-      className={`inline-flex items-center rounded border ${sizeStyles} ${variantStyles} ${className}`}
+      className={`inline-flex items-center rounded-none border ${sizeStyles} ${variantStyles} ${className}`}
       {...props}
     >
       {children}

@@ -86,8 +86,8 @@ As fontes são referências externas, não arquivos presentes no ZIP. Preferir W
 - Ritmo: 4, 8, 16, 24, 32 e 48 px; intervalo entre seções públicas de até 72 px.
 - Conteúdo público: máximo de 1216 px (76rem), margens mínimas de 24 px em desktop e 16 px em mobile.
 - Admin: sidebar de 256 px; cabeçalho de 64 px; conteúdo a partir da borda da sidebar, padding de 24–32 px. Medidas menores devem ser adaptadas à largura disponível, sem manter três colunas à força.
-- Raio: 4 px em controles; 2–4 px em badges; 8 px em cartões e modais. A avatar pode ser circular. Evitar o `full` incomum do HTML, que significa 12 px, como contrato do sistema.
-- Sombra baixa em cartões; mais perceptível em modal. Seções se distinguem também por superfície e espaçamento. Cabeçalhos opacos são suficientes; não exigir blur/glassmorphism do HTML exportado.
+- Raio: 0 em cartões, modais, controles, menus e badges. A geometria ortogonal faz parte da direção aprovada pelo autor. Círculos permanecem somente onde a forma tem significado próprio, como avatar, indicador de status, progresso e spinner.
+- Cartões usam borda definida e sombra deslocada para criar profundidade editorial. Em superfícies interativas, o hover amplia discretamente a sombra e desloca o cartão em 1 px; não aplicar esse movimento a formulários ou blocos estáticos.
 - `Button`: tamanhos deliberados, altura de 44 px padrão e 48 px no CTA mobile/hero; borda reservada de 1 px em todas as variantes; ícone de 18–20 px; loading com largura estável. Rótulos maiores quebram/reorganizam o grupo, sem cortar texto.
 - Inputs com label visível, 44 px de altura mínima para toque e texto 16 px no celular. Os 40 px do DESIGN original não prevalecem sobre a usabilidade mobile.
 - `Card` genérico não recebe lógica de evento, sessão ou HTTP. Datas, badges e ações de evento pertencem ao módulo correspondente.

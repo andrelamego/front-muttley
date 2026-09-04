@@ -262,7 +262,7 @@ export const EventList: React.FC = () => {
                 return (
                   <article
                     key={evento.id}
-                    className="event-card flex flex-col p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm w-[320px] shrink-0 relative overflow-hidden"
+                    className="event-card flex flex-col p-4 bg-brand-surface border border-brand-line rounded-none shadow-sm w-[320px] shrink-0 relative overflow-hidden"
                   >
                     <div className="event-main flex justify-between items-start">
                       <h3 className="text-sm font-bold text-brand-ink-strong max-w-[200px]">
@@ -320,7 +320,7 @@ export const EventList: React.FC = () => {
                         </span>
                       </span>
                       <Link
-                        className="event-footer-action text-white bg-brand-primary px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-brand-primary-strong transition-colors"
+                        className="event-footer-action text-white bg-brand-primary px-3 py-1.5 rounded-none text-xs font-bold hover:bg-brand-primary-strong transition-colors"
                         to={`/admin/eventos/concluir/${evento.id}`}
                       >
                         Concluir evento
@@ -348,7 +348,7 @@ export const EventList: React.FC = () => {
       )}
 
       <section className="summary-grid grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
+        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-none shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
             <svg
               aria-hidden="true"
@@ -365,7 +365,7 @@ export const EventList: React.FC = () => {
           </strong>
         </article>
 
-        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
+        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-none shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
             <svg
               aria-hidden="true"
@@ -382,7 +382,7 @@ export const EventList: React.FC = () => {
           </strong>
         </article>
 
-        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
+        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-none shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
             <svg
               aria-hidden="true"
@@ -399,7 +399,7 @@ export const EventList: React.FC = () => {
           </strong>
         </article>
 
-        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-lg shadow-sm">
+        <article className="summary-card p-4 bg-brand-surface border border-brand-line rounded-none shadow-sm">
           <div className="flex items-center gap-2 text-xs text-brand-muted font-bold">
             <svg
               aria-hidden="true"
@@ -421,7 +421,7 @@ export const EventList: React.FC = () => {
         className="events-toolbar grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 mb-6"
         onSubmit={(e) => e.preventDefault()}
       >
-        <label className="search-field bg-brand-surface border border-brand-line p-2 rounded-lg flex items-center gap-2 focus-within:border-brand-primary">
+        <label className="search-field bg-brand-surface border border-brand-line p-2 rounded-none flex items-center gap-2 focus-within:border-brand-primary">
           <svg className="w-4 h-4 text-brand-muted" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="7"></circle>
             <path d="m20 20-3.5-3.5"></path>
@@ -441,7 +441,7 @@ export const EventList: React.FC = () => {
         <select
           value={ordenar}
           onChange={(e) => setOrdenar(e.target.value)}
-          className="border border-brand-line p-2 rounded-lg text-sm bg-brand-surface"
+          className="border border-brand-line p-2 rounded-none text-sm bg-brand-surface"
         >
           <option value="data">Ordenar por: Data</option>
           <option value="tema">Ordenar por: Nome</option>
@@ -453,7 +453,7 @@ export const EventList: React.FC = () => {
             setStatusFiltro(e.target.value)
             setPagina(0)
           }}
-          className="border border-brand-line p-2 rounded-lg text-sm bg-brand-surface"
+          className="border border-brand-line p-2 rounded-none text-sm bg-brand-surface"
         >
           <option value="">Todos os status</option>
           <option value="CRIADO">Criado</option>
@@ -468,7 +468,7 @@ export const EventList: React.FC = () => {
             setTamanho(Number(e.target.value))
             setPagina(0)
           }}
-          className="border border-brand-line p-2 rounded-lg text-sm bg-brand-surface"
+          className="border border-brand-line p-2 rounded-none text-sm bg-brand-surface"
         >
           <option value="5">Exibir: 5 itens</option>
           <option value="10">Exibir: 10 itens</option>
@@ -484,7 +484,7 @@ export const EventList: React.FC = () => {
             setOrdenar('data')
             setPagina(0)
           }}
-          className="bg-brand-muted hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+          className="bg-brand-muted hover:bg-[var(--color-text-secondary)] text-white rounded-none text-xs font-bold transition-colors cursor-pointer"
         >
           Limpar Filtros
         </button>
@@ -595,7 +595,7 @@ export const EventList: React.FC = () => {
                         <span>{sponsor.nome}</span>
                       </span>
                     )}
-                    <span className="capitalize px-2 py-0.5 rounded border border-brand-line">
+                    <span className="capitalize px-2 py-0.5 rounded-none border border-brand-line">
                       {evento.modalidade.toLowerCase()}
                     </span>
                   </div>

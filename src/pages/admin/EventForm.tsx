@@ -535,7 +535,7 @@ export const EventForm: React.FC = () => {
                 onChange={(e) => setHorarioInicio(e.target.value)}
                 required
                 disabled={isFinalized}
-                className="border border-brand-line p-2 rounded-lg text-sm bg-brand-surface w-full mt-1.5"
+                className="border border-brand-line p-2 rounded-none text-sm bg-brand-surface w-full mt-1.5"
               />
             </fieldset>
 
@@ -549,7 +549,7 @@ export const EventForm: React.FC = () => {
                 onChange={(e) => setHorarioFim(e.target.value)}
                 required
                 disabled={isFinalized}
-                className="border border-brand-line p-2 rounded-lg text-sm bg-brand-surface w-full mt-1.5"
+                className="border border-brand-line p-2 rounded-none text-sm bg-brand-surface w-full mt-1.5"
               />
             </fieldset>
 
@@ -917,7 +917,7 @@ export const EventForm: React.FC = () => {
           </div>
 
           {participacaoList.length === 0 ? (
-            <div className="empty-state compact-empty p-6 bg-brand-surface border border-brand-line rounded-lg text-center text-brand-muted">
+            <div className="empty-state compact-empty p-6 bg-brand-surface border border-brand-line rounded-none text-center text-brand-muted">
               <p>Nenhuma participação cadastrada para este evento.</p>
             </div>
           ) : (

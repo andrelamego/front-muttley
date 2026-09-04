@@ -33,6 +33,9 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
 }
 
 h1,
@@ -45,6 +48,111 @@ h3,
 .font-mono-tabular {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+.surface-depth {
+  box-shadow: var(--shadow-card);
+  transition:
+    box-shadow 160ms ease,
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.surface-depth-interactive:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translate(-1px, -1px);
+}
+
+.skeleton-shape {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-skeleton-base);
+}
+
+.skeleton-shape::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-skeleton-highlight),
+    transparent
+  );
+  animation: skeleton-sweep 1.6s var(--motion-ease-standard) infinite;
+}
+
+@keyframes skeleton-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.loading-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  width: 18px;
+}
+
+.loading-dots > span {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: loading-dot 900ms ease-in-out infinite;
+}
+
+.loading-dots > span:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.loading-dots > span:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+@keyframes loading-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+
+  .surface-depth,
+  .surface-depth-interactive,
+  body {
+    transition-duration: 0.01ms !important;
+  }
+
+  .surface-depth-interactive:hover {
+    transform: none;
+  }
+
+  .skeleton-shape::after {
+    animation: none;
+    display: none;
+  }
+
+  .loading-dots > span {
+    animation: none;
+    opacity: 0.75;
+    transform: none;
+  }
 }
 
 *:focus-visible {
