@@ -78,15 +78,15 @@ export const PublicEventListPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto py-6 px-4 sm:px-6">
       {/* Hero / Cabeçalho da página pública */}
-      <div className="text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-slate-200">
+      <div className="text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-[#ddc0ba]/60">
         <div>
-          <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">
-            Eventos Acadêmicos FATEC
+          <span className="font-mono text-xs font-semibold text-[#6b1705] uppercase tracking-wider">
+            Compêndio Acadêmico • Catálogo Geral
           </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1c1c1a] tracking-tight mt-1">
             Programação Aberta
           </h1>
-          <p className="text-sm text-slate-600 mt-1">
+          <p className="text-sm text-[#57423d] mt-1">
             Inscreva-se em palestras, workshops e simpósios com emissão de
             certificados
           </p>
@@ -161,9 +161,9 @@ export const PublicEventListPage: React.FC = () => {
               {filteredEventos.map((evt) => (
                 <Card
                   key={evt.id}
-                  className="bg-white border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow"
+                  className="bg-white border-[#ddc0ba] flex flex-col justify-between hover:shadow-md transition-shadow"
                 >
-                  <CardHeader className="flex-row items-center justify-between gap-2">
+                  <CardHeader className="flex-row items-center justify-between gap-2 border-b border-[#f0edea]">
                     <Badge
                       variant={evt.inscricoesEncerradas ? 'danger' : 'success'}
                     >
@@ -177,43 +177,46 @@ export const PublicEventListPage: React.FC = () => {
                   </CardHeader>
 
                   <CardContent className="flex flex-col gap-3">
-                    <CardTitle as="h2" className="text-lg text-slate-900">
+                    <CardTitle
+                      as="h2"
+                      className="text-xl text-[#1c1c1a] font-serif"
+                    >
                       {evt.tema}
                     </CardTitle>
 
                     {evt.descricao && (
-                      <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                      <p className="text-xs text-[#57423d] line-clamp-3 leading-relaxed">
                         {evt.descricao}
                       </p>
                     )}
 
-                    <div className="bg-slate-50 rounded-lg p-3 grid grid-cols-2 gap-2 text-xs text-slate-600 mt-2">
+                    <div className="bg-[#f6f3ef] rounded p-3 grid grid-cols-2 gap-2 text-xs text-[#57423d] mt-2 font-mono">
                       <div>
-                        <span className="block text-slate-400 font-medium">
+                        <span className="block text-[#8a726c] font-medium uppercase text-[10px]">
                           Data:
                         </span>
-                        <strong className="text-slate-800">{evt.data}</strong>
+                        <strong className="text-[#1c1c1a]">{evt.data}</strong>
                       </div>
                       <div>
-                        <span className="block text-slate-400 font-medium">
+                        <span className="block text-[#8a726c] font-medium uppercase text-[10px]">
                           Horário:
                         </span>
-                        <strong className="text-slate-800">
+                        <strong className="text-[#1c1c1a]">
                           {evt.horarioInicio} às {evt.horarioFim}
                         </strong>
                       </div>
                       <div className="col-span-2">
-                        <span className="block text-slate-400 font-medium">
+                        <span className="block text-[#8a726c] font-medium uppercase text-[10px]">
                           Local / Polo:
                         </span>
-                        <span className="text-slate-800 truncate block">
+                        <span className="text-[#1c1c1a] truncate block font-sans">
                           {evt.local || evt.disciplina || 'Campus FATEC'}
                         </span>
                       </div>
                     </div>
                   </CardContent>
 
-                  <CardFooter className="bg-slate-50/50">
+                  <CardFooter className="bg-[#f6f3ef] border-t border-[#f0edea]">
                     <Link to={`/eventos/${evt.id}`} className="w-full">
                       <Button
                         variant={
