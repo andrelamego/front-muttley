@@ -55,7 +55,7 @@ export const Input: React.FC<InputProps> = ({
           aria-describedby={
             hasError ? errorId : helperText ? helperId : undefined
           }
-          className={`w-full min-h-[44px] px-3.5 py-2.5 text-sm rounded-sm border bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-[var(--color-bg-subtle)] disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed ${
+          className={`w-full min-h-[44px] px-3.5 py-2.5 text-sm rounded-sm border bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-[var(--color-bg-subtle)] disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed read-only:bg-[var(--color-bg-subtle)] read-only:text-[var(--color-text-secondary)] ${
             hasError
               ? 'border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]'
               : 'border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]'

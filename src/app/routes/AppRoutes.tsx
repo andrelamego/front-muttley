@@ -5,7 +5,7 @@ import { ParticipantLayout } from '../layouts/ParticipantLayout'
 import { AdminLayout } from '../layouts/AdminLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
-import { LoginPage } from '../../modules/auth'
+import { CadastroPage, LoginPage } from '../../modules/auth'
 import {
   LandingPage,
   PublicEventListPage,
@@ -53,6 +53,9 @@ export const AppRoutes: React.FC = () => {
 
       {/* Rota de Login */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/cadastro" element={<CadastroPage />} />
+      {/* Endereço usado no link do email de convite (/register?id=...) */}
+      <Route path="/register" element={<CadastroPage />} />
 
       {/* Rotas do Participante (Mobile-First) */}
       <Route
