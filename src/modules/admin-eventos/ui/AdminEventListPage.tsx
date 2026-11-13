@@ -25,9 +25,25 @@ import {
   CalendarIcon,
   ClockIcon,
   DownloadIcon,
-  XIcon,
 } from '../../../shared/ui'
 import { AdminEventListSkeleton } from './skeletons'
+import { MoreHorizontal } from 'lucide-react'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../../../shared/ui/shadcn/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../../../shared/ui/shadcn/dropdown-menu'
 import { formatModalidade } from '../../eventos'
 
 const getStatusBadgeVariant = (status: StatusEvento) => {
@@ -187,7 +203,7 @@ export const AdminEventListPage: React.FC = () => {
     }
   }, [])
 
-  // Fechamento do Modal com devolução de foco ao elemento disparador e liberação de Blobs
+  // Fechamento do modal com liberação de Blobs (o foco volta em onCloseAutoFocus)
   const handleCloseQrModal = useCallback(() => {
     activeEventIdRef.current = null
     setQrModalEvent(null)
@@ -199,10 +215,6 @@ export const AdminEventListPage: React.FC = () => {
       if (prev.url) URL.revokeObjectURL(prev.url)
       return { status: 'idle', url: null, error: null }
     })
-    if (modalTriggerRef.current) {
-      modalTriggerRef.current.focus()
-      modalTriggerRef.current = null
-    }
   }, [])
 
   // Abertura do Modal guardando disparador e disparando ambas as chamadas independentes
@@ -224,20 +236,6 @@ export const AdminEventListPage: React.FC = () => {
     carregarInscricao(evt.id)
     carregarConfirmacao(evt.id)
   }
-
-  // Fecha modal com Escape
-  useEffect(() => {
-    if (!qrModalEvent) return
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleCloseQrModal()
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [qrModalEvent, handleCloseQrModal])
 
   // Liberação de Blobs na desmontagem do componente
   useEffect(() => {
@@ -542,66 +540,75 @@ export const AdminEventListPage: React.FC = () => {
 
                           <td className="py-4 px-4 whitespace-nowrap text-right">
                             <div className="inline-flex items-center gap-1.5">
-                              {/* Botão QR Code */}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) =>
-                                  handleOpenQrModal(evt, e.currentTarget)
-                                }
-                                title="Visualizar QR Codes do evento"
-                                aria-label={`Visualizar QR Codes do evento ${evt.tema}`}
-                                className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                              >
-                                <QrCodeIcon size={16} />
-                              </Button>
-
-                              {/* Botão Editar */}
-                              <Link to={`/admin/eventos/${evt.id}/editar`}>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  title="Editar evento"
-                                  aria-label="Editar evento"
-                                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                                >
-                                  <EditIcon size={16} />
-                                </Button>
-                              </Link>
-
-                              {/* Botão Concluir */}
                               {!isFinished && !isCancelled && (
                                 <Link to={`/admin/eventos/${evt.id}/concluir`}>
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    title="Concluir evento e emitir certificados"
-                                    className="gap-1 text-[var(--color-success-text)] border-[var(--color-success-border)] hover:bg-[var(--color-success-bg)] text-xs"
+                                    leftIcon={<CheckCircleIcon size={14} />}
                                   >
-                                    <CheckCircleIcon size={14} />
                                     Concluir
                                   </Button>
                                 </Link>
                               )}
 
-                              {/* Botão Cancelar */}
-                              {!isCancelled && !isFinished && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleCancelEvent(evt)}
-                                  disabled={isDeleting}
-                                  title="Cancelar evento"
-                                  aria-label="Cancelar evento"
-                                  className="text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)]"
+                              {/* modal={false}: o menu abre um dialog; sem isso o Radix trava o ponteiro da página */}
+                              <DropdownMenu modal={false}>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    id={`acoes-evento-${evt.id}`}
+                                    variant="ghost"
+                                    size="sm"
+                                    aria-label={`Ações do evento ${evt.tema}`}
+                                    title="Mais ações"
+                                  >
+                                    {isDeleting ? (
+                                      <LoadingDots label="Cancelando evento" />
+                                    ) : (
+                                      <MoreHorizontal className="size-4" />
+                                    )}
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="w-52"
                                 >
-                                  {isDeleting ? (
-                                    <LoadingDots label="Cancelando evento" />
-                                  ) : (
-                                    <TrashIcon size={16} />
+                                  <DropdownMenuItem
+                                    onSelect={() =>
+                                      handleOpenQrModal(
+                                        evt,
+                                        document.getElementById(
+                                          `acoes-evento-${evt.id}`
+                                        ) ?? undefined
+                                      )
+                                    }
+                                  >
+                                    <QrCodeIcon size={16} />
+                                    Ver QR Codes
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem asChild>
+                                    <Link
+                                      to={`/admin/eventos/${evt.id}/editar`}
+                                    >
+                                      <EditIcon size={16} />
+                                      Editar evento
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  {!isCancelled && !isFinished && (
+                                    <>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        variant="destructive"
+                                        disabled={isDeleting}
+                                        onSelect={() => handleCancelEvent(evt)}
+                                      >
+                                        <TrashIcon size={16} />
+                                        Cancelar evento
+                                      </DropdownMenuItem>
+                                    </>
                                   )}
-                                </Button>
-                              )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </td>
                         </tr>
@@ -615,213 +622,201 @@ export const AdminEventListPage: React.FC = () => {
         </>
       )}
 
-      {/* Modal de QR Codes com Estados e Tentativas Independentes */}
-      {qrModalEvent && (
-        <div
-          className="fixed inset-0 z-50 bg-[var(--color-backdrop)] backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-qrcode-titulo"
+      {/* QR Codes do evento: dialog prende o foco e fecha com Esc ou clique fora */}
+      <Dialog
+        open={qrModalEvent !== null}
+        onOpenChange={(aberto) => {
+          if (!aberto) handleCloseQrModal()
+        }}
+      >
+        <DialogContent
+          className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"
+          // Devolve o foco ao botão de ações da linha (o item do menu já não existe)
+          onCloseAutoFocus={(e) => {
+            e.preventDefault()
+            modalTriggerRef.current?.focus()
+            modalTriggerRef.current = null
+          }}
         >
-          <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[var(--color-border)] animate-in fade-in zoom-in-95 my-8">
-            <div className="flex items-start justify-between pb-4 border-b border-[var(--color-border-subtle)] gap-4">
-              <div>
-                <h3
-                  id="modal-qrcode-titulo"
-                  className="text-xl font-black text-[var(--color-text-primary)] tracking-tight"
-                >
-                  QR Codes do Evento
-                </h3>
-                <p className="text-xs text-[var(--color-text-muted)] mt-1 line-clamp-1">
+          {qrModalEvent && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-display text-xl">
+                  QR Codes do evento
+                </DialogTitle>
+                <DialogDescription className="line-clamp-1">
                   {qrModalEvent.tema} &bull; {formatDate(qrModalEvent.data)}
-                </p>
-              </div>
+                </DialogDescription>
+              </DialogHeader>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseQrModal}
-                aria-label="Fechar modal de QR Codes"
-                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
-              >
-                <XIcon size={20} />
-              </Button>
-            </div>
-
-            <div className="py-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* 1. Painel de Inscrição Pública */}
-                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
-                  <div className="w-full text-center mb-3">
-                    <span className="text-xs font-bold text-[var(--color-text-primary)] block">
-                      Inscrição Pública
-                    </span>
-                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                      Direciona para a página de inscrição do evento
-                    </p>
-                  </div>
-
-                  <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
-                    {qrInscricao.status === 'loading' && (
-                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
-                        <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
-                        <span className="text-xs font-medium">
-                          Gerando código...
-                        </span>
-                      </div>
-                    )}
-
-                    {qrInscricao.status === 'error' && (
-                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-md border border-[var(--color-danger-border)] text-center w-full">
-                        <p className="text-xs text-[var(--color-danger-text)] leading-snug">
-                          {qrInscricao.error || 'Falha ao carregar QR Code.'}
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => carregarInscricao(qrModalEvent.id)}
-                          className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
-                        >
-                          Tentar novamente
-                        </Button>
-                      </div>
-                    )}
-
-                    {qrInscricao.status === 'success' && qrInscricao.url && (
-                      <div className="flex flex-col items-center">
-                        <img
-                          src={qrInscricao.url}
-                          alt={`QR Code para inscrição no evento ${qrModalEvent.tema}`}
-                          className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-md border border-[var(--color-border)] shadow-xs object-contain"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
-                    {qrInscricao.status === 'success' && qrInscricao.url ? (
-                      <a
-                        href={qrInscricao.url}
-                        download={`qrcode-inscricao-evento-${qrModalEvent.id}.png`}
-                        className="w-full"
-                      >
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          fullWidth
-                          className="gap-1.5 text-xs"
-                        >
-                          <DownloadIcon size={14} />
-                          Baixar PNG
-                        </Button>
-                      </a>
-                    ) : (
-                      <span className="text-xs text-[var(--color-text-muted)] py-1.5">
-                        {qrInscricao.status === 'loading'
-                          ? 'Aguardando processamento...'
-                          : 'Download indisponível'}
+              <div className="py-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {/* 1. Painel de Inscrição Pública */}
+                  <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
+                    <div className="w-full text-center mb-3">
+                      <span className="text-xs font-bold text-[var(--color-text-primary)] block">
+                        Inscrição Pública
                       </span>
-                    )}
-                  </div>
-                </div>
+                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                        Direciona para a página de inscrição do evento
+                      </p>
+                    </div>
 
-                {/* 2. Painel de Confirmação de Presença */}
-                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
-                  <div className="w-full text-center mb-3">
-                    <span className="text-xs font-bold text-[var(--color-text-primary)] block">
-                      Confirmar Presença
-                    </span>
-                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                      Check-in por leitura de câmera no local
-                    </p>
-                  </div>
+                    <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
+                      {qrInscricao.status === 'loading' && (
+                        <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
+                          <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
+                          <span className="text-xs font-medium">
+                            Gerando código...
+                          </span>
+                        </div>
+                      )}
 
-                  <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
-                    {qrConfirmacao.status === 'loading' && (
-                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
-                        <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
-                        <span className="text-xs font-medium">
-                          Gerando código...
-                        </span>
-                      </div>
-                    )}
+                      {qrInscricao.status === 'error' && (
+                        <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-md border border-[var(--color-danger-border)] text-center w-full">
+                          <p className="text-xs text-[var(--color-danger-text)] leading-snug">
+                            {qrInscricao.error || 'Falha ao carregar QR Code.'}
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => carregarInscricao(qrModalEvent.id)}
+                            className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
+                          >
+                            Tentar novamente
+                          </Button>
+                        </div>
+                      )}
 
-                    {qrConfirmacao.status === 'error' && (
-                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-md border border-[var(--color-danger-border)] text-center w-full">
-                        <p className="text-xs text-[var(--color-danger-text)] leading-snug">
-                          {qrConfirmacao.error || 'Falha ao carregar QR Code.'}
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => carregarConfirmacao(qrModalEvent.id)}
-                          className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
-                        >
-                          Tentar novamente
-                        </Button>
-                      </div>
-                    )}
-
-                    {qrConfirmacao.status === 'success' &&
-                      qrConfirmacao.url && (
+                      {qrInscricao.status === 'success' && qrInscricao.url && (
                         <div className="flex flex-col items-center">
                           <img
-                            src={qrConfirmacao.url}
-                            alt={`QR Code para confirmação de presença no evento ${qrModalEvent.tema}`}
+                            src={qrInscricao.url}
+                            alt={`QR Code para inscrição no evento ${qrModalEvent.tema}`}
                             className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-md border border-[var(--color-border)] shadow-xs object-contain"
                           />
                         </div>
                       )}
+                    </div>
+
+                    <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
+                      {qrInscricao.status === 'success' && qrInscricao.url ? (
+                        <a
+                          href={qrInscricao.url}
+                          download={`qrcode-inscricao-evento-${qrModalEvent.id}.png`}
+                          className="w-full"
+                        >
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            fullWidth
+                            className="gap-1.5 text-xs"
+                          >
+                            <DownloadIcon size={14} />
+                            Baixar PNG
+                          </Button>
+                        </a>
+                      ) : (
+                        <span className="text-xs text-[var(--color-text-muted)] py-1.5">
+                          {qrInscricao.status === 'loading'
+                            ? 'Aguardando processamento...'
+                            : 'Download indisponível'}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
-                    {qrConfirmacao.status === 'success' && qrConfirmacao.url ? (
-                      <a
-                        href={qrConfirmacao.url}
-                        download={`qrcode-presenca-evento-${qrModalEvent.id}.png`}
-                        className="w-full"
-                      >
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          fullWidth
-                          className="gap-1.5 text-xs"
-                        >
-                          <DownloadIcon size={14} />
-                          Baixar PNG
-                        </Button>
-                      </a>
-                    ) : (
-                      <span className="text-xs text-[var(--color-text-muted)] py-1.5">
-                        {qrConfirmacao.status === 'loading'
-                          ? 'Aguardando processamento...'
-                          : 'Download indisponível'}
+                  {/* 2. Painel de Confirmação de Presença */}
+                  <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
+                    <div className="w-full text-center mb-3">
+                      <span className="text-xs font-bold text-[var(--color-text-primary)] block">
+                        Confirmar Presença
                       </span>
-                    )}
+                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                        Check-in por leitura de câmera no local
+                      </p>
+                    </div>
+
+                    <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
+                      {qrConfirmacao.status === 'loading' && (
+                        <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
+                          <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
+                          <span className="text-xs font-medium">
+                            Gerando código...
+                          </span>
+                        </div>
+                      )}
+
+                      {qrConfirmacao.status === 'error' && (
+                        <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-md border border-[var(--color-danger-border)] text-center w-full">
+                          <p className="text-xs text-[var(--color-danger-text)] leading-snug">
+                            {qrConfirmacao.error ||
+                              'Falha ao carregar QR Code.'}
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => carregarConfirmacao(qrModalEvent.id)}
+                            className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
+                          >
+                            Tentar novamente
+                          </Button>
+                        </div>
+                      )}
+
+                      {qrConfirmacao.status === 'success' &&
+                        qrConfirmacao.url && (
+                          <div className="flex flex-col items-center">
+                            <img
+                              src={qrConfirmacao.url}
+                              alt={`QR Code para confirmação de presença no evento ${qrModalEvent.tema}`}
+                              className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-md border border-[var(--color-border)] shadow-xs object-contain"
+                            />
+                          </div>
+                        )}
+                    </div>
+
+                    <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
+                      {qrConfirmacao.status === 'success' &&
+                      qrConfirmacao.url ? (
+                        <a
+                          href={qrConfirmacao.url}
+                          download={`qrcode-presenca-evento-${qrModalEvent.id}.png`}
+                          className="w-full"
+                        >
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            fullWidth
+                            className="gap-1.5 text-xs"
+                          >
+                            <DownloadIcon size={14} />
+                            Baixar PNG
+                          </Button>
+                        </a>
+                      ) : (
+                        <span className="text-xs text-[var(--color-text-muted)] py-1.5">
+                          {qrConfirmacao.status === 'loading'
+                            ? 'Aguardando processamento...'
+                            : 'Download indisponível'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="pt-4 border-t border-[var(--color-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
-              <span className="text-xs text-[var(--color-text-muted)]">
-                Pressione{' '}
-                <kbd className="px-1.5 py-0.5 bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-md text-xs tabular-nums text-[var(--color-text-secondary)]">
-                  Esc
-                </kbd>{' '}
-                para fechar a qualquer momento
-              </span>
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={handleCloseQrModal}
-              >
-                Fechar Janela
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="secondary" size="md">
+                    Fechar
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
