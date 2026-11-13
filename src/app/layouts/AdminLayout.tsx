@@ -250,7 +250,7 @@ export const AdminLayout: React.FC = () => {
             size="sm"
             onClick={handleLogout}
             fullWidth
-            className="border-white/20 bg-transparent text-[#c9cdea] hover:text-white hover:bg-white/10 justify-center gap-2 text-xs"
+            className="border-white/20! bg-transparent! text-[#c9cdea]! hover:text-white! hover:bg-white/10! justify-center gap-2 text-xs"
             leftIcon={<LogOutIcon size={14} />}
           >
             Sair
