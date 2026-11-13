@@ -1,6 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { confirmarPresencaApi } from '../api/eventosApi'
+import {
+  confirmarPresencaApi,
+  getEventoPublicoPorIdApi,
+} from '../api/eventosApi'
+import type { EventoPublico } from '../domain/eventoTypes'
+import { formatModalidade, getTicketDateParts } from '../domain/ticketFormat'
+import {
+  formatPresenceWindow,
+  getPresenceWindow,
+} from '../domain/presenceWindow'
 import { PUBLIC_EVENTS_PATH } from '../domain/eventRoutes'
 import { useAuth } from '../../auth'
 import {
@@ -11,6 +20,7 @@ import {
   Button,
   Input,
   Alert,
+  Ticket,
 } from '../../../shared/ui'
 import { HistoryBackButton } from '../../../shared/navigation'
 
@@ -28,6 +38,19 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [evento, setEvento] = useState<EventoPublico | null>(null)
+
+  // O ingresso é complementar: se o evento não carregar, o formulário continua funcionando.
+  useEffect(() => {
+    if (!id) return
+    let ativo = true
+    getEventoPublicoPorIdApi(id)
+      .then((ev) => ativo && setEvento(ev))
+      .catch(() => undefined)
+    return () => {
+      ativo = false
+    }
+  }, [id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,14 +80,44 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
   }
 
   return (
-    <div className="min-h-[80vh] flex flex-col justify-center items-center px-4 py-8 max-w-md mx-auto">
+    <div className="min-h-[80vh] flex flex-col justify-center items-center gap-5 px-4 py-8 max-w-md mx-auto">
+      {evento &&
+        (() => {
+          const partes = getTicketDateParts(evento.data, evento.horarioInicio)
+          const janela = getPresenceWindow(
+            evento.data,
+            evento.horarioInicio,
+            evento.horarioFim
+          )
+          return (
+            <Ticket
+              compact
+              dia={partes.dia}
+              mes={partes.mes}
+              horario={partes.horario}
+              stamped={Boolean(success)}
+              className="w-full"
+            >
+              <p className="font-display text-lg font-bold leading-tight">
+                {evento.tema}
+              </p>
+              <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+                {[evento.local, formatModalidade(evento.modalidade)]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+              {janela && (
+                <p className="text-xs text-[var(--color-text-secondary)] mt-2">
+                  {formatPresenceWindow(janela)}
+                </p>
+              )}
+            </Ticket>
+          )
+        })()}
       <Card className="w-full surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-md">
         <CardHeader className="text-center pb-4">
-          <span className="text-xs font-bold text-[var(--color-primary-text)] uppercase tracking-wider">
-            Validação de Presença
-          </span>
-          <CardTitle as="h1" className="text-xl font-bold mt-1">
-            Confirmar Presença no Evento
+          <CardTitle as="h1" className="text-xl font-bold">
+            Confirmar presença
           </CardTitle>
           <p className="text-xs text-[var(--color-text-muted)] mt-1">
             Informe o seu CPF cadastrado na inscrição deste evento
@@ -73,18 +126,18 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
 
         <CardContent className="p-6 flex flex-col gap-4">
           {success ? (
-            <Alert variant="success" title="Presença Confirmada!">
+            <Alert variant="success" title="Presença confirmada">
               <div className="flex flex-col gap-3">
                 <p className="text-sm leading-relaxed">{success}</p>
                 <div className="flex flex-col gap-2 pt-2">
                   <Link to="/user/inicio">
                     <Button variant="primary" size="md" fullWidth>
-                      Ver Minhas Conquistas
+                      Ver meu início
                     </Button>
                   </Link>
                   <Link to={eventRouteBase}>
                     <Button variant="outline" size="sm" fullWidth>
-                      Ir para Lista de Eventos
+                      Ver eventos
                     </Button>
                   </Link>
                 </div>
@@ -103,7 +156,7 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
               )}
 
               <Input
-                label="CPF do Participante"
+                label="CPF do participante"
                 type="text"
                 name="cpf"
                 id="cpf-presenca"
@@ -122,9 +175,9 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
                 fullWidth
                 isLoading={isSubmitting}
                 loadingText="Validando presença..."
-                className="mt-2 bg-[var(--color-success)] hover:bg-[var(--color-success)] active:bg-[var(--color-success)] focus-visible:ring-[var(--color-success)]"
+                className="mt-2"
               >
-                Confirmar Presença Agora
+                Confirmar presença
               </Button>
 
               <div className="text-center pt-2">

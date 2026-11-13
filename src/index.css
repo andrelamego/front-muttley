@@ -253,12 +253,19 @@ h3,
   position: absolute;
   inset: auto 6px 10px;
   padding: 2px 4px;
+  text-align: center;
   border: 2px solid var(--color-success-text);
   border-radius: var(--radius-xs);
   background: var(--color-bg-surface);
   color: var(--color-success-text);
   font-size: 12px;
   font-weight: 800;
+}
+
+.ticket--compact .ticket-stamp {
+  inset: auto 4px 8px;
+  padding: 1px 2px;
+  font-size: 11px;
 }
 
 @supports not (

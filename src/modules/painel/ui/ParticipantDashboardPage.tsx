@@ -7,6 +7,7 @@ import {
   formatDateSafe,
   formatPresenceWindow,
   getPresenceWindow,
+  formatModalidade,
   getTicketDateParts,
   isWithinPresenceWindow,
   parseEventDateTime,
@@ -29,13 +30,6 @@ import {
   Ticket,
 } from '../../../shared/ui'
 import { ParticipantDashboardSkeleton } from './skeletons'
-
-const formatModalidade = (modalidade?: string | null) => {
-  if (!modalidade) return null
-  if (modalidade === 'ONLINE') return 'Online'
-  if (modalidade === 'HIBRIDO') return 'Híbrido'
-  return 'Presencial'
-}
 import apiClient from '../../../shared/http/apiClient'
 
 export const ParticipantDashboardPage: React.FC = () => {

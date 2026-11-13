@@ -25,3 +25,13 @@ test('evento sem horário não mostra selo de hora', () => {
     horario: null,
   })
 })
+
+test('modalidade aparece em português com inicial maiúscula', async () => {
+  const { formatModalidade } = await import(
+    '../src/modules/eventos/domain/ticketFormat.ts'
+  )
+  assert.equal(formatModalidade('ONLINE'), 'Online')
+  assert.equal(formatModalidade('HIBRIDO'), 'Híbrido')
+  assert.equal(formatModalidade('PRESENCIAL'), 'Presencial')
+  assert.equal(formatModalidade(null), null)
+})

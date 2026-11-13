@@ -6,6 +6,11 @@ import {
 } from '../api/eventosApi'
 import type { EventoPublico } from '../domain/eventoTypes'
 import { buildPresencePath, PUBLIC_EVENTS_PATH } from '../domain/eventRoutes'
+import { formatModalidade, getTicketDateParts } from '../domain/ticketFormat'
+import {
+  formatPresenceWindow,
+  getPresenceWindow,
+} from '../domain/presenceWindow'
 import { useAuth } from '../../auth'
 import {
   Card,
@@ -16,6 +21,7 @@ import {
   Button,
   Input,
   Alert,
+  Ticket,
 } from '../../../shared/ui'
 import { EventDetailSkeleton } from './skeletons'
 import { HistoryBackButton } from '../../../shared/navigation'
@@ -121,7 +127,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto py-6 px-4 sm:px-6">
+    <div className="flex flex-col gap-6 w-full max-w-3xl mx-auto py-6 px-4 sm:px-6">
       {/* Botão de Retorno */}
       <div>
         <HistoryBackButton label="Voltar para a página anterior" />
@@ -146,67 +152,64 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
 
       {evento && (
         <div className="flex flex-col gap-6">
-          {/* Cartão de Detalhes do Evento */}
-          <Card className="surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-sm">
-            <CardHeader className="flex-row items-center justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant={evento.inscricoesEncerradas ? 'danger' : 'success'}
-                >
-                  {evento.inscricoesEncerradas
-                    ? 'Inscrições Encerradas'
-                    : 'Inscrições Abertas'}
-                </Badge>
-                <Badge variant="default">{evento.modalidade}</Badge>
-              </div>
-
-              <Link to={buildPresencePath(eventRouteBase, evento.id)}>
-                <Button variant="ghost" size="sm">
-                  Confirmar Presença no Evento →
-                </Button>
-              </Link>
-            </CardHeader>
-
-            <CardContent className="p-6 flex flex-col gap-5">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">
+          {/* Cabeçalho do evento em forma de ingresso */}
+          {(() => {
+            const partes = getTicketDateParts(evento.data, evento.horarioInicio)
+            const janela = getPresenceWindow(
+              evento.data,
+              evento.horarioInicio,
+              evento.horarioFim
+            )
+            return (
+              <Ticket
+                dia={partes.dia}
+                mes={partes.mes}
+                horario={partes.horario}
+              >
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge
+                    variant={evento.inscricoesEncerradas ? 'danger' : 'success'}
+                  >
+                    {evento.inscricoesEncerradas
+                      ? 'Inscrições encerradas'
+                      : 'Inscrições abertas'}
+                  </Badge>
+                  {formatModalidade(evento.modalidade) && (
+                    <Badge variant="default">
+                      {formatModalidade(evento.modalidade)}
+                    </Badge>
+                  )}
+                </div>
+                <h1 className="font-display text-2xl sm:text-3xl font-bold leading-tight mt-3">
                   {evento.tema}
                 </h1>
                 <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed whitespace-pre-line">
-                  {evento.descricao || 'Sem descrição adicional fornecida.'}
+                  {evento.descricao || 'Sem descrição adicional.'}
                 </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-[var(--color-bg-subtle)] rounded-md text-sm border border-[var(--color-border-subtle)]">
-                <div>
-                  <span className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-                    Data Programada
-                  </span>
-                  <strong className="text-[var(--color-text-primary)] mt-1 block">
-                    {evento.data}
-                  </strong>
-                </div>
-
-                <div>
-                  <span className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-                    Horário
-                  </span>
-                  <strong className="text-[var(--color-text-primary)] mt-1 block">
-                    {evento.horarioInicio} às {evento.horarioFim}
-                  </strong>
-                </div>
-
-                <div>
-                  <span className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-                    Localização / Polo
-                  </span>
-                  <strong className="text-[var(--color-text-primary)] mt-1 block truncate">
-                    {evento.local || evento.disciplina || 'Campus FATEC'}
-                  </strong>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                <p className="text-sm mt-3">
+                  {[
+                    evento.horarioInicio && evento.horarioFim
+                      ? `${evento.horarioInicio.slice(0, 5)} às ${evento.horarioFim.slice(0, 5)}`
+                      : null,
+                    evento.local || evento.disciplina,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
+                {janela && (
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                    Presença: {formatPresenceWindow(janela).toLowerCase()}
+                  </p>
+                )}
+                <Link
+                  to={buildPresencePath(eventRouteBase, evento.id)}
+                  className="inline-flex items-center min-h-[44px] mt-1 text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
+                >
+                  Confirmar presença
+                </Link>
+              </Ticket>
+            )
+          })()}
 
           {/* Seção de Inscrição */}
           <section aria-labelledby="inscricao-titulo">

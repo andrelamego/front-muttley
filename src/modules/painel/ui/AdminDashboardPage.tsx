@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getAdminDashboardData } from '../api/painelApi'
 import {
+  formatModalidade,
   getTicketDateParts,
   isWithinPresenceWindow,
   parseEventDateTime,
@@ -10,13 +11,6 @@ import { formatResumoSemana } from '../domain/resumoSemana'
 import type { AdminDashboardData, EventoResumo } from '../domain/painelTypes'
 import { Alert, Badge, Button, PlusIcon } from '../../../shared/ui'
 import { AdminDashboardSkeleton } from './skeletons'
-
-const formatModalidade = (modalidade?: string | null) => {
-  if (!modalidade) return null
-  if (modalidade === 'ONLINE') return 'Online'
-  if (modalidade === 'HIBRIDO') return 'Híbrido'
-  return 'Presencial'
-}
 
 export const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate()

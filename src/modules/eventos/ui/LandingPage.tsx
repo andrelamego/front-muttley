@@ -17,6 +17,7 @@ import {
   UsersIcon,
   QrCodeIcon,
   AwardIcon,
+  Ticket,
 } from '../../../shared/ui'
 import { LandingEventsSkeleton } from './skeletons'
 
@@ -25,6 +26,7 @@ import {
   calculatePrevIndex,
   sortEventosByDate,
 } from '../domain/carouselLogic'
+import { formatModalidade, getTicketDateParts } from '../domain/ticketFormat'
 
 const carouselSlideVariants = {
   enter: (direction: number) => ({ opacity: 0, x: direction * 40 }),
@@ -132,55 +134,6 @@ export const LandingPage: React.FC = () => {
     const codigoLimpo = certCodigo.trim()
     if (codigoLimpo) {
       navigate(`/certificados/${encodeURIComponent(codigoLimpo)}`)
-    }
-  }
-
-  const getModalidadeBadge = (modalidade: string) => {
-    const modUpper = (modalidade || '').toUpperCase()
-    if (modUpper.includes('ONLINE')) {
-      return (
-        <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
-          Online
-        </span>
-      )
-    }
-    if (modUpper.includes('HIBRID') || modUpper.includes('HÍBRID')) {
-      return (
-        <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-primary-subtle)] text-[var(--color-warning-text)] font-medium">
-          Híbrido
-        </span>
-      )
-    }
-    return (
-      <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium">
-        Presencial
-      </span>
-    )
-  }
-
-  // Extrai dia e mês abreviado de uma data ISO YYYY-MM-DD
-  const extractDateParts = (dateStr: string) => {
-    if (!dateStr) return { day: '--', monthYear: '---' }
-    const [year, month, day] = dateStr.split('-')
-    const meses = [
-      'JAN',
-      'FEV',
-      'MAR',
-      'ABR',
-      'MAI',
-      'JUN',
-      'JUL',
-      'AGO',
-      'SET',
-      'OUT',
-      'NOV',
-      'DEZ',
-    ]
-    const monthIndex = parseInt(month, 10) - 1
-    const monthName = meses[monthIndex] || month
-    return {
-      day: day || '--',
-      monthYear: `${monthName} • ${year || ''}`,
     }
   }
 
@@ -441,73 +394,35 @@ export const LandingPage: React.FC = () => {
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
                   {visibleEventos.map((evento, idx) => {
-                    const { day, monthYear } = extractDateParts(evento.data)
+                    const partes = getTicketDateParts(
+                      evento.data,
+                      evento.horarioInicio
+                    )
                     return (
-                      <article
+                      <Ticket
                         key={`${evento.id}-${idx}`}
-                        className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] rounded-md p-6 border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow"
+                        compact
+                        dia={partes.dia}
+                        mes={partes.mes}
+                        horario={partes.horario}
+                        className="h-full [&>.ticket]:h-full"
                       >
-                        <div>
-                          {/* Topo: Dia, Mês e Modalidade */}
-                          <div className="flex items-start justify-between gap-2 mb-4">
-                            <div className="flex flex-col">
-                              <span className="font-display text-3xl font-bold text-[var(--color-primary-text)] leading-none">
-                                {day}
-                              </span>
-                              <span className="tabular-nums text-xs uppercase text-[var(--color-text-secondary)] mt-1 font-semibold">
-                                {monthYear}
-                              </span>
-                            </div>
-                            {getModalidadeBadge(evento.modalidade)}
-                          </div>
-
-                          {/* Título e Descrição */}
-                          <h3 className="font-display text-xl font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-text)] transition-colors mb-2 line-clamp-2">
-                            {evento.tema}
-                          </h3>
-                          <p className="text-xs text-[var(--color-text-secondary)] line-clamp-3 mb-6 leading-relaxed">
-                            {evento.descricao ||
-                              'Encontro acadêmico com palestras, debates técnicos e certificação garantida aos participantes presentes.'}
-                          </p>
-                        </div>
-
-                        {/* Metadados e Ação */}
-                        <div className="pt-4 mt-2 bg-[var(--color-bg-subtle)] -mx-6 -mb-6 p-6 rounded-md border-t border-[var(--color-bg-muted)]">
-                          <div className="grid grid-cols-2 gap-2 text-[var(--color-text-primary)] mb-4 tabular-nums text-xs">
-                            <div>
-                              <span className="text-[var(--color-text-muted)] block uppercase">
-                                Horário
-                              </span>
-                              <span className="font-medium">
-                                {evento.horarioInicio} - {evento.horarioFim}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-[var(--color-text-muted)] block uppercase">
-                                Local
-                              </span>
-                              <span className="font-medium truncate block">
-                                {evento.local || evento.disciplina || 'Campus'}
-                              </span>
-                            </div>
-                          </div>
-
-                          <Link
-                            to={`/eventos/${evento.id}`}
-                            className="w-full block"
-                          >
-                            <Button
-                              variant="secondary"
-                              size="md"
-                              fullWidth
-                              className="hover:bg-[var(--color-primary)] hover:text-white transition-colors"
-                              rightIcon={<ArrowUpRightIcon size={16} />}
-                            >
-                              Ver evento
-                            </Button>
-                          </Link>
-                        </div>
-                      </article>
+                        <h3 className="font-display text-lg font-bold leading-tight line-clamp-2">
+                          {evento.tema}
+                        </h3>
+                        <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+                          {[evento.local, formatModalidade(evento.modalidade)]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </p>
+                        <Link
+                          to={`/eventos/${evento.id}`}
+                          className="inline-flex items-center min-h-[44px] mt-1 text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
+                        >
+                          Ver evento
+                          <span className="sr-only"> {evento.tema}</span>
+                        </Link>
+                      </Ticket>
                     )
                   })}
                 </m.div>

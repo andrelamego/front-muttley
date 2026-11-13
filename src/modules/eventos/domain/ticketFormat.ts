@@ -32,3 +32,11 @@ export const getTicketDateParts = (
   }
   return { dia: String(dia), mes: MESES[mes - 1] ?? '', horario }
 }
+
+/** Rótulo legível da modalidade do evento; null quando ausente. */
+export const formatModalidade = (modalidade?: string | null): string | null => {
+  if (!modalidade) return null
+  if (modalidade === 'ONLINE') return 'Online'
+  if (modalidade === 'HIBRIDO') return 'Híbrido'
+  return 'Presencial'
+}
