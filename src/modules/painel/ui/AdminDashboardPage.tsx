@@ -277,7 +277,9 @@ export const AdminDashboardPage: React.FC = () => {
                           size="sm"
                           onClick={() =>
                             navigate(
-                              `/admin/eventos/${evento.id}/${aguardaConclusao ? 'concluir' : 'editar'}`
+                              aguardaConclusao
+                                ? `/admin/eventos/${evento.id}/concluir`
+                                : `/admin/eventos/${evento.id}`
                             )
                           }
                           aria-label={`${aguardaConclusao ? 'Concluir' : 'Abrir'} ${evento.tema}`}

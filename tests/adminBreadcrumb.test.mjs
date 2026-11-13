@@ -22,6 +22,13 @@ test('páginas de evento ficam sob Eventos, com link de volta', () => {
   ])
 })
 
+test('detalhe do evento fica sob Eventos', () => {
+  assert.deepEqual(getAdminBreadcrumb('/admin/eventos/40003'), [
+    { label: 'Eventos', to: '/admin/eventos' },
+    { label: 'Detalhe do evento' },
+  ])
+})
+
 test('rota desconhecida cai em Coordenação', () => {
   assert.deepEqual(getAdminBreadcrumb('/admin/outra'), [
     { label: 'Coordenação' },

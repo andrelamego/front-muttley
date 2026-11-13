@@ -26,7 +26,9 @@ export const getAdminBreadcrumb = (pathname: string): BreadcrumbEntry[] => {
     .filter(Boolean)
 
   if (secao === 'eventos' && id) {
-    const label = ACAO_EVENTO[id === 'novo' ? 'novo' : (acao ?? '')]
+    const label =
+      ACAO_EVENTO[id === 'novo' ? 'novo' : (acao ?? '')] ??
+      (acao ? undefined : 'Detalhe do evento')
     if (label) return [{ label: 'Eventos', to: '/admin/eventos' }, { label }]
   }
 

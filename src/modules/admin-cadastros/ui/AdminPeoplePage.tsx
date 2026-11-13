@@ -204,7 +204,7 @@ export const AdminPeoplePage: React.FC = () => {
                 <div className="relative sm:w-80">
                   <SearchIcon
                     size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+                    className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[var(--color-text-muted)]"
                   />
                   <Input
                     value={search}

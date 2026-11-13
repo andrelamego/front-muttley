@@ -24,6 +24,7 @@ import {
 import { UserMedalsPage } from '../../modules/medalhas'
 import {
   AdminEventListPage,
+  AdminEventDetailPage,
   AdminEventFormPage,
   AdminEventConcludePage,
 } from '../../modules/admin-eventos'
@@ -104,6 +105,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="inicio" element={<AdminDashboardPage />} />
         <Route path="eventos" element={<AdminEventListPage />} />
         <Route path="eventos/novo" element={<AdminEventFormPage />} />
+        <Route path="eventos/:id" element={<AdminEventDetailPage />} />
         <Route path="eventos/:id/editar" element={<AdminEventFormPage />} />
         <Route
           path="eventos/:id/concluir"

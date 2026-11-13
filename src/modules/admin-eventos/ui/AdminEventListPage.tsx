@@ -3,9 +3,6 @@ import { Link } from 'react-router-dom'
 import {
   getAdminEventosApi,
   cancelarAdminEventoApi,
-  getEventQrCodeInscricaoBlobApi,
-  getEventQrCodeConfirmacaoBlobApi,
-  parseBlobErrorMessage,
 } from '../api/adminEventosApi'
 import type { AdminEvento, StatusEvento } from '../domain/adminEventoTypes'
 import {
@@ -14,7 +11,6 @@ import {
   Button,
   Alert,
   LoadingDots,
-  SkeletonBlock,
   Input,
   SearchIcon,
   PlusIcon,
@@ -24,11 +20,12 @@ import {
   CheckCircleIcon,
   CalendarIcon,
   ClockIcon,
-  DownloadIcon,
   toast,
   FiltroSegmentado,
 } from '../../../shared/ui'
 import { AdminEventListSkeleton } from './skeletons'
+import { EventoQrDialog } from './EventoQrDialog'
+import { getStatusBadgeVariant, getStatusLabel } from './statusEvento'
 import { MoreHorizontal } from 'lucide-react'
 import {
   AlertDialog,
@@ -41,15 +38,6 @@ import {
   AlertDialogTitle,
 } from '../../../shared/ui/shadcn/alert-dialog'
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '../../../shared/ui/shadcn/dialog'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -57,36 +45,6 @@ import {
   DropdownMenuTrigger,
 } from '../../../shared/ui/shadcn/dropdown-menu'
 import { formatModalidade } from '../../eventos'
-
-const getStatusBadgeVariant = (status: StatusEvento) => {
-  switch (status) {
-    case 'EM_ANDAMENTO':
-      return 'info' as const
-    case 'CRIADO':
-      return 'default' as const
-    case 'FINALIZADO':
-      return 'success' as const
-    case 'CANCELADO':
-      return 'danger' as const
-    default:
-      return 'default' as const
-  }
-}
-
-const getStatusLabel = (status: StatusEvento) => {
-  switch (status) {
-    case 'EM_ANDAMENTO':
-      return 'Em andamento'
-    case 'CRIADO':
-      return 'Programado'
-    case 'FINALIZADO':
-      return 'Finalizado'
-    case 'CANCELADO':
-      return 'Cancelado'
-    default:
-      return status
-  }
-}
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '-'
@@ -112,27 +70,12 @@ export const AdminEventListPage: React.FC = () => {
   )
   const searchInputId = useId()
 
-  interface QrItemState {
-    status: 'idle' | 'loading' | 'success' | 'error'
-    url: string | null
-    error: string | null
-  }
-
-  // Estado do Modal de QR Code desacoplado
+  // Evento com o dialog de QR aberto e o botão que o abriu (recebe o foco ao fechar)
   const [qrModalEvent, setQrModalEvent] = useState<AdminEvento | null>(null)
-  const [qrInscricao, setQrInscricao] = useState<QrItemState>({
-    status: 'idle',
-    url: null,
-    error: null,
-  })
-  const [qrConfirmacao, setQrConfirmacao] = useState<QrItemState>({
-    status: 'idle',
-    url: null,
-    error: null,
-  })
-
-  const activeEventIdRef = useRef<number | null>(null)
   const modalTriggerRef = useRef<HTMLElement | null>(null)
+  // Quando a escolha do menu abre um dialog, o menu não devolve o foco ao ⋯
+  // (senão ele tira o foco de dentro do dialog e o Esc deixa de funcionar).
+  const abrindoDialogRef = useRef(false)
 
   const loadEvents = useCallback(async () => {
     setIsLoading(true)
@@ -175,89 +118,10 @@ export const AdminEventListPage: React.FC = () => {
     }
   }, [])
 
-  // Carregamento independente de QR Code de Inscrição
-  const carregarInscricao = useCallback(async (eventId: number) => {
-    setQrInscricao((prev) => {
-      if (prev.url) URL.revokeObjectURL(prev.url)
-      return { status: 'loading', url: null, error: null }
-    })
-    try {
-      const blob = await getEventQrCodeInscricaoBlobApi(eventId)
-      if (activeEventIdRef.current !== eventId) return
-      const url = URL.createObjectURL(blob)
-      setQrInscricao({ status: 'success', url, error: null })
-    } catch (err: unknown) {
-      if (activeEventIdRef.current !== eventId) return
-      const message = await parseBlobErrorMessage(
-        err,
-        'Não foi possível gerar o QR Code de inscrição.'
-      )
-      setQrInscricao({ status: 'error', url: null, error: message })
-    }
-  }, [])
-
-  // Carregamento independente de QR Code de Presença
-  const carregarConfirmacao = useCallback(async (eventId: number) => {
-    setQrConfirmacao((prev) => {
-      if (prev.url) URL.revokeObjectURL(prev.url)
-      return { status: 'loading', url: null, error: null }
-    })
-    try {
-      const blob = await getEventQrCodeConfirmacaoBlobApi(eventId)
-      if (activeEventIdRef.current !== eventId) return
-      const url = URL.createObjectURL(blob)
-      setQrConfirmacao({ status: 'success', url, error: null })
-    } catch (err: unknown) {
-      if (activeEventIdRef.current !== eventId) return
-      const message = await parseBlobErrorMessage(
-        err,
-        'Não foi possível gerar o QR Code de confirmação de presença.'
-      )
-      setQrConfirmacao({ status: 'error', url: null, error: message })
-    }
-  }, [])
-
-  // Fechamento do modal com liberação de Blobs (o foco volta em onCloseAutoFocus)
-  const handleCloseQrModal = useCallback(() => {
-    activeEventIdRef.current = null
-    setQrModalEvent(null)
-    setQrInscricao((prev) => {
-      if (prev.url) URL.revokeObjectURL(prev.url)
-      return { status: 'idle', url: null, error: null }
-    })
-    setQrConfirmacao((prev) => {
-      if (prev.url) URL.revokeObjectURL(prev.url)
-      return { status: 'idle', url: null, error: null }
-    })
-  }, [])
-
-  // Abertura do Modal guardando disparador e disparando ambas as chamadas independentes
-  const handleOpenQrModal = (
-    evt: AdminEvento,
-    triggerElement?: HTMLElement
-  ) => {
-    if (triggerElement) {
-      modalTriggerRef.current = triggerElement
-    }
-    // Libera Blobs anteriores se houver
-    if (qrInscricao.url) URL.revokeObjectURL(qrInscricao.url)
-    if (qrConfirmacao.url) URL.revokeObjectURL(qrConfirmacao.url)
-
-    activeEventIdRef.current = evt.id
+  const handleOpenQrModal = (evt: AdminEvento, trigger?: HTMLElement) => {
+    modalTriggerRef.current = trigger ?? null
     setQrModalEvent(evt)
-
-    // Dispara carregamentos independentes
-    carregarInscricao(evt.id)
-    carregarConfirmacao(evt.id)
   }
-
-  // Liberação de Blobs na desmontagem do componente
-  useEffect(() => {
-    return () => {
-      if (qrInscricao.url) URL.revokeObjectURL(qrInscricao.url)
-      if (qrConfirmacao.url) URL.revokeObjectURL(qrConfirmacao.url)
-    }
-  }, [qrInscricao.url, qrConfirmacao.url])
 
   const handleCancelEvent = async (evt: AdminEvento) => {
     setDeletingId(evt.id)
@@ -353,7 +217,7 @@ export const AdminEventListPage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
+            <div className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
               <SearchIcon size={16} />
             </div>
           </div>
@@ -454,9 +318,12 @@ export const AdminEventListPage: React.FC = () => {
                           className="hover:bg-[var(--color-bg-subtle)]/60 transition-colors"
                         >
                           <td className="py-4 px-4">
-                            <div className="font-semibold text-[var(--color-text-primary)] line-clamp-1">
+                            <Link
+                              to={`/admin/eventos/${evt.id}`}
+                              className="font-semibold text-[var(--color-text-primary)] line-clamp-1 hover:text-[var(--color-primary-text)] hover:underline underline-offset-2"
+                            >
                               {evt.tema}
-                            </div>
+                            </Link>
                             <div className="text-xs text-[var(--color-text-muted)] mt-0.5 line-clamp-1">
                               {localNome}
                             </div>
@@ -531,16 +398,23 @@ export const AdminEventListPage: React.FC = () => {
                                 <DropdownMenuContent
                                   align="end"
                                   className="w-52"
+                                  onCloseAutoFocus={(e) => {
+                                    if (abrindoDialogRef.current) {
+                                      e.preventDefault()
+                                      abrindoDialogRef.current = false
+                                    }
+                                  }}
                                 >
                                   <DropdownMenuItem
-                                    onSelect={() =>
+                                    onSelect={() => {
+                                      abrindoDialogRef.current = true
                                       handleOpenQrModal(
                                         evt,
                                         document.getElementById(
                                           `acoes-evento-${evt.id}`
                                         ) ?? undefined
                                       )
-                                    }
+                                    }}
                                   >
                                     <QrCodeIcon size={16} />
                                     Ver QR Codes
@@ -559,7 +433,10 @@ export const AdminEventListPage: React.FC = () => {
                                       <DropdownMenuItem
                                         variant="destructive"
                                         disabled={isDeleting}
-                                        onSelect={() => setEventoACancelar(evt)}
+                                        onSelect={() => {
+                                          abrindoDialogRef.current = true
+                                          setEventoACancelar(evt)
+                                        }}
                                       >
                                         <TrashIcon size={16} />
                                         Cancelar evento
@@ -619,201 +496,11 @@ export const AdminEventListPage: React.FC = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* QR Codes do evento: dialog prende o foco e fecha com Esc ou clique fora */}
-      <Dialog
-        open={qrModalEvent !== null}
-        onOpenChange={(aberto) => {
-          if (!aberto) handleCloseQrModal()
-        }}
-      >
-        <DialogContent
-          className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"
-          // Devolve o foco ao botão de ações da linha (o item do menu já não existe)
-          onCloseAutoFocus={(e) => {
-            e.preventDefault()
-            modalTriggerRef.current?.focus()
-            modalTriggerRef.current = null
-          }}
-        >
-          {qrModalEvent && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="font-display text-xl">
-                  QR Codes do evento
-                </DialogTitle>
-                <DialogDescription className="line-clamp-1">
-                  {qrModalEvent.tema} &bull; {formatDate(qrModalEvent.data)}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="py-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {/* 1. Painel de Inscrição Pública */}
-                  <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
-                    <div className="w-full text-center mb-3">
-                      <span className="text-xs font-bold text-[var(--color-text-primary)] block">
-                        Inscrição Pública
-                      </span>
-                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                        Direciona para a página de inscrição do evento
-                      </p>
-                    </div>
-
-                    <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
-                      {qrInscricao.status === 'loading' && (
-                        <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
-                          <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
-                          <span className="text-xs font-medium">
-                            Gerando código...
-                          </span>
-                        </div>
-                      )}
-
-                      {qrInscricao.status === 'error' && (
-                        <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-md border border-[var(--color-danger-border)] text-center w-full">
-                          <p className="text-xs text-[var(--color-danger-text)] leading-snug">
-                            {qrInscricao.error || 'Falha ao carregar QR Code.'}
-                          </p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => carregarInscricao(qrModalEvent.id)}
-                            className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
-                          >
-                            Tentar novamente
-                          </Button>
-                        </div>
-                      )}
-
-                      {qrInscricao.status === 'success' && qrInscricao.url && (
-                        <div className="flex flex-col items-center">
-                          <img
-                            src={qrInscricao.url}
-                            alt={`QR Code para inscrição no evento ${qrModalEvent.tema}`}
-                            className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-md border border-[var(--color-border)] shadow-xs object-contain"
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
-                      {qrInscricao.status === 'success' && qrInscricao.url ? (
-                        <a
-                          href={qrInscricao.url}
-                          download={`qrcode-inscricao-evento-${qrModalEvent.id}.png`}
-                          className="w-full"
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            fullWidth
-                            className="gap-1.5 text-xs"
-                          >
-                            <DownloadIcon size={14} />
-                            Baixar PNG
-                          </Button>
-                        </a>
-                      ) : (
-                        <span className="text-xs text-[var(--color-text-muted)] py-1.5">
-                          {qrInscricao.status === 'loading'
-                            ? 'Aguardando processamento...'
-                            : 'Download indisponível'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* 2. Painel de Confirmação de Presença */}
-                  <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
-                    <div className="w-full text-center mb-3">
-                      <span className="text-xs font-bold text-[var(--color-text-primary)] block">
-                        Confirmar Presença
-                      </span>
-                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                        Check-in por leitura de câmera no local
-                      </p>
-                    </div>
-
-                    <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
-                      {qrConfirmacao.status === 'loading' && (
-                        <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
-                          <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
-                          <span className="text-xs font-medium">
-                            Gerando código...
-                          </span>
-                        </div>
-                      )}
-
-                      {qrConfirmacao.status === 'error' && (
-                        <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-md border border-[var(--color-danger-border)] text-center w-full">
-                          <p className="text-xs text-[var(--color-danger-text)] leading-snug">
-                            {qrConfirmacao.error ||
-                              'Falha ao carregar QR Code.'}
-                          </p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => carregarConfirmacao(qrModalEvent.id)}
-                            className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
-                          >
-                            Tentar novamente
-                          </Button>
-                        </div>
-                      )}
-
-                      {qrConfirmacao.status === 'success' &&
-                        qrConfirmacao.url && (
-                          <div className="flex flex-col items-center">
-                            <img
-                              src={qrConfirmacao.url}
-                              alt={`QR Code para confirmação de presença no evento ${qrModalEvent.tema}`}
-                              className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-md border border-[var(--color-border)] shadow-xs object-contain"
-                            />
-                          </div>
-                        )}
-                    </div>
-
-                    <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
-                      {qrConfirmacao.status === 'success' &&
-                      qrConfirmacao.url ? (
-                        <a
-                          href={qrConfirmacao.url}
-                          download={`qrcode-presenca-evento-${qrModalEvent.id}.png`}
-                          className="w-full"
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            fullWidth
-                            className="gap-1.5 text-xs"
-                          >
-                            <DownloadIcon size={14} />
-                            Baixar PNG
-                          </Button>
-                        </a>
-                      ) : (
-                        <span className="text-xs text-[var(--color-text-muted)] py-1.5">
-                          {qrConfirmacao.status === 'loading'
-                            ? 'Aguardando processamento...'
-                            : 'Download indisponível'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="secondary" size="md">
-                    Fechar
-                  </Button>
-                </DialogClose>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <EventoQrDialog
+        evento={qrModalEvent}
+        onClose={() => setQrModalEvent(null)}
+        focoAoFechar={() => modalTriggerRef.current}
+      />
     </div>
   )
 }
