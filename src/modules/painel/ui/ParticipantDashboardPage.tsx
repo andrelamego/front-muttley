@@ -4,6 +4,8 @@ import { useAuth } from '../../auth'
 import {
   buildEventPath,
   buildPresencePath,
+  isWithinPresenceWindow,
+  parseEventDateTime,
   PARTICIPANT_EVENTS_PATH,
 } from '../../eventos'
 import { getParticipantDashboardData } from '../api/painelApi'
@@ -28,34 +30,6 @@ import {
 } from '../../../shared/ui'
 import { ParticipantDashboardSkeleton } from './skeletons'
 import apiClient from '../../../shared/http/apiClient'
-
-const parseEventDateTime = (
-  dateStr?: string | null,
-  timeStr?: string | null
-): Date | null => {
-  if (!dateStr || !timeStr) return null
-  const [year, month, day] = dateStr.split('-').map(Number)
-  const [hours, minutes] = timeStr.split(':').map(Number)
-  if (!year || !month || !day) return null
-  return new Date(year, month - 1, day, hours || 0, minutes || 0)
-}
-
-const isWithinPresenceWindow = (
-  dateStr?: string | null,
-  inicioStr?: string | null,
-  fimStr?: string | null
-): boolean => {
-  if (!dateStr || !inicioStr || !fimStr) return false
-  const inicio = parseEventDateTime(dateStr, inicioStr)
-  const fim = parseEventDateTime(dateStr, fimStr)
-  if (!inicio || !fim) return false
-
-  const agora = new Date()
-  const dezMinAntes = new Date(inicio.getTime() - 10 * 60 * 1000)
-  const dezMinDepois = new Date(fim.getTime() + 10 * 60 * 1000)
-
-  return agora >= dezMinAntes && agora <= dezMinDepois
-}
 
 // Formata tolerância de abertura: 10 minutos antes do início
 const getPresenceOpeningTime = (inicioStr?: string | null): string => {

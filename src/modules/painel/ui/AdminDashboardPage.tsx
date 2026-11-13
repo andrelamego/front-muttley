@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { getAdminDashboardData } from '../api/painelApi'
+import { isWithinPresenceWindow, parseEventDateTime } from '../../eventos'
 import type { AdminDashboardData, EventoResumo } from '../domain/painelTypes'
 import {
   Button,
@@ -12,33 +13,6 @@ import {
   AwardIcon,
 } from '../../../shared/ui'
 import { AdminDashboardSkeleton } from './skeletons'
-
-// Helper seguro para analisar data e hora de eventos
-const parseEventDateTime = (dateStr: string, timeStr: string): Date | null => {
-  if (!dateStr || !timeStr) return null
-  const [year, month, day] = dateStr.split('-').map(Number)
-  const [hours, minutes] = timeStr.split(':').map(Number)
-  if (!year || !month || !day) return null
-  return new Date(year, month - 1, day, hours || 0, minutes || 0)
-}
-
-// Checa se o credenciamento está aberto (10 min antes até 10 min após o término)
-const isWithinPresenceWindow = (
-  dateStr?: string,
-  inicioStr?: string,
-  fimStr?: string
-): boolean => {
-  if (!dateStr || !inicioStr || !fimStr) return false
-  const inicio = parseEventDateTime(dateStr, inicioStr)
-  const fim = parseEventDateTime(dateStr, fimStr)
-  if (!inicio || !fim) return false
-
-  const agora = new Date()
-  const dezMinAntes = new Date(inicio.getTime() - 10 * 60 * 1000)
-  const dezMinDepois = new Date(fim.getTime() + 10 * 60 * 1000)
-
-  return agora >= dezMinAntes && agora <= dezMinDepois
-}
 
 // Extrai dia e mês abreviado de uma data ISO YYYY-MM-DD
 const extractDateParts = (dateStr: string) => {

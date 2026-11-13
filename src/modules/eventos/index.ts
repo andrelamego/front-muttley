@@ -1,5 +1,7 @@
 export * from './domain/eventoTypes'
 export * from './domain/eventRoutes'
+export * from './domain/presenceWindow'
+export * from './domain/ticketFormat'
 export * from './api/eventosApi'
 export * from './ui/LandingPage'
 export * from './ui/PublicEventListPage'
