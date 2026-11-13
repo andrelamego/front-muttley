@@ -162,8 +162,8 @@ export const LandingPage: React.FC = () => {
                     className="w-2 h-2 rounded-full bg-[var(--color-primary)]"
                     aria-hidden="true"
                   />
-                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] uppercase tracking-wider font-medium">
-                    Compêndio Acadêmico Nacional • Gestão &amp; Certificação
+                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] font-medium">
+                    Eventos acadêmicos da Fatec
                   </span>
                 </div>
 
@@ -211,7 +211,7 @@ export const LandingPage: React.FC = () => {
               {/* Faixa de Capacidades Reais */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 pt-6 bg-[var(--color-bg-subtle)] p-6 rounded-md border border-[var(--color-border)]/50">
                 <div>
-                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
+                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block">
                     Inscrição
                   </span>
                   <span className="font-display text-xl font-bold text-[var(--color-primary-text)] mt-1 block">
@@ -222,18 +222,18 @@ export const LandingPage: React.FC = () => {
                   </span>
                 </div>
                 <div>
-                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
+                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block">
                     Presença
                   </span>
                   <span className="font-display text-xl font-bold text-[var(--color-primary-text)] mt-1 block">
-                    Janela [-10m / +10m]
+                    10 minutos antes e depois
                   </span>
                   <span className="text-xs text-[var(--color-text-secondary)]">
                     Validação pontual no evento
                   </span>
                 </div>
                 <div>
-                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
+                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block">
                     Certificação
                   </span>
                   <span className="font-display text-xl font-bold text-[var(--color-primary-text)] mt-1 block">
@@ -263,7 +263,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div className="relative z-10">
-                  <span className="tabular-nums text-xs uppercase tracking-widest text-[var(--color-primary-subtle)] block mb-2 font-medium">
+                  <span className="tabular-nums text-xs text-[var(--color-primary-subtle)] block mb-2 font-medium">
                     Ata Científica Geral
                   </span>
                   <p className="font-display text-xl sm:text-2xl italic leading-snug mb-3">
@@ -271,7 +271,7 @@ export const LandingPage: React.FC = () => {
                     humano.&rdquo;
                   </p>
                   <span className="text-xs text-[var(--color-border)] block">
-                    Arquivo Central de Simpósios • FATEC
+                    Programação da Fatec
                   </span>
                 </div>
               </div>
@@ -305,8 +305,8 @@ export const LandingPage: React.FC = () => {
             <div>
               <div className="inline-flex items-center gap-1.5 text-[var(--color-primary-text)] mb-1">
                 <CalendarIcon size={16} />
-                <span className="tabular-nums text-xs uppercase tracking-wider font-semibold">
-                  Calendário Acadêmico
+                <span className="tabular-nums text-xs font-semibold">
+                  Calendário acadêmico
                 </span>
               </div>
               <h2
@@ -405,6 +405,7 @@ export const LandingPage: React.FC = () => {
                         dia={partes.dia}
                         mes={partes.mes}
                         horario={partes.horario}
+                        to={`/eventos/${evento.id}`}
                         className="h-full [&>.ticket]:h-full"
                       >
                         <h3 className="font-display text-lg font-bold leading-tight line-clamp-2">
@@ -415,13 +416,9 @@ export const LandingPage: React.FC = () => {
                             .filter(Boolean)
                             .join(' · ')}
                         </p>
-                        <Link
-                          to={`/eventos/${evento.id}`}
-                          className="inline-flex items-center min-h-[44px] mt-1 text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
-                        >
+                        <span className="ticket-cta inline-block mt-3 text-sm font-semibold text-[var(--color-primary-text)]">
                           Ver evento
-                          <span className="sr-only"> {evento.tema}</span>
-                        </Link>
+                        </span>
                       </Ticket>
                     )
                   })}
@@ -473,8 +470,8 @@ export const LandingPage: React.FC = () => {
           <div className="max-w-[76rem] mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
               <div>
-                <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-primary-text)] font-semibold block mb-1">
-                  Rastreabilidade Ponta a Ponta
+                <span className="tabular-nums text-xs text-[var(--color-primary-text)] font-semibold block mb-1">
+                  Da inscrição ao certificado
                 </span>
                 <h2
                   id="flow-heading"
@@ -511,8 +508,8 @@ export const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="mt-6 pt-3 border-t border-[var(--color-bg-muted)]">
-                  <span className="tabular-nums text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
-                    Filtros Temáticos
+                  <span className="tabular-nums text-xs text-[var(--color-text-muted)] block">
+                    Filtros temáticos
                   </span>
                 </div>
               </div>
@@ -538,8 +535,8 @@ export const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="mt-6 pt-3 border-t border-[var(--color-bg-muted)]">
-                  <span className="tabular-nums text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
-                    Garantia de Vaga
+                  <span className="tabular-nums text-xs text-[var(--color-text-muted)] block">
+                    Garantia de vaga
                   </span>
                 </div>
               </div>
@@ -566,8 +563,8 @@ export const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="mt-6 pt-3 border-t border-[var(--color-bg-muted)]">
-                  <span className="tabular-nums text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
-                    Janela [-10m / +10m]
+                  <span className="tabular-nums text-xs text-[var(--color-text-muted)] block">
+                    10 minutos antes e depois
                   </span>
                 </div>
               </div>
@@ -593,8 +590,8 @@ export const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="mt-6 pt-3 border-t border-[var(--color-bg-muted)]">
-                  <span className="tabular-nums text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
-                    Código de Autenticidade
+                  <span className="tabular-nums text-xs text-[var(--color-text-muted)] block">
+                    Código de autenticidade
                   </span>
                 </div>
               </div>
@@ -610,8 +607,8 @@ export const LandingPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Benefícios à Esquerda (6 colunas) */}
             <div className="lg:col-span-6 flex flex-col">
-              <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-primary-text)] font-semibold mb-2">
-                Para Comissões Organizadoras &amp; Docentes
+              <span className="tabular-nums text-xs text-[var(--color-primary-text)] font-semibold mb-2">
+                Para coordenação e docentes
               </span>
               <h2
                 id="organizers-heading"
@@ -691,18 +688,18 @@ export const LandingPage: React.FC = () => {
                       className="w-2 h-2 rounded-full bg-[var(--color-primary)]"
                       aria-hidden="true"
                     />
-                    <span className="tabular-nums text-[11px] uppercase tracking-wider text-[var(--color-text-secondary)] font-semibold">
-                      Exemplo Ilustrativo de Certificado
+                    <span className="tabular-nums text-xs text-[var(--color-text-secondary)] font-semibold">
+                      Exemplo de certificado
                     </span>
                   </div>
-                  <span className="tabular-nums text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-semibold">
+                  <span className="tabular-nums text-xs px-2 py-0.5 rounded-md bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-semibold">
                     Válido
                   </span>
                 </div>
 
                 {/* Corpo do Certificado */}
                 <div className="py-6">
-                  <span className="tabular-nums text-xs uppercase text-[var(--color-text-muted)] tracking-widest block mb-2">
+                  <span className="tabular-nums text-xs text-[var(--color-text-muted)] block mb-2">
                     Certificamos que
                   </span>
                   <h3 className="font-display text-2xl text-[var(--color-text-primary)] font-bold mb-3">
@@ -717,18 +714,18 @@ export const LandingPage: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Rodapé com Código de Autenticidade */}
+                {/* Rodapé com Código de autenticidade */}
                 <div className="p-4 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <span className="tabular-nums text-[10px] uppercase text-[var(--color-text-muted)] block">
+                    <span className="tabular-nums text-xs text-[var(--color-text-muted)] block">
                       Código de validação
                     </span>
                     <span className="tabular-nums text-xs font-bold text-[var(--color-text-primary)]">
                       MTT-8921-BR-2026
                     </span>
                   </div>
-                  <span className="tabular-nums text-[11px] text-[var(--color-text-secondary)]">
-                    Via oficial • FATEC
+                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)]">
+                    Via oficial da Fatec
                   </span>
                 </div>
               </div>

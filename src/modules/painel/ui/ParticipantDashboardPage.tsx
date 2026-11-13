@@ -181,7 +181,7 @@ export const ParticipantDashboardPage: React.FC = () => {
         {isLoading && !data && <ParticipantDashboardSkeleton />}
 
         {data && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          <div className="content-enter grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             <div className="lg:col-span-7 flex flex-col gap-6">
               {eventoDestaque && ticket ? (
                 <Ticket

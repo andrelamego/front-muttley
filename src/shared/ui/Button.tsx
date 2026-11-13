@@ -27,7 +27,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   // Borda reservada em todas as variantes (border) garante geometria identica e sem saltos de layout
   const baseStyles =
-    'inline-flex flex-row flex-nowrap items-center justify-center font-semibold rounded-sm transition-all duration-150 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none box-border border text-center font-sans'
+    'inline-flex flex-row flex-nowrap items-center justify-center font-semibold rounded-sm transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none box-border border text-center font-sans'
 
   // Alturas padronizadas: no mobile, alvos de toque respeitam o minimo recomendado (44px)
   const sizeStyles = {

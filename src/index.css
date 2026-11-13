@@ -150,50 +150,66 @@ h3,
   }
 }
 
-/* Ingresso: corpo + canhoto separados por perfuração com dois recortes */
+/* Conteúdo que substitui um esqueleto entra suave, sem saltar */
+.content-enter {
+  animation: content-enter 160ms var(--motion-ease-standard) both;
+}
+
+@keyframes content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content-enter {
+    animation-name: content-fade;
+  }
+}
+
+@keyframes content-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Troca de ícone (copiar → ✓): os dois ocupam a mesma célula e cruzam opacidade e escala */
+.icon-swap {
+  display: inline-grid;
+}
+
+.icon-swap > * {
+  grid-area: 1 / 1;
+  transition:
+    opacity 150ms var(--motion-ease-standard),
+    transform 150ms var(--motion-ease-standard);
+}
+
+.icon-swap > :last-child,
+.icon-swap[data-on='true'] > :first-child {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.icon-swap[data-on='true'] > :last-child {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-swap > * {
+    transform: none !important;
+  }
+}
+
+/* Ingresso: corpo e canhoto com máscaras próprias, para o canhoto poder se mover na perfuração */
 .ticket {
   --ticket-stub: 92px;
   --ticket-notch: 11px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--ticket-stub);
-  background: var(--color-bg-surface);
   color: var(--color-text-primary);
-  border-radius: var(--radius-lg);
-  -webkit-mask:
-    radial-gradient(
-        circle var(--ticket-notch) at calc(100% - var(--ticket-stub)) 0,
-        #0000 98%,
-        #000
-      )
-      top / 100% 51% no-repeat,
-    radial-gradient(
-        circle var(--ticket-notch) at calc(100% - var(--ticket-stub)) 100%,
-        #0000 98%,
-        #000
-      )
-      bottom / 100% 51% no-repeat;
-  mask:
-    radial-gradient(
-        circle var(--ticket-notch) at calc(100% - var(--ticket-stub)) 0,
-        #0000 98%,
-        #000
-      )
-      top / 100% 51% no-repeat,
-    radial-gradient(
-        circle var(--ticket-notch) at calc(100% - var(--ticket-stub)) 100%,
-        #0000 98%,
-        #000
-      )
-      bottom / 100% 51% no-repeat;
-}
-
-/* A máscara corta box-shadow; o drop-shadow no invólucro segue o recorte. */
-.ticket-shadow {
-  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 12%));
-}
-
-:root[data-theme='dark'] .ticket-shadow {
-  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 40%));
 }
 
 .ticket--compact {
@@ -201,10 +217,26 @@ h3,
   --ticket-notch: 9px;
 }
 
+.ticket-body,
+.ticket-stub {
+  background: var(--color-bg-surface);
+}
+
 .ticket-body {
   min-width: 0;
   padding: 18px 16px 18px 18px;
   overflow-wrap: anywhere;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  -webkit-mask:
+    radial-gradient(circle var(--ticket-notch) at 100% 0, #0000 98%, #000) top /
+      100% 51% no-repeat,
+    radial-gradient(circle var(--ticket-notch) at 100% 100%, #0000 98%, #000)
+      bottom / 100% 51% no-repeat;
+  mask:
+    radial-gradient(circle var(--ticket-notch) at 100% 0, #0000 98%, #000) top /
+      100% 51% no-repeat,
+    radial-gradient(circle var(--ticket-notch) at 100% 100%, #0000 98%, #000)
+      bottom / 100% 51% no-repeat;
 }
 
 .ticket-stub {
@@ -215,8 +247,68 @@ h3,
   gap: 2px;
   padding: 12px 6px;
   border-left: 2px dashed var(--color-border);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   text-align: center;
-  position: relative;
+  transform-origin: 0 100%;
+  transition: transform 220ms var(--motion-ease-standard);
+  -webkit-mask:
+    radial-gradient(circle var(--ticket-notch) at 0 0, #0000 98%, #000) top /
+      100% 51% no-repeat,
+    radial-gradient(circle var(--ticket-notch) at 0 100%, #0000 98%, #000)
+      bottom / 100% 51% no-repeat;
+  mask:
+    radial-gradient(circle var(--ticket-notch) at 0 0, #0000 98%, #000) top /
+      100% 51% no-repeat,
+    radial-gradient(circle var(--ticket-notch) at 0 100%, #0000 98%, #000)
+      bottom / 100% 51% no-repeat;
+}
+
+/* A máscara corta box-shadow; o drop-shadow no invólucro segue o recorte. */
+.ticket-shadow {
+  display: block;
+  border-radius: var(--radius-lg);
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 12%));
+}
+
+:root[data-theme='dark'] .ticket-shadow {
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 40%));
+}
+
+/* Ingresso clicável: o invólucro é o link */
+.ticket-link {
+  color: inherit;
+  text-decoration: none;
+  transition: transform 180ms var(--motion-ease-standard);
+}
+
+.ticket-link:active {
+  transform: scale(0.99);
+}
+
+.ticket-link:focus-visible {
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ticket-link:hover {
+    transform: translateY(-2px);
+  }
+
+  /* O canhoto "solta" na perfuração, convidando ao clique */
+  .ticket-link:hover .ticket-stub {
+    transform: translateX(2px) rotate(1.5deg);
+  }
+
+  .ticket-link:hover .ticket-cta {
+    text-decoration: underline;
+  }
+}
+
+/* Presença confirmada: o canhoto se destaca do ingresso */
+.ticket--stamped .ticket-stub {
+  transform: translate(6px, 3px) rotate(3deg);
+  transition-duration: 420ms;
+  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .ticket-day {
@@ -238,42 +330,72 @@ h3,
   color: var(--color-text-secondary);
 }
 
-.ticket-time {
+.ticket-time,
+.ticket-stamp {
   margin-top: 6px;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.ticket-time {
   padding: 2px 10px;
   border-radius: var(--radius-full);
   background: var(--color-signal);
   color: var(--color-signal-ink);
   font-size: 13px;
   font-weight: 600;
-  white-space: nowrap;
 }
 
 .ticket-stamp {
-  position: absolute;
-  inset: auto 6px 10px;
-  padding: 2px 4px;
-  text-align: center;
+  padding: 1px 5px;
   border: 2px solid var(--color-success-text);
   border-radius: var(--radius-xs);
-  background: var(--color-bg-surface);
   color: var(--color-success-text);
   font-size: 12px;
-  font-weight: 800;
+  transform: rotate(-8deg);
+  animation: ticket-stamp-in 220ms var(--motion-ease-standard) both;
 }
 
 .ticket--compact .ticket-stamp {
-  inset: auto 4px 8px;
-  padding: 1px 2px;
   font-size: 11px;
+  padding: 1px 3px;
+}
+
+@keyframes ticket-stamp-in {
+  from {
+    opacity: 0;
+    transform: rotate(-8deg) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticket-link,
+  .ticket-stub {
+    transition: none;
+  }
+
+  .ticket-link:hover,
+  .ticket-link:active,
+  .ticket-link:hover .ticket-stub {
+    transform: none;
+  }
+
+  .ticket-stamp {
+    animation: none;
+  }
 }
 
 @supports not (
   (mask: radial-gradient(#000, #000)) or
     (-webkit-mask: radial-gradient(#000, #000))
 ) {
-  .ticket {
+  .ticket-body,
+  .ticket-stub {
     border: 1px solid var(--color-border);
+  }
+
+  .ticket-stub {
+    border-left: 2px dashed var(--color-border);
   }
 }
 

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
 import { getEventosPublicosApi } from '../api/eventosApi'
 import type { EventoPublico } from '../domain/eventoTypes'
 import { buildEventPath, PUBLIC_EVENTS_PATH } from '../domain/eventRoutes'
@@ -126,7 +125,7 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
       {isLoading && eventos.length === 0 && <EventListSkeleton />}
 
       {/* Grid de Eventos */}
-      {(!isLoading || eventos.length > 0) && (
+      {!error && (!isLoading || eventos.length > 0) && (
         <>
           {filteredEventos.length === 0 ? (
             <Card className="bg-[var(--color-bg-surface)] border-dashed border-[var(--color-border-strong)] p-12 text-center">
@@ -154,7 +153,7 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
               </div>
             </Card>
           ) : (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <ul className="content-enter grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredEventos.map((evt) => {
                 const partes = getTicketDateParts(evt.data, evt.horarioInicio)
                 return (
@@ -164,6 +163,7 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
                       dia={partes.dia}
                       mes={partes.mes}
                       horario={partes.horario}
+                      to={buildEventPath(eventRouteBase, evt.id)}
                       className="h-full [&>.ticket]:h-full"
                     >
                       <Badge
@@ -184,15 +184,11 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
                           .filter(Boolean)
                           .join(' · ')}
                       </p>
-                      <Link
-                        to={buildEventPath(eventRouteBase, evt.id)}
-                        className="inline-flex items-center min-h-[44px] mt-1 text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
-                      >
+                      <span className="ticket-cta inline-block mt-3 text-sm font-semibold text-[var(--color-primary-text)]">
                         {evt.inscricoesEncerradas
                           ? 'Ver detalhes'
                           : 'Ver detalhes e inscrever-se'}
-                        <span className="sr-only"> de {evt.tema}</span>
-                      </Link>
+                      </span>
                     </Ticket>
                   </li>
                 )

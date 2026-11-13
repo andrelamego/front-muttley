@@ -293,7 +293,6 @@ export const PublicLayout: React.FC = () => {
               &copy; {new Date().getFullYear()} Plataforma Acadêmica Muttley.
               Todos os direitos reservados.
             </span>
-            <span>Rigor Acadêmico • Preservação Digital</span>
           </div>
         </div>
       </footer>

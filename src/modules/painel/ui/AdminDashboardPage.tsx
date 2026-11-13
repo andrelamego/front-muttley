@@ -112,7 +112,7 @@ export const AdminDashboardPage: React.FC = () => {
       {isLoading && !data && <AdminDashboardSkeleton />}
 
       {data && (
-        <>
+        <div className="content-enter flex flex-col gap-6">
           {eventoPendente && (
             <section
               aria-labelledby="pendencias-heading"
@@ -314,7 +314,7 @@ export const AdminDashboardPage: React.FC = () => {
               )}
             </section>
           </div>
-        </>
+        </div>
       )}
     </div>
   )

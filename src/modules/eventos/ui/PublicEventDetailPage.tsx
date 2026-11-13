@@ -10,6 +10,7 @@ import { formatModalidade, getTicketDateParts } from '../domain/ticketFormat'
 import {
   formatPresenceWindow,
   getPresenceWindow,
+  isWithinPresenceWindow,
 } from '../domain/presenceWindow'
 import { useAuth } from '../../auth'
 import {
@@ -201,12 +202,18 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                     Presença: {formatPresenceWindow(janela).toLowerCase()}
                   </p>
                 )}
-                <Link
-                  to={buildPresencePath(eventRouteBase, evento.id)}
-                  className="inline-flex items-center min-h-[44px] mt-1 text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
-                >
-                  Confirmar presença
-                </Link>
+                {isWithinPresenceWindow(
+                  evento.data,
+                  evento.horarioInicio,
+                  evento.horarioFim
+                ) && (
+                  <Link
+                    to={buildPresencePath(eventRouteBase, evento.id)}
+                    className="inline-flex items-center min-h-[44px] mt-1 text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
+                  >
+                    Confirmar presença
+                  </Link>
+                )}
               </Ticket>
             )
           })()}
@@ -216,7 +223,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
             <Card className="bg-[var(--color-bg-surface)] border-[var(--color-border)]">
               <CardHeader>
                 <CardTitle as="h2" id="inscricao-titulo">
-                  Inscrição no Evento
+                  Inscrição
                 </CardTitle>
               </CardHeader>
 
@@ -224,7 +231,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                 {successInfo ? (
                   <Alert
                     variant="success"
-                    title="Inscrição Confirmada!"
+                    title="Inscrição confirmada"
                     className="p-5"
                   >
                     <div className="flex flex-col gap-2">
@@ -241,19 +248,19 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                         {isAuthenticated ? (
                           <Link to="/user/inicio">
                             <Button variant="primary" size="sm">
-                              Ir para Meu Painel
+                              Ir para meu início
                             </Button>
                           </Link>
                         ) : (
                           <Link to="/login">
                             <Button variant="primary" size="sm">
-                              Acessar Minha Conta
+                              Entrar na minha conta
                             </Button>
                           </Link>
                         )}
                         <Link to={buildPresencePath(eventRouteBase, evento.id)}>
                           <Button variant="outline" size="sm">
-                            Tela de Presença
+                            Confirmar presença
                           </Button>
                         </Link>
                       </div>
@@ -262,7 +269,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                 ) : evento.inscricoesEncerradas ? (
                   <Alert
                     variant="warning"
-                    title="Inscrições Encerradas"
+                    title="Inscrições encerradas"
                     className="p-5"
                   >
                     As vagas para este evento foram totalmente preenchidas ou o
@@ -272,7 +279,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                 ) : (
                   <form
                     onSubmit={handleInscricao}
-                    className="flex flex-col gap-4 max-w-lg"
+                    className="flex flex-col gap-4"
                   >
                     {submitError && (
                       <Alert
@@ -285,7 +292,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                     )}
 
                     <Input
-                      label="Nome Completo"
+                      label="Nome completo"
                       type="text"
                       name="nome"
                       value={nome}
@@ -296,7 +303,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                     />
 
                     <Input
-                      label="CPF (apenas números ou formatado)"
+                      label="CPF"
                       type="text"
                       name="cpf"
                       value={cpf}
@@ -307,7 +314,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                     />
 
                     <Input
-                      label="Email de Confirmação"
+                      label="Email"
                       type="email"
                       name="email"
                       value={email}
@@ -325,7 +332,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                       loadingText="Processando inscrição..."
                       className="mt-2"
                     >
-                      Confirmar Inscrição Gratuita
+                      Inscrever-se
                     </Button>
                   </form>
                 )}

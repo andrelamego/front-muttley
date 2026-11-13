@@ -299,14 +299,20 @@ export const UserCertificatesPage: React.FC = () => {
                             aria-label="Copiar código de validação"
                             className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] shrink-0"
                           >
-                            {isCopied ? (
-                              <span className="flex items-center gap-1 text-[var(--color-success-text)] text-xs font-semibold">
-                                <CheckIcon size={14} />
-                                Copiado
-                              </span>
-                            ) : (
+                            <span
+                              className="icon-swap"
+                              data-on={isCopied}
+                              aria-hidden="true"
+                            >
                               <CopyIcon size={16} />
-                            )}
+                              <CheckIcon
+                                size={16}
+                                className="text-[var(--color-success-text)]"
+                              />
+                            </span>
+                            <span className="sr-only" aria-live="polite">
+                              {isCopied ? 'Código copiado' : ''}
+                            </span>
                           </Button>
                         </div>
                       </CardContent>
