@@ -25,6 +25,7 @@ import {
   CopyIcon,
   CheckIcon,
   AwardIcon,
+  copiarTexto,
 } from '../../../shared/ui'
 import { CertificateListSkeleton } from './skeletons'
 
@@ -90,14 +91,9 @@ export const UserCertificatesPage: React.FC = () => {
   }, [])
 
   const handleCopyCode = async (codigo: string) => {
-    try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(codigo)
-        setCopiedCode(codigo)
-        setTimeout(() => setCopiedCode(null), 2500)
-      }
-    } catch {
-      // Falha silenciosa de permissão de clipboard
+    if (await copiarTexto(codigo, 'Código de validação copiado')) {
+      setCopiedCode(codigo)
+      setTimeout(() => setCopiedCode(null), 2500)
     }
   }
 

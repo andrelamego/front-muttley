@@ -17,6 +17,7 @@ import {
   SearchIcon,
   CopyIcon,
   CheckIcon,
+  copiarTexto,
 } from '../../../shared/ui'
 import { MedalGridSkeleton } from './skeletons'
 
@@ -86,14 +87,9 @@ export const UserMedalsPage: React.FC = () => {
   const handleCopyAchievement = async (medal: MedalhaUsuario) => {
     const eventName = medal.evento?.tema || 'Evento Acadêmico'
     const text = `Conquistei a Medalha de ${medal.tipo.toLowerCase()} "${medal.nome}" no evento "${eventName}" na FATEC!`
-    try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(text)
-        setCopiedId(medal.id)
-        setTimeout(() => setCopiedId(null), 2500)
-      }
-    } catch {
-      // Falha de clipboard silenciosa
+    if (await copiarTexto(text, 'Texto da conquista copiado')) {
+      setCopiedId(medal.id)
+      setTimeout(() => setCopiedId(null), 2500)
     }
   }
 

@@ -12,6 +12,7 @@ import {
   CheckIcon,
   DownloadIcon,
   ExternalLinkIcon,
+  copiarTexto,
 } from '../../../shared/ui'
 import { PublicCertificateSkeleton } from './skeletons'
 import { HistoryBackButton } from '../../../shared/navigation'
@@ -76,12 +77,9 @@ export const PublicCertificateViewPage: React.FC = () => {
 
   const handleCopyCode = async () => {
     if (!codigo) return
-    try {
-      await navigator.clipboard.writeText(codigo)
+    if (await copiarTexto(codigo, 'Código copiado')) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2500)
-    } catch {
-      // Fallback
     }
   }
 
@@ -124,7 +122,7 @@ export const PublicCertificateViewPage: React.FC = () => {
                     size={14}
                     className="text-[var(--color-success-text)]"
                   />
-                  <span>Código Copiado!</span>
+                  <span>Código copiado</span>
                 </>
               ) : (
                 <>
