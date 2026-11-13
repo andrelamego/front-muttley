@@ -127,32 +127,32 @@ export const AdminDashboardPage: React.FC = () => {
     switch (status) {
       case 'EM_ANDAMENTO':
         return (
-          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium inline-flex items-center gap-1">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium inline-flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-info-text)]" />
             Em Andamento
           </span>
         )
       case 'PROGRAMADO':
         return (
-          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
             Programado
           </span>
         )
       case 'FINALIZADO':
         return (
-          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
             Finalizado
           </span>
         )
       case 'CANCELADO':
         return (
-          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] font-medium">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] font-medium">
             Cancelado
           </span>
         )
       default:
         return (
-          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
             {status}
           </span>
         )
@@ -224,7 +224,7 @@ export const AdminDashboardPage: React.FC = () => {
           {eventoPendente && (
             <section
               aria-labelledby="pendencias-heading"
-              className="p-6 rounded-none bg-[var(--color-primary-subtle)] border border-[var(--color-warning-border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs"
+              className="p-6 rounded-md bg-[var(--color-primary-subtle)] border border-[var(--color-warning-border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs"
             >
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center shrink-0 mt-0.5">
@@ -238,7 +238,7 @@ export const AdminDashboardPage: React.FC = () => {
                     >
                       Eventos Aguardando Conclusão e Emissão
                     </h2>
-                    <span className="tabular-nums text-[10px] font-bold uppercase px-2 py-0.5 rounded-none bg-[var(--color-primary)] text-white">
+                    <span className="tabular-nums text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-[var(--color-primary)] text-white">
                       Ação Necessária
                     </span>
                   </div>
@@ -277,7 +277,7 @@ export const AdminDashboardPage: React.FC = () => {
             </h2>
 
             {/* Indicador 1 */}
-            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
+            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)] shadow-xs relative overflow-hidden">
               <div className="flex items-start justify-between">
                 <div>
                   <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
@@ -287,7 +287,7 @@ export const AdminDashboardPage: React.FC = () => {
                     Eventos Ativos
                   </span>
                 </div>
-                <div className="w-10 h-10 rounded-none bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-primary-text)]">
+                <div className="w-10 h-10 rounded-sm bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-primary-text)]">
                   <CalendarIcon size={20} />
                 </div>
               </div>
@@ -312,7 +312,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {/* Indicador 2 */}
-            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
+            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)] shadow-xs relative overflow-hidden">
               <div className="flex items-start justify-between">
                 <div>
                   <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
@@ -322,7 +322,7 @@ export const AdminDashboardPage: React.FC = () => {
                     Próximos 7 Dias
                   </span>
                 </div>
-                <div className="w-10 h-10 rounded-none bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-info-text)]">
+                <div className="w-10 h-10 rounded-sm bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-info-text)]">
                   <ClockIcon size={20} />
                 </div>
               </div>
@@ -347,7 +347,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {/* Indicador 3 */}
-            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
+            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)] shadow-xs relative overflow-hidden">
               <div className="flex items-start justify-between">
                 <div>
                   <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
@@ -357,7 +357,7 @@ export const AdminDashboardPage: React.FC = () => {
                     Certificados (30 dias)
                   </span>
                 </div>
-                <div className="w-10 h-10 rounded-none bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-success-text)]">
+                <div className="w-10 h-10 rounded-sm bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-success-text)]">
                   <AwardIcon size={20} />
                 </div>
               </div>
@@ -389,7 +389,7 @@ export const AdminDashboardPage: React.FC = () => {
           {/* AGENDA DOS PRÓXIMOS EVENTOS */}
           <section
             aria-labelledby="agenda-heading"
-            className="surface-depth bg-[var(--color-bg-surface)] p-6 sm:p-8 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col gap-6"
+            className="surface-depth bg-[var(--color-bg-surface)] p-6 sm:p-8 rounded-md border border-[var(--color-border)] shadow-xs flex flex-col gap-6"
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-[var(--color-bg-muted)] gap-3">
               <div>
@@ -404,7 +404,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </h2>
               </div>
 
-              <div className="flex items-center gap-2 p-2 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)]/60 text-xs text-[var(--color-text-secondary)]">
+              <div className="flex items-center gap-2 p-2 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)]/60 text-xs text-[var(--color-text-secondary)]">
                 <span
                   className="w-2 h-2 rounded-full bg-[var(--color-primary)]"
                   aria-hidden="true"
@@ -433,7 +433,7 @@ export const AdminDashboardPage: React.FC = () => {
                   return (
                     <article
                       key={evento.id}
-                      className="p-5 rounded-none bg-[var(--color-bg-subtle)] border border-[var(--color-border)]/60 flex flex-col justify-between gap-4"
+                      className="p-5 rounded-md bg-[var(--color-bg-subtle)] border border-[var(--color-border)]/60 flex flex-col justify-between gap-4"
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2 mb-3">
@@ -441,7 +441,7 @@ export const AdminDashboardPage: React.FC = () => {
                             {day} {monthYear}
                           </span>
                           {janelaAberta ? (
-                            <span className="tabular-nums text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-bold flex items-center gap-1">
+                            <span className="tabular-nums text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-bold flex items-center gap-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success-text)] animate-pulse" />
                               Janela Aberta
                             </span>
@@ -499,7 +499,7 @@ export const AdminDashboardPage: React.FC = () => {
           {/* CATÁLOGO RESUMIDO DE EVENTOS CADASTRADOS */}
           <section
             aria-labelledby="catalog-heading"
-            className="surface-depth bg-[var(--color-bg-surface)] p-6 sm:p-8 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col gap-6"
+            className="surface-depth bg-[var(--color-bg-surface)] p-6 sm:p-8 rounded-md border border-[var(--color-border)] shadow-xs flex flex-col gap-6"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[var(--color-bg-muted)] gap-4">
               <div>

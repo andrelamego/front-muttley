@@ -13,8 +13,8 @@ export const Badge: React.FC<BadgeProps> = ({
   ...props
 }) => {
   const sizeStyles = {
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-2.5 py-1 text-xs font-medium',
+    sm: 'px-2.5 py-1 text-xs font-medium',
+    md: 'px-3 py-1 text-xs font-semibold',
   }[size]
 
   const variantStyles = {
@@ -23,7 +23,7 @@ export const Badge: React.FC<BadgeProps> = ({
     success:
       'bg-[var(--color-success-bg)] text-[var(--color-success-text)] border-[var(--color-success-border)]',
     warning:
-      'bg-[var(--color-primary-subtle)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]',
+      'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] border-[var(--color-warning-border)]',
     danger:
       'bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] border-[var(--color-danger-border)]',
     info: 'bg-[var(--color-info-bg)] text-[var(--color-info-text)] border-[var(--color-info-border)]',
@@ -31,7 +31,7 @@ export const Badge: React.FC<BadgeProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center rounded-none border ${sizeStyles} ${variantStyles} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border before:size-1.5 before:shrink-0 before:rounded-full before:bg-current before:content-[''] ${sizeStyles} ${variantStyles} ${className}`}
       {...props}
     >
       {children}

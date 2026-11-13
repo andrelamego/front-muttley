@@ -125,7 +125,7 @@ export const LoginPage: React.FC = () => {
                 Ainda não possui conta?{' '}
                 <Link
                   to="/register"
-                  className="font-semibold text-[var(--color-primary-text)] hover:text-[var(--color-primary-text-hover)] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none px-1"
+                  className="font-semibold text-[var(--color-primary-text)] hover:text-[var(--color-primary-text-hover)] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md px-1"
                 >
                   Cadastre-se gratuitamente
                 </Link>
@@ -134,7 +134,7 @@ export const LoginPage: React.FC = () => {
               <div>
                 <Link
                   to="/eventos"
-                  className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none px-1"
+                  className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md px-1"
                 >
                   Ver eventos acadêmicos sem fazer login &rarr;
                 </Link>

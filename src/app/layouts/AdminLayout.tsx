@@ -111,16 +111,16 @@ export const AdminLayout: React.FC = () => {
       {/* Skip Link para acessibilidade de teclado */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-primary)] focus:text-white focus:rounded-none focus:shadow-md focus:outline-none"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-primary)] focus:text-white focus:rounded-md focus:shadow-md focus:outline-none"
       >
         Pular para o conteúdo principal
       </a>
 
       {/* Barra de Topo no Mobile (< lg) */}
-      <header className="lg:hidden bg-[var(--color-bg-subtle)] text-[var(--color-text-primary)] px-4 h-16 flex items-center justify-between border-b border-[var(--color-border)] sticky top-0 z-30 shadow-xs">
+      <header className="lg:hidden bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] px-4 h-16 flex items-center justify-between border-b border-[var(--color-border)] sticky top-0 z-30 shadow-xs">
         <Link
           to="/admin/inicio"
-          className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none p-1"
+          className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md p-1"
           aria-label="Painel Administrativo Muttley"
         >
           <Logo className="h-7 w-auto" />
@@ -139,7 +139,7 @@ export const AdminLayout: React.FC = () => {
                 ? 'Fechar menu de navegação'
                 : 'Abrir menu de navegação'
             }
-            className="p-2 rounded-none text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+            className="p-2 rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
           >
             {isMobileMenuOpen ? <XIcon size={22} /> : <MenuIcon size={22} />}
           </button>
@@ -159,28 +159,28 @@ export const AdminLayout: React.FC = () => {
       <aside
         id="admin-drawer"
         ref={drawerRef}
-        className={`fixed inset-y-0 left-0 z-50 w-64 min-w-[256px] bg-[var(--color-bg-subtle)] text-[var(--color-text-primary)] flex flex-col border-r border-[var(--color-border)] transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 min-w-[256px] bg-[#0e1330] text-[#c9cdea] flex flex-col border-r border-white/10 transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Navegação administrativa"
       >
         {/* Cabeçalho da Sidebar com Logo Único */}
-        <div className="h-16 px-6 flex items-center justify-between border-b border-[var(--color-border)]/60 shrink-0">
+        <div className="h-16 px-6 flex items-center justify-between border-b border-white/10 shrink-0">
           <Link
             to="/admin/inicio"
             onClick={closeMobileMenu}
-            className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none"
+            className="flex items-center text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-signal)] rounded-md"
           >
             <Logo className="h-7 w-auto" />
           </Link>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle className="hidden lg:inline-flex" />
+            <ThemeToggle className="hidden lg:inline-flex border-white/20! bg-transparent! text-[#c9cdea]! hover:bg-white/10! hover:text-white!" />
             <button
               type="button"
               onClick={closeMobileMenu}
               aria-label="Fechar menu lateral"
-              className="lg:hidden p-1.5 rounded-none text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+              className="lg:hidden p-1.5 rounded-md text-[#c9cdea] hover:text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-signal)]"
             >
               <XIcon size={20} />
             </button>
@@ -189,8 +189,8 @@ export const AdminLayout: React.FC = () => {
 
         {/* Links Principais de Navegação */}
         <div className="flex-1 px-4 py-6 overflow-y-auto space-y-1.5">
-          <div className="px-3 pb-2 tabular-nums text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-            Módulos Principais
+          <div className="px-3 pb-2 text-xs font-medium text-[#8f95c0]">
+            Gestão
           </div>
 
           {navItems.map((item) => (
@@ -198,10 +198,10 @@ export const AdminLayout: React.FC = () => {
               key={item.to}
               to={item.to}
               onClick={closeMobileMenu}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-none text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] ${
+              className={`flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-sm text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-signal)] ${
                 item.isActive
-                  ? 'bg-[var(--color-primary)] text-white shadow-xs font-semibold'
-                  : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text-primary)]'
+                  ? 'bg-[#2236e0] text-white font-semibold'
+                  : 'text-[#c9cdea] hover:bg-white/10 hover:text-white'
               }`}
             >
               <span className="shrink-0">{item.icon}</span>
@@ -210,40 +210,37 @@ export const AdminLayout: React.FC = () => {
           ))}
 
           <div className="pt-4 pb-2 px-3">
-            <hr className="border-[var(--color-border)]/60" />
+            <hr className="border-white/10" />
           </div>
 
-          <div className="px-3 pb-2 tabular-nums text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-            Visão Externa
+          <div className="px-3 pb-2 text-xs font-medium text-[#8f95c0]">
+            Visão pública
           </div>
 
           <Link
             to="/eventos"
             onClick={closeMobileMenu}
-            className="flex items-center justify-between px-3 py-2.5 rounded-none text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)] hover:text-[var(--color-text-primary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+            className="flex items-center justify-between px-3 py-2.5 min-h-[44px] rounded-sm text-sm text-[#c9cdea] hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-signal)]"
           >
             <span className="flex items-center gap-3">
-              <ExternalLinkIcon
-                size={18}
-                className="shrink-0 text-[var(--color-text-muted)]"
-              />
+              <ExternalLinkIcon size={18} className="shrink-0 text-[#8f95c0]" />
               <span>Ver página pública</span>
             </span>
           </Link>
         </div>
 
         {/* Rodapé da Sidebar: Usuário e Sair */}
-        <div className="p-4 border-t border-[var(--color-border)] bg-[var(--color-bg-muted)]/50 shrink-0">
+        <div className="p-4 border-t border-white/10 bg-white/5 shrink-0">
           <div className="flex items-center gap-3 mb-3 px-1">
-            <div className="w-9 h-9 rounded-full bg-[var(--color-primary-subtle)] text-[var(--color-primary-text)] tabular-nums text-xs font-bold flex items-center justify-center shrink-0 border border-[var(--color-border)]">
+            <div className="w-9 h-9 rounded-full bg-[var(--color-signal)] text-[var(--color-signal-ink)] text-xs font-bold flex items-center justify-center shrink-0">
               {getInitials(user?.nome)}
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-xs font-semibold text-[var(--color-text-primary)] block truncate">
+              <span className="text-xs font-semibold text-white block truncate">
                 {user?.nome || 'Prof. Dr. Administrador'}
               </span>
-              <span className="text-[11px] text-[var(--color-text-secondary)] block truncate">
-                Comissão Organizadora
+              <span className="text-xs text-[#8f95c0] block truncate">
+                Coordenação
               </span>
             </div>
           </div>
@@ -253,7 +250,7 @@ export const AdminLayout: React.FC = () => {
             size="sm"
             onClick={handleLogout}
             fullWidth
-            className="border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary-text)] hover:bg-[var(--color-bg-subtle)] justify-center gap-2 text-xs"
+            className="border-white/20 bg-transparent text-[#c9cdea] hover:text-white hover:bg-white/10 justify-center gap-2 text-xs"
             leftIcon={<LogOutIcon size={14} />}
           >
             Sair

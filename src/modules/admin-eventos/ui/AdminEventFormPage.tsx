@@ -244,7 +244,7 @@ export const AdminEventFormPage: React.FC = () => {
                 <textarea
                   id={descricaoId}
                   rows={3}
-                  className="w-full rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                  className="w-full rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   placeholder="Descreva a programação, palestrantes ou tópicos que serão abordados..."
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
@@ -317,7 +317,7 @@ export const AdminEventFormPage: React.FC = () => {
                     onChange={(e) =>
                       setModalidade(e.target.value as ModalidadeEvento)
                     }
-                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                    className="w-full h-10 rounded-sm border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   >
                     <option value="PRESENCIAL">Presencial</option>
                     <option value="ONLINE">Online</option>
@@ -336,7 +336,7 @@ export const AdminEventFormPage: React.FC = () => {
                     id={localIdSelect}
                     value={localId}
                     onChange={(e) => setLocalId(e.target.value)}
-                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                    className="w-full h-10 rounded-sm border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   >
                     <option value="">Selecione um local cadastrado...</option>
                     {locais.map((loc) => (
@@ -364,7 +364,7 @@ export const AdminEventFormPage: React.FC = () => {
                     id={disciplinaIdSelect}
                     value={disciplinaId}
                     onChange={(e) => setDisciplinaId(e.target.value)}
-                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                    className="w-full h-10 rounded-sm border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   >
                     <option value="">Nenhuma disciplina vinculada</option>
                     {disciplinas.map((disc) => (
@@ -386,7 +386,7 @@ export const AdminEventFormPage: React.FC = () => {
                     id={patrocinadorIdSelect}
                     value={patrocinadorId}
                     onChange={(e) => setPatrocinadorId(e.target.value)}
-                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                    className="w-full h-10 rounded-sm border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                   >
                     <option value="">Nenhum parceiro vinculado</option>
                     {patrocinadores.map((pat) => (

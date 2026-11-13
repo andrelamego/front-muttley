@@ -194,7 +194,7 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
                       </p>
                     )}
 
-                    <div className="bg-[var(--color-bg-subtle)] rounded-none p-3 grid grid-cols-2 gap-2 text-xs text-[var(--color-text-secondary)] mt-2 tabular-nums">
+                    <div className="bg-[var(--color-bg-subtle)] rounded-md p-3 grid grid-cols-2 gap-2 text-xs text-[var(--color-text-secondary)] mt-2 tabular-nums">
                       <div>
                         <span className="block text-[var(--color-text-muted)] font-medium uppercase text-[10px]">
                           Data:

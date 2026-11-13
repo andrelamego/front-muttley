@@ -11,7 +11,7 @@ export const SkeletonBlock: React.FC<SkeletonBlockProps> = ({
 }) => (
   <div
     aria-hidden="true"
-    className={`skeleton-shape ${circular ? 'rounded-full' : 'rounded-none'} ${className}`}
+    className={`skeleton-shape ${circular ? 'rounded-full' : 'rounded-md'} ${className}`}
     {...props}
   />
 )

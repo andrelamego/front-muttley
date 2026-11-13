@@ -5,6 +5,10 @@ export interface LogoProps {
   variant?: 'full' | 'mark'
 }
 
+// Marca: canhoto de ingresso amarelo, com o recorte da perfuração na borda direita.
+const STUB_PATH =
+  'M3 0h8a3 3 0 0 1 3 3v4.5a3.5 3.5 0 0 0 0 7V19a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V3a3 3 0 0 1 3-3z'
+
 export const Logo: React.FC<LogoProps> = ({
   className = 'h-8 w-auto',
   variant = 'full',
@@ -13,76 +17,43 @@ export const Logo: React.FC<LogoProps> = ({
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 32 32"
-        fill="none"
+        viewBox="-5 -1 24 24"
         className={className}
+        role="img"
         aria-label="Muttley"
       >
-        <rect
-          x="2"
-          y="2"
-          width="28"
-          height="28"
-          rx="4"
-          fill="var(--color-primary-hover)"
-        />
-        <path
-          d="M9 21V10L16 16.5L23 10V21M9 21H12M20 21H23"
-          stroke="#FCF9F5"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="16" cy="7" r="1.5" fill="#FCF9F5" />
+        <path d={STUB_PATH} fill="var(--color-signal)" />
       </svg>
     )
   }
 
+  // O texto herda a cor do contexto (currentColor), o que serve ao fundo claro e à barra lateral escura.
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 160 40"
-      fill="none"
+      viewBox="0 0 120 28"
       className={className}
-      aria-label="Muttley acadêmico"
+      role="img"
+      aria-label="Muttley"
     >
-      <rect
-        x="2"
-        y="6"
-        width="28"
-        height="28"
-        rx="4"
-        fill="var(--color-primary-hover)"
-      />
       <path
-        d="M9 25V14L16 20.5L23 14V25M9 25H12M20 25H23"
-        stroke="#FCF9F5"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        d={STUB_PATH}
+        transform="translate(0 3)"
+        fill="var(--color-signal)"
       />
-      <circle cx="16" cy="11" r="1.5" fill="#FCF9F5" />
       <text
-        x="38"
-        y="26"
-        fontFamily="'Newsreader', Georgia, serif"
+        x="22"
+        y="21"
+        fill="currentColor"
         fontSize="22"
-        fontWeight="700"
-        fill="var(--color-text-primary)"
-        letterSpacing="-0.5"
+        fontWeight="800"
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontVariationSettings: "'wdth' 78",
+          letterSpacing: '-0.02em',
+        }}
       >
         Muttley
-      </text>
-      <text
-        x="114"
-        y="19"
-        fontFamily="'Newsreader', Georgia, serif"
-        fontSize="9"
-        fontStyle="italic"
-        fontWeight="500"
-        fill="var(--color-primary-hover)"
-      >
-        acadêmico
       </text>
     </svg>
   )

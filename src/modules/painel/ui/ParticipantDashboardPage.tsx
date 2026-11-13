@@ -265,7 +265,7 @@ export const ParticipantDashboardPage: React.FC = () => {
           <Link to="/user/inicio">
             <button
               type="button"
-              className="px-4 py-2 rounded-none font-sans text-xs font-semibold bg-[var(--color-primary)] text-white shadow-xs"
+              className="px-4 py-2 rounded-md font-sans text-xs font-semibold bg-[var(--color-primary)] text-white shadow-xs"
             >
               Painel
             </button>
@@ -273,7 +273,7 @@ export const ParticipantDashboardPage: React.FC = () => {
           <Link to="/user/certificados">
             <button
               type="button"
-              className="px-4 py-2 rounded-none font-sans text-xs font-semibold bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
+              className="px-4 py-2 rounded-md font-sans text-xs font-semibold bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors"
             >
               Certificados
             </button>
@@ -281,7 +281,7 @@ export const ParticipantDashboardPage: React.FC = () => {
           <Link to={PARTICIPANT_EVENTS_PATH}>
             <button
               type="button"
-              className="px-4 py-2 rounded-none font-sans text-xs font-semibold bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors inline-flex items-center gap-1.5"
+              className="px-4 py-2 rounded-md font-sans text-xs font-semibold bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)] transition-colors inline-flex items-center gap-1.5"
             >
               <CompassIcon size={14} />
               <span>Explorar</span>
@@ -322,7 +322,7 @@ export const ParticipantDashboardPage: React.FC = () => {
               </h2>
 
               {eventoDestaque ? (
-                <div className="surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs overflow-hidden">
+                <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)] shadow-xs overflow-hidden">
                   {/* Faixa Superior de Metadados do Evento */}
                   <div className="px-6 py-3 bg-[var(--color-bg-subtle)] border-b border-[var(--color-bg-muted)] flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2">
@@ -336,7 +336,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                       </span>
                     </div>
 
-                    <span className="tabular-nums text-xs uppercase px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] border border-[var(--color-border)]/60">
+                    <span className="tabular-nums text-xs uppercase px-2 py-0.5 rounded-md bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] border border-[var(--color-border)]/60">
                       {eventoDestaque.modalidade}
                     </span>
                   </div>
@@ -354,7 +354,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                     </div>
 
                     {/* Informações de Local e Inscrição */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-none bg-[var(--color-bg-subtle)] border border-[var(--color-border)]/50 text-xs text-[var(--color-text-secondary)]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-md bg-[var(--color-bg-subtle)] border border-[var(--color-border)]/50 text-xs text-[var(--color-text-secondary)]">
                       <div className="flex items-center gap-2">
                         <MapPinIcon
                           size={16}
@@ -378,7 +378,7 @@ export const ParticipantDashboardPage: React.FC = () => {
 
                     {/* BLOCO DE STATUS DA CONFIRMAÇÃO DE PRESENÇA */}
                     {presencaAberta ? (
-                      <div className="p-4 rounded-none bg-[var(--color-success-bg)]/40 border border-[var(--color-success-border)] flex flex-col gap-2">
+                      <div className="p-4 rounded-md bg-[var(--color-success-bg)]/40 border border-[var(--color-success-border)] flex flex-col gap-2">
                         <div className="flex items-center gap-2 text-[var(--color-success-text)]">
                           <CheckCircleIcon size={18} />
                           <span className="tabular-nums text-xs font-bold uppercase tracking-wider">
@@ -410,7 +410,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="p-4 rounded-none bg-[var(--color-bg-muted)] border border-[var(--color-border)]/60 flex flex-col gap-2">
+                      <div className="p-4 rounded-md bg-[var(--color-bg-muted)] border border-[var(--color-border)]/60 flex flex-col gap-2">
                         <div className="flex items-center gap-2 text-[var(--color-text-secondary)]">
                           <ClockIcon
                             size={18}
@@ -451,7 +451,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] p-8 text-center flex flex-col items-center gap-3">
+                <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)] p-8 text-center flex flex-col items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)] flex items-center justify-center">
                     <CalendarIcon size={24} />
                   </div>
@@ -497,14 +497,14 @@ export const ParticipantDashboardPage: React.FC = () => {
                     return (
                       <article
                         key={p.id}
-                        className="surface-depth bg-[var(--color-bg-surface)] rounded-none p-5 border border-[var(--color-border)] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-[var(--color-primary)] transition-colors"
+                        className="surface-depth bg-[var(--color-bg-surface)] rounded-md p-5 border border-[var(--color-border)] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-[var(--color-primary)] transition-colors"
                       >
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-2 mb-1.5">
                             <span className="tabular-nums text-[11px] font-semibold text-[var(--color-primary-text)] uppercase">
                               {ev.data} • {ev.horarioInicio}
                             </span>
-                            <span className="tabular-nums text-[10px] uppercase px-1.5 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)]">
+                            <span className="tabular-nums text-[10px] uppercase px-1.5 py-0.5 rounded-md bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)]">
                               {ev.modalidade}
                             </span>
                           </div>
@@ -553,7 +553,7 @@ export const ParticipantDashboardPage: React.FC = () => {
               </div>
 
               {data.certificados.length === 0 ? (
-                <div className="surface-depth bg-[var(--color-bg-surface)] p-6 rounded-none border border-[var(--color-border)] text-center">
+                <div className="surface-depth bg-[var(--color-bg-surface)] p-6 rounded-md border border-[var(--color-border)] text-center">
                   <AwardIcon
                     size={32}
                     className="mx-auto text-[var(--color-text-muted)] mb-2"
@@ -568,7 +568,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                   {data.certificados.slice(0, 3).map((cert) => (
                     <article
                       key={cert.id}
-                      className="surface-depth bg-[var(--color-bg-surface)] rounded-none p-5 border border-[var(--color-border)] shadow-xs flex flex-col gap-3"
+                      className="surface-depth bg-[var(--color-bg-surface)] rounded-md p-5 border border-[var(--color-border)] shadow-xs flex flex-col gap-3"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -585,7 +585,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                       </div>
 
                       {/* Código de Autenticidade com Ação de Copiar */}
-                      <div className="p-2.5 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)]/60 flex items-center justify-between gap-2">
+                      <div className="p-2.5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)]/60 flex items-center justify-between gap-2">
                         <div className="min-w-0">
                           <span className="tabular-nums text-[10px] uppercase text-[var(--color-text-muted)] block">
                             Código de validação
@@ -598,7 +598,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                           type="button"
                           onClick={() => handleCopyCode(cert.codigoValidacao)}
                           aria-label="Copiar código de autenticidade"
-                          className="px-2 py-1 rounded-none text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] transition-colors flex items-center gap-1 shrink-0"
+                          className="px-2 py-1 rounded-md text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] transition-colors flex items-center gap-1 shrink-0"
                         >
                           {copiedCode === cert.codigoValidacao ? (
                             <>
@@ -640,7 +640,7 @@ export const ParticipantDashboardPage: React.FC = () => {
             {/* SEÇÃO DA CONTA DO PARTICIPANTE (Fiel ao Stitch) */}
             <section
               aria-labelledby="account-heading"
-              className="surface-depth bg-[var(--color-bg-surface)] rounded-none p-6 border border-[var(--color-border)] shadow-xs flex flex-col items-center text-center gap-3"
+              className="surface-depth bg-[var(--color-bg-surface)] rounded-md p-6 border border-[var(--color-border)] shadow-xs flex flex-col items-center text-center gap-3"
             >
               <h2 id="account-heading" className="sr-only">
                 Dados da Conta

@@ -281,7 +281,7 @@ export const UserCertificatesPage: React.FC = () => {
                         </div>
 
                         {/* Código de Validação */}
-                        <div className="bg-[var(--color-bg-subtle)] rounded-none p-2.5 border border-[var(--color-border)] flex items-center justify-between gap-2">
+                        <div className="bg-[var(--color-bg-subtle)] rounded-md p-2.5 border border-[var(--color-border)] flex items-center justify-between gap-2">
                           <div className="overflow-hidden">
                             <span className="block text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
                               Código de Validação
@@ -336,7 +336,7 @@ export const UserCertificatesPage: React.FC = () => {
                         href={linkedinUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-primary-text)] hover:text-[var(--color-primary-text-hover)] hover:underline px-2 py-1 rounded-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-primary-text)] hover:text-[var(--color-primary-text-hover)] hover:underline px-2 py-1 rounded-md focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                       >
                         LinkedIn
                         <ExternalLinkIcon size={12} />

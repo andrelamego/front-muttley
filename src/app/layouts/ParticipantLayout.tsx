@@ -32,20 +32,17 @@ export const ParticipantLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-page)] flex flex-col text-[var(--color-text-primary)] font-sans antialiased selection:bg-[var(--color-primary-subtle)] selection:text-[var(--color-primary-active)]">
-      {/* Barra Superior Fiel ao Stitch */}
+      {/* Barra superior */}
       <header className="bg-[var(--color-bg-page)]/95 backdrop-blur-md border-b border-[var(--color-border)]/60 sticky top-0 z-30">
         <div className="max-w-[76rem] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
               to="/user/inicio"
-              className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none"
+              className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md"
               aria-label="Painel do Participante Muttley"
             >
               <Logo className="h-7 w-auto" />
             </Link>
-            <span className="hidden sm:inline-block tabular-nums text-xs uppercase px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] border border-[var(--color-border)]/60">
-              Meu Painel
-            </span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -53,7 +50,7 @@ export const ParticipantLayout: React.FC = () => {
               <span className="text-xs font-semibold text-[var(--color-text-primary)]">
                 {user?.nome || 'Participante'}
               </span>
-              <span className="text-[11px] text-[var(--color-text-secondary)]">
+              <span className="text-xs text-[var(--color-text-secondary)]">
                 {user?.email}
               </span>
             </div>
@@ -86,7 +83,7 @@ export const ParticipantLayout: React.FC = () => {
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
-            Meu Painel
+            Início
             {isTabActive('/user/inicio') && (
               <m.span
                 layoutId="participant-desktop-active"
@@ -158,7 +155,7 @@ export const ParticipantLayout: React.FC = () => {
         Gestão e Certificados
       </footer>
 
-      {/* BARRA INFERIOR MOBILE (Bottom Navigation Bar) Fiel ao Stitch */}
+      {/* Barra inferior no celular */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--color-bg-surface)]/98 backdrop-blur-md border-t border-[var(--color-border)] flex items-center justify-around py-1.5 px-2 shadow-lg"
         style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
@@ -166,14 +163,14 @@ export const ParticipantLayout: React.FC = () => {
       >
         <Link
           to="/user/inicio"
-          className={`relative flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 px-2 rounded-none transition-colors ${
+          className={`relative flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 px-2 rounded-sm transition-colors ${
             isTabActive('/user/inicio')
               ? 'text-[var(--color-primary-text)] font-semibold'
               : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
           }`}
         >
           <DashboardIcon size={20} />
-          <span className="text-[11px] mt-0.5">Painel</span>
+          <span className="text-xs mt-0.5">Início</span>
           {isTabActive('/user/inicio') && (
             <m.span
               layoutId="participant-mobile-active"
@@ -184,14 +181,14 @@ export const ParticipantLayout: React.FC = () => {
 
         <Link
           to={PARTICIPANT_EVENTS_PATH}
-          className={`relative flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 px-2 rounded-none transition-colors ${
+          className={`relative flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 px-2 rounded-sm transition-colors ${
             isTabActive(PARTICIPANT_EVENTS_PATH)
               ? 'text-[var(--color-primary-text)] font-semibold'
               : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
           }`}
         >
           <CalendarIcon size={20} />
-          <span className="text-[11px] mt-0.5">Eventos</span>
+          <span className="text-xs mt-0.5">Eventos</span>
           {isTabActive(PARTICIPANT_EVENTS_PATH) && (
             <m.span
               layoutId="participant-mobile-active"
@@ -202,14 +199,14 @@ export const ParticipantLayout: React.FC = () => {
 
         <Link
           to="/user/certificados"
-          className={`relative flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 px-2 rounded-none transition-colors ${
+          className={`relative flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 px-2 rounded-sm transition-colors ${
             isTabActive('/user/certificados')
               ? 'text-[var(--color-primary-text)] font-semibold'
               : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
           }`}
         >
           <AwardIcon size={20} />
-          <span className="text-[11px] mt-0.5">Certificados</span>
+          <span className="text-xs mt-0.5">Certificados</span>
           {isTabActive('/user/certificados') && (
             <m.span
               layoutId="participant-mobile-active"
@@ -220,14 +217,14 @@ export const ParticipantLayout: React.FC = () => {
 
         <Link
           to="/user/medalhas"
-          className={`relative flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 px-2 rounded-none transition-colors ${
+          className={`relative flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 px-2 rounded-sm transition-colors ${
             isTabActive('/user/medalhas')
               ? 'text-[var(--color-primary-text)] font-semibold'
               : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
           }`}
         >
           <MedalIcon size={20} />
-          <span className="text-[11px] mt-0.5">Medalhas</span>
+          <span className="text-xs mt-0.5">Medalhas</span>
           {isTabActive('/user/medalhas') && (
             <m.span
               layoutId="participant-mobile-active"

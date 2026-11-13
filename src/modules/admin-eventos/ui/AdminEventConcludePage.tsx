@@ -201,7 +201,7 @@ export const AdminEventConcludePage: React.FC = () => {
         </div>
 
         {event && (
-          <div className="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-none p-3 text-xs flex flex-col items-end">
+          <div className="bg-[var(--color-bg-subtle)] border border-[var(--color-border)] rounded-md p-3 text-xs flex flex-col items-end">
             <span className="font-semibold text-[var(--color-text-primary)]">
               {event.tema}
             </span>
@@ -266,7 +266,7 @@ export const AdminEventConcludePage: React.FC = () => {
 
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div className="w-48 h-24 rounded-none border-2 border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-subtle)] flex items-center justify-center overflow-hidden shrink-0">
+                <div className="w-48 h-24 rounded-md border-2 border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-subtle)] flex items-center justify-center overflow-hidden shrink-0">
                   {assinaturaPreviewUrl ? (
                     <img
                       src={assinaturaPreviewUrl}
@@ -301,7 +301,7 @@ export const AdminEventConcludePage: React.FC = () => {
                       type="file"
                       accept="image/png, image/jpeg, image/webp"
                       onChange={handleFileChange}
-                      className="text-xs text-[var(--color-text-secondary)] file:mr-3 file:py-1.5 file:px-3 file:rounded-none file:border file:border-[var(--color-border-strong)] file:bg-[var(--color-bg-surface)] file:text-xs file:font-semibold file:text-[var(--color-text-secondary)] hover:file:bg-[var(--color-bg-subtle)]"
+                      className="text-xs text-[var(--color-text-secondary)] file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border file:border-[var(--color-border-strong)] file:bg-[var(--color-bg-surface)] file:text-xs file:font-semibold file:text-[var(--color-text-secondary)] hover:file:bg-[var(--color-bg-subtle)]"
                     />
                     {assinaturaFile && (
                       <span className="text-xs text-[var(--color-success-text)] font-medium">
@@ -368,7 +368,7 @@ export const AdminEventConcludePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFilterTab('TODOS')}
-                    className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
                       filterTab === 'TODOS'
                         ? 'bg-[var(--color-primary)] text-white shadow-xs'
                         : 'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
@@ -379,7 +379,7 @@ export const AdminEventConcludePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFilterTab('PRESENTES')}
-                    className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
                       filterTab === 'PRESENTES'
                         ? 'bg-[var(--color-success)] text-white shadow-xs'
                         : 'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
@@ -390,7 +390,7 @@ export const AdminEventConcludePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setFilterTab('AUSENTES')}
-                    className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
                       filterTab === 'AUSENTES'
                         ? 'bg-[var(--color-warning)] text-white shadow-xs'
                         : 'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
@@ -403,7 +403,7 @@ export const AdminEventConcludePage: React.FC = () => {
 
               {/* Tabela de Participações */}
               {participacoes.length === 0 ? (
-                <div className="p-8 text-center text-[var(--color-text-muted)] border border-dashed rounded-none">
+                <div className="p-8 text-center text-[var(--color-text-muted)] border border-dashed rounded-md">
                   <UsersIcon
                     size={32}
                     className="mx-auto text-[var(--color-text-subtle)] mb-2"
@@ -413,7 +413,7 @@ export const AdminEventConcludePage: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                <div className="border border-[var(--color-border)] rounded-none overflow-hidden">
+                <div className="border border-[var(--color-border)] rounded-md overflow-hidden">
                   <table className="w-full text-left text-sm border-collapse">
                     <thead className="bg-[var(--color-bg-subtle)] border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)]">
                       <tr>
@@ -425,7 +425,7 @@ export const AdminEventConcludePage: React.FC = () => {
                               handleToggleSelectAll(e.target.checked)
                             }
                             aria-label="Marcar todos os participantes visíveis"
-                            className="rounded-none border-[var(--color-border-strong)] text-[var(--color-primary-text)] focus:ring-[var(--focus-ring-color)] w-4 h-4 cursor-pointer"
+                            className="rounded-md border-[var(--color-border-strong)] text-[var(--color-primary-text)] focus:ring-[var(--focus-ring-color)] w-4 h-4 cursor-pointer"
                           />
                         </th>
                         <th className="py-3 px-4">Participante</th>
@@ -450,7 +450,7 @@ export const AdminEventConcludePage: React.FC = () => {
                                 checked={isPresent}
                                 onChange={() => handleTogglePresente(part.id)}
                                 aria-label={`Marcar presença de ${part.pessoa?.nome || 'participante'}`}
-                                className="rounded-none border-[var(--color-border-strong)] text-[var(--color-primary-text)] focus:ring-[var(--focus-ring-color)] w-4 h-4 cursor-pointer"
+                                className="rounded-md border-[var(--color-border-strong)] text-[var(--color-primary-text)] focus:ring-[var(--focus-ring-color)] w-4 h-4 cursor-pointer"
                               />
                             </td>
                             <td className="py-3 px-4">

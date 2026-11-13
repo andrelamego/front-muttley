@@ -152,7 +152,7 @@ export const PublicCertificateViewPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-[var(--color-bg-subtle)] p-4 rounded-none border border-[var(--color-border-subtle)]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-[var(--color-bg-subtle)] p-4 rounded-md border border-[var(--color-border-subtle)]">
               <div>
                 <span className="text-[var(--color-text-muted)] font-medium block">
                   Código de Autenticidade (UUID):

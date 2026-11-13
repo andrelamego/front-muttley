@@ -139,20 +139,20 @@ export const LandingPage: React.FC = () => {
     const modUpper = (modalidade || '').toUpperCase()
     if (modUpper.includes('ONLINE')) {
       return (
-        <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
+        <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
           Online
         </span>
       )
     }
     if (modUpper.includes('HIBRID') || modUpper.includes('HÍBRID')) {
       return (
-        <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-primary-subtle)] text-[var(--color-warning-text)] font-medium">
+        <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-primary-subtle)] text-[var(--color-warning-text)] font-medium">
           Híbrido
         </span>
       )
     }
     return (
-      <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium">
+      <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium">
         Presencial
       </span>
     )
@@ -256,7 +256,7 @@ export const LandingPage: React.FC = () => {
               </div>
 
               {/* Faixa de Capacidades Reais */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 pt-6 bg-[var(--color-bg-subtle)] p-6 rounded-none border border-[var(--color-border)]/50">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 pt-6 bg-[var(--color-bg-subtle)] p-6 rounded-md border border-[var(--color-border)]/50">
                 <div>
                   <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
                     Inscrição
@@ -296,7 +296,7 @@ export const LandingPage: React.FC = () => {
             {/* Coluna Editorial Lateral Direita (4 colunas) */}
             <div className="lg:col-span-4 flex flex-col gap-4">
               {/* Painel Editorial Solene com Citação da Ata Científica */}
-              <div className="relative w-full aspect-[4/5] rounded-none overflow-hidden shadow-sm bg-[var(--color-text-primary)] text-[var(--color-bg-page)] flex flex-col justify-end p-6 border border-[var(--color-border)]/40">
+              <div className="relative w-full aspect-[4/5] rounded-md overflow-hidden shadow-sm bg-[var(--color-text-primary)] text-[var(--color-bg-page)] flex flex-col justify-end p-6 border border-[var(--color-border)]/40">
                 {/* Background Decorativo Geométrico Editorial */}
                 <div
                   className="absolute inset-0 bg-gradient-to-t from-[var(--color-text-primary)] via-[var(--color-text-primary)]/90 to-[var(--color-primary)]/40 opacity-95"
@@ -324,7 +324,7 @@ export const LandingPage: React.FC = () => {
               </div>
 
               {/* Protocolo Público de Conferência */}
-              <div className="p-4 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)]/50 flex items-center justify-between">
+              <div className="p-4 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)]/50 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <ShieldCheckIcon
                     size={20}
@@ -375,7 +375,7 @@ export const LandingPage: React.FC = () => {
                     type="button"
                     onClick={handlePrev}
                     aria-label="Ver evento anterior"
-                    className="w-10 h-10 rounded-none border border-[var(--color-border)] bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] active:bg-[var(--color-bg-active)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+                    className="w-10 h-10 rounded-sm border border-[var(--color-border)] bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] active:bg-[var(--color-bg-active)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
                   >
                     <ChevronLeftIcon size={20} />
                   </button>
@@ -383,7 +383,7 @@ export const LandingPage: React.FC = () => {
                     type="button"
                     onClick={handleNext}
                     aria-label="Ver próximo evento"
-                    className="w-10 h-10 rounded-none border border-[var(--color-border)] bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] active:bg-[var(--color-bg-active)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+                    className="w-10 h-10 rounded-sm border border-[var(--color-border)] bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] active:bg-[var(--color-bg-active)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
                   >
                     <ChevronRightIcon size={20} />
                   </button>
@@ -423,7 +423,7 @@ export const LandingPage: React.FC = () => {
               role="region"
               aria-label="Carrossel de eventos acadêmicos"
               aria-roledescription="carousel"
-              className="overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none"
+              className="overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md"
             >
               <AnimatePresence
                 initial={false}
@@ -445,7 +445,7 @@ export const LandingPage: React.FC = () => {
                     return (
                       <article
                         key={`${evento.id}-${idx}`}
-                        className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] rounded-none p-6 border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow"
+                        className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] rounded-md p-6 border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow"
                       >
                         <div>
                           {/* Topo: Dia, Mês e Modalidade */}
@@ -472,7 +472,7 @@ export const LandingPage: React.FC = () => {
                         </div>
 
                         {/* Metadados e Ação */}
-                        <div className="pt-4 mt-2 bg-[var(--color-bg-subtle)] -mx-6 -mb-6 p-6 rounded-none border-t border-[var(--color-bg-muted)]">
+                        <div className="pt-4 mt-2 bg-[var(--color-bg-subtle)] -mx-6 -mb-6 p-6 rounded-md border-t border-[var(--color-bg-muted)]">
                           <div className="grid grid-cols-2 gap-2 text-[var(--color-text-primary)] mb-4 tabular-nums text-xs">
                             <div>
                               <span className="text-[var(--color-text-muted)] block uppercase">
@@ -517,7 +517,7 @@ export const LandingPage: React.FC = () => {
 
           {/* Estado Vazio */}
           {!isLoading && !error && eventos.length === 0 && (
-            <div className="text-center py-16 px-4 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)]">
+            <div className="text-center py-16 px-4 surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)]">
               <CalendarIcon
                 size={40}
                 className="mx-auto text-[var(--color-text-muted)] mb-3"
@@ -553,7 +553,7 @@ export const LandingPage: React.FC = () => {
         <section
           id="fluxo-academico"
           aria-labelledby="flow-heading"
-          className="w-full py-12 lg:py-16 my-8 bg-[var(--color-bg-subtle)] -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 rounded-none border border-[var(--color-border)]/40"
+          className="w-full py-12 lg:py-16 my-8 bg-[var(--color-bg-subtle)] -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 rounded-md border border-[var(--color-border)]/40"
         >
           <div className="max-w-[76rem] mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
@@ -576,7 +576,7 @@ export const LandingPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Etapa 01 */}
-              <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
+              <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-md border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="tabular-nums text-2xl font-bold text-[var(--color-primary-text)]">
@@ -603,7 +603,7 @@ export const LandingPage: React.FC = () => {
               </div>
 
               {/* Etapa 02 */}
-              <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
+              <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-md border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="tabular-nums text-2xl font-bold text-[var(--color-primary-text)]">
@@ -630,7 +630,7 @@ export const LandingPage: React.FC = () => {
               </div>
 
               {/* Etapa 03 */}
-              <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
+              <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-md border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="tabular-nums text-2xl font-bold text-[var(--color-primary-text)]">
@@ -658,7 +658,7 @@ export const LandingPage: React.FC = () => {
               </div>
 
               {/* Etapa 04 */}
-              <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
+              <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-md border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="tabular-nums text-2xl font-bold text-[var(--color-primary-text)]">
@@ -712,7 +712,7 @@ export const LandingPage: React.FC = () => {
 
               <div className="space-y-4 mb-8">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-none bg-[var(--color-bg-muted)] flex items-center justify-center shrink-0 mt-0.5 text-[var(--color-primary-text)]">
+                  <div className="w-8 h-8 rounded-md bg-[var(--color-bg-muted)] flex items-center justify-center shrink-0 mt-0.5 text-[var(--color-primary-text)]">
                     <UsersIcon size={18} />
                   </div>
                   <div>
@@ -727,7 +727,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-none bg-[var(--color-bg-muted)] flex items-center justify-center shrink-0 mt-0.5 text-[var(--color-primary-text)]">
+                  <div className="w-8 h-8 rounded-md bg-[var(--color-bg-muted)] flex items-center justify-center shrink-0 mt-0.5 text-[var(--color-primary-text)]">
                     <QrCodeIcon size={18} />
                   </div>
                   <div>
@@ -742,7 +742,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-none bg-[var(--color-bg-muted)] flex items-center justify-center shrink-0 mt-0.5 text-[var(--color-primary-text)]">
+                  <div className="w-8 h-8 rounded-md bg-[var(--color-bg-muted)] flex items-center justify-center shrink-0 mt-0.5 text-[var(--color-primary-text)]">
                     <AwardIcon size={18} />
                   </div>
                   <div>
@@ -768,7 +768,7 @@ export const LandingPage: React.FC = () => {
 
             {/* Cartão de Certificado Ilustrativo à Direita (6 colunas) */}
             <div className="lg:col-span-6 flex flex-col gap-4">
-              <div className="surface-depth bg-[var(--color-bg-surface)] rounded-none p-6 sm:p-8 border border-[var(--color-border)] shadow-sm relative">
+              <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md p-6 sm:p-8 border border-[var(--color-border)] shadow-sm relative">
                 {/* Cabeçalho do Certificado Ilustrativo */}
                 <div className="flex items-center justify-between pb-4 border-b border-[var(--color-bg-muted)]">
                   <div className="flex items-center gap-2">
@@ -780,7 +780,7 @@ export const LandingPage: React.FC = () => {
                       Exemplo Ilustrativo de Certificado
                     </span>
                   </div>
-                  <span className="tabular-nums text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-semibold">
+                  <span className="tabular-nums text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-semibold">
                     Válido
                   </span>
                 </div>
@@ -803,7 +803,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 {/* Rodapé com Código de Autenticidade */}
-                <div className="p-4 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="p-4 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <span className="tabular-nums text-[10px] uppercase text-[var(--color-text-muted)] block">
                       Código de validação
@@ -851,7 +851,7 @@ export const LandingPage: React.FC = () => {
                   placeholder="Ex: MTT-8921-BR ou código hash"
                   aria-label="Código de validação do certificado"
                   required
-                  className="w-full min-h-[44px] px-4 py-2.5 rounded-none border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] tabular-nums text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  className="w-full min-h-[44px] px-4 py-2.5 rounded-sm border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] tabular-nums text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 />
               </div>
               <Button type="submit" variant="primary" size="md">

@@ -177,7 +177,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-[var(--color-bg-subtle)] rounded-none text-sm border border-[var(--color-border-subtle)]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-[var(--color-bg-subtle)] rounded-md text-sm border border-[var(--color-border-subtle)]">
                 <div>
                   <span className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
                     Data Programada

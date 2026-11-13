@@ -30,12 +30,12 @@ export const PublicLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-[var(--color-bg-page)] flex flex-col text-[var(--color-text-primary)] font-sans antialiased selection:bg-[var(--color-primary-subtle)] selection:text-[var(--color-primary-active)]">
       {/* Cabeçalho Público Fiel ao Stitch (64px) */}
-      <header className="fixed top-0 left-0 right-0 w-full z-40 bg-[var(--color-bg-page)]/95 backdrop-blur-md border-b border-[var(--color-border)]/60 shadow-[0_1px_8px_rgba(0,0,0,0.03)]">
+      <header className="fixed top-0 left-0 right-0 w-full z-40 bg-[var(--color-bg-surface)]/95 backdrop-blur-md border-b border-[var(--color-border)]">
         <div className="h-16 max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo Único */}
           <Link
             to="/"
-            className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none py-1 px-1"
+            className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md py-1 px-1"
             aria-label="Página inicial do Muttley Acadêmico"
           >
             <Logo className="h-8 w-auto" />
@@ -52,7 +52,7 @@ export const PublicLayout: React.FC = () => {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`text-sm font-medium px-3 py-1.5 rounded-none transition-colors ${
+                  className={`text-sm font-medium px-3 py-1.5 rounded-md transition-colors ${
                     active
                       ? 'bg-[var(--color-bg-muted)] text-[var(--color-primary-text)] font-semibold'
                       : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-subtle)]'
@@ -123,7 +123,7 @@ export const PublicLayout: React.FC = () => {
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
               aria-expanded={isMobileMenuOpen}
               aria-label={isMobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
-              className="p-2 rounded-none text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+              className="p-2 rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
             >
               {isMobileMenuOpen ? <XIcon size={22} /> : <MenuIcon size={22} />}
             </button>
@@ -144,7 +144,7 @@ export const PublicLayout: React.FC = () => {
                   key={item.to}
                   to={item.to}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary-text)] hover:bg-[var(--color-bg-muted)] px-3 py-2 rounded-none"
+                  className="block text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary-text)] hover:bg-[var(--color-bg-muted)] px-3 py-2 rounded-md"
                 >
                   {item.label}
                 </Link>
@@ -247,7 +247,7 @@ export const PublicLayout: React.FC = () => {
 
             {/* Coluna Navegação */}
             <div className="md:col-span-3 flex flex-col gap-2">
-              <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-primary)] font-semibold">
+              <span className="text-sm text-[var(--color-text-primary)] font-semibold">
                 Navegação
               </span>
               <Link
@@ -272,7 +272,7 @@ export const PublicLayout: React.FC = () => {
 
             {/* Coluna Validação de Certificados */}
             <div className="md:col-span-3 flex flex-col gap-2">
-              <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-primary)] font-semibold">
+              <span className="text-sm text-[var(--color-text-primary)] font-semibold">
                 Validação Pública
               </span>
               <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
@@ -293,9 +293,7 @@ export const PublicLayout: React.FC = () => {
               &copy; {new Date().getFullYear()} Plataforma Acadêmica Muttley.
               Todos os direitos reservados.
             </span>
-            <span className="tabular-nums uppercase tracking-wider">
-              Rigor Acadêmico • Preservação Digital
-            </span>
+            <span>Rigor Acadêmico • Preservação Digital</span>
           </div>
         </div>
       </footer>

@@ -19,7 +19,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div
-      className={`surface-depth rounded-none overflow-hidden transition-all ${variantStyles} ${className}`}
+      className={`surface-depth rounded-md overflow-hidden transition-all ${variantStyles} ${className}`}
       {...props}
     >
       {children}

@@ -59,7 +59,7 @@ export const ToastViewport: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
               transition={motionTransition.interface}
-              className={`pointer-events-auto flex items-start gap-3 p-3.5 rounded-none border shadow-lg text-xs font-medium ${styles}`}
+              className={`pointer-events-auto flex items-start gap-3 p-3.5 rounded-md border shadow-lg text-xs font-medium ${styles}`}
               role={item.type === 'error' ? 'alert' : 'status'}
             >
               <div className={`shrink-0 mt-0.5 ${iconColor}`}>
@@ -74,7 +74,7 @@ export const ToastViewport: React.FC = () => {
               <button
                 type="button"
                 onClick={() => dismiss(item.id)}
-                className="shrink-0 p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] rounded-none transition-colors"
+                className="shrink-0 p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] rounded-md transition-colors"
                 aria-label="Fechar notificação"
               >
                 <XIcon size={14} />

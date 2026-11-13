@@ -337,7 +337,7 @@ export const AdminEventListPage: React.FC = () => {
       )}
 
       {/* Barra de Filtros e Busca */}
-      <div className="flex flex-col md:flex-row md:items-end gap-4 justify-between surface-depth bg-[var(--color-bg-surface)] p-4 rounded-none border border-[var(--color-border)] shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-end gap-4 justify-between surface-depth bg-[var(--color-bg-surface)] p-4 rounded-md border border-[var(--color-border)] shadow-xs">
         <div className="max-w-md flex-1">
           <label
             htmlFor={searchInputId}
@@ -369,7 +369,7 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('TODOS')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
               statusFilter === 'TODOS'
                 ? 'bg-[var(--color-primary)] text-white shadow-xs'
                 : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
@@ -380,7 +380,7 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('EM_ANDAMENTO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
               statusFilter === 'EM_ANDAMENTO'
                 ? 'bg-[var(--color-info)] text-white shadow-xs'
                 : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
@@ -391,7 +391,7 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('CRIADO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
               statusFilter === 'CRIADO'
                 ? 'bg-[var(--color-text-secondary)] text-white shadow-xs'
                 : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
@@ -402,7 +402,7 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('FINALIZADO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
               statusFilter === 'FINALIZADO'
                 ? 'bg-[var(--color-success)] text-white shadow-xs'
                 : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
@@ -413,7 +413,7 @@ export const AdminEventListPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('CANCELADO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
               statusFilter === 'CANCELADO'
                 ? 'bg-[var(--color-danger)] text-white shadow-xs'
                 : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
@@ -468,7 +468,7 @@ export const AdminEventListPage: React.FC = () => {
               </div>
             </Card>
           ) : (
-            <div className="surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] overflow-hidden shadow-xs">
+            <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)] overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm border-collapse">
                   <thead className="bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
@@ -624,7 +624,7 @@ export const AdminEventListPage: React.FC = () => {
           aria-modal="true"
           aria-labelledby="modal-qrcode-titulo"
         >
-          <div className="surface-depth bg-[var(--color-bg-surface)] rounded-none max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[var(--color-border)] animate-in fade-in zoom-in-95 my-8">
+          <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[var(--color-border)] animate-in fade-in zoom-in-95 my-8">
             <div className="flex items-start justify-between pb-4 border-b border-[var(--color-border-subtle)] gap-4">
               <div>
                 <span className="text-[11px] font-bold text-[var(--color-primary-text)] uppercase tracking-wider">
@@ -655,7 +655,7 @@ export const AdminEventListPage: React.FC = () => {
             <div className="py-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* 1. Painel de Inscrição Pública */}
-                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)] min-h-[340px]">
+                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
                   <div className="w-full text-center mb-3">
                     <span className="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider block">
                       Inscrição Pública
@@ -676,7 +676,7 @@ export const AdminEventListPage: React.FC = () => {
                     )}
 
                     {qrInscricao.status === 'error' && (
-                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-none border border-[var(--color-danger-border)] text-center w-full">
+                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-md border border-[var(--color-danger-border)] text-center w-full">
                         <p className="text-xs text-[var(--color-danger-text)] leading-snug">
                           {qrInscricao.error || 'Falha ao carregar QR Code.'}
                         </p>
@@ -696,7 +696,7 @@ export const AdminEventListPage: React.FC = () => {
                         <img
                           src={qrInscricao.url}
                           alt={`QR Code para inscrição no evento ${qrModalEvent.tema}`}
-                          className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-none border border-[var(--color-border)] shadow-xs object-contain"
+                          className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-md border border-[var(--color-border)] shadow-xs object-contain"
                         />
                       </div>
                     )}
@@ -730,7 +730,7 @@ export const AdminEventListPage: React.FC = () => {
                 </div>
 
                 {/* 2. Painel de Confirmação de Presença */}
-                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)] min-h-[340px]">
+                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
                   <div className="w-full text-center mb-3">
                     <span className="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider block">
                       Confirmar Presença
@@ -751,7 +751,7 @@ export const AdminEventListPage: React.FC = () => {
                     )}
 
                     {qrConfirmacao.status === 'error' && (
-                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-none border border-[var(--color-danger-border)] text-center w-full">
+                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-md border border-[var(--color-danger-border)] text-center w-full">
                         <p className="text-xs text-[var(--color-danger-text)] leading-snug">
                           {qrConfirmacao.error || 'Falha ao carregar QR Code.'}
                         </p>
@@ -772,7 +772,7 @@ export const AdminEventListPage: React.FC = () => {
                           <img
                             src={qrConfirmacao.url}
                             alt={`QR Code para confirmação de presença no evento ${qrModalEvent.tema}`}
-                            className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-none border border-[var(--color-border)] shadow-xs object-contain"
+                            className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-md border border-[var(--color-border)] shadow-xs object-contain"
                           />
                         </div>
                       )}
@@ -810,7 +810,7 @@ export const AdminEventListPage: React.FC = () => {
             <div className="pt-4 border-t border-[var(--color-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
               <span className="text-xs text-[var(--color-text-muted)]">
                 Pressione{' '}
-                <kbd className="px-1.5 py-0.5 bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-none text-[10px] tabular-nums text-[var(--color-text-secondary)]">
+                <kbd className="px-1.5 py-0.5 bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-md text-[10px] tabular-nums text-[var(--color-text-secondary)]">
                   Esc
                 </kbd>{' '}
                 para fechar a qualquer momento

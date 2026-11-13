@@ -199,7 +199,7 @@ export const UserMedalsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setTypeFilter('TODAS')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
               typeFilter === 'TODAS'
                 ? 'bg-[var(--color-primary)] text-white shadow-sm'
                 : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
@@ -210,7 +210,7 @@ export const UserMedalsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setTypeFilter('OURO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
               typeFilter === 'OURO'
                 ? 'bg-[var(--color-warning)] text-white shadow-sm'
                 : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
@@ -221,7 +221,7 @@ export const UserMedalsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setTypeFilter('PRATA')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
               typeFilter === 'PRATA'
                 ? 'bg-[var(--color-text-muted)] text-white shadow-sm'
                 : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
@@ -232,7 +232,7 @@ export const UserMedalsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setTypeFilter('BRONZE')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
               typeFilter === 'BRONZE'
                 ? 'bg-orange-500 text-white shadow-sm'
                 : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
