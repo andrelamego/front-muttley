@@ -10,14 +10,15 @@ import {
   formatModalidade,
   getTicketDateParts,
   isWithinPresenceWindow,
-  parseEventDateTime,
   PARTICIPANT_EVENTS_PATH,
 } from '../../eventos'
-import { formatProximoEvento } from '../domain/proximoEvento'
+import {
+  formatProximoEvento,
+  selecionarEventoDestaque,
+} from '../domain/proximoEvento'
 import { getParticipantDashboardData } from '../api/painelApi'
 import type {
   ParticipantDashboardData,
-  ParticipacaoResumo,
   CertificadoResumo,
 } from '../domain/painelTypes'
 import {
@@ -113,46 +114,12 @@ export const ParticipantDashboardPage: React.FC = () => {
     }
   }
 
-  // Separa eventos válidos e prioriza:
-  // 1. Evento cuja janela de presença está aberta agora
-  // 2. Próximo evento futuro no cronograma
-  const participacoesValidas = (data?.participacoes || [])
-    .filter((p) => p.evento && p.evento.status !== 'CANCELADO')
-    .sort((a, b) => {
-      const dateA =
-        a.evento?.data && a.evento?.horarioInicio
-          ? `${a.evento.data}T${a.evento.horarioInicio}`
-          : ''
-      const dateB =
-        b.evento?.data && b.evento?.horarioInicio
-          ? `${b.evento.data}T${b.evento.horarioInicio}`
-          : ''
-      return dateA.localeCompare(dateB)
-    })
-
-  // Encontra prioritário
-  const eventoJanelaAberta = participacoesValidas.find((p) =>
-    isWithinPresenceWindow(
-      p.evento?.data,
-      p.evento?.horarioInicio,
-      p.evento?.horarioFim
-    )
-  )
-
-  const agora = new Date()
-  const proximoFuturo = participacoesValidas.find((p) => {
-    const fim = parseEventDateTime(p.evento?.data, p.evento?.horarioFim)
-    return fim ? fim >= agora : true
-  })
-
-  const participacaoDestaque: ParticipacaoResumo | undefined =
-    eventoJanelaAberta || proximoFuturo || participacoesValidas[0]
-
+  const {
+    destaque: participacaoDestaque,
+    passado: destaquePassado,
+    depois: outrosCompromissos,
+  } = selecionarEventoDestaque(data?.participacoes ?? [], new Date())
   const eventoDestaque = participacaoDestaque?.evento
-
-  const outrosCompromissos = participacoesValidas.filter(
-    (p) => p.id !== participacaoDestaque?.id
-  )
 
   const presencaAberta = eventoDestaque
     ? isWithinPresenceWindow(
@@ -183,14 +150,16 @@ export const ParticipantDashboardPage: React.FC = () => {
         className="bg-[var(--color-primary)] text-white"
       >
         <div className="max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20">
-          <p className="text-sm text-white/90">Olá, {primeiroNome}</p>
+          <p className="text-sm">Olá, {primeiroNome}</p>
           <h1
             id="greeting-heading"
             className="font-display text-3xl sm:text-4xl font-bold leading-tight mt-2 max-w-xl"
           >
-            {eventoDestaque
-              ? formatProximoEvento(eventoDestaque.data, new Date())
-              : 'Nenhum evento na sua agenda'}
+            {!data
+              ? 'Seu início'
+              : eventoDestaque
+                ? formatProximoEvento(eventoDestaque.data, new Date())
+                : 'Nenhum evento na sua agenda'}
           </h1>
         </div>
       </section>
@@ -220,7 +189,11 @@ export const ParticipantDashboardPage: React.FC = () => {
                   mes={ticket.mes}
                   horario={ticket.horario}
                 >
-                  <Badge variant="success">Inscrição confirmada</Badge>
+                  {destaquePassado ? (
+                    <Badge variant="default">Evento realizado</Badge>
+                  ) : (
+                    <Badge variant="success">Inscrição confirmada</Badge>
+                  )}
                   <h2 className="font-display text-xl sm:text-2xl font-bold leading-tight mt-3">
                     {eventoDestaque.tema}
                   </h2>
@@ -232,26 +205,30 @@ export const ParticipantDashboardPage: React.FC = () => {
                       .filter(Boolean)
                       .join(' · ')}
                   </p>
-                  <Button
-                    variant="primary"
-                    fullWidth
-                    className="mt-4"
-                    disabled={!presencaAberta}
-                    onClick={() =>
-                      navigate(
-                        buildPresencePath(
-                          PARTICIPANT_EVENTS_PATH,
-                          eventoDestaque.id
-                        )
-                      )
-                    }
-                  >
-                    Confirmar presença
-                  </Button>
-                  {janela && (
-                    <p className="text-xs text-[var(--color-text-secondary)] mt-2">
-                      {formatPresenceWindow(janela)}
-                    </p>
+                  {!destaquePassado && (
+                    <>
+                      <Button
+                        variant="primary"
+                        fullWidth
+                        className="mt-4"
+                        disabled={!presencaAberta}
+                        onClick={() =>
+                          navigate(
+                            buildPresencePath(
+                              PARTICIPANT_EVENTS_PATH,
+                              eventoDestaque.id
+                            )
+                          )
+                        }
+                      >
+                        Confirmar presença
+                      </Button>
+                      {janela && (
+                        <p className="text-xs text-[var(--color-text-secondary)] mt-2">
+                          {formatPresenceWindow(janela)}
+                        </p>
+                      )}
+                    </>
                   )}
                   <Link
                     to={buildEventPath(
