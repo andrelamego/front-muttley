@@ -98,6 +98,16 @@
     'Schibsted Grotesk Variable', system-ui, -apple-system, 'Segoe UI', Roboto,
     sans-serif;
 
+  /* Barra lateral da coordenação: tinta nos dois temas (componente sidebar do shadcn) */
+  --sidebar: #0e1330;
+  --sidebar-foreground: #c9cdea;
+  --sidebar-primary: #2236e0;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(255 255 255 / 9%);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: #ffd93b;
+
   /* Área mínima de toque */
   --touch-target-min: 44px;
 }

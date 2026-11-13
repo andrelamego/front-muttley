@@ -30,4 +30,11 @@ export default defineConfig([
       'prettier/prettier': 'error',
     },
   },
+  {
+    // Componentes do shadcn exportam variantes e hooks junto com os componentes, por convenção.
+    files: ['src/shared/ui/shadcn/**/*.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
