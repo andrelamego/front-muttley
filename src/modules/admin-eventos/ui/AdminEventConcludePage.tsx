@@ -24,6 +24,7 @@ import {
   SearchIcon,
   UploadIcon,
   UsersIcon,
+  FiltroSegmentado,
 } from '../../../shared/ui'
 import { AdminEventConcludeSkeleton } from './skeletons'
 import { HistoryBackButton } from '../../../shared/navigation'
@@ -37,6 +38,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../../../shared/ui/shadcn/alert-dialog'
+import { Checkbox } from '../../../shared/ui/shadcn/checkbox'
 
 export const AdminEventConcludePage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -368,45 +370,28 @@ export const AdminEventConcludePage: React.FC = () => {
                 </div>
 
                 {/* Abas: Todos, Presentes, Ausentes */}
-                <div
-                  className="flex items-center gap-1.5"
-                  role="tablist"
-                  aria-label="Filtrar por status de presença"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setFilterTab('TODOS')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-                      filterTab === 'TODOS'
-                        ? 'bg-[var(--color-primary)] text-white shadow-xs'
-                        : 'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
-                    }`}
-                  >
-                    Todos ({participacoes.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFilterTab('PRESENTES')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-                      filterTab === 'PRESENTES'
-                        ? 'bg-[var(--color-success)] text-white shadow-xs'
-                        : 'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
-                    }`}
-                  >
-                    Presentes ({presentesIds.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFilterTab('AUSENTES')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-                      filterTab === 'AUSENTES'
-                        ? 'bg-[var(--color-warning)] text-white shadow-xs'
-                        : 'bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'
-                    }`}
-                  >
-                    Ausentes ({participacoes.length - presentesIds.length})
-                  </button>
-                </div>
+                <FiltroSegmentado
+                  rotulo="Filtrar por presença"
+                  valor={filterTab}
+                  onChange={setFilterTab}
+                  opcoes={[
+                    {
+                      valor: 'TODOS',
+                      rotulo: 'Todos',
+                      total: participacoes.length,
+                    },
+                    {
+                      valor: 'PRESENTES',
+                      rotulo: 'Presentes',
+                      total: presentesIds.length,
+                    },
+                    {
+                      valor: 'AUSENTES',
+                      rotulo: 'Ausentes',
+                      total: participacoes.length - presentesIds.length,
+                    },
+                  ]}
+                />
               </div>
 
               {/* Tabela de Participações */}
@@ -426,14 +411,13 @@ export const AdminEventConcludePage: React.FC = () => {
                     <thead className="bg-[var(--color-bg-subtle)] border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)]">
                       <tr>
                         <th className="py-3 px-4 w-12 text-center">
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={isAllSelected}
-                            onChange={(e) =>
-                              handleToggleSelectAll(e.target.checked)
+                            onCheckedChange={(marcado) =>
+                              handleToggleSelectAll(marcado === true)
                             }
                             aria-label="Marcar todos os participantes visíveis"
-                            className="rounded-md border-[var(--color-border-strong)] text-[var(--color-primary-text)] focus:ring-[var(--focus-ring-color)] w-4 h-4 cursor-pointer"
+                            className="size-5"
                           />
                         </th>
                         <th className="py-3 px-4">Participante</th>
@@ -453,12 +437,13 @@ export const AdminEventConcludePage: React.FC = () => {
                             }`}
                           >
                             <td className="py-3 px-4 text-center">
-                              <input
-                                type="checkbox"
+                              <Checkbox
                                 checked={isPresent}
-                                onChange={() => handleTogglePresente(part.id)}
+                                onCheckedChange={() =>
+                                  handleTogglePresente(part.id)
+                                }
                                 aria-label={`Marcar presença de ${part.pessoa?.nome || 'participante'}`}
-                                className="rounded-md border-[var(--color-border-strong)] text-[var(--color-primary-text)] focus:ring-[var(--focus-ring-color)] w-4 h-4 cursor-pointer"
+                                className="size-5"
                               />
                             </td>
                             <td className="py-3 px-4">

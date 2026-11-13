@@ -5,7 +5,7 @@ import type {
   AdminCatalogsData,
 } from '../domain/adminCatalogTypes'
 import { includesSearch } from '../domain/adminCatalogTypes'
-import { Input, SearchIcon } from '../../../shared/ui'
+import { FiltroSegmentado, Input, SearchIcon } from '../../../shared/ui'
 import { AdminDataSkeleton } from './AdminDataSkeleton'
 import {
   AdminEmpty,
@@ -152,30 +152,19 @@ export const AdminCatalogsPage: React.FC = () => {
           </div>
 
           <section className="space-y-4" aria-labelledby="catalog-list-title">
-            <div
-              className="flex flex-wrap gap-1 border-b border-[var(--color-border)]"
-              role="tablist"
-              aria-label="Tipos de cadastro"
-            >
-              {tabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={active === tab.key}
-                  onClick={() => {
-                    setActive(tab.key)
-                    setSearch('')
-                  }}
-                  className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${active === tab.key ? 'border-[var(--color-primary)] text-[var(--color-primary-text)] bg-[var(--color-bg-subtle)]' : 'border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'}`}
-                >
-                  {tab.label}{' '}
-                  <span className="tabular-nums text-xs ml-1">
-                    {data?.[tab.key].length || 0}
-                  </span>
-                </button>
-              ))}
-            </div>
+            <FiltroSegmentado
+              rotulo="Tipos de cadastro"
+              valor={active}
+              onChange={(chave) => {
+                setActive(chave)
+                setSearch('')
+              }}
+              opcoes={tabs.map((tab) => ({
+                valor: tab.key,
+                rotulo: tab.label,
+                total: data?.[tab.key].length || 0,
+              }))}
+            />
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
                 <h2 id="catalog-list-title" className="font-display text-xl">

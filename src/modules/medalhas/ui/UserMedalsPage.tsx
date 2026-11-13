@@ -18,6 +18,7 @@ import {
   CopyIcon,
   CheckIcon,
   copiarTexto,
+  FiltroSegmentado,
 } from '../../../shared/ui'
 import { MedalGridSkeleton } from './skeletons'
 
@@ -158,56 +159,17 @@ export const UserMedalsPage: React.FC = () => {
         </div>
 
         {/* Seletor de Tipo */}
-        <div
-          className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"
-          role="tablist"
-          aria-label="Filtrar por tipo de medalha"
-        >
-          <button
-            type="button"
-            onClick={() => setTypeFilter('TODAS')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-              typeFilter === 'TODAS'
-                ? 'bg-[var(--color-primary)] text-white shadow-sm'
-                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
-            }`}
-          >
-            Todas ({medals.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setTypeFilter('OURO')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-              typeFilter === 'OURO'
-                ? 'bg-[var(--color-warning)] text-white shadow-sm'
-                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
-            }`}
-          >
-            Ouro ({countOuro})
-          </button>
-          <button
-            type="button"
-            onClick={() => setTypeFilter('PRATA')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-              typeFilter === 'PRATA'
-                ? 'bg-[var(--color-text-muted)] text-white shadow-sm'
-                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
-            }`}
-          >
-            Prata ({countPrata})
-          </button>
-          <button
-            type="button"
-            onClick={() => setTypeFilter('BRONZE')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-              typeFilter === 'BRONZE'
-                ? 'bg-orange-500 text-white shadow-sm'
-                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
-            }`}
-          >
-            Bronze ({countBronze})
-          </button>
-        </div>
+        <FiltroSegmentado
+          rotulo="Filtrar por nível de medalha"
+          valor={typeFilter}
+          onChange={setTypeFilter}
+          opcoes={[
+            { valor: 'TODAS', rotulo: 'Todas', total: medals.length },
+            { valor: 'OURO', rotulo: 'Ouro', total: countOuro },
+            { valor: 'PRATA', rotulo: 'Prata', total: countPrata },
+            { valor: 'BRONZE', rotulo: 'Bronze', total: countBronze },
+          ]}
+        />
       </div>
 
       {/* Estado de Carregamento */}

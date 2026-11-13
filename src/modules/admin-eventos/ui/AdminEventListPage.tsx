@@ -26,6 +26,7 @@ import {
   ClockIcon,
   DownloadIcon,
   toast,
+  FiltroSegmentado,
 } from '../../../shared/ui'
 import { AdminEventListSkeleton } from './skeletons'
 import { MoreHorizontal } from 'lucide-react'
@@ -359,67 +360,26 @@ export const AdminEventListPage: React.FC = () => {
         </div>
 
         {/* Abas de Status */}
-        <div
-          className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0"
-          role="tablist"
-          aria-label="Filtrar eventos por status"
-        >
-          <button
-            type="button"
-            onClick={() => setStatusFilter('TODOS')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-              statusFilter === 'TODOS'
-                ? 'bg-[var(--color-primary)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Todos ({events.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('EM_ANDAMENTO')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-              statusFilter === 'EM_ANDAMENTO'
-                ? 'bg-[var(--color-info)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Em andamento ({countEmAndamento})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('CRIADO')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-              statusFilter === 'CRIADO'
-                ? 'bg-[var(--color-text-secondary)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Programados ({countCriado})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('FINALIZADO')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-              statusFilter === 'FINALIZADO'
-                ? 'bg-[var(--color-success)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Finalizados ({countFinalizado})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('CANCELADO')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
-              statusFilter === 'CANCELADO'
-                ? 'bg-[var(--color-danger)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Cancelados ({countCancelado})
-          </button>
-        </div>
+        <FiltroSegmentado
+          rotulo="Filtrar eventos por situação"
+          valor={statusFilter}
+          onChange={setStatusFilter}
+          opcoes={[
+            { valor: 'TODOS', rotulo: 'Todos', total: events.length },
+            {
+              valor: 'EM_ANDAMENTO',
+              rotulo: 'Em andamento',
+              total: countEmAndamento,
+            },
+            { valor: 'CRIADO', rotulo: 'Programados', total: countCriado },
+            {
+              valor: 'FINALIZADO',
+              rotulo: 'Finalizados',
+              total: countFinalizado,
+            },
+            { valor: 'CANCELADO', rotulo: 'Cancelados', total: countCancelado },
+          ]}
+        />
       </div>
 
       {/* Estado de Carregamento */}
