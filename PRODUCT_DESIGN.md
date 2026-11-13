@@ -1,18 +1,18 @@
 # Muttley — produto e direção de interface
 
-Atualizado em 04/09/2026 após a escolha das telas do Stitch. As regras de negócio têm sua referência principal no [documento do backend](../Backend-Muttley/docs/requisitos-e-regras-de-negocio.md).
+Atualizado em 13/11/2026 com a identidade "Ingresso" ([ADR-003](docs/decisoes/003-identidade-ingresso.md)). As regras de negócio têm sua referência principal no [documento do backend](../Backend-Muttley/docs/requisitos-e-regras-de-negocio.md).
 
-## Direção vigente — telas escolhidas no Stitch
+## Direção vigente — identidade "Ingresso"
 
-Aplicar à base existente o [guia visual consolidado](docs/design/DESIGN.md): papel `#fcf9f5`, tinta `#1c1c1a`, terracota `#6b1705`/`#8b2e19`, Newsreader nos títulos, Plus Jakarta Sans na interface e JetBrains Mono nos metadados. A escolha anterior de azul/Slate com fonte de sistema fica como histórico, não como restrição atual.
+Seguir o [guia visual](docs/design/DESIGN.md): cada evento é um ingresso com canhoto da data; cobalto `#2236e0` para a ação principal, amarelo `#ffd93b` só para o que pede ação, tinta `#0e1330`, Bricolage Grotesque nos títulos e Schibsted Grotesk na interface, com tema claro e escuro. A direção Stitch (papel creme, Newsreader, terracota) e a anterior de azul/Slate ficam como histórico.
 
-As [referências originais](docs/design/stitch/README.md) cobrem landing desktop, admin desktop e participante mobile. A [especificação](docs/design/STITCH_TELAS_E_INTEGRACAO.md) define adaptações, conteúdo real e limites da API. O [roteiro de verificação](docs/design/STITCH_VALIDACAO.md) exige comparação com as capturas. Esta preparação não implementou o visual nem homologou as telas.
+A referência aprovada é o mockup [`docs/design/propostas/a-ingresso.html`](docs/design/propostas/a-ingresso.html). A [especificação](docs/superpowers/specs/2026-11-13-identidade-ingresso-design.md) define o que muda, o que não muda e os limites de dados da API. Os materiais do Stitch em `docs/design/stitch/` e `docs/design/STITCH_*.md` são histórico.
 
 ## Objetivo
 
 Permitir que uma pessoa encontre um evento acadêmico, entenda as condições de participação, faça sua inscrição e acesse o certificado. Para a organização, tornar claros o acompanhamento das inscrições, a presença e a conclusão do evento.
 
-O objetivo atual é refinar a interface implementada com fundamentos de produto, IHC, UI/UX e arquitetura modular, usando as referências escolhidas no Stitch. Manter React + Vite, os módulos existentes e os serviços como referência funcional.
+O objetivo atual é refinar a interface implementada com fundamentos de produto, IHC, UI/UX e arquitetura modular, usando a identidade "Ingresso". Manter React + Vite, os módulos existentes e os serviços como referência funcional.
 
 As prioridades do autor são: login descomplicado, dashboard eficiente e planejado, mobile-first para público e participantes, administração planejada para desktop, navegação fluida e visual moderno.
 
@@ -48,7 +48,7 @@ Não derive vagas disponíveis apenas da capacidade do local: é necessário con
 
 ## Diretrizes gerais de identidade
 
-Use a identidade do Stitch consolidada no guia vigente. As diretrizes abaixo orientam legibilidade, acessibilidade e consistência, sem reabrir a escolha estética.
+Use a identidade "Ingresso" descrita no guia vigente. As diretrizes abaixo orientam legibilidade, acessibilidade e consistência, sem reabrir a escolha estética.
 
 - Defina paleta e tipografia próprias, com hierarquia clara e contraste verificado. Não é obrigatório manter o vermelho atual nem a aparência institucional anterior.
 - Crie tokens semânticos de cor, espaçamento, tipografia, bordas, elevação e movimento. A mudança de tema deve ocorrer principalmente nos tokens, sem espalhar valores pelas páginas.
