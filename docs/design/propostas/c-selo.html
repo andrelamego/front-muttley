@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proposta C — Selo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  /* Proposta C: o certificado como documento de valor. Tinta azul-noite + verde de selo, padrão guilhochê. */
+  :root {
+    --bg: #f4f6f8;
+    --surface: #ffffff;
+    --ink: #0f1d33;
+    --ink-2: #4b5a70;
+    --line: #dde3ea;
+    --night: #13284f;
+    --seal: #0b6e57;
+    --seal-soft: #def2ec;
+    --gold: #b3842a;
+    --r: 6px;
+    --font: 'Archivo', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #e6eaef; color: var(--ink); font: 15px/1.5 var(--font); padding: 40px 16px 80px; }
+  .x { font-variation-settings: 'wdth' 118; }   /* largura expandida para títulos */
+  .c { font-variation-settings: 'wdth' 70; }    /* condensada para números */
+  .intro { max-width: 1240px; margin: 0 auto 32px; display: flex; flex-wrap: wrap; gap: 24px; align-items: end; justify-content: space-between; }
+  .intro h1 { font-weight: 800; font-size: 50px; line-height: 1; letter-spacing: -0.01em; }
+  .intro p { max-width: 520px; color: var(--ink-2); }
+  .swatches { display: flex; gap: 8px; }
+  .swatches span { width: 44px; height: 44px; border-radius: var(--r); border: 1px solid rgb(0 0 0 / 8%); }
+  .stage { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr; justify-items: center; gap: 40px; } .stage > .desk { width: 100%; }
+  @media (max-width: 1000px) { .stage { grid-template-columns: 1fr; justify-items: center; } .desk { width: 100%; } }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: var(--r); font: 600 15px var(--font); border: 0; cursor: pointer; }
+  .btn-primary { background: var(--night); color: #fff; }
+  .btn-primary:hover { background: #0a1a38; }
+  .btn-line { background: var(--surface); color: var(--night); border: 1.5px solid #c3ccd8; }
+
+  /* guilhochê: linhas finas concêntricas como em diplomas e cédulas */
+  .guilloche { background:
+      repeating-radial-gradient(circle at 0% 100%, transparent 0 7px, rgb(255 255 255 / 9%) 7px 8px),
+      repeating-radial-gradient(circle at 100% 0%, transparent 0 9px, rgb(255 255 255 / 7%) 9px 10px),
+      var(--night); }
+
+  /* ---------- celular ---------- */
+  .phone { width: 390px; max-width: 100%; height: 820px; background: var(--bg); border-radius: 44px; border: 10px solid var(--ink); overflow: hidden; display: flex; flex-direction: column; }
+  .head { color: #fff; padding: 22px 20px 22px; }
+  .head small { color: #c8d3e6; font-size: 13.5px; }
+  .head h2 { font-weight: 700; font-size: 24px; line-height: 1.15; margin-top: 4px; }
+  .phone-body { padding: 16px; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 14px; }
+  .agenda { background: var(--surface); border-radius: var(--r); display: grid; grid-template-columns: 86px 1fr; overflow: hidden; border: 1px solid var(--line); }
+  .agenda .t { background: var(--seal-soft); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 4px; }
+  .agenda .t b { font-weight: 800; font-size: 40px; line-height: .9; color: var(--seal); }
+  .agenda .t small { font-size: 12.5px; color: var(--seal); font-weight: 600; margin-top: 4px; }
+  .agenda .info { padding: 14px 16px; }
+  .agenda .info span { font-size: 13px; color: var(--seal); font-weight: 600; }
+  .agenda h3 { font-size: 17px; line-height: 1.25; font-weight: 700; margin: 4px 0; }
+  .agenda p { font-size: 13.5px; color: var(--ink-2); }
+  .act { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; }
+  .act .btn { width: 100%; }
+  .act p { font-size: 13px; color: var(--ink-2); text-align: center; margin-top: 8px; }
+  .label { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; margin-top: 4px; }
+  .label a { color: var(--night); font-weight: 600; font-size: 13.5px; }
+  /* o certificado é a peça memorável */
+  .cert { border-radius: var(--r); color: #fff; padding: 18px; position: relative; overflow: hidden; }
+  .cert .top { display: flex; justify-content: space-between; align-items: start; }
+  .cert small { color: #c8d3e6; font-size: 12.5px; }
+  .cert h4 { font-size: 18px; font-weight: 700; line-height: 1.2; margin-top: 4px; max-width: 220px; }
+  .seal { width: 60px; height: 60px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    background: repeating-conic-gradient(var(--gold) 0 6deg, #caa04a 6deg 12deg); }
+  .seal i { width: 44px; height: 44px; border-radius: 50%; background: var(--night); border: 2px solid #e3c47c; display: grid; place-items: center; color: #e3c47c; font-style: normal; font-weight: 800; font-size: 13px; }
+  .cert .bottom { display: flex; justify-content: space-between; align-items: end; margin-top: 18px; }
+  .cert .code { font-size: 13px; color: #c8d3e6; }
+  .cert .code b { display: block; color: #fff; font-size: 15px; letter-spacing: .06em; }
+  .cert .btn { background: #fff; color: var(--night); min-height: 40px; padding: 0 14px; font-size: 14px; }
+  .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding: 6px 6px 16px; }
+  .tabbar a { font-size: 12px; color: var(--ink-2); text-decoration: none; min-height: 44px; display: grid; place-items: center; font-weight: 500; position: relative; }
+  .tabbar a.on { color: var(--night); font-weight: 700; }
+  .tabbar a.on::before { content: ''; position: absolute; top: 0; width: 28px; height: 3px; background: var(--seal); border-radius: 0 0 3px 3px; }
+
+  /* ---------- desktop ---------- */
+  .desk { background: var(--bg); border-radius: 10px; border: 1px solid #c9d1db; overflow: hidden; box-shadow: 0 30px 60px rgb(0 0 0 / 10%); }
+  .chrome { height: 34px; background: #fff; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 6px; padding: 0 14px; }
+  .chrome i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: 740px; }
+  .side { color: #c8d3e6; padding: 22px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .brand { color: #fff; font-weight: 800; font-size: 20px; padding: 0 12px 22px; display: flex; align-items: center; gap: 10px; }
+  .brand::before { content: ''; width: 22px; height: 22px; border-radius: 50%; background: repeating-conic-gradient(var(--gold) 0 10deg, #e3c47c 10deg 20deg); }
+  .side a { color: inherit; text-decoration: none; padding: 10px 12px; border-radius: var(--r); font-weight: 500; }
+  .side a.on { background: rgb(255 255 255 / 12%); color: #fff; }
+  .main { padding: 28px 32px; display: flex; flex-direction: column; gap: 20px; }
+  .main-h { display: flex; justify-content: space-between; align-items: end; }
+  .main-h h2 { font-weight: 700; font-size: 28px; line-height: 1.1; }
+  .main-h p { color: var(--ink-2); margin-top: 6px; }
+  .tasks { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 18px; display: flex; gap: 16px; align-items: center; }
+  .tasks b { display: block; }
+  .tasks span { color: var(--ink-2); font-size: 14px; }
+  .tasks .btn { margin-left: auto; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; }
+  .kpi span { font-size: 13.5px; color: var(--ink-2); }
+  .kpi b { display: block; font-weight: 800; font-size: 52px; line-height: 1; margin-top: 6px; }
+  .kpi em { font-style: normal; font-size: 13px; color: var(--seal); font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; }
+  .panel h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 600; color: var(--ink-2); font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  td { padding: 11px 0; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: 0; }
+  td.when b { font-weight: 800; font-size: 18px; }
+  .pill { font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 99px; background: var(--seal-soft); color: var(--seal); }
+  .pill.warn { background: #f6ecd6; color: #7a5612; }
+  .spark { display: flex; align-items: end; gap: 6px; height: 120px; margin-top: 8px; }
+  .spark i { flex: 1; background: #c8d3e6; border-radius: 3px 3px 0 0; height: var(--h); }
+  .spark i.on { background: var(--seal); }
+  .axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-2); margin-top: 6px; }
+  .why { max-width: 1240px; margin: 40px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; color: var(--ink-2); font-size: 14.5px; }
+  .why b { color: var(--ink); display: block; font-size: 17px; margin-bottom: 4px; }
+  @media (max-width: 800px) { .why { grid-template-columns: 1fr; } .app { grid-template-columns: 1fr; } .side { display: none; } .kpis, .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="intro">
+  <div>
+    <h1 class="x">C · Selo</h1>
+    <p>O certificado é um documento de valor e o app se veste como tal: azul-noite com padrão guilhochê, selo dourado e verde de autenticação. Sóbria e institucional, mas com uma peça marcante.</p>
+  </div>
+  <div class="swatches" aria-label="Paleta">
+    <span style="background:#13284f"></span><span style="background:#0b6e57"></span><span style="background:#b3842a"></span><span style="background:#def2ec"></span><span style="background:#f4f6f8"></span>
+  </div>
+</header>
+
+<div class="stage">
+  <section class="phone" aria-label="Início do participante, celular">
+    <div class="head guilloche"><small>Quinta, 13 de novembro</small><h2 class="x">Sua agenda e seus certificados</h2></div>
+    <div class="phone-body">
+      <div class="label">Próximo evento</div>
+      <article class="agenda">
+        <div class="t"><b class="c">19:00</b><small>amanhã</small></div>
+        <div class="info"><span>Inscrição confirmada</span><h3>Kafka na prática: mensageria para microsserviços</h3><p>Auditório 2 · Presencial</p></div>
+      </article>
+      <div class="act"><button class="btn btn-primary">Confirmar presença</button><p>Disponível das 18h50 às 21h10</p></div>
+
+      <div class="label">Último certificado <a href="#">Ver todos</a></div>
+      <article class="cert guilloche">
+        <div class="top"><div><small>Certificado de participação</small><h4 class="x">Semana de Tecnologia 2026</h4></div><span class="seal"><i>12h</i></span></div>
+        <div class="bottom"><span class="code">Código de validação<b>MTL-7Q4K-29XA</b></span><button class="btn">Baixar PDF</button></div>
+      </article>
+    </div>
+    <nav class="tabbar"><a class="on" href="#">Início</a><a href="#">Eventos</a><a href="#">Certificados</a><a href="#">Perfil</a></nav>
+  </section>
+
+  <section class="desk" aria-label="Painel administrativo, desktop">
+    <div class="chrome"><i></i><i></i><i></i></div>
+    <div class="app">
+      <aside class="side guilloche">
+        <div class="brand x">Muttley</div>
+        <a class="on" href="#">Início</a><a href="#">Eventos</a><a href="#">Pessoas</a><a href="#">Certificados</a><a href="#">Cadastros</a>
+      </aside>
+      <div class="main">
+        <div class="main-h">
+          <div><h2 class="x">Painel da coordenação</h2><p>Semana de 10 a 16 de novembro</p></div>
+          <button class="btn btn-primary">Criar evento</button>
+        </div>
+        <div class="tasks"><span class="seal" style="width:36px;height:36px" aria-hidden="true"></span>
+          <div><b>1 evento aguarda conclusão</b><span>Workshop de UX Research terminou ontem. 38 certificados prontos para emitir.</span></div>
+          <button class="btn btn-line">Concluir evento</button>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><span>Eventos ativos</span><b class="c">12</b></div>
+          <div class="kpi"><span>Nesta semana</span><b class="c">4</b></div>
+          <div class="kpi"><span>Certificados em 30 dias</span><b class="c">286</b><em>+18% em relação aos 30 dias anteriores</em></div>
+        </div>
+        <div class="grid2">
+          <div class="panel">
+            <h3>Próximos eventos</h3>
+            <table>
+              <thead><tr><th>Quando</th><th>Evento</th><th>Inscritos</th><th>Situação</th></tr></thead>
+              <tbody>
+                <tr><td class="when"><b class="c">13/11</b> 19h</td><td>Kafka na prática</td><td>112</td><td><span class="pill">Aberto</span></td></tr>
+                <tr><td class="when"><b class="c">14/11</b> 14h</td><td>Carreira em dados</td><td>64</td><td><span class="pill">Aberto</span></td></tr>
+                <tr><td class="when"><b class="c">16/11</b> 9h</td><td>Hackathon Fatec</td><td>90</td><td><span class="pill warn">Lotando</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <h3>Certificados por evento</h3>
+            <div class="spark">
+              <i class="on" style="--h:92%"></i><i style="--h:38%"></i><i style="--h:33%"></i><i style="--h:23%"></i><i style="--h:18%"></i>
+            </div>
+            <div class="axis"><span>Sem. Tec.</span><span>Docker</span><span>IA</span><span>Git</span><span>UX</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="why">
+  <div><b>O que muda</b>Visual de instituição séria, com um elemento de assinatura: o guilhochê e o selo, tirados do universo de diplomas.</div>
+  <div><b>Ponto forte</b>Transmite confiança no que mais importa no sistema, que é o certificado ser válido. O admin fica denso e eficiente, bom para tabelas.</div>
+  <div><b>Cuidado</b>É a menos ousada das três. Se o que falta hoje é energia, esta pode não resolver.</div>
+</section>
+</body>
+</html>
