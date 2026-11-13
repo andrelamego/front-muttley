@@ -43,7 +43,7 @@ export const ParticipantLayout: React.FC = () => {
             >
               <Logo className="h-7 w-auto" />
             </Link>
-            <span className="hidden sm:inline-block font-mono text-xs uppercase px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] border border-[var(--color-border)]/60">
+            <span className="hidden sm:inline-block tabular-nums text-xs uppercase px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] border border-[var(--color-border)]/60">
               Meu Painel
             </span>
           </div>

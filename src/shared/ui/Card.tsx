@@ -46,7 +46,7 @@ export const CardTitle: React.FC<
   const Tag = as
   return (
     <Tag
-      className={`text-lg font-semibold text-[var(--color-text-primary)] tracking-tight font-serif ${className}`}
+      className={`text-lg font-semibold text-[var(--color-text-primary)] tracking-tight font-display ${className}`}
       {...props}
     >
       {children}

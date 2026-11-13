@@ -247,7 +247,7 @@ export const PublicLayout: React.FC = () => {
 
             {/* Coluna Navegação */}
             <div className="md:col-span-3 flex flex-col gap-2">
-              <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-primary)] font-semibold">
+              <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-primary)] font-semibold">
                 Navegação
               </span>
               <Link
@@ -272,7 +272,7 @@ export const PublicLayout: React.FC = () => {
 
             {/* Coluna Validação de Certificados */}
             <div className="md:col-span-3 flex flex-col gap-2">
-              <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-primary)] font-semibold">
+              <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-primary)] font-semibold">
                 Validação Pública
               </span>
               <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
@@ -293,7 +293,7 @@ export const PublicLayout: React.FC = () => {
               &copy; {new Date().getFullYear()} Plataforma Acadêmica Muttley.
               Todos os direitos reservados.
             </span>
-            <span className="font-mono uppercase tracking-wider">
+            <span className="tabular-nums uppercase tracking-wider">
               Rigor Acadêmico • Preservação Digital
             </span>
           </div>

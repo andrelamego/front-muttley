@@ -9,10 +9,10 @@ export const AdminSectionHeader: React.FC<{
 }> = ({ eyebrow, title, description, onRefresh }) => (
   <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 pb-6 border-b border-[var(--color-border)]">
     <div>
-      <p className="font-mono text-xs uppercase tracking-wider text-[var(--color-primary-text)] font-semibold">
+      <p className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-primary-text)] font-semibold">
         {eyebrow}
       </p>
-      <h1 className="font-serif text-3xl sm:text-4xl text-[var(--color-text-primary)] mt-1">
+      <h1 className="font-display text-3xl sm:text-4xl text-[var(--color-text-primary)] mt-1">
         {title}
       </h1>
       <p className="text-sm text-[var(--color-text-secondary)] mt-2 max-w-2xl">
@@ -33,10 +33,10 @@ export const AdminMetric: React.FC<{
   detail: string
 }> = ({ label, value, detail }) => (
   <div className="surface-depth bg-[var(--color-bg-surface)] border border-[var(--color-border)] p-5">
-    <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-text-muted)]">
+    <p className="tabular-nums text-[11px] uppercase tracking-wider text-[var(--color-text-muted)]">
       {label}
     </p>
-    <p className="font-serif text-3xl text-[var(--color-text-primary)] mt-2">
+    <p className="font-display text-3xl text-[var(--color-text-primary)] mt-2">
       {value}
     </p>
     <p className="text-xs text-[var(--color-text-secondary)] mt-1">{detail}</p>

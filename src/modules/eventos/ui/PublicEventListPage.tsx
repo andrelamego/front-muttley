@@ -89,12 +89,12 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
       {/* Hero / Cabeçalho da página pública */}
       <div className="text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-[var(--color-border)]/60">
         <div>
-          <span className="font-mono text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
+          <span className="tabular-nums text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
             {participantView
               ? 'Área do participante • Eventos disponíveis'
               : 'Compêndio Acadêmico • Catálogo Geral'}
           </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)] tracking-tight mt-1">
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)] tracking-tight mt-1">
             {participantView ? 'Explorar eventos' : 'Programação Aberta'}
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-1">
@@ -183,7 +183,7 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
                   <CardContent className="flex flex-col gap-3">
                     <CardTitle
                       as="h2"
-                      className="text-xl text-[var(--color-text-primary)] font-serif"
+                      className="text-xl text-[var(--color-text-primary)] font-display"
                     >
                       {evt.tema}
                     </CardTitle>
@@ -194,7 +194,7 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
                       </p>
                     )}
 
-                    <div className="bg-[var(--color-bg-subtle)] rounded-none p-3 grid grid-cols-2 gap-2 text-xs text-[var(--color-text-secondary)] mt-2 font-mono">
+                    <div className="bg-[var(--color-bg-subtle)] rounded-none p-3 grid grid-cols-2 gap-2 text-xs text-[var(--color-text-secondary)] mt-2 tabular-nums">
                       <div>
                         <span className="block text-[var(--color-text-muted)] font-medium uppercase text-[10px]">
                           Data:

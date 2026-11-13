@@ -161,7 +161,7 @@ export const AdminCertificatesPage: React.FC = () => {
 
           {(data?.eventosAguardandoCertificado.length || 0) > 0 && (
             <section aria-labelledby="pending-title">
-              <h2 id="pending-title" className="font-serif text-xl mb-3">
+              <h2 id="pending-title" className="font-display text-xl mb-3">
                 Eventos aguardando certificados
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -188,7 +188,7 @@ export const AdminCertificatesPage: React.FC = () => {
 
           {(data?.ultimosCertificados.length || 0) > 0 && (
             <section aria-labelledby="recent-title">
-              <h2 id="recent-title" className="font-serif text-xl mb-3">
+              <h2 id="recent-title" className="font-display text-xl mb-3">
                 Últimos certificados emitidos
               </h2>
               <CertificateRows records={data?.ultimosCertificados || []} />
@@ -198,7 +198,7 @@ export const AdminCertificatesPage: React.FC = () => {
           <section aria-labelledby="archive-title" className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <h2 id="archive-title" className="font-serif text-xl">
+                <h2 id="archive-title" className="font-display text-xl">
                   Acervo completo
                 </h2>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1">

@@ -106,7 +106,7 @@ export const AdminPeoplePage: React.FC = () => {
           <section className="space-y-4" aria-labelledby="people-list-title">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
               <div>
-                <h2 id="people-list-title" className="font-serif text-xl">
+                <h2 id="people-list-title" className="font-display text-xl">
                   Diretório completo
                 </h2>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1">
@@ -165,7 +165,7 @@ export const AdminPeoplePage: React.FC = () => {
                             {person.telefone || 'Telefone não informado'}
                           </span>
                         </td>
-                        <td className="px-4 py-3 font-mono text-xs">
+                        <td className="px-4 py-3 tabular-nums text-xs">
                           {person.cpf || '—'}
                         </td>
                         <td className="px-4 py-3">

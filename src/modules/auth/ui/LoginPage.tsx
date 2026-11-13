@@ -82,7 +82,7 @@ export const LoginPage: React.FC = () => {
           <div className="inline-flex items-center p-1 mb-2">
             <Logo className="h-9 w-auto" />
           </div>
-          <h1 className="font-serif text-2xl font-bold text-[var(--color-text-primary)] tracking-tight">
+          <h1 className="font-display text-2xl font-bold text-[var(--color-text-primary)] tracking-tight">
             Acesso à Plataforma
           </h1>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">

@@ -461,7 +461,7 @@ export const AdminEventConcludePage: React.FC = () => {
                                 {part.pessoa?.email || '-'}
                               </div>
                             </td>
-                            <td className="py-3 px-4 font-mono text-xs text-[var(--color-text-secondary)]">
+                            <td className="py-3 px-4 tabular-nums text-xs text-[var(--color-text-secondary)]">
                               #{part.inscricao}
                             </td>
                             <td className="py-3 px-4 text-xs text-[var(--color-text-secondary)]">

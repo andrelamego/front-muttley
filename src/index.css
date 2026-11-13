@@ -21,9 +21,8 @@
   --color-line-subtle: var(--color-border-subtle);
   --color-line-strong: var(--color-border-strong);
 
-  --font-serif: var(--font-serif);
+  --font-display: var(--font-display);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
 }
 
 body {
@@ -41,12 +40,13 @@ body {
 h1,
 h2,
 h3,
-.font-serif-editorial {
-  font-family: var(--font-serif);
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 85;
 }
 
 .font-mono-tabular {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
 }
 
@@ -61,7 +61,6 @@ h3,
 
 .surface-depth-interactive:hover {
   box-shadow: var(--shadow-card-hover);
-  transform: translate(-1px, -1px);
 }
 
 .skeleton-shape {
@@ -137,10 +136,6 @@ h3,
   .surface-depth-interactive,
   body {
     transition-duration: 0.01ms !important;
-  }
-
-  .surface-depth-interactive:hover {
-    transform: none;
   }
 
   .skeleton-shape::after {

@@ -171,7 +171,7 @@ export const AdminCatalogsPage: React.FC = () => {
                   className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${active === tab.key ? 'border-[var(--color-primary)] text-[var(--color-primary-text)] bg-[var(--color-bg-subtle)]' : 'border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'}`}
                 >
                   {tab.label}{' '}
-                  <span className="font-mono text-xs ml-1">
+                  <span className="tabular-nums text-xs ml-1">
                     {data?.[tab.key].length || 0}
                   </span>
                 </button>
@@ -179,7 +179,7 @@ export const AdminCatalogsPage: React.FC = () => {
             </div>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <h2 id="catalog-list-title" className="font-serif text-xl">
+                <h2 id="catalog-list-title" className="font-display text-xl">
                   {tabs.find((tab) => tab.key === active)?.label}
                 </h2>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1">
@@ -211,10 +211,10 @@ export const AdminCatalogsPage: React.FC = () => {
                       key={record.id}
                       className="surface-depth bg-[var(--color-bg-surface)] border border-[var(--color-border)] p-5"
                     >
-                      <p className="font-mono text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
+                      <p className="tabular-nums text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
                         Registro #{record.id}
                       </p>
-                      <h3 className="font-serif text-lg mt-2 text-[var(--color-text-primary)]">
+                      <h3 className="font-display text-lg mt-2 text-[var(--color-text-primary)]">
                         {presentation.title}
                       </h3>
                       <p className="text-xs font-semibold text-[var(--color-primary-text)] mt-2">

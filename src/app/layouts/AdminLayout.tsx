@@ -189,7 +189,7 @@ export const AdminLayout: React.FC = () => {
 
         {/* Links Principais de Navegação */}
         <div className="flex-1 px-4 py-6 overflow-y-auto space-y-1.5">
-          <div className="px-3 pb-2 font-mono text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+          <div className="px-3 pb-2 tabular-nums text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
             Módulos Principais
           </div>
 
@@ -213,7 +213,7 @@ export const AdminLayout: React.FC = () => {
             <hr className="border-[var(--color-border)]/60" />
           </div>
 
-          <div className="px-3 pb-2 font-mono text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+          <div className="px-3 pb-2 tabular-nums text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
             Visão Externa
           </div>
 
@@ -235,7 +235,7 @@ export const AdminLayout: React.FC = () => {
         {/* Rodapé da Sidebar: Usuário e Sair */}
         <div className="p-4 border-t border-[var(--color-border)] bg-[var(--color-bg-muted)]/50 shrink-0">
           <div className="flex items-center gap-3 mb-3 px-1">
-            <div className="w-9 h-9 rounded-full bg-[var(--color-primary-subtle)] text-[var(--color-primary-text)] font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-[var(--color-border)]">
+            <div className="w-9 h-9 rounded-full bg-[var(--color-primary-subtle)] text-[var(--color-primary-text)] tabular-nums text-xs font-bold flex items-center justify-center shrink-0 border border-[var(--color-border)]">
               {getInitials(user?.nome)}
             </div>
             <div className="min-w-0 flex-1">

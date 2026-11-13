@@ -139,20 +139,20 @@ export const LandingPage: React.FC = () => {
     const modUpper = (modalidade || '').toUpperCase()
     if (modUpper.includes('ONLINE')) {
       return (
-        <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
+        <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
           Online
         </span>
       )
     }
     if (modUpper.includes('HIBRID') || modUpper.includes('HÍBRID')) {
       return (
-        <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-primary-subtle)] text-[var(--color-warning-text)] font-medium">
+        <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-primary-subtle)] text-[var(--color-warning-text)] font-medium">
           Híbrido
         </span>
       )
     }
     return (
-      <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium">
+      <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium">
         Presencial
       </span>
     )
@@ -209,17 +209,17 @@ export const LandingPage: React.FC = () => {
                     className="w-2 h-2 rounded-full bg-[var(--color-primary)]"
                     aria-hidden="true"
                   />
-                  <span className="font-mono text-xs text-[var(--color-text-secondary)] uppercase tracking-wider font-medium">
+                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] uppercase tracking-wider font-medium">
                     Compêndio Acadêmico Nacional • Gestão &amp; Certificação
                   </span>
                 </div>
 
                 <h1
                   id="hero-title"
-                  className="font-serif text-4xl sm:text-5xl lg:text-[3.5rem] lg:leading-[4rem] text-[var(--color-text-primary)] tracking-tight text-balance mb-6"
+                  className="font-display text-4xl sm:text-5xl lg:text-[3.5rem] lg:leading-[4rem] text-[var(--color-text-primary)] tracking-tight text-balance mb-6"
                 >
                   Encontre seu próximo encontro com o{' '}
-                  <span className="italic font-serif text-[var(--color-primary-text)]">
+                  <span className="italic font-display text-[var(--color-primary-text)]">
                     conhecimento
                   </span>
                   .
@@ -258,10 +258,10 @@ export const LandingPage: React.FC = () => {
               {/* Faixa de Capacidades Reais */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 pt-6 bg-[var(--color-bg-subtle)] p-6 rounded-none border border-[var(--color-border)]/50">
                 <div>
-                  <span className="font-mono text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
+                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
                     Inscrição
                   </span>
-                  <span className="font-serif text-xl font-bold text-[var(--color-primary-text)] mt-1 block">
+                  <span className="font-display text-xl font-bold text-[var(--color-primary-text)] mt-1 block">
                     Garantida
                   </span>
                   <span className="text-xs text-[var(--color-text-secondary)]">
@@ -269,10 +269,10 @@ export const LandingPage: React.FC = () => {
                   </span>
                 </div>
                 <div>
-                  <span className="font-mono text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
+                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
                     Presença
                   </span>
-                  <span className="font-serif text-xl font-bold text-[var(--color-primary-text)] mt-1 block">
+                  <span className="font-display text-xl font-bold text-[var(--color-primary-text)] mt-1 block">
                     Janela [-10m / +10m]
                   </span>
                   <span className="text-xs text-[var(--color-text-secondary)]">
@@ -280,10 +280,10 @@ export const LandingPage: React.FC = () => {
                   </span>
                 </div>
                 <div>
-                  <span className="font-mono text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
+                  <span className="tabular-nums text-xs text-[var(--color-text-secondary)] block uppercase tracking-wider">
                     Certificação
                   </span>
-                  <span className="font-serif text-xl font-bold text-[var(--color-primary-text)] mt-1 block">
+                  <span className="font-display text-xl font-bold text-[var(--color-primary-text)] mt-1 block">
                     Código Único
                   </span>
                   <span className="text-xs text-[var(--color-text-secondary)]">
@@ -310,10 +310,10 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <div className="relative z-10">
-                  <span className="font-mono text-xs uppercase tracking-widest text-[var(--color-primary-subtle)] block mb-2 font-medium">
+                  <span className="tabular-nums text-xs uppercase tracking-widest text-[var(--color-primary-subtle)] block mb-2 font-medium">
                     Ata Científica Geral
                   </span>
-                  <p className="font-serif text-xl sm:text-2xl italic leading-snug mb-3">
+                  <p className="font-display text-xl sm:text-2xl italic leading-snug mb-3">
                     &ldquo;A difusão do saber preserva a memória do progresso
                     humano.&rdquo;
                   </p>
@@ -334,7 +334,7 @@ export const LandingPage: React.FC = () => {
                     Protocolo Público de Conferência
                   </span>
                 </div>
-                <span className="font-mono text-xs text-[var(--color-text-secondary)] font-semibold">
+                <span className="tabular-nums text-xs text-[var(--color-text-secondary)] font-semibold">
                   v4.2.1-SEC
                 </span>
               </div>
@@ -352,13 +352,13 @@ export const LandingPage: React.FC = () => {
             <div>
               <div className="inline-flex items-center gap-1.5 text-[var(--color-primary-text)] mb-1">
                 <CalendarIcon size={16} />
-                <span className="font-mono text-xs uppercase tracking-wider font-semibold">
+                <span className="tabular-nums text-xs uppercase tracking-wider font-semibold">
                   Calendário Acadêmico
                 </span>
               </div>
               <h2
                 id="events-heading"
-                className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[var(--color-text-primary)] tracking-tight"
+                className="font-display text-2xl sm:text-3xl lg:text-4xl text-[var(--color-text-primary)] tracking-tight"
               >
                 Próximos Encontros Científicos
               </h2>
@@ -367,7 +367,7 @@ export const LandingPage: React.FC = () => {
             {/* Controles Manuais Acessíveis */}
             {eventos.length > 1 && (
               <div className="flex items-center gap-3">
-                <span className="font-mono text-xs text-[var(--color-text-secondary)]">
+                <span className="tabular-nums text-xs text-[var(--color-text-secondary)]">
                   Evento {carouselIndex + 1} de {eventos.length}
                 </span>
                 <div className="flex items-center gap-1.5">
@@ -451,10 +451,10 @@ export const LandingPage: React.FC = () => {
                           {/* Topo: Dia, Mês e Modalidade */}
                           <div className="flex items-start justify-between gap-2 mb-4">
                             <div className="flex flex-col">
-                              <span className="font-serif text-3xl font-bold text-[var(--color-primary-text)] leading-none">
+                              <span className="font-display text-3xl font-bold text-[var(--color-primary-text)] leading-none">
                                 {day}
                               </span>
-                              <span className="font-mono text-xs uppercase text-[var(--color-text-secondary)] mt-1 font-semibold">
+                              <span className="tabular-nums text-xs uppercase text-[var(--color-text-secondary)] mt-1 font-semibold">
                                 {monthYear}
                               </span>
                             </div>
@@ -462,7 +462,7 @@ export const LandingPage: React.FC = () => {
                           </div>
 
                           {/* Título e Descrição */}
-                          <h3 className="font-serif text-xl font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-text)] transition-colors mb-2 line-clamp-2">
+                          <h3 className="font-display text-xl font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-text)] transition-colors mb-2 line-clamp-2">
                             {evento.tema}
                           </h3>
                           <p className="text-xs text-[var(--color-text-secondary)] line-clamp-3 mb-6 leading-relaxed">
@@ -473,7 +473,7 @@ export const LandingPage: React.FC = () => {
 
                         {/* Metadados e Ação */}
                         <div className="pt-4 mt-2 bg-[var(--color-bg-subtle)] -mx-6 -mb-6 p-6 rounded-none border-t border-[var(--color-bg-muted)]">
-                          <div className="grid grid-cols-2 gap-2 text-[var(--color-text-primary)] mb-4 font-mono text-xs">
+                          <div className="grid grid-cols-2 gap-2 text-[var(--color-text-primary)] mb-4 tabular-nums text-xs">
                             <div>
                               <span className="text-[var(--color-text-muted)] block uppercase">
                                 Horário
@@ -522,7 +522,7 @@ export const LandingPage: React.FC = () => {
                 size={40}
                 className="mx-auto text-[var(--color-text-muted)] mb-3"
               />
-              <h3 className="font-serif text-xl font-bold text-[var(--color-text-primary)] mb-2">
+              <h3 className="font-display text-xl font-bold text-[var(--color-text-primary)] mb-2">
                 Nenhum evento programado no momento
               </h3>
               <p className="text-sm text-[var(--color-text-secondary)] max-w-md mx-auto mb-6">
@@ -558,12 +558,12 @@ export const LandingPage: React.FC = () => {
           <div className="max-w-[76rem] mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
               <div>
-                <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-primary-text)] font-semibold block mb-1">
+                <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-primary-text)] font-semibold block mb-1">
                   Rastreabilidade Ponta a Ponta
                 </span>
                 <h2
                   id="flow-heading"
-                  className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[var(--color-text-primary)]"
+                  className="font-display text-2xl sm:text-3xl lg:text-4xl text-[var(--color-text-primary)]"
                 >
                   Como funciona o ciclo acadêmico
                 </h2>
@@ -579,7 +579,7 @@ export const LandingPage: React.FC = () => {
               <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-2xl font-bold text-[var(--color-primary-text)]">
+                    <span className="tabular-nums text-2xl font-bold text-[var(--color-primary-text)]">
                       01
                     </span>
                     <SearchIcon
@@ -587,7 +587,7 @@ export const LandingPage: React.FC = () => {
                       className="text-[var(--color-text-muted)]"
                     />
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-[var(--color-text-primary)] mb-2">
+                  <h3 className="font-display text-lg font-bold text-[var(--color-text-primary)] mb-2">
                     Encontrar evento
                   </h3>
                   <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
@@ -596,7 +596,7 @@ export const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="mt-6 pt-3 border-t border-[var(--color-bg-muted)]">
-                  <span className="font-mono text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
+                  <span className="tabular-nums text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
                     Filtros Temáticos
                   </span>
                 </div>
@@ -606,7 +606,7 @@ export const LandingPage: React.FC = () => {
               <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-2xl font-bold text-[var(--color-primary-text)]">
+                    <span className="tabular-nums text-2xl font-bold text-[var(--color-primary-text)]">
                       02
                     </span>
                     <UsersIcon
@@ -614,7 +614,7 @@ export const LandingPage: React.FC = () => {
                       className="text-[var(--color-text-muted)]"
                     />
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-[var(--color-text-primary)] mb-2">
+                  <h3 className="font-display text-lg font-bold text-[var(--color-text-primary)] mb-2">
                     Inscrever-se
                   </h3>
                   <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
@@ -623,7 +623,7 @@ export const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="mt-6 pt-3 border-t border-[var(--color-bg-muted)]">
-                  <span className="font-mono text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
+                  <span className="tabular-nums text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
                     Garantia de Vaga
                   </span>
                 </div>
@@ -633,7 +633,7 @@ export const LandingPage: React.FC = () => {
               <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-2xl font-bold text-[var(--color-primary-text)]">
+                    <span className="tabular-nums text-2xl font-bold text-[var(--color-primary-text)]">
                       03
                     </span>
                     <CheckCircleIcon
@@ -641,7 +641,7 @@ export const LandingPage: React.FC = () => {
                       className="text-[var(--color-text-muted)]"
                     />
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-[var(--color-text-primary)] mb-2">
+                  <h3 className="font-display text-lg font-bold text-[var(--color-text-primary)] mb-2">
                     Confirmar presença
                   </h3>
                   <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
@@ -651,7 +651,7 @@ export const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="mt-6 pt-3 border-t border-[var(--color-bg-muted)]">
-                  <span className="font-mono text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
+                  <span className="tabular-nums text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
                     Janela [-10m / +10m]
                   </span>
                 </div>
@@ -661,7 +661,7 @@ export const LandingPage: React.FC = () => {
               <div className="surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] p-6 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col justify-between group hover:shadow-md transition-shadow">
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-2xl font-bold text-[var(--color-primary-text)]">
+                    <span className="tabular-nums text-2xl font-bold text-[var(--color-primary-text)]">
                       04
                     </span>
                     <AwardIcon
@@ -669,7 +669,7 @@ export const LandingPage: React.FC = () => {
                       className="text-[var(--color-text-muted)]"
                     />
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-[var(--color-text-primary)] mb-2">
+                  <h3 className="font-display text-lg font-bold text-[var(--color-text-primary)] mb-2">
                     Acessar certificado
                   </h3>
                   <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
@@ -678,7 +678,7 @@ export const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 <div className="mt-6 pt-3 border-t border-[var(--color-bg-muted)]">
-                  <span className="font-mono text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
+                  <span className="tabular-nums text-[11px] text-[var(--color-text-muted)] uppercase tracking-wider block">
                     Código de Autenticidade
                   </span>
                 </div>
@@ -695,12 +695,12 @@ export const LandingPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Benefícios à Esquerda (6 colunas) */}
             <div className="lg:col-span-6 flex flex-col">
-              <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-primary-text)] font-semibold mb-2">
+              <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-primary-text)] font-semibold mb-2">
                 Para Comissões Organizadoras &amp; Docentes
               </span>
               <h2
                 id="organizers-heading"
-                className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[var(--color-text-primary)] tracking-tight mb-4"
+                className="font-display text-2xl sm:text-3xl lg:text-4xl text-[var(--color-text-primary)] tracking-tight mb-4"
               >
                 Recursos integrados para gestão de eventos acadêmicos
               </h2>
@@ -776,21 +776,21 @@ export const LandingPage: React.FC = () => {
                       className="w-2 h-2 rounded-full bg-[var(--color-primary)]"
                       aria-hidden="true"
                     />
-                    <span className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-text-secondary)] font-semibold">
+                    <span className="tabular-nums text-[11px] uppercase tracking-wider text-[var(--color-text-secondary)] font-semibold">
                       Exemplo Ilustrativo de Certificado
                     </span>
                   </div>
-                  <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-semibold">
+                  <span className="tabular-nums text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-semibold">
                     Válido
                   </span>
                 </div>
 
                 {/* Corpo do Certificado */}
                 <div className="py-6">
-                  <span className="font-mono text-xs uppercase text-[var(--color-text-muted)] tracking-widest block mb-2">
+                  <span className="tabular-nums text-xs uppercase text-[var(--color-text-muted)] tracking-widest block mb-2">
                     Certificamos que
                   </span>
-                  <h3 className="font-serif text-2xl text-[var(--color-text-primary)] font-bold mb-3">
+                  <h3 className="font-display text-2xl text-[var(--color-text-primary)] font-bold mb-3">
                     Mariana Cavalcanti de Albuquerque
                   </h3>
                   <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
@@ -805,14 +805,14 @@ export const LandingPage: React.FC = () => {
                 {/* Rodapé com Código de Autenticidade */}
                 <div className="p-4 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <span className="font-mono text-[10px] uppercase text-[var(--color-text-muted)] block">
+                    <span className="tabular-nums text-[10px] uppercase text-[var(--color-text-muted)] block">
                       Código de validação
                     </span>
-                    <span className="font-mono text-xs font-bold text-[var(--color-text-primary)]">
+                    <span className="tabular-nums text-xs font-bold text-[var(--color-text-primary)]">
                       MTT-8921-BR-2026
                     </span>
                   </div>
-                  <span className="font-mono text-[11px] text-[var(--color-text-secondary)]">
+                  <span className="tabular-nums text-[11px] text-[var(--color-text-secondary)]">
                     Via oficial • FATEC
                   </span>
                 </div>
@@ -830,7 +830,7 @@ export const LandingPage: React.FC = () => {
           <div className="max-w-2xl mx-auto text-center">
             <h2
               id="validate-heading"
-              className="font-serif text-2xl sm:text-3xl text-[var(--color-text-primary)] mb-2"
+              className="font-display text-2xl sm:text-3xl text-[var(--color-text-primary)] mb-2"
             >
               Validar autenticidade de certificado
             </h2>
@@ -851,7 +851,7 @@ export const LandingPage: React.FC = () => {
                   placeholder="Ex: MTT-8921-BR ou código hash"
                   aria-label="Código de validação do certificado"
                   required
-                  className="w-full min-h-[44px] px-4 py-2.5 rounded-none border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  className="w-full min-h-[44px] px-4 py-2.5 rounded-none border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] tabular-nums text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 />
               </div>
               <Button type="submit" variant="primary" size="md">

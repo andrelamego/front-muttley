@@ -127,32 +127,32 @@ export const AdminDashboardPage: React.FC = () => {
     switch (status) {
       case 'EM_ANDAMENTO':
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium inline-flex items-center gap-1">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium inline-flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-info-text)]" />
             Em Andamento
           </span>
         )
       case 'PROGRAMADO':
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
             Programado
           </span>
         )
       case 'FINALIZADO':
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
             Finalizado
           </span>
         )
       case 'CANCELADO':
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] font-medium">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] font-medium">
             Cancelado
           </span>
         )
       default:
         return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
+          <span className="tabular-nums text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
             {status}
           </span>
         )
@@ -164,10 +164,10 @@ export const AdminDashboardPage: React.FC = () => {
       {/* Barra de Título e Ações Principais do Administrador */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 pb-6 border-b border-[var(--color-border)]/60">
         <div>
-          <div className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold mb-1">
+          <div className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold mb-1">
             Sessão Acadêmica • Comissão de Extensão e Pesquisa
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl text-[var(--color-text-primary)] tracking-tight">
+          <h1 className="font-display text-3xl sm:text-4xl text-[var(--color-text-primary)] tracking-tight">
             Painel de Gestão
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-1 max-w-2xl leading-relaxed">
@@ -238,7 +238,7 @@ export const AdminDashboardPage: React.FC = () => {
                     >
                       Eventos Aguardando Conclusão e Emissão
                     </h2>
-                    <span className="font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded-none bg-[var(--color-primary)] text-white">
+                    <span className="tabular-nums text-[10px] font-bold uppercase px-2 py-0.5 rounded-none bg-[var(--color-primary)] text-white">
                       Ação Necessária
                     </span>
                   </div>
@@ -280,7 +280,7 @@ export const AdminDashboardPage: React.FC = () => {
             <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
+                  <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
                     Ciclo Vigente
                   </span>
                   <span className="text-base font-bold text-[var(--color-text-primary)] mt-1 block">
@@ -293,7 +293,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
               <div className="mt-6 flex items-baseline justify-between">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl sm:text-5xl text-[var(--color-primary-text)] font-bold leading-none">
+                  <span className="font-display text-4xl sm:text-5xl text-[var(--color-primary-text)] font-bold leading-none">
                     {data.eventosAtivos}
                   </span>
                   <span className="text-xs text-[var(--color-text-secondary)]">
@@ -315,7 +315,7 @@ export const AdminDashboardPage: React.FC = () => {
             <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
+                  <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
                     Projeção Imediata
                   </span>
                   <span className="text-base font-bold text-[var(--color-text-primary)] mt-1 block">
@@ -328,7 +328,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
               <div className="mt-6 flex items-baseline justify-between">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl sm:text-5xl text-[var(--color-text-primary)] font-bold leading-none">
+                  <span className="font-display text-4xl sm:text-5xl text-[var(--color-text-primary)] font-bold leading-none">
                     {data.eventosAtivosNaSemana}
                   </span>
                   <span className="text-xs text-[var(--color-text-secondary)]">
@@ -350,7 +350,7 @@ export const AdminDashboardPage: React.FC = () => {
             <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
+                  <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
                     Autenticação Pública
                   </span>
                   <span className="text-base font-bold text-[var(--color-text-primary)] mt-1 block truncate">
@@ -363,7 +363,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
               <div className="mt-6 flex items-baseline justify-between flex-wrap gap-2">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl sm:text-5xl text-[var(--color-success-text)] font-bold leading-none">
+                  <span className="font-display text-4xl sm:text-5xl text-[var(--color-success-text)] font-bold leading-none">
                     {data.certificadosUltimos30Dias.toLocaleString('pt-BR')}
                   </span>
                   <span className="text-xs text-[var(--color-text-secondary)]">
@@ -371,7 +371,7 @@ export const AdminDashboardPage: React.FC = () => {
                   </span>
                 </div>
                 {data.variacaoCertificadosUltimos30Dias !== 0 && (
-                  <span className="font-mono text-xs text-[var(--color-success-text)] font-semibold flex items-center gap-1">
+                  <span className="tabular-nums text-xs text-[var(--color-success-text)] font-semibold flex items-center gap-1">
                     {data.variacaoCertificadosUltimos30Dias > 0 ? '+' : ''}
                     {data.variacaoCertificadosUltimos30Dias}%
                   </span>
@@ -393,12 +393,12 @@ export const AdminDashboardPage: React.FC = () => {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-[var(--color-bg-muted)] gap-3">
               <div>
-                <span className="font-mono text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-semibold block mb-0.5">
+                <span className="tabular-nums text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-semibold block mb-0.5">
                   Fluxo Presencial e Digital
                 </span>
                 <h2
                   id="agenda-heading"
-                  className="font-serif text-2xl text-[var(--color-text-primary)] font-bold"
+                  className="font-display text-2xl text-[var(--color-text-primary)] font-bold"
                 >
                   Agenda dos Próximos Eventos
                 </h2>
@@ -437,11 +437,11 @@ export const AdminDashboardPage: React.FC = () => {
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2 mb-3">
-                          <span className="font-mono text-xs uppercase tracking-wider font-semibold text-[var(--color-text-secondary)]">
+                          <span className="tabular-nums text-xs uppercase tracking-wider font-semibold text-[var(--color-text-secondary)]">
                             {day} {monthYear}
                           </span>
                           {janelaAberta ? (
-                            <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-bold flex items-center gap-1">
+                            <span className="tabular-nums text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-bold flex items-center gap-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success-text)] animate-pulse" />
                               Janela Aberta
                             </span>
@@ -450,7 +450,7 @@ export const AdminDashboardPage: React.FC = () => {
                           )}
                         </div>
 
-                        <h3 className="font-serif text-lg font-bold text-[var(--color-text-primary)] mb-2 line-clamp-2">
+                        <h3 className="font-display text-lg font-bold text-[var(--color-text-primary)] mb-2 line-clamp-2">
                           {evento.tema}
                         </h3>
 
@@ -465,7 +465,7 @@ export const AdminDashboardPage: React.FC = () => {
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[10px] uppercase text-[var(--color-text-muted)]">
+                            <span className="tabular-nums text-[10px] uppercase text-[var(--color-text-muted)]">
                               Local:
                             </span>
                             <span className="truncate">
@@ -478,7 +478,7 @@ export const AdminDashboardPage: React.FC = () => {
                       </div>
 
                       <div className="pt-3 border-t border-[var(--color-border)]/60 flex items-center justify-between">
-                        <span className="font-mono text-[11px] text-[var(--color-text-secondary)] uppercase font-medium">
+                        <span className="tabular-nums text-[11px] text-[var(--color-text-secondary)] uppercase font-medium">
                           {evento.modalidade}
                         </span>
                         <Link
@@ -503,12 +503,12 @@ export const AdminDashboardPage: React.FC = () => {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[var(--color-bg-muted)] gap-4">
               <div>
-                <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block mb-0.5">
+                <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block mb-0.5">
                   Registro Geral
                 </span>
                 <h2
                   id="catalog-heading"
-                  className="font-serif text-2xl text-[var(--color-text-primary)] font-bold"
+                  className="font-display text-2xl text-[var(--color-text-primary)] font-bold"
                 >
                   Eventos Cadastrados no Sistema
                 </h2>
@@ -525,7 +525,7 @@ export const AdminDashboardPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-[var(--color-border)] text-[11px] font-mono uppercase tracking-wider text-[var(--color-text-muted)]">
+                  <tr className="border-b border-[var(--color-border)] text-[11px] tabular-nums uppercase tracking-wider text-[var(--color-text-muted)]">
                     <th scope="col" className="pb-3 pr-4 font-semibold">
                       Tema do Evento
                     </th>
@@ -570,14 +570,14 @@ export const AdminDashboardPage: React.FC = () => {
                             {evento.local || evento.disciplina || 'Campus'}
                           </span>
                         </td>
-                        <td className="py-4 px-4 font-mono text-xs text-[var(--color-text-secondary)] whitespace-nowrap">
+                        <td className="py-4 px-4 tabular-nums text-xs text-[var(--color-text-secondary)] whitespace-nowrap">
                           <div>{evento.data}</div>
                           <div className="text-[11px] text-[var(--color-text-muted)]">
                             {evento.horarioInicio} - {evento.horarioFim}
                           </div>
                         </td>
                         <td className="py-4 px-4 whitespace-nowrap">
-                          <span className="font-mono text-xs uppercase text-[var(--color-text-secondary)]">
+                          <span className="tabular-nums text-xs uppercase text-[var(--color-text-secondary)]">
                             {evento.modalidade}
                           </span>
                         </td>

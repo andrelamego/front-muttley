@@ -232,12 +232,12 @@ export const ParticipantDashboardPage: React.FC = () => {
         className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[var(--color-border)]/60"
       >
         <div>
-          <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block mb-1">
+          <span className="tabular-nums text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block mb-1">
             Painel do Participante • Ciclo Acadêmico
           </span>
           <h1
             id="greeting-heading"
-            className="font-serif text-3xl sm:text-4xl text-[var(--color-text-primary)] tracking-tight"
+            className="font-display text-3xl sm:text-4xl text-[var(--color-text-primary)] tracking-tight"
           >
             Olá, {user?.nome || 'Participante'}!
           </h1>
@@ -316,7 +316,7 @@ export const ParticipantDashboardPage: React.FC = () => {
             <section aria-labelledby="featured-event-heading">
               <h2
                 id="featured-event-heading"
-                className="font-serif text-xl sm:text-2xl text-[var(--color-text-primary)] font-bold mb-4"
+                className="font-display text-xl sm:text-2xl text-[var(--color-text-primary)] font-bold mb-4"
               >
                 Próximo Evento
               </h2>
@@ -326,24 +326,24 @@ export const ParticipantDashboardPage: React.FC = () => {
                   {/* Faixa Superior de Metadados do Evento */}
                   <div className="px-6 py-3 bg-[var(--color-bg-subtle)] border-b border-[var(--color-bg-muted)] flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs uppercase tracking-wider font-semibold text-[var(--color-primary-text)]">
+                      <span className="tabular-nums text-xs uppercase tracking-wider font-semibold text-[var(--color-primary-text)]">
                         {eventoDestaque.data}
                       </span>
                       <span className="text-[var(--color-text-muted)]">•</span>
-                      <span className="font-mono text-xs text-[var(--color-text-secondary)]">
+                      <span className="tabular-nums text-xs text-[var(--color-text-secondary)]">
                         {eventoDestaque.horarioInicio} às{' '}
                         {eventoDestaque.horarioFim}
                       </span>
                     </div>
 
-                    <span className="font-mono text-xs uppercase px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] border border-[var(--color-border)]/60">
+                    <span className="tabular-nums text-xs uppercase px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] border border-[var(--color-border)]/60">
                       {eventoDestaque.modalidade}
                     </span>
                   </div>
 
                   <div className="p-6 sm:p-8 flex flex-col gap-5">
                     <div>
-                      <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)] mb-2 leading-tight">
+                      <h3 className="font-display text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)] mb-2 leading-tight">
                         {eventoDestaque.tema}
                       </h3>
                       {eventoDestaque.descricao && (
@@ -366,7 +366,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                             'Campus FATEC Zona Leste'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 font-mono">
+                      <div className="flex items-center gap-2 tabular-nums">
                         <span className="text-[var(--color-text-muted)] uppercase">
                           Inscrição:
                         </span>
@@ -381,7 +381,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                       <div className="p-4 rounded-none bg-[var(--color-success-bg)]/40 border border-[var(--color-success-border)] flex flex-col gap-2">
                         <div className="flex items-center gap-2 text-[var(--color-success-text)]">
                           <CheckCircleIcon size={18} />
-                          <span className="font-mono text-xs font-bold uppercase tracking-wider">
+                          <span className="tabular-nums text-xs font-bold uppercase tracking-wider">
                             Disponível Agora
                           </span>
                         </div>
@@ -416,7 +416,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                             size={18}
                             className="text-[var(--color-text-muted)]"
                           />
-                          <span className="font-mono text-xs font-semibold uppercase tracking-wider">
+                          <span className="tabular-nums text-xs font-semibold uppercase tracking-wider">
                             Janela de Credenciamento
                           </span>
                         </div>
@@ -455,7 +455,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                   <div className="w-12 h-12 rounded-full bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)] flex items-center justify-center">
                     <CalendarIcon size={24} />
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-[var(--color-text-primary)]">
+                  <h3 className="font-display text-lg font-bold text-[var(--color-text-primary)]">
                     Nenhuma inscrição ativa
                   </h3>
                   <p className="text-xs text-[var(--color-text-secondary)] max-w-sm">
@@ -476,11 +476,11 @@ export const ParticipantDashboardPage: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <h2
                   id="other-events-heading"
-                  className="font-serif text-xl sm:text-2xl text-[var(--color-text-primary)] font-bold"
+                  className="font-display text-xl sm:text-2xl text-[var(--color-text-primary)] font-bold"
                 >
                   Próximos Compromissos
                 </h2>
-                <span className="font-mono text-xs text-[var(--color-text-secondary)] uppercase">
+                <span className="tabular-nums text-xs text-[var(--color-text-secondary)] uppercase">
                   {outrosCompromissos.length} agendado(s)
                 </span>
               </div>
@@ -501,14 +501,14 @@ export const ParticipantDashboardPage: React.FC = () => {
                       >
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-2 mb-1.5">
-                            <span className="font-mono text-[11px] font-semibold text-[var(--color-primary-text)] uppercase">
+                            <span className="tabular-nums text-[11px] font-semibold text-[var(--color-primary-text)] uppercase">
                               {ev.data} • {ev.horarioInicio}
                             </span>
-                            <span className="font-mono text-[10px] uppercase px-1.5 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)]">
+                            <span className="tabular-nums text-[10px] uppercase px-1.5 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)]">
                               {ev.modalidade}
                             </span>
                           </div>
-                          <h4 className="font-serif text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-text)] transition-colors truncate">
+                          <h4 className="font-display text-lg font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-text)] transition-colors truncate">
                             {ev.tema}
                           </h4>
                           <span className="text-xs text-[var(--color-text-secondary)] truncate mt-0.5">
@@ -540,7 +540,7 @@ export const ParticipantDashboardPage: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <h2
                   id="certs-heading"
-                  className="font-serif text-xl sm:text-2xl text-[var(--color-text-primary)] font-bold"
+                  className="font-display text-xl sm:text-2xl text-[var(--color-text-primary)] font-bold"
                 >
                   Meus Certificados
                 </h2>
@@ -572,10 +572,10 @@ export const ParticipantDashboardPage: React.FC = () => {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <span className="font-mono text-[11px] text-[var(--color-text-muted)] uppercase block">
+                          <span className="tabular-nums text-[11px] text-[var(--color-text-muted)] uppercase block">
                             Concluído em {cert.dataEmissao || 'Data recente'}
                           </span>
-                          <h4 className="font-serif text-base font-bold text-[var(--color-text-primary)] mt-1 line-clamp-2">
+                          <h4 className="font-display text-base font-bold text-[var(--color-text-primary)] mt-1 line-clamp-2">
                             {cert.evento?.tema || 'Evento Acadêmico Concluído'}
                           </h4>
                         </div>
@@ -587,10 +587,10 @@ export const ParticipantDashboardPage: React.FC = () => {
                       {/* Código de Autenticidade com Ação de Copiar */}
                       <div className="p-2.5 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)]/60 flex items-center justify-between gap-2">
                         <div className="min-w-0">
-                          <span className="font-mono text-[10px] uppercase text-[var(--color-text-muted)] block">
+                          <span className="tabular-nums text-[10px] uppercase text-[var(--color-text-muted)] block">
                             Código de validação
                           </span>
-                          <span className="font-mono text-xs font-semibold text-[var(--color-text-primary)] truncate block">
+                          <span className="tabular-nums text-xs font-semibold text-[var(--color-text-primary)] truncate block">
                             #{cert.codigoValidacao}
                           </span>
                         </div>
@@ -646,15 +646,15 @@ export const ParticipantDashboardPage: React.FC = () => {
                 Dados da Conta
               </h2>
 
-              <div className="w-14 h-14 rounded-full bg-[var(--color-primary-subtle)] text-[var(--color-primary-text)] font-mono text-base font-bold flex items-center justify-center border border-[var(--color-border)]">
+              <div className="w-14 h-14 rounded-full bg-[var(--color-primary-subtle)] text-[var(--color-primary-text)] tabular-nums text-base font-bold flex items-center justify-center border border-[var(--color-border)]">
                 {getInitials(user?.nome)}
               </div>
 
               <div>
-                <h3 className="font-serif text-lg font-bold text-[var(--color-text-primary)]">
+                <h3 className="font-display text-lg font-bold text-[var(--color-text-primary)]">
                   {user?.nome || 'Participante'}
                 </h3>
-                <p className="font-mono text-xs text-[var(--color-text-secondary)] mt-0.5">
+                <p className="tabular-nums text-xs text-[var(--color-text-secondary)] mt-0.5">
                   {user?.email || 'participante@fatec.sp.gov.br'}
                 </p>
               </div>

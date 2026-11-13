@@ -21,7 +21,7 @@ export const AccessDenied: React.FC<AccessDeniedProps> = ({
             <AlertCircleIcon size={28} />
           </div>
 
-          <h1 className="text-xl font-bold text-[var(--color-text-primary)] tracking-tight font-serif">
+          <h1 className="text-xl font-bold text-[var(--color-text-primary)] tracking-tight font-display">
             Acesso Restrito
           </h1>
 

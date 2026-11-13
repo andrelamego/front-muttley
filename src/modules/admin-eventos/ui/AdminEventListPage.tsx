@@ -810,7 +810,7 @@ export const AdminEventListPage: React.FC = () => {
             <div className="pt-4 border-t border-[var(--color-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
               <span className="text-xs text-[var(--color-text-muted)]">
                 Pressione{' '}
-                <kbd className="px-1.5 py-0.5 bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-none text-[10px] font-mono text-[var(--color-text-secondary)]">
+                <kbd className="px-1.5 py-0.5 bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-none text-[10px] tabular-nums text-[var(--color-text-secondary)]">
                   Esc
                 </kbd>{' '}
                 para fechar a qualquer momento
