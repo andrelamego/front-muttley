@@ -452,6 +452,15 @@ h3,
   outline-offset: var(--focus-ring-offset);
 }
 
+/* Borda padrão do tema (o Tailwind 4 usa currentColor); os componentes shadcn contam com isso */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+}
+
 /* Componentes shadcn (src/shared/ui/shadcn) lendo os tokens Ingresso */
 @theme inline {
   --color-background: var(--color-bg-page);
