@@ -62,7 +62,9 @@ export const Button: React.FC<ButtonProps> = ({
       {isLoading ? (
         <span className="inline-flex flex-row flex-nowrap items-center justify-center gap-2">
           <LoadingDots label={loadingText || 'Processando'} />
-          <span>{loadingText || children}</span>
+          <span className="inline-flex items-center gap-2">
+            {loadingText || children}
+          </span>
         </span>
       ) : (
         <span className="inline-flex flex-row flex-nowrap items-center justify-center gap-2">
@@ -74,7 +76,7 @@ export const Button: React.FC<ButtonProps> = ({
               {leftIcon}
             </span>
           )}
-          <span>{children}</span>
+          <span className="inline-flex items-center gap-2">{children}</span>
           {rightIcon && (
             <span
               aria-hidden="true"

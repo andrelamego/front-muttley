@@ -123,9 +123,13 @@ export const AdminDashboardPage: React.FC = () => {
                   id="pendencias-heading"
                   className="font-display text-lg font-bold"
                 >
-                  {eventoPendente.tema} terminou e aguarda conclusão
+                  {pendenciasConclusao.length > 1
+                    ? `${pendenciasConclusao.length} eventos aguardam conclusão`
+                    : `${eventoPendente.tema} terminou e aguarda conclusão`}
                 </h2>
                 <p className="text-sm mt-1">
+                  {pendenciasConclusao.length > 1 &&
+                    `Comece por ${eventoPendente.tema}. `}
                   Marque os presentes e envie a assinatura para emitir os
                   certificados.
                 </p>
@@ -222,6 +226,8 @@ export const AdminDashboardPage: React.FC = () => {
                       evento.horarioInicio,
                       evento.horarioFim
                     )
+                    const aguardaConclusao =
+                      pendenciasConclusao.includes(evento)
                     return (
                       <li
                         key={evento.id}
@@ -237,9 +243,14 @@ export const AdminDashboardPage: React.FC = () => {
                         </span>
                         <span className="min-w-0">
                           <span className="flex items-center gap-2 flex-wrap">
-                            <strong className="font-semibold">
+                            <strong className="font-semibold min-w-0 [overflow-wrap:anywhere]">
                               {evento.tema}
                             </strong>
+                            {aguardaConclusao && (
+                              <Badge variant="warning" size="sm">
+                                Aguarda conclusão
+                              </Badge>
+                            )}
                             {janelaAberta && (
                               <Badge variant="success" size="sm">
                                 Presença aberta
@@ -265,11 +276,13 @@ export const AdminDashboardPage: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={() =>
-                            navigate(`/admin/eventos/${evento.id}/editar`)
+                            navigate(
+                              `/admin/eventos/${evento.id}/${aguardaConclusao ? 'concluir' : 'editar'}`
+                            )
                           }
-                          aria-label={`Abrir ${evento.tema}`}
+                          aria-label={`${aguardaConclusao ? 'Concluir' : 'Abrir'} ${evento.tema}`}
                         >
-                          Abrir
+                          {aguardaConclusao ? 'Concluir' : 'Abrir'}
                         </Button>
                       </li>
                     )

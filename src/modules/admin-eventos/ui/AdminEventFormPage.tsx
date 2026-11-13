@@ -173,11 +173,8 @@ export const AdminEventFormPage: React.FC = () => {
       </div>
 
       <div>
-        <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
-          {isEditing ? 'Atualização de Cadastro' : 'Novo Registro'}
-        </span>
-        <h1 className="text-2xl lg:text-3xl font-black text-[var(--color-text-primary)] mt-1">
-          {isEditing ? 'Editar Evento Acadêmico' : 'Cadastrar Novo Evento'}
+        <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
+          {isEditing ? 'Editar evento' : 'Criar evento'}
         </h1>
         <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
           Preencha os dados abaixo com o planejamento de data, horário, local e

@@ -74,7 +74,6 @@ export const AdminPeoplePage: React.FC = () => {
   return (
     <div className="w-full max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
       <AdminSectionHeader
-        eyebrow="Diretório institucional"
         title="Pessoas"
         description="Consulte os usuários cadastrados e identifique os perfis com acesso administrativo."
         onRefresh={load}

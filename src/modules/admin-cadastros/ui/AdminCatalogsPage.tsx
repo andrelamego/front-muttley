@@ -123,7 +123,6 @@ export const AdminCatalogsPage: React.FC = () => {
   return (
     <div className="w-full max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
       <AdminSectionHeader
-        eyebrow="Base operacional"
         title="Cadastros institucionais"
         description="Consulte os recursos usados na criação de eventos e no reconhecimento dos participantes."
         onRefresh={load}
@@ -211,7 +210,7 @@ export const AdminCatalogsPage: React.FC = () => {
                       key={record.id}
                       className="surface-depth bg-[var(--color-bg-surface)] border border-[var(--color-border)] p-5"
                     >
-                      <p className="tabular-nums text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
+                      <p className="tabular-nums text-xs text-[var(--color-text-muted)]">
                         Registro #{record.id}
                       </p>
                       <h3 className="font-display text-lg mt-2 text-[var(--color-text-primary)]">

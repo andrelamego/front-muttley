@@ -130,7 +130,6 @@ export const AdminCertificatesPage: React.FC = () => {
   return (
     <div className="w-full max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
       <AdminSectionHeader
-        eyebrow="Emissão e autenticidade"
         title="Certificados"
         description="Acompanhe emissões recentes, consulte o acervo e identifique eventos que ainda aguardam certificados."
         onRefresh={load}

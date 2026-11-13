@@ -28,6 +28,7 @@ import {
   XIcon,
 } from '../../../shared/ui'
 import { AdminEventListSkeleton } from './skeletons'
+import { formatModalidade } from '../../eventos'
 
 const getStatusBadgeVariant = (status: StatusEvento) => {
   switch (status) {
@@ -47,7 +48,7 @@ const getStatusBadgeVariant = (status: StatusEvento) => {
 const getStatusLabel = (status: StatusEvento) => {
   switch (status) {
     case 'EM_ANDAMENTO':
-      return 'Em Andamento'
+      return 'Em andamento'
     case 'CRIADO':
       return 'Programado'
     case 'FINALIZADO':
@@ -294,11 +295,8 @@ export const AdminEventListPage: React.FC = () => {
       {/* Cabeçalho da Gestão de Eventos */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[var(--color-border)] pb-5">
         <div>
-          <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
-            Área do Administrador
-          </span>
-          <h1 className="text-2xl lg:text-3xl font-black text-[var(--color-text-primary)] mt-1">
-            Gestão de Eventos
+          <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
+            Eventos
           </h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Cadastre, organize horários, acompanhe presenças e conclua eventos
@@ -308,9 +306,12 @@ export const AdminEventListPage: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <Link to="/admin/eventos/novo">
-            <Button variant="primary" size="md" className="gap-2 shadow-xs">
-              <PlusIcon size={18} />
-              Criar Novo Evento
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<PlusIcon size={18} />}
+            >
+              Criar evento
             </Button>
           </Link>
         </div>
@@ -386,7 +387,7 @@ export const AdminEventListPage: React.FC = () => {
                 : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
             }`}
           >
-            Em Andamento ({countEmAndamento})
+            Em andamento ({countEmAndamento})
           </button>
           <button
             type="button"
@@ -471,15 +472,13 @@ export const AdminEventListPage: React.FC = () => {
             <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)] overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm border-collapse">
-                  <thead className="bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
+                  <thead className="bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)]">
                     <tr>
                       <th className="py-3.5 px-4">Evento</th>
-                      <th className="py-3.5 px-4">Data e Horário</th>
+                      <th className="py-3.5 px-4">Data e horário</th>
                       <th className="py-3.5 px-4">Modalidade</th>
                       <th className="py-3.5 px-4">Status</th>
-                      <th className="py-3.5 px-4 text-right">
-                        Ações Operacionais
-                      </th>
+                      <th className="py-3.5 px-4 text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--color-border-subtle)]">
@@ -528,7 +527,7 @@ export const AdminEventListPage: React.FC = () => {
 
                           <td className="py-4 px-4 whitespace-nowrap">
                             <Badge variant="default" size="sm">
-                              {evt.modalidade}
+                              {formatModalidade(evt.modalidade)}
                             </Badge>
                           </td>
 
@@ -627,9 +626,6 @@ export const AdminEventListPage: React.FC = () => {
           <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[var(--color-border)] animate-in fade-in zoom-in-95 my-8">
             <div className="flex items-start justify-between pb-4 border-b border-[var(--color-border-subtle)] gap-4">
               <div>
-                <span className="text-[11px] font-bold text-[var(--color-primary-text)] uppercase tracking-wider">
-                  Códigos de Acesso Rápido
-                </span>
                 <h3
                   id="modal-qrcode-titulo"
                   className="text-xl font-black text-[var(--color-text-primary)] tracking-tight"
@@ -657,10 +653,10 @@ export const AdminEventListPage: React.FC = () => {
                 {/* 1. Painel de Inscrição Pública */}
                 <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
                   <div className="w-full text-center mb-3">
-                    <span className="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider block">
+                    <span className="text-xs font-bold text-[var(--color-text-primary)] block">
                       Inscrição Pública
                     </span>
-                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
                       Direciona para a página de inscrição do evento
                     </p>
                   </div>
@@ -720,7 +716,7 @@ export const AdminEventListPage: React.FC = () => {
                         </Button>
                       </a>
                     ) : (
-                      <span className="text-[11px] text-[var(--color-text-muted)] py-1.5">
+                      <span className="text-xs text-[var(--color-text-muted)] py-1.5">
                         {qrInscricao.status === 'loading'
                           ? 'Aguardando processamento...'
                           : 'Download indisponível'}
@@ -732,10 +728,10 @@ export const AdminEventListPage: React.FC = () => {
                 {/* 2. Painel de Confirmação de Presença */}
                 <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-md border border-[var(--color-border)] min-h-[340px]">
                   <div className="w-full text-center mb-3">
-                    <span className="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider block">
+                    <span className="text-xs font-bold text-[var(--color-text-primary)] block">
                       Confirmar Presença
                     </span>
-                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
                       Check-in por leitura de câmera no local
                     </p>
                   </div>
@@ -796,7 +792,7 @@ export const AdminEventListPage: React.FC = () => {
                         </Button>
                       </a>
                     ) : (
-                      <span className="text-[11px] text-[var(--color-text-muted)] py-1.5">
+                      <span className="text-xs text-[var(--color-text-muted)] py-1.5">
                         {qrConfirmacao.status === 'loading'
                           ? 'Aguardando processamento...'
                           : 'Download indisponível'}
@@ -810,7 +806,7 @@ export const AdminEventListPage: React.FC = () => {
             <div className="pt-4 border-t border-[var(--color-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
               <span className="text-xs text-[var(--color-text-muted)]">
                 Pressione{' '}
-                <kbd className="px-1.5 py-0.5 bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-md text-[10px] tabular-nums text-[var(--color-text-secondary)]">
+                <kbd className="px-1.5 py-0.5 bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-md text-xs tabular-nums text-[var(--color-text-secondary)]">
                   Esc
                 </kbd>{' '}
                 para fechar a qualquer momento

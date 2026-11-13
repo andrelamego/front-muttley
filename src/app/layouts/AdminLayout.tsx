@@ -74,7 +74,7 @@ export const AdminLayout: React.FC = () => {
     },
     {
       to: '/admin/eventos/novo',
-      label: 'Criar Evento',
+      label: 'Criar evento',
       icon: <PlusIcon size={18} />,
       isActive: location.pathname === '/admin/eventos/novo',
     },

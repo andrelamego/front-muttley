@@ -188,11 +188,8 @@ export const AdminEventConcludePage: React.FC = () => {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <span className="text-xs font-semibold text-[var(--color-success-text)] uppercase tracking-wider">
-            Fechamento de Atividades
-          </span>
-          <h1 className="text-2xl lg:text-3xl font-black text-[var(--color-text-primary)] mt-1">
-            Conclusão e Emissão de Certificados
+          <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
+            Concluir evento
           </h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Valide as presenças dos inscritos, anexe a assinatura do coordenador
