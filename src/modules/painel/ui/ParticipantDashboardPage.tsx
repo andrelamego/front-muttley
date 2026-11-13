@@ -31,6 +31,9 @@ import {
   Ticket,
 } from '../../../shared/ui'
 import { ParticipantDashboardSkeleton } from './skeletons'
+
+// Eventos mostrados em "Depois disso" antes de expandir
+const VISIVEIS_DEPOIS = 3
 import apiClient from '../../../shared/http/apiClient'
 
 export const ParticipantDashboardPage: React.FC = () => {
@@ -39,6 +42,7 @@ export const ParticipantDashboardPage: React.FC = () => {
   const [data, setData] = useState<ParticipantDashboardData | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const [mostrarTodos, setMostrarTodos] = useState(false)
   const [downloadingCertId, setDownloadingCertId] = useState<number | null>(
     null
   )
@@ -266,7 +270,10 @@ export const ParticipantDashboardPage: React.FC = () => {
                     Depois disso
                   </h2>
                   <ul className="flex flex-col gap-2">
-                    {outrosCompromissos.map((p) => {
+                    {(mostrarTodos
+                      ? outrosCompromissos
+                      : outrosCompromissos.slice(0, VISIVEIS_DEPOIS)
+                    ).map((p, i) => {
                       const ev = p.evento
                       if (!ev) return null
                       const partes = getTicketDateParts(
@@ -274,7 +281,12 @@ export const ParticipantDashboardPage: React.FC = () => {
                         ev.horarioInicio
                       )
                       return (
-                        <li key={p.id}>
+                        <li
+                          key={p.id}
+                          className={
+                            i >= VISIVEIS_DEPOIS ? 'content-enter' : undefined
+                          }
+                        >
                           <Link
                             to={buildEventPath(PARTICIPANT_EVENTS_PATH, ev.id)}
                             className="flex items-center gap-3 bg-[var(--color-bg-surface)] rounded-md p-3 border border-transparent hover:border-[var(--color-primary)] transition-colors"
@@ -305,6 +317,19 @@ export const ParticipantDashboardPage: React.FC = () => {
                       )
                     })}
                   </ul>
+                  {outrosCompromissos.length > VISIVEIS_DEPOIS && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mt-2"
+                      aria-expanded={mostrarTodos}
+                      onClick={() => setMostrarTodos((v) => !v)}
+                    >
+                      {mostrarTodos
+                        ? 'Mostrar menos'
+                        : `Mostrar mais ${outrosCompromissos.length - VISIVEIS_DEPOIS}`}
+                    </Button>
+                  )}
                 </section>
               )}
             </div>
@@ -342,7 +367,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                           <AwardIcon size={20} />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block font-semibold text-sm truncate">
+                          <span className="block font-semibold text-sm line-clamp-2">
                             {cert.evento?.tema || 'Evento concluído'}
                           </span>
                           <span className="block text-xs text-[var(--color-text-secondary)]">
@@ -360,8 +385,10 @@ export const ParticipantDashboardPage: React.FC = () => {
                           loadingText="Baixando"
                           leftIcon={<DownloadIcon size={16} />}
                           aria-label={`Baixar certificado de ${cert.evento?.tema || 'evento'}`}
+                          className="shrink-0 min-w-[44px] min-h-[44px]"
                         >
-                          Baixar
+                          {/* No celular fica só o ícone, para o título ter espaço */}
+                          <span className="hidden sm:inline">Baixar</span>
                         </Button>
                       </li>
                     ))}
@@ -383,7 +410,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                       ? '1 medalha conquistada'
                       : `${medalhas} medalhas conquistadas`}
                 </span>
-                <span className="ml-auto text-sm font-semibold text-[var(--color-primary-text)]">
+                <span className="ml-auto shrink-0 whitespace-nowrap text-sm font-semibold text-[var(--color-primary-text)]">
                   Ver medalhas
                 </span>
               </Link>

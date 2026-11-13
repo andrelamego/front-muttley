@@ -19,7 +19,6 @@ import {
   Button,
   Alert,
   Input,
-  ShieldCheckIcon,
   SearchIcon,
   DownloadIcon,
   ExternalLinkIcon,
@@ -28,7 +27,6 @@ import {
   AwardIcon,
 } from '../../../shared/ui'
 import { CertificateListSkeleton } from './skeletons'
-import { HistoryBackButton } from '../../../shared/navigation'
 
 const formatDate = (dateStr: string): string => {
   if (!dateStr) return 'Data não informada'
@@ -141,19 +139,14 @@ export const UserCertificatesPage: React.FC = () => {
       {/* Cabeçalho da Página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[var(--color-border)] pb-5">
         <div>
-          <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
-            Reconhecimento Acadêmico
-          </span>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mt-1">
-            Meus Certificados
+          <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
+            Meus certificados
           </h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Comprovantes oficiais emitidos após validação de presença e
             conclusão das atividades.
           </p>
         </div>
-
-        <HistoryBackButton label="Voltar para a página anterior" />
       </div>
 
       {/* Alertas */}
@@ -258,10 +251,7 @@ export const UserCertificatesPage: React.FC = () => {
                   >
                     <div>
                       <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[var(--color-border-subtle)]">
-                        <Badge variant="success" className="gap-1">
-                          <ShieldCheckIcon size={14} />
-                          Certificado Válido
-                        </Badge>
+                        <Badge variant="success">Válido</Badge>
                         <span className="text-xs text-[var(--color-text-muted)]">
                           {formatDate(cert.dataEmissao)}
                         </span>
@@ -283,8 +273,8 @@ export const UserCertificatesPage: React.FC = () => {
                         {/* Código de Validação */}
                         <div className="bg-[var(--color-bg-subtle)] rounded-md p-2.5 border border-[var(--color-border)] flex items-center justify-between gap-2">
                           <div className="overflow-hidden">
-                            <span className="block text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-                              Código de Validação
+                            <span className="block text-xs text-[var(--color-text-muted)]">
+                              Código de validação
                             </span>
                             <span className="font-mono text-xs text-[var(--color-text-primary)] truncate block">
                               {cert.codigoValidacao}
@@ -331,10 +321,10 @@ export const UserCertificatesPage: React.FC = () => {
                           size="sm"
                           onClick={() => handleDownloadPdf(cert)}
                           isLoading={isDownloading}
-                          loadingText="PDF"
+                          loadingText="Baixando"
+                          leftIcon={<DownloadIcon size={14} />}
                         >
-                          {!isDownloading && <DownloadIcon size={14} />}
-                          {!isDownloading && 'PDF'}
+                          Baixar PDF
                         </Button>
                       </div>
 

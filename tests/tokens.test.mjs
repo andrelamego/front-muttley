@@ -47,6 +47,9 @@ const pares = [
   ['--color-success-text', '--color-success-bg'],
   ['--color-danger-text', '--color-danger-bg'],
   ['--color-warning-text', '--color-warning-bg'],
+  ['--color-signal-ink', '--color-medal-ouro'],
+  ['--color-signal-ink', '--color-medal-prata'],
+  ['--color-signal-ink', '--color-medal-bronze'],
 ]
 
 const checkPairs = (tokens) => {

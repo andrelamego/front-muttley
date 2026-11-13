@@ -19,42 +19,18 @@ import {
   CheckIcon,
 } from '../../../shared/ui'
 import { MedalGridSkeleton } from './skeletons'
-import { HistoryBackButton } from '../../../shared/navigation'
 
-const getMedalBadgeVariant = (tipo: TipoMedalha): 'warning' | 'default' => {
-  switch (tipo) {
-    case 'OURO':
-      return 'warning'
-    case 'PRATA':
-      return 'default'
-    case 'BRONZE':
-    default:
-      return 'warning'
-  }
+// Disco da medalha na cor do nível; o ícone fica sempre em tinta para manter o contraste.
+const MEDAL_DISC: Record<TipoMedalha, string> = {
+  OURO: 'bg-[var(--color-medal-ouro)]',
+  PRATA: 'bg-[var(--color-medal-prata)]',
+  BRONZE: 'bg-[var(--color-medal-bronze)]',
 }
 
-const getMedalBorderClass = (tipo: TipoMedalha) => {
-  switch (tipo) {
-    case 'OURO':
-      return 'border-[var(--color-warning-border)] bg-[var(--color-warning-bg)]/30'
-    case 'PRATA':
-      return 'border-[var(--color-border-strong)] bg-[var(--color-bg-subtle)]/40'
-    case 'BRONZE':
-    default:
-      return 'border-orange-200 bg-orange-50/20'
-  }
-}
-
-const getMedalIconClass = (tipo: TipoMedalha) => {
-  switch (tipo) {
-    case 'OURO':
-      return 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] ring-[var(--color-warning-border)]'
-    case 'PRATA':
-      return 'bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] ring-[var(--color-border-strong)]'
-    case 'BRONZE':
-    default:
-      return 'bg-orange-100 text-orange-700 ring-orange-200'
-  }
+const MEDAL_LABEL: Record<TipoMedalha, string> = {
+  OURO: 'Ouro',
+  PRATA: 'Prata',
+  BRONZE: 'Bronze',
 }
 
 export const UserMedalsPage: React.FC = () => {
@@ -141,19 +117,14 @@ export const UserMedalsPage: React.FC = () => {
       {/* Cabeçalho da Página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[var(--color-border)] pb-5">
         <div>
-          <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
-            Gamificação e Conquistas
-          </span>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mt-1">
-            Minhas Medalhas
+          <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
+            Minhas medalhas
           </h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Reconhecimentos de destaque atribuídos pela participação em eventos
             acadêmicos.
           </p>
         </div>
-
-        <HistoryBackButton label="Voltar para a página anterior" />
       </div>
 
       {/* Alertas */}
@@ -294,17 +265,17 @@ export const UserMedalsPage: React.FC = () => {
                 return (
                   <Card
                     key={medal.id}
-                    className={`surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] transition-all hover:shadow-md flex flex-col justify-between ${getMedalBorderClass(medal.tipo)}`}
+                    className="bg-[var(--color-bg-surface)] flex flex-col justify-between"
                   >
                     <div>
                       <CardHeader className="flex flex-row items-center justify-between pb-3">
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ring-2 ${getMedalIconClass(medal.tipo)}`}
+                          className={`w-12 h-12 rounded-full flex items-center justify-center text-[var(--color-signal-ink)] shadow-[inset_0_-3px_0_rgb(0_0_0/18%)] ${MEDAL_DISC[medal.tipo]}`}
                         >
-                          <MedalIcon size={20} />
+                          <MedalIcon size={22} />
                         </div>
-                        <Badge variant={getMedalBadgeVariant(medal.tipo)}>
-                          {medal.tipo}
+                        <Badge variant="default">
+                          {MEDAL_LABEL[medal.tipo]}
                         </Badge>
                       </CardHeader>
 
@@ -318,7 +289,7 @@ export const UserMedalsPage: React.FC = () => {
                         </p>
 
                         <div className="pt-2 border-t border-[var(--color-border-subtle)]">
-                          <span className="block text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+                          <span className="block text-xs text-[var(--color-text-muted)]">
                             Evento
                           </span>
                           <span className="text-xs font-medium text-[var(--color-text-primary)] line-clamp-1">
@@ -329,7 +300,7 @@ export const UserMedalsPage: React.FC = () => {
                     </div>
 
                     <CardFooter className="pt-2 border-t border-[var(--color-border-subtle)] flex items-center justify-between">
-                      <span className="text-[11px] text-[var(--color-text-muted)]">
+                      <span className="text-xs text-[var(--color-text-muted)]">
                         Inscrição #{medal.inscricao}
                       </span>
 

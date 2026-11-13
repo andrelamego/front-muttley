@@ -30,6 +30,11 @@
   --color-signal: #ffd93b;
   --color-signal-ink: #0e1330;
 
+  /* Níveis de medalha (disco com ícone em tinta) */
+  --color-medal-ouro: #ffd93b;
+  --color-medal-prata: #c9cdea;
+  --color-medal-bronze: #d08a52;
+
   /* Divisórias, perfuração e contornos */
   --color-border: #d9dceb;
   --color-border-subtle: #e9ebf3;
