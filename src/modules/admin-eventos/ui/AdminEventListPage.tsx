@@ -25,9 +25,20 @@ import {
   CalendarIcon,
   ClockIcon,
   DownloadIcon,
+  toast,
 } from '../../../shared/ui'
 import { AdminEventListSkeleton } from './skeletons'
 import { MoreHorizontal } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../../../shared/ui/shadcn/alert-dialog'
 import {
   Dialog,
   DialogClose,
@@ -94,8 +105,10 @@ export const AdminEventListPage: React.FC = () => {
   )
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [eventoACancelar, setEventoACancelar] = useState<AdminEvento | null>(
+    null
+  )
   const searchInputId = useId()
 
   interface QrItemState {
@@ -246,15 +259,11 @@ export const AdminEventListPage: React.FC = () => {
   }, [qrInscricao.url, qrConfirmacao.url])
 
   const handleCancelEvent = async (evt: AdminEvento) => {
-    const confirmMessage = `Tem certeza que deseja cancelar o evento "${evt.tema}"?\nEsta ação mudará o status para CANCELADO.`
-    if (!window.confirm(confirmMessage)) return
-
     setDeletingId(evt.id)
     setError(null)
     try {
       await cancelarAdminEventoApi(evt.id)
-      setActionSuccess(`Evento "${evt.tema}" cancelado com sucesso.`)
-      setTimeout(() => setActionSuccess(null), 4000)
+      toast.success(`Evento "${evt.tema}" cancelado`)
       await loadEvents()
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -316,16 +325,6 @@ export const AdminEventListPage: React.FC = () => {
       </div>
 
       {/* Alertas */}
-      {actionSuccess && (
-        <Alert
-          variant="success"
-          title="Sucesso"
-          onClose={() => setActionSuccess(null)}
-        >
-          {actionSuccess}
-        </Alert>
-      )}
-
       {error && (
         <Alert variant="error" title="Erro na gestão de eventos">
           <p className="mb-2">{error}</p>
@@ -600,7 +599,7 @@ export const AdminEventListPage: React.FC = () => {
                                       <DropdownMenuItem
                                         variant="destructive"
                                         disabled={isDeleting}
-                                        onSelect={() => handleCancelEvent(evt)}
+                                        onSelect={() => setEventoACancelar(evt)}
                                       >
                                         <TrashIcon size={16} />
                                         Cancelar evento
@@ -621,6 +620,44 @@ export const AdminEventListPage: React.FC = () => {
           )}
         </>
       )}
+
+      {/* Confirmação de cancelamento: ação sem volta, então pede confirmação explícita */}
+      <AlertDialog
+        open={eventoACancelar !== null}
+        onOpenChange={(aberto) => {
+          if (!aberto) setEventoACancelar(null)
+        }}
+      >
+        <AlertDialogContent
+          onCloseAutoFocus={(e) => {
+            e.preventDefault()
+            if (eventoACancelar)
+              document
+                .getElementById(`acoes-evento-${eventoACancelar.id}`)
+                ?.focus()
+          }}
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar este evento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{eventoACancelar?.tema}” passa a ficar cancelado e não poderá
+              mais ser editado. Os links já divulgados continuam abrindo a
+              página do evento.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Voltar</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                if (eventoACancelar) handleCancelEvent(eventoACancelar)
+              }}
+            >
+              Cancelar evento
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* QR Codes do evento: dialog prende o foco e fecha com Esc ou clique fora */}
       <Dialog

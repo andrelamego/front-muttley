@@ -27,6 +27,16 @@ import {
 } from '../../../shared/ui'
 import { AdminEventConcludeSkeleton } from './skeletons'
 import { HistoryBackButton } from '../../../shared/navigation'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../../../shared/ui/shadcn/alert-dialog'
 
 export const AdminEventConcludePage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -53,6 +63,7 @@ export const AdminEventConcludePage: React.FC = () => {
   // Estados de controle
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [isConcluding, setIsConcluding] = useState<boolean>(false)
+  const [confirmarSemPresentes, setConfirmarSemPresentes] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [concludeResult, setConcludeResult] =
     useState<ConcluirEventoResponse | null>(null)
@@ -130,18 +141,18 @@ export const AdminEventConcludePage: React.FC = () => {
     }
   }
 
-  const handleConcludeEvent = async () => {
+  // Sem presentes não há certificados: pede confirmação antes de concluir.
+  const handleConcludeEvent = () => {
     if (!id) return
     if (presentesIds.length === 0) {
-      if (
-        !window.confirm(
-          'Nenhum participante está marcado como presente. Concluir o evento sem gerar certificados?'
-        )
-      ) {
-        return
-      }
+      setConfirmarSemPresentes(true)
+      return
     }
+    concluir()
+  }
 
+  const concluir = async () => {
+    if (!id) return
     setIsConcluding(true)
     setError(null)
 
@@ -522,6 +533,26 @@ export const AdminEventConcludePage: React.FC = () => {
 
       {/* Loading inicial */}
       {isLoading && <AdminEventConcludeSkeleton />}
+      <AlertDialog
+        open={confirmarSemPresentes}
+        onOpenChange={setConfirmarSemPresentes}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Concluir sem presentes?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Nenhum participante está marcado como presente, então nenhum
+              certificado será emitido.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Voltar e marcar presentes</AlertDialogCancel>
+            <AlertDialogAction onClick={concluir}>
+              Concluir sem certificados
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
