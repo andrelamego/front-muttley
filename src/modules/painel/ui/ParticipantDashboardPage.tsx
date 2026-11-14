@@ -19,6 +19,7 @@ import {
   selecionarEventoDestaque,
 } from '../domain/proximoEvento'
 import { getParticipantDashboardData } from '../api/painelApi'
+import { NOME_NIVEL, proximaMeta, totalMedalhas, unidade } from '../../medalhas'
 import type {
   ParticipantDashboardData,
   CertificadoResumo,
@@ -188,7 +189,9 @@ export const ParticipantDashboardPage: React.FC = () => {
     ? getTicketDateParts(eventoDestaque.data, eventoDestaque.horarioInicio)
     : null
   const primeiroNome = (user?.nome || 'Participante').trim().split(' ')[0]
-  const medalhas = data?.medalhas.length ?? 0
+  const conquistas = data?.conquistas ?? null
+  const meta = conquistas ? proximaMeta(conquistas.trilhas) : null
+  const medalhas = conquistas ? totalMedalhas(conquistas) : 0
 
   return (
     <div className="flex flex-col">
@@ -460,12 +463,21 @@ export const ParticipantDashboardPage: React.FC = () => {
                 <span className="w-10 h-10 shrink-0 rounded-full bg-[var(--color-signal)] text-[var(--color-signal-ink)] flex items-center justify-center">
                   <MedalIcon size={20} />
                 </span>
-                <span className="font-semibold text-sm">
-                  {medalhas === 0
-                    ? 'Nenhuma medalha ainda'
-                    : medalhas === 1
-                      ? '1 medalha conquistada'
-                      : `${medalhas} medalhas conquistadas`}
+                <span className="min-w-0 text-sm">
+                  <span className="block font-semibold">
+                    {medalhas === 0
+                      ? 'Nenhuma medalha ainda'
+                      : medalhas === 1
+                        ? '1 medalha'
+                        : `${medalhas} medalhas`}
+                  </span>
+                  {meta?.proximoNivel && meta.proximoMarco !== null && (
+                    <span className="block text-xs text-[var(--color-text-secondary)]">
+                      Próxima: {meta.titulo}{' '}
+                      {NOME_NIVEL[meta.proximoNivel].toLowerCase()} ·{' '}
+                      {meta.valor} de {unidade(meta, meta.proximoMarco)}
+                    </span>
+                  )}
                 </span>
                 <span className="ml-auto shrink-0 whitespace-nowrap text-sm font-semibold text-[var(--color-primary-text)]">
                   Ver medalhas

@@ -43,17 +43,12 @@ const tabs: Array<{ key: AdminCatalogKey; label: string }> = [
   { key: 'locais', label: 'Locais' },
   { key: 'patrocinadores', label: 'Patrocinadores' },
   { key: 'enderecos', label: 'Endereços' },
-  { key: 'medalhas', label: 'Medalhas' },
 ]
 
 type Registro = { id: number } & Record<string, unknown>
 
-// Medalhas são concedidas pela conclusão dos eventos; aqui só se consultam.
-// Medalhas passam de 200 cartões; a paginação mantém a página leve e navegável.
+// A paginação mantém listas longas leves e navegáveis.
 const POR_PAGINA = 24
-
-const editavel = (chave: AdminCatalogKey): chave is TipoCadastro =>
-  chave !== 'medalhas'
 
 const descreverEndereco = (e: Record<string, unknown>) =>
   `${e.logradouro || 'Sem logradouro'}, ${e.numero || 's/n'} – ${e.bairro || 'sem bairro'}`
@@ -91,17 +86,10 @@ const getRecordPresentation = (
       detail: String(record.descricao || 'Sem descrição'),
     }
   }
-  if (key === 'patrocinadores') {
-    return {
-      title: String(record.nome || 'Patrocinador sem nome'),
-      meta: String(record.email || record.site || 'Contato não informado'),
-      detail: `CNPJ: ${record.cnpj || 'não informado'}`,
-    }
-  }
   return {
-    title: String(record.nome || 'Medalha sem nome'),
-    meta: String(record.tipo || 'Tipo não informado'),
-    detail: String(record.descricao || 'Sem descrição'),
+    title: String(record.nome || 'Patrocinador sem nome'),
+    meta: String(record.email || record.site || 'Contato não informado'),
+    detail: `CNPJ: ${record.cnpj || 'não informado'}`,
   }
 }
 
@@ -181,19 +169,17 @@ export const AdminCatalogsPage: React.FC = () => {
     <div className="w-full max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
       <AdminSectionHeader
         title="Cadastros institucionais"
-        description="Mantenha os recursos usados na criação de eventos e consulte as medalhas concedidas."
+        description="Mantenha os recursos usados na criação de eventos."
         onRefresh={load}
         action={
-          editavel(active) && (
-            <Button
-              id="botao-novo-cadastro"
-              size="sm"
-              leftIcon={<Plus className="size-4" />}
-              onClick={() => setFormulario({ tipo: active, registro: null })}
-            >
-              {NOME_CADASTRO[active].novo}
-            </Button>
-          )
+          <Button
+            id="botao-novo-cadastro"
+            size="sm"
+            leftIcon={<Plus className="size-4" />}
+            onClick={() => setFormulario({ tipo: active, registro: null })}
+          >
+            {NOME_CADASTRO[active].novo}
+          </Button>
         }
       />
       {loading && !data ? (
@@ -206,7 +192,7 @@ export const AdminCatalogsPage: React.FC = () => {
             <AdminMetric
               label="Registros totais"
               value={total}
-              detail="em cinco cadastros integrados"
+              detail="em quatro cadastros"
             />
             <AdminMetric
               label="Locais disponíveis"
@@ -242,8 +228,6 @@ export const AdminCatalogsPage: React.FC = () => {
                 </h2>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1">
                   {records.length} registro(s)
-                  {active === 'medalhas' &&
-                    ' · concedidas automaticamente na conclusão dos eventos'}
                 </p>
               </div>
               <div className="relative w-full sm:w-80">
@@ -278,7 +262,7 @@ export const AdminCatalogsPage: React.FC = () => {
                         <h3 className="font-display text-lg leading-snug text-[var(--color-text-primary)] min-w-0 break-words">
                           {presentation.title}
                         </h3>
-                        {editavel(active) && (
+                        {
                           <div className="-mt-2 -mr-2">
                             <AcoesRegistro
                               id={`acoes-${active}-${record.id}`}
@@ -297,7 +281,7 @@ export const AdminCatalogsPage: React.FC = () => {
                               }
                             />
                           </div>
-                        )}
+                        }
                       </div>
                       <p className="text-xs font-semibold text-[var(--color-primary-text)] mt-2">
                         {presentation.meta}

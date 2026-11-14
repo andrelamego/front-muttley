@@ -1,3 +1,5 @@
-export * from './domain/medalhaTypes'
-export * from './api/medalhasApi'
+export * from './domain/conquistas'
+export * from './api/conquistasApi'
 export * from './ui/UserMedalsPage'
+export * from './ui/MoedaTrilha'
+export * from './ui/MedalhaEspecial'
