@@ -5,7 +5,7 @@ import { ParticipantLayout } from '../layouts/ParticipantLayout'
 import { AdminLayout } from '../layouts/AdminLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
-import { CadastroPage, LoginPage } from '../../modules/auth'
+import { CadastroPage, LoginPage, MeuPerfilPage } from '../../modules/auth'
 import {
   LandingPage,
   PublicEventListPage,
@@ -27,11 +27,13 @@ import {
   AdminEventDetailPage,
   AdminEventFormPage,
   AdminEventConcludePage,
+  EventoTelaoPage,
 } from '../../modules/admin-eventos'
 import {
   AdminCatalogsPage,
   AdminCertificatesPage,
   AdminPeoplePage,
+  ModeloCertificadoPage,
 } from '../../modules/admin-cadastros'
 
 export const AppRoutes: React.FC = () => {
@@ -91,7 +93,18 @@ export const AppRoutes: React.FC = () => {
         />
         <Route path="certificados" element={<UserCertificatesPage />} />
         <Route path="medalhas" element={<UserMedalsPage />} />
+        <Route path="perfil" element={<MeuPerfilPage />} />
       </Route>
+
+      {/* Telão para projetar na sala: tela inteira, sem o menu da coordenação */}
+      <Route
+        path="/admin/eventos/:id/telao"
+        element={
+          <ProtectedRoute requiredRole="ADMIN">
+            <EventoTelaoPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Rotas Administrativas (Desktop-First) */}
       <Route
@@ -112,8 +125,10 @@ export const AppRoutes: React.FC = () => {
           element={<AdminEventConcludePage />}
         />
         <Route path="certificados" element={<AdminCertificatesPage />} />
+        <Route path="certificados/modelo" element={<ModeloCertificadoPage />} />
         <Route path="pessoas" element={<AdminPeoplePage />} />
         <Route path="cadastros" element={<AdminCatalogsPage />} />
+        <Route path="perfil" element={<MeuPerfilPage />} />
       </Route>
 
       {/* Fallback */}

@@ -112,3 +112,22 @@ export const concluirCadastroApi = async (
     { params: { token } }
   )
 }
+
+/** Altera nome e telefone da própria conta e devolve o usuário atualizado. */
+export const atualizarPerfilApi = async (dados: {
+  nome: string
+  telefone: string
+}): Promise<User> => {
+  await apiClient.put('/me', {
+    nome: dados.nome.trim(),
+    telefone: dados.telefone.trim(),
+  })
+  return getMeApi()
+}
+
+export const alterarSenhaApi = async (dados: {
+  senhaAtual: string
+  novaSenha: string
+}): Promise<void> => {
+  await apiClient.put('/me/senha', dados)
+}

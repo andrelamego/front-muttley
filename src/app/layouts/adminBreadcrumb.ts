@@ -10,6 +10,7 @@ const TOPO: Record<string, string> = {
   certificados: 'Certificados',
   pessoas: 'Pessoas',
   cadastros: 'Cadastros',
+  perfil: 'Meu perfil',
 }
 
 const ACAO_EVENTO: Record<string, string> = {
@@ -24,6 +25,13 @@ export const getAdminBreadcrumb = (pathname: string): BreadcrumbEntry[] => {
     .replace(/^\/admin\/?/, '')
     .split('/')
     .filter(Boolean)
+
+  if (secao === 'certificados' && id === 'modelo') {
+    return [
+      { label: 'Certificados', to: '/admin/certificados' },
+      { label: 'Modelo do certificado' },
+    ]
+  }
 
   if (secao === 'eventos' && id) {
     const label =

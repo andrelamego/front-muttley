@@ -22,6 +22,8 @@ export interface AuthContextValue {
   login: (credentials: LoginCredentials) => Promise<AuthSession>
   logout: () => void
   clearSessionExpiredMessage: () => void
+  /** Substitui os dados do usuário da sessão (ex.: depois de editar o perfil). */
+  atualizarUsuario: (user: User) => void
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -131,6 +133,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   )
 
+  const atualizarUsuario = useCallback((user: User) => {
+    localStorage.setItem('usuario', JSON.stringify(user))
+    setSession((prev) => ({ ...prev, user }))
+  }, [])
+
   const clearSessionExpiredMessage = useCallback(() => {
     setSessionExpiredMessage(null)
   }, [])
@@ -145,6 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     login,
     logout,
     clearSessionExpiredMessage,
+    atualizarUsuario,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

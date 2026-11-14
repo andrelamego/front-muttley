@@ -1,6 +1,14 @@
 import React, { useCallback } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { ChevronsUpDown, LogOut, Moon, Plus, Sun } from 'lucide-react'
+import {
+  ChevronsUpDown,
+  LogOut,
+  Moon,
+  Plus,
+  Sun,
+  Ticket as TicketIcone,
+  UserRound,
+} from 'lucide-react'
 import { useAuth } from '../../modules/auth'
 import { PageTransition } from '../../shared/motion'
 import { useTheme } from '../../shared/theme'
@@ -48,17 +56,11 @@ import {
   useSidebar,
 } from '../../shared/ui/shadcn/sidebar'
 import { getAdminBreadcrumb } from './adminBreadcrumb'
+import { getInitials } from './iniciais'
 
 // O sidebar.tsx grava o estado aberto/recolhido neste cookie; aqui ele é lido na carga.
 const sidebarAbertoNoCookie = () =>
   !document.cookie.split('; ').includes('sidebar_state=false')
-
-const getInitials = (name?: string) => {
-  if (!name) return 'AD'
-  const parts = name.trim().split(' ')
-  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase()
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-}
 
 const navItems = [
   { to: '/admin/inicio', label: 'Painel', icon: DashboardIcon },
@@ -144,8 +146,20 @@ const AdminSidebar: React.FC = () => {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Visão pública</SidebarGroupLabel>
+          <SidebarGroupLabel>Outras visões</SidebarGroupLabel>
           <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                tooltip="Meu painel de participante"
+                className="h-9"
+              >
+                <Link to="/user/inicio" onClick={fecharNoCelular}>
+                  <TicketIcone className="size-[18px]" />
+                  <span>Meu painel de participante</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
@@ -199,6 +213,12 @@ const AdminSidebar: React.FC = () => {
                   </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/perfil" onClick={fecharNoCelular}>
+                    <UserRound />
+                    Meu perfil
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onSelect={toggleTheme}>
                   {theme === 'light' ? <Moon /> : <Sun />}
                   {theme === 'light' ? 'Tema escuro' : 'Tema claro'}

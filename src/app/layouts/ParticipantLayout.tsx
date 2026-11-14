@@ -3,6 +3,8 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../modules/auth'
 import { PageTransition } from '../../shared/motion'
 import { m } from 'motion/react'
+import { ShieldCheck } from 'lucide-react'
+import { getInitials } from './iniciais'
 import { PARTICIPANT_EVENTS_PATH } from '../../modules/eventos'
 import {
   Button,
@@ -13,6 +15,7 @@ import {
   MedalIcon,
   LogOutIcon,
   ThemeToggle,
+  ButtonLink,
 } from '../../shared/ui'
 
 export const ParticipantLayout: React.FC = () => {
@@ -39,21 +42,44 @@ export const ParticipantLayout: React.FC = () => {
             <Link
               to="/user/inicio"
               className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md"
-              aria-label="Painel do Participante Muttley"
+              aria-label="Muttley, início do participante"
             >
               <Logo className="h-7 w-auto" />
             </Link>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col text-right">
-              <span className="text-xs font-semibold text-[var(--color-text-primary)]">
-                {user?.nome || 'Participante'}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {user?.role === 'ADMIN' && (
+              <ButtonLink
+                to="/admin/inicio"
+                variant="outline"
+                size="sm"
+                leftIcon={<ShieldCheck className="size-3.5" />}
+                aria-label="Painel da coordenação"
+              >
+                <span className="hidden sm:inline">Coordenação</span>
+              </ButtonLink>
+            )}
+
+            <Link
+              to="/user/perfil"
+              aria-label="Meu perfil"
+              className={`flex items-center gap-2.5 rounded-md p-1 sm:pr-2 transition-colors hover:bg-[var(--color-bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)] ${
+                isTabActive('/user/perfil') ? 'bg-[var(--color-bg-hover)]' : ''
+              }`}
+            >
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-signal)] text-xs font-bold text-[var(--color-signal-ink)]">
+                {getInitials(user?.nome)}
               </span>
-              <span className="text-xs text-[var(--color-text-secondary)]">
-                {user?.email}
+              <span className="hidden sm:flex flex-col text-left">
+                <span className="text-xs font-semibold text-[var(--color-text-primary)]">
+                  {user?.nome || 'Participante'}
+                </span>
+                <span className="text-xs text-[var(--color-text-secondary)]">
+                  Meu perfil
+                </span>
               </span>
-            </div>
+            </Link>
 
             <ThemeToggle />
 
@@ -65,7 +91,7 @@ export const ParticipantLayout: React.FC = () => {
               aria-label="Sair da conta"
               leftIcon={<LogOutIcon size={14} />}
             >
-              Sair
+              <span className="hidden sm:inline">Sair</span>
             </Button>
           </div>
         </div>
@@ -99,7 +125,7 @@ export const ParticipantLayout: React.FC = () => {
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
-            Meus Certificados
+            Meus certificados
             {isTabActive('/user/certificados') && (
               <m.span
                 layoutId="participant-desktop-active"
@@ -115,7 +141,7 @@ export const ParticipantLayout: React.FC = () => {
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
-            Minhas Medalhas
+            Minhas medalhas
             {isTabActive('/user/medalhas') && (
               <m.span
                 layoutId="participant-desktop-active"
@@ -131,7 +157,7 @@ export const ParticipantLayout: React.FC = () => {
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
-            Explorar Eventos
+            Explorar eventos
             {isTabActive(PARTICIPANT_EVENTS_PATH) && (
               <m.span
                 layoutId="participant-desktop-active"
@@ -151,8 +177,8 @@ export const ParticipantLayout: React.FC = () => {
 
       {/* Rodapé Desktop */}
       <footer className="hidden md:block bg-[var(--color-bg-subtle)] border-t border-[var(--color-border)]/60 py-4 text-center text-xs text-[var(--color-text-muted)]">
-        Muttley &copy; {new Date().getFullYear()} — Plataforma Acadêmica de
-        Gestão e Certificados
+        Muttley &copy; {new Date().getFullYear()} — eventos acadêmicos e
+        certificados
       </footer>
 
       {/* Barra inferior no celular */}
