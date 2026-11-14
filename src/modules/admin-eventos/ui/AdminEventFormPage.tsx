@@ -1,32 +1,44 @@
-import React, { useState, useEffect, useId } from 'react'
+import React, { useEffect, useId, useMemo, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useNavigate, useParams } from 'react-router-dom'
+import { AlertTriangle, CopyPlus, Info } from 'lucide-react'
+import { ptBR } from 'react-day-picker/locale'
 import {
   getAdminEventoByIdApi,
-  salvarAdminEventoApi,
+  getAdminEventosApi,
   getAuxiliaresEventoApi,
+  salvarAdminEventoApi,
 } from '../api/adminEventosApi'
 import type {
-  ModalidadeEvento,
+  AdminEvento,
   DisciplinaOption,
   LocalOption,
+  ModalidadeEvento,
   PatrocinadorOption,
 } from '../domain/adminEventoTypes'
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-  Button,
-  Input,
+  ATALHOS_PERIODO,
+  DURACOES,
+  conflitos,
+  consequencias,
+  copiarDe,
+  proximoDiaUtil,
+  somarMinutos,
+  validarEvento,
+  type ValoresEvento,
+} from '../domain/formularioEvento'
+import {
   Alert,
-  toast,
-  CalendarIcon,
+  Badge,
+  Button,
   ButtonLink,
+  CalendarIcon,
+  FiltroSegmentado,
+  Input,
+  Ticket,
+  toast,
 } from '../../../shared/ui'
-import { AdminEventFormSkeleton } from './skeletons'
 import { HistoryBackButton } from '../../../shared/navigation'
-import { ptBR } from 'react-day-picker/locale'
 import { deDataIso, paraDataIso } from '../../../shared/lib/datas'
 import { Calendar } from '../../../shared/ui/shadcn/calendar'
 import {
@@ -42,433 +54,697 @@ import {
   SelectValue,
 } from '../../../shared/ui/shadcn/select'
 import { Textarea } from '../../../shared/ui/shadcn/textarea'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '../../../shared/ui/shadcn/dialog'
+import { formatModalidade, getTicketDateParts } from '../../eventos'
+import { AdminEventFormSkeleton } from './skeletons'
 
-const NENHUM = 'nenhum'
+const VAZIO = '__vazio__'
+const ULTIMO_LOCAL = 'muttley-ultimo-local'
+// Mesmo estilo do rótulo do Input, para os campos não parecerem de famílias diferentes.
 const rotuloClasse =
-  'block text-sm font-semibold text-[var(--color-text-secondary)] mb-1.5'
+  'block text-sm font-medium text-[var(--color-text-primary)] mb-1.5'
+/** "09:00" → "9h", "21:30" → "21h30". */
+const hora = (hhmm: string) => {
+  const [h, m] = hhmm.split(':')
+  return `${Number(h)}h${m === '00' ? '' : m}`
+}
+const Obrigatorio = () => (
+  <span className="text-[var(--color-danger-text)] ml-1" aria-hidden>
+    *
+  </span>
+)
 const campoClasse =
-  'w-full h-11 rounded-sm border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]'
+  'w-full h-11 rounded-sm border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)] aria-[invalid=true]:border-[var(--color-danger-text)]'
+const chipClasse =
+  'rounded-full border border-[var(--color-border)] px-3 py-1.5 text-sm font-medium transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]'
 const formatoData = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' })
+const formatoCurto = new Intl.DateTimeFormat('pt-BR', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+})
+
+const lerUltimoLocal = () => {
+  try {
+    return localStorage.getItem(ULTIMO_LOCAL) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+const ORDEM_CAMPOS: Array<keyof ValoresEvento> = [
+  'tema',
+  'disciplinaId',
+  'data',
+  'horarioInicio',
+  'horarioFim',
+  'localId',
+  'patrocinadorId',
+]
+
+/** Bloco do formulário que responde a uma pergunta: sobre o quê, quando, onde. */
+const Secao: React.FC<{
+  titulo: string
+  children: React.ReactNode
+}> = ({ titulo, children }) => (
+  <section className="rounded-md bg-[var(--color-bg-surface)] p-5 sm:p-6 space-y-4">
+    <h2 className="font-display text-lg font-bold">{titulo}</h2>
+    {children}
+  </section>
+)
+
+const Erro: React.FC<{ id: string; mensagem?: string }> = ({ id, mensagem }) =>
+  mensagem ? (
+    <p id={id} className="mt-1.5 text-xs text-[var(--color-danger-text)]">
+      {mensagem}
+    </p>
+  ) : null
+
+/** Seletor de cadastro obrigatório (disciplina, local, patrocinador). */
+const SelectCadastro: React.FC<{
+  id: string
+  valor: string
+  onChange: (v: string) => void
+  placeholder: string
+  opcoes: { valor: string; rotulo: string }[]
+  erro?: string
+}> = ({ id, valor, onChange, placeholder, opcoes, erro }) => (
+  <>
+    <Select
+      value={valor || VAZIO}
+      onValueChange={(v) => onChange(v === VAZIO ? '' : v)}
+    >
+      <SelectTrigger
+        id={id}
+        className={campoClasse}
+        aria-invalid={Boolean(erro)}
+        aria-describedby={erro ? `${id}-erro` : undefined}
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={VAZIO} disabled>
+          {placeholder}
+        </SelectItem>
+        {opcoes.map((o) => (
+          <SelectItem key={o.valor} value={o.valor}>
+            {o.rotulo}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    <Erro id={`${id}-erro`} mensagem={erro} />
+  </>
+)
 
 export const AdminEventFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
-  const isEditing = Boolean(id)
+  const editando = Boolean(id)
   const navigate = useNavigate()
+  const prefixo = useId()
+  const idCampo = (c: string) => `${prefixo}-${c}`
 
-  // IDs para acessibilidade de formulário
-  const temaId = useId()
-  const descricaoId = useId()
-  const dataId = useId()
-  const inicioId = useId()
-  const fimId = useId()
-  const modalidadeId = useId()
-  const localIdSelect = useId()
-  const disciplinaIdSelect = useId()
-  const patrocinadorIdSelect = useId()
-
-  // Campos do formulário
-  const [tema, setTema] = useState('')
-  const [descricao, setDescricao] = useState('')
-  const [data, setData] = useState('')
+  const [v, setV] = useState<ValoresEvento>(() => ({
+    tema: '',
+    descricao: '',
+    data: editando ? '' : proximoDiaUtil(new Date()),
+    horarioInicio: '',
+    horarioFim: '',
+    modalidade: 'PRESENCIAL',
+    localId: editando ? '' : lerUltimoLocal(),
+    disciplinaId: '',
+    patrocinadorId: '',
+  }))
+  const [erros, setErros] = useState<
+    Partial<Record<keyof ValoresEvento, string>>
+  >({})
   const [calendarioAberto, setCalendarioAberto] = useState(false)
-  const dataSelecionada = deDataIso(data)
-  const [horarioInicio, setHorarioInicio] = useState('')
-  const [horarioFim, setHorarioFim] = useState('')
-  const [modalidade, setModalidade] = useState<ModalidadeEvento>('PRESENCIAL')
-  const [localId, setLocalId] = useState<string>('')
-  const [disciplinaId, setDisciplinaId] = useState<string>('')
-  const [patrocinadorId, setPatrocinadorId] = useState<string>('')
+  const [copiando, setCopiando] = useState(false)
+  const [buscaCopia, setBuscaCopia] = useState('')
 
-  // Listas auxiliares
   const [locais, setLocais] = useState<LocalOption[]>([])
   const [disciplinas, setDisciplinas] = useState<DisciplinaOption[]>([])
   const [patrocinadores, setPatrocinadores] = useState<PatrocinadorOption[]>([])
+  const [eventos, setEventos] = useState<AdminEvento[]>([])
 
-  // Estados de controle
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [isSaving, setIsSaving] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
-  const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const [carregando, setCarregando] = useState(true)
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
-    let isMounted = true
-
-    const loadInitialData = async () => {
-      try {
-        const aux = await getAuxiliaresEventoApi()
-        if (!isMounted) return
+    let ativo = true
+    Promise.all([
+      getAuxiliaresEventoApi(),
+      // Para avisar de choque de horário e para copiar; sem a lista o formulário funciona igual.
+      getAdminEventosApi().catch(() => [] as AdminEvento[]),
+      id ? getAdminEventoByIdApi(id) : Promise.resolve(null),
+    ])
+      .then(([aux, lista, evt]) => {
+        if (!ativo) return
         setLocais(aux.locais)
         setDisciplinas(aux.disciplinas)
         setPatrocinadores(aux.patrocinadores)
-
-        if (id) {
-          const evt = await getAdminEventoByIdApi(id)
-          if (!isMounted) return
-          setTema(evt.tema || '')
-          setDescricao(evt.descricao || '')
-          setData(evt.data || '')
-          setHorarioInicio(evt.horarioInicio || '')
-          setHorarioFim(evt.horarioFim || '')
-          setModalidade(evt.modalidade || 'PRESENCIAL')
-          setLocalId(evt.localId ? String(evt.localId) : '')
-          setDisciplinaId(evt.disciplinaId ? String(evt.disciplinaId) : '')
-          setPatrocinadorId(
-            evt.patrocinadorId ? String(evt.patrocinadorId) : ''
+        setEventos(lista)
+        if (evt) {
+          setV({
+            ...copiarDe(evt),
+            data: evt.data ?? '',
+            descricao:
+              evt.descricao && evt.descricao !== '-' ? evt.descricao : '',
+          })
+        } else {
+          // O último local só vale se ainda existir.
+          setV((atual) =>
+            aux.locais.some((l) => String(l.id) === atual.localId)
+              ? atual
+              : { ...atual, localId: '' }
           )
         }
-      } catch (err: unknown) {
-        if (!isMounted) return
-        if (err instanceof Error) {
-          setError(err.message)
-        } else {
-          setError('Falha ao carregar dados do evento.')
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    loadInitialData()
-
+      })
+      .catch((e: unknown) => {
+        if (ativo)
+          setErro(
+            e instanceof Error ? e.message : 'Não foi possível abrir o evento.'
+          )
+      })
+      .finally(() => ativo && setCarregando(false))
     return () => {
-      isMounted = false
+      ativo = false
     }
   }, [id])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const alterar = <K extends keyof ValoresEvento>(
+    campo: K,
+    valor: ValoresEvento[K]
+  ) => {
+    setV((atual) => ({ ...atual, [campo]: valor }))
+    if (erros[campo]) setErros((e) => ({ ...e, [campo]: undefined }))
+  }
+
+  const usarPeriodo = (inicio: string, fim: string) => {
+    setV((atual) => ({ ...atual, horarioInicio: inicio, horarioFim: fim }))
+    setErros((e) => ({ ...e, horarioInicio: undefined, horarioFim: undefined }))
+  }
+
+  const usarDuracao = (minutos: number) => {
+    const fim = v.horarioInicio ? somarMinutos(v.horarioInicio, minutos) : null
+    if (fim) alterar('horarioFim', fim)
+    else if (!v.horarioInicio)
+      setErros((e) => ({ ...e, horarioInicio: 'Informe o início primeiro.' }))
+    else toast.error('Essa duração passaria da meia-noite.')
+  }
+
+  const copiar = (evento: AdminEvento) => {
+    setV((atual) => ({ ...atual, ...copiarDe(evento) }))
+    setErros({})
+    setCopiando(false)
+    setBuscaCopia('')
+    toast.success(`Dados copiados de “${evento.tema}”. Confira a data.`)
+  }
+
+  const local = locais.find((l) => String(l.id) === v.localId)
+  const disciplina = disciplinas.find((d) => String(d.id) === v.disciplinaId)
+  const efeitos = consequencias(v)
+  const choques = useMemo(
+    () => conflitos(eventos, v, id ? Number(id) : undefined),
+    [eventos, v, id]
+  )
+  const anteriores = useMemo(() => {
+    const termo = buscaCopia.trim().toLowerCase()
+    return [...eventos]
+      .filter((e) => e.status !== 'CANCELADO')
+      .filter((e) => !termo || e.tema.toLowerCase().includes(termo))
+      .sort((a, b) => (b.data ?? '').localeCompare(a.data ?? ''))
+      .slice(0, 30)
+  }, [eventos, buscaCopia])
+
+  const salvar = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    const errs: string[] = []
-
-    if (!tema.trim()) {
-      errs.push('O tema/título do evento é obrigatório.')
-    }
-    if (!data) {
-      errs.push('A data do evento é obrigatória.')
-    }
-    if (!horarioInicio) {
-      errs.push('O horário de início é obrigatório.')
-    }
-    if (!horarioFim) {
-      errs.push('O horário de término é obrigatório.')
-    }
-
-    if (horarioInicio && horarioFim && horarioInicio >= horarioFim) {
-      errs.push('O horário de término deve ser posterior ao horário de início.')
-    }
-
-    if (errs.length > 0) {
-      setValidationErrors(errs)
+    const encontrados = validarEvento(v, new Date())
+    if (Object.keys(encontrados).length) {
+      flushSync(() => setErros(encontrados))
+      const primeiro = ORDEM_CAMPOS.find((c) => encontrados[c])
+      if (primeiro) document.getElementById(idCampo(primeiro))?.focus()
       return
     }
-
-    setValidationErrors([])
-    setIsSaving(true)
-
+    setSalvando(true)
+    setErro(null)
     try {
-      await salvarAdminEventoApi({
+      const resultado = await salvarAdminEventoApi({
         id: id ? Number(id) : null,
-        tema: tema.trim(),
-        descricao: descricao.trim() || '-',
-        data,
-        horarioInicio,
-        horarioFim,
-        modalidade,
-        localId: localId ? Number(localId) : null,
-        disciplinaId: disciplinaId ? Number(disciplinaId) : null,
-        patrocinadorId: patrocinadorId ? Number(patrocinadorId) : null,
+        tema: v.tema.trim(),
+        descricao: v.descricao.trim() || '-',
+        data: v.data,
+        horarioInicio: v.horarioInicio,
+        horarioFim: v.horarioFim,
+        modalidade: v.modalidade,
+        localId: Number(v.localId),
+        disciplinaId: Number(v.disciplinaId),
+        patrocinadorId: Number(v.patrocinadorId),
       })
-
-      toast.success(id ? 'Evento atualizado' : 'Evento criado')
-      navigate('/admin/eventos')
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Falha ao salvar evento. Verifique os dados informados.')
+      try {
+        localStorage.setItem(ULTIMO_LOCAL, v.localId)
+      } catch {
+        // Lembrar o local é só conveniência.
       }
+      toast.success(editando ? 'Evento atualizado' : 'Evento criado')
+      // O evento é o próximo passo: link de inscrição, QR Codes e telão ficam lá.
+      navigate(
+        resultado.id ? `/admin/eventos/${resultado.id}` : '/admin/eventos'
+      )
+    } catch (err) {
+      setErro(
+        err instanceof Error ? err.message : 'Não foi possível salvar o evento.'
+      )
     } finally {
-      setIsSaving(false)
+      setSalvando(false)
     }
   }
 
+  const dataSelecionada = deDataIso(v.data)
+  const partes = v.data
+    ? getTicketDateParts(v.data, v.horarioInicio || null)
+    : null
+  const hoje = new Date()
+  hoje.setHours(0, 0, 0, 0)
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      {/* Navegação superior e Título */}
-      <div className="flex items-center gap-3 border-b border-[var(--color-border)] pb-4">
-        <HistoryBackButton label="Voltar para a página anterior" />
+    <div className="w-full max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
+      <HistoryBackButton label="Voltar" />
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-bold">
+            {editando ? 'Editar evento' : 'Criar evento'}
+          </h1>
+          <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+            A prévia ao lado mostra o evento como os participantes vão ver.
+          </p>
+        </div>
+        {!editando && eventos.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<CopyPlus className="size-4" />}
+            onClick={() => setCopiando(true)}
+          >
+            Copiar de um evento anterior
+          </Button>
+        )}
       </div>
 
-      <div>
-        <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
-          {isEditing ? 'Editar evento' : 'Criar evento'}
-        </h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
-          Preencha os dados abaixo com o planejamento de data, horário, local e
-          modalidade.
-        </p>
-      </div>
-
-      {/* Alertas */}
-      {error && (
-        <Alert variant="error" title="Erro ao salvar evento">
-          {error}
+      {erro && (
+        <Alert
+          variant="error"
+          title="Não foi possível salvar"
+          onClose={() => setErro(null)}
+        >
+          {erro}
         </Alert>
       )}
 
-      {validationErrors.length > 0 && (
-        <Alert variant="warning" title="Atenção aos campos">
-          <ul className="list-disc pl-5 text-xs space-y-1 mt-1">
-            {validationErrors.map((msg, index) => (
-              <li key={index}>{msg}</li>
-            ))}
-          </ul>
-        </Alert>
-      )}
-
-      {/* Estado de carregamento inicial */}
-      {isLoading ? (
+      {carregando ? (
         <AdminEventFormSkeleton />
       ) : (
-        <form onSubmit={handleSubmit}>
-          <Card className="surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-xs">
-            <CardHeader className="border-b border-[var(--color-border-subtle)]">
-              <CardTitle className="text-base font-bold text-[var(--color-text-primary)]">
-                Informações principais
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent className="p-6 space-y-5">
-              {/* Tema */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_22rem] gap-6 items-start">
+          <form noValidate onSubmit={salvar} className="flex flex-col gap-6">
+            <Secao titulo="Sobre o quê?">
+              <Input
+                id={idCampo('tema')}
+                label="Tema"
+                required
+                placeholder="Ex.: Oficina de Git para iniciantes"
+                value={v.tema}
+                error={erros.tema}
+                onChange={(e) => alterar('tema', e.target.value)}
+              />
               <div>
-                <label htmlFor={temaId} className={rotuloClasse}>
-                  Tema do evento *
-                </label>
-                <Input
-                  id={temaId}
-                  type="text"
-                  placeholder="Ex.: Semana de Engenharia de Software 2026"
-                  value={tema}
-                  onChange={(e) => setTema(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Descrição */}
-              <div>
-                <label htmlFor={descricaoId} className={rotuloClasse}>
+                <label htmlFor={idCampo('descricao')} className={rotuloClasse}>
                   Descrição
                 </label>
                 <Textarea
-                  id={descricaoId}
-                  rows={4}
-                  placeholder="Programação, palestrantes e tópicos que serão abordados"
-                  value={descricao}
-                  onChange={(e) => setDescricao(e.target.value)}
+                  id={idCampo('descricao')}
+                  rows={3}
+                  placeholder="O que vai acontecer, quem vai falar e para quem é"
+                  value={v.descricao}
+                  onChange={(e) => alterar('descricao', e.target.value)}
                 />
               </div>
+              <div>
+                <label
+                  htmlFor={idCampo('disciplinaId')}
+                  className={rotuloClasse}
+                >
+                  Disciplina
+                  <Obrigatorio />
+                </label>
+                <SelectCadastro
+                  id={idCampo('disciplinaId')}
+                  valor={v.disciplinaId}
+                  onChange={(x) => alterar('disciplinaId', x)}
+                  placeholder="Escolha a disciplina"
+                  opcoes={disciplinas.map((d) => ({
+                    valor: String(d.id),
+                    rotulo: d.nome,
+                  }))}
+                  erro={erros.disciplinaId}
+                />
+                <p className="mt-1.5 text-xs text-[var(--color-text-muted)]">
+                  A presença conta para a medalha dessa disciplina.
+                </p>
+              </div>
+            </Secao>
 
-              {/* Data e horários */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor={dataId} className={rotuloClasse}>
-                    Data *
-                  </label>
-                  <Popover
-                    open={calendarioAberto}
-                    onOpenChange={setCalendarioAberto}
-                  >
-                    <PopoverTrigger asChild>
-                      <button
-                        id={dataId}
-                        type="button"
-                        className={`${campoClasse} flex items-center justify-between gap-2 text-left`}
+            <Secao titulo="Quando?">
+              <div>
+                <label htmlFor={idCampo('data')} className={rotuloClasse}>
+                  Data
+                  <Obrigatorio />
+                </label>
+                <Popover
+                  open={calendarioAberto}
+                  onOpenChange={setCalendarioAberto}
+                >
+                  <PopoverTrigger asChild>
+                    <button
+                      id={idCampo('data')}
+                      type="button"
+                      aria-invalid={Boolean(erros.data)}
+                      aria-describedby={
+                        erros.data ? `${idCampo('data')}-erro` : undefined
+                      }
+                      className={`${campoClasse} flex items-center justify-between gap-2 text-left sm:max-w-xs`}
+                    >
+                      <span
+                        className={
+                          dataSelecionada
+                            ? ''
+                            : 'text-[var(--color-text-muted)]'
+                        }
                       >
-                        <span
-                          className={
-                            dataSelecionada
-                              ? ''
-                              : 'text-[var(--color-text-muted)]'
-                          }
-                        >
-                          {dataSelecionada
-                            ? formatoData.format(dataSelecionada)
-                            : 'Escolha a data'}
-                        </span>
-                        <CalendarIcon
-                          size={16}
-                          className="shrink-0 text-[var(--color-text-muted)]"
-                        />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        locale={ptBR}
-                        selected={dataSelecionada}
-                        defaultMonth={dataSelecionada}
-                        onSelect={(dia) => {
-                          setData(dia ? paraDataIso(dia) : '')
-                          setCalendarioAberto(false)
-                        }}
+                        {dataSelecionada
+                          ? formatoData.format(dataSelecionada)
+                          : 'Escolha a data'}
+                      </span>
+                      <CalendarIcon
+                        size={16}
+                        className="shrink-0 text-[var(--color-text-muted)]"
                       />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      locale={ptBR}
+                      selected={dataSelecionada}
+                      defaultMonth={dataSelecionada}
+                      disabled={{ before: hoje }}
+                      onSelect={(dia) => {
+                        alterar('data', dia ? paraDataIso(dia) : '')
+                        setCalendarioAberto(false)
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <Erro id={`${idCampo('data')}-erro`} mensagem={erros.data} />
+              </div>
 
-                <div>
-                  <label htmlFor={inicioId} className={rotuloClasse}>
-                    Início *
-                  </label>
+              <div>
+                <span className={rotuloClasse}>Horário</span>
+                <div
+                  className="flex flex-wrap gap-2 mb-3"
+                  role="group"
+                  aria-label="Períodos comuns"
+                >
+                  {ATALHOS_PERIODO.map((p) => {
+                    const ativo =
+                      v.horarioInicio === p.inicio && v.horarioFim === p.fim
+                    return (
+                      <button
+                        key={p.rotulo}
+                        type="button"
+                        aria-pressed={ativo}
+                        onClick={() => usarPeriodo(p.inicio, p.fim)}
+                        className={`${chipClasse} ${ativo ? 'border-[var(--color-primary)] bg-[var(--color-primary-subtle)] text-[var(--color-primary-text)]' : ''}`}
+                      >
+                        {p.rotulo}{' '}
+                        <span className="text-[var(--color-text-muted)] tabular-nums">
+                          {hora(p.inicio)}–{hora(p.fim)}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="grid grid-cols-2 gap-4 sm:max-w-md">
                   <Input
-                    id={inicioId}
+                    id={idCampo('horarioInicio')}
+                    label="Início"
                     type="time"
-                    value={horarioInicio}
-                    onChange={(e) => setHorarioInicio(e.target.value)}
                     required
+                    value={v.horarioInicio}
+                    error={erros.horarioInicio}
+                    onChange={(e) => alterar('horarioInicio', e.target.value)}
+                  />
+                  <Input
+                    id={idCampo('horarioFim')}
+                    label="Término"
+                    type="time"
+                    required
+                    value={v.horarioFim}
+                    error={erros.horarioFim}
+                    onChange={(e) => alterar('horarioFim', e.target.value)}
                   />
                 </div>
-
-                <div>
-                  <label htmlFor={fimId} className={rotuloClasse}>
-                    Término *
-                  </label>
-                  <Input
-                    id={fimId}
-                    type="time"
-                    value={horarioFim}
-                    onChange={(e) => setHorarioFim(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Modalidade e local */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor={modalidadeId} className={rotuloClasse}>
-                    Modalidade *
-                  </label>
-                  <Select
-                    value={modalidade}
-                    onValueChange={(v) => setModalidade(v as ModalidadeEvento)}
-                  >
-                    <SelectTrigger id={modalidadeId} className={campoClasse}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PRESENCIAL">Presencial</SelectItem>
-                      <SelectItem value="ONLINE">Online</SelectItem>
-                      <SelectItem value="HIBRIDO">Híbrido</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label htmlFor={localIdSelect} className={rotuloClasse}>
-                    Local
-                  </label>
-                  <Select
-                    value={localId || NENHUM}
-                    onValueChange={(v) => setLocalId(v === NENHUM ? '' : v)}
-                  >
-                    <SelectTrigger id={localIdSelect} className={campoClasse}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NENHUM}>Sem local definido</SelectItem>
-                      {locais.map((loc) => (
-                        <SelectItem key={loc.id} value={String(loc.id)}>
-                          {loc.nome}
-                          {loc.capacidade ? ` · ${loc.capacidade} lugares` : ''}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Disciplina e patrocinador */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor={disciplinaIdSelect} className={rotuloClasse}>
-                    Disciplina (opcional)
-                  </label>
-                  <Select
-                    value={disciplinaId || NENHUM}
-                    onValueChange={(v) =>
-                      setDisciplinaId(v === NENHUM ? '' : v)
-                    }
-                  >
-                    <SelectTrigger
-                      id={disciplinaIdSelect}
-                      className={campoClasse}
+                <div
+                  className="flex flex-wrap items-center gap-2 mt-3"
+                  role="group"
+                  aria-label="Duração a partir do início"
+                >
+                  <span className="text-sm text-[var(--color-text-secondary)]">
+                    Duração:
+                  </span>
+                  {DURACOES.map((d) => (
+                    <button
+                      key={d.rotulo}
+                      type="button"
+                      onClick={() => usarDuracao(d.minutos)}
+                      className={chipClasse}
                     >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NENHUM}>Nenhuma</SelectItem>
-                      {disciplinas.map((disc) => (
-                        <SelectItem key={disc.id} value={String(disc.id)}>
-                          {disc.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor={patrocinadorIdSelect}
-                    className={rotuloClasse}
-                  >
-                    Patrocinador (opcional)
-                  </label>
-                  <Select
-                    value={patrocinadorId || NENHUM}
-                    onValueChange={(v) =>
-                      setPatrocinadorId(v === NENHUM ? '' : v)
-                    }
-                  >
-                    <SelectTrigger
-                      id={patrocinadorIdSelect}
-                      className={campoClasse}
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NENHUM}>Nenhum</SelectItem>
-                      {patrocinadores.map((pat) => (
-                        <SelectItem key={pat.id} value={String(pat.id)}>
-                          {pat.razaoSocial}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                      {d.rotulo}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </CardContent>
 
-            <CardFooter className="bg-[var(--color-bg-subtle)]/70 border-t border-[var(--color-border-subtle)] flex items-center justify-between p-4 sm:px-6">
-              <ButtonLink to="/admin/eventos" variant="outline" size="md">
+              {efeitos && (
+                <ul className="flex flex-col gap-1.5 rounded-md bg-[var(--color-bg-subtle)] p-3 text-sm text-[var(--color-text-secondary)]">
+                  <li className="flex gap-2">
+                    <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+                    {efeitos.inscricoes}
+                  </li>
+                  <li className="flex gap-2">
+                    <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+                    {efeitos.presenca}
+                  </li>
+                </ul>
+              )}
+            </Secao>
+
+            <Secao titulo="Onde?">
+              <div>
+                <span className={rotuloClasse}>Modalidade</span>
+                <FiltroSegmentado<ModalidadeEvento>
+                  rotulo="Modalidade do evento"
+                  valor={v.modalidade}
+                  onChange={(m) => alterar('modalidade', m)}
+                  opcoes={[
+                    { valor: 'PRESENCIAL', rotulo: 'Presencial' },
+                    { valor: 'ONLINE', rotulo: 'On-line' },
+                    { valor: 'HIBRIDO', rotulo: 'Híbrido' },
+                  ]}
+                />
+              </div>
+              <div className="sm:max-w-md">
+                <label htmlFor={idCampo('localId')} className={rotuloClasse}>
+                  Local
+                  <Obrigatorio />
+                </label>
+                <SelectCadastro
+                  id={idCampo('localId')}
+                  valor={v.localId}
+                  onChange={(x) => alterar('localId', x)}
+                  placeholder="Escolha o local"
+                  opcoes={locais.map((l) => ({
+                    valor: String(l.id),
+                    rotulo: l.capacidade
+                      ? `${l.nome} · ${l.capacidade} vagas`
+                      : l.nome,
+                  }))}
+                  erro={erros.localId}
+                />
+                {local && !erros.localId && (
+                  <p className="mt-1.5 text-xs text-[var(--color-text-muted)]">
+                    {local.capacidade
+                      ? `As inscrições fecham ao atingir ${local.capacidade} vagas, a capacidade do local.`
+                      : 'Esse local não tem capacidade cadastrada.'}
+                  </p>
+                )}
+              </div>
+              {choques.length > 0 && (
+                <Alert variant="warning" title="Choque de horário">
+                  <p className="flex gap-2">
+                    <AlertTriangle
+                      className="mt-0.5 size-4 shrink-0"
+                      aria-hidden
+                    />
+                    <span>
+                      {local?.nome ?? 'O local'} já tem{' '}
+                      {choques.map((c) => `“${c.tema}”`).join(', ')} nesse
+                      horário. Dá para salvar mesmo assim.
+                    </span>
+                  </p>
+                </Alert>
+              )}
+            </Secao>
+
+            <Secao titulo="Quem apoia?">
+              <div className="sm:max-w-md">
+                <label
+                  htmlFor={idCampo('patrocinadorId')}
+                  className={rotuloClasse}
+                >
+                  Patrocinador
+                  <Obrigatorio />
+                </label>
+                <SelectCadastro
+                  id={idCampo('patrocinadorId')}
+                  valor={v.patrocinadorId}
+                  onChange={(x) => alterar('patrocinadorId', x)}
+                  placeholder="Escolha o patrocinador"
+                  opcoes={patrocinadores.map((p) => ({
+                    valor: String(p.id),
+                    rotulo: p.nome,
+                  }))}
+                  erro={erros.patrocinadorId}
+                />
+              </div>
+            </Secao>
+
+            <div className="flex flex-wrap justify-end gap-3">
+              <ButtonLink
+                to={id ? `/admin/eventos/${id}` : '/admin/eventos'}
+                variant="ghost"
+              >
                 Cancelar
               </ButtonLink>
-
               <Button
-                variant="primary"
-                size="md"
                 type="submit"
-                disabled={isSaving}
-                isLoading={isSaving}
+                isLoading={salvando}
+                loadingText="Salvando…"
               >
-                {isSaving ? 'Salvando...' : 'Salvar evento'}
+                {editando ? 'Salvar alterações' : 'Criar evento'}
               </Button>
-            </CardFooter>
-          </Card>
-        </form>
+            </div>
+          </form>
+
+          <aside
+            aria-label="Prévia do evento"
+            className="flex flex-col gap-3 lg:sticky lg:top-6"
+          >
+            <p className="text-sm font-semibold text-[var(--color-text-secondary)]">
+              Como o participante vai ver
+            </p>
+            <Ticket
+              dia={partes?.dia ?? '–'}
+              mes={partes?.mes ?? 'data'}
+              horario={partes?.horario ?? null}
+            >
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="success">Inscrições abertas</Badge>
+                {formatModalidade(v.modalidade) && (
+                  <Badge variant="default">
+                    {formatModalidade(v.modalidade)}
+                  </Badge>
+                )}
+              </div>
+              <p
+                className={`font-display text-xl font-bold leading-tight mt-3 break-words ${v.tema.trim() ? '' : 'text-[var(--color-text-muted)]'}`}
+              >
+                {v.tema.trim() || 'Tema do evento'}
+              </p>
+              <p className="text-sm text-[var(--color-text-secondary)] mt-1.5">
+                {[
+                  v.horarioInicio && v.horarioFim
+                    ? `${v.horarioInicio} às ${v.horarioFim}`
+                    : 'Horário a definir',
+                  local?.nome ?? 'Local a definir',
+                ].join(' · ')}
+              </p>
+              {disciplina && (
+                <p className="text-xs text-[var(--color-text-muted)] mt-1">
+                  {disciplina.nome}
+                </p>
+              )}
+            </Ticket>
+          </aside>
+        </div>
       )}
+
+      <Dialog open={copiando} onOpenChange={setCopiando}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Copiar de um evento anterior</DialogTitle>
+            <DialogDescription>
+              Tema, descrição, horários, local, disciplina e patrocinador vêm
+              preenchidos. A data fica para você escolher.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            type="search"
+            placeholder="Buscar pelo tema"
+            aria-label="Buscar evento pelo tema"
+            value={buscaCopia}
+            onChange={(e) => setBuscaCopia(e.target.value)}
+          />
+          <ul className="max-h-80 overflow-y-auto divide-y -mx-2">
+            {anteriores.map((e) => {
+              const dia = deDataIso(e.data ?? '')
+              return (
+                <li key={e.id}>
+                  <button
+                    type="button"
+                    onClick={() => copiar(e)}
+                    className="w-full rounded-sm px-2 py-2.5 text-left hover:bg-[var(--color-bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                  >
+                    <span className="block font-semibold break-words">
+                      {e.tema}
+                    </span>
+                    <span className="text-xs text-[var(--color-text-muted)]">
+                      {[
+                        dia ? formatoCurto.format(dia) : null,
+                        e.horarioInicio?.slice(0, 5),
+                        typeof e.local === 'object' ? e.local?.nome : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+            {anteriores.length === 0 && (
+              <li className="px-2 py-6 text-center text-sm text-[var(--color-text-muted)]">
+                Nenhum evento com esse tema.
+              </li>
+            )}
+          </ul>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

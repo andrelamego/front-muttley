@@ -16,6 +16,7 @@ import {
 import {
   ParticipantDashboardPage,
   AdminDashboardPage,
+  PerfilPage,
 } from '../../modules/painel'
 import {
   PublicCertificateViewPage,
@@ -93,7 +94,8 @@ export const AppRoutes: React.FC = () => {
         />
         <Route path="certificados" element={<UserCertificatesPage />} />
         <Route path="medalhas" element={<UserMedalsPage />} />
-        <Route path="perfil" element={<MeuPerfilPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="perfil/editar" element={<MeuPerfilPage />} />
       </Route>
 
       {/* Telão para projetar na sala: tela inteira, sem o menu da coordenação */}

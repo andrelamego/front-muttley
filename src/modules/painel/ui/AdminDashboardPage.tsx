@@ -293,41 +293,78 @@ export const AdminDashboardPage: React.FC = () => {
               )}
             </section>
 
-            <section
-              aria-labelledby="certs-heading"
-              className="bg-[var(--color-bg-surface)] rounded-md p-5"
-            >
-              <h2
-                id="certs-heading"
-                className="font-display text-lg font-bold mb-4"
+            <div className="flex flex-col gap-6">
+              <section
+                aria-labelledby="certs-heading"
+                className="bg-[var(--color-bg-surface)] rounded-md p-5"
               >
-                Certificados por evento
-              </h2>
-              {data.certificadosPorEvento.length === 0 ? (
-                <p className="text-sm text-[var(--color-text-secondary)]">
-                  Nenhum certificado emitido ainda.
+                <h2
+                  id="certs-heading"
+                  className="font-display text-lg font-bold mb-4"
+                >
+                  Certificados por evento
+                </h2>
+                {data.certificadosPorEvento.length === 0 ? (
+                  <p className="text-sm text-[var(--color-text-secondary)]">
+                    Nenhum certificado emitido ainda.
+                  </p>
+                ) : (
+                  <ul className="flex flex-col gap-3">
+                    {data.certificadosPorEvento.map((barra) => (
+                      <li key={barra.rotulo}>
+                        <span className="flex justify-between gap-3 text-sm">
+                          <span className="truncate">{barra.rotulo}</span>
+                          <b className="tabular-nums">{barra.total}</b>
+                        </span>
+                        <span className="block h-2.5 rounded-full bg-[var(--color-primary-subtle)] mt-1.5 overflow-hidden">
+                          <span
+                            className="block h-full rounded-full bg-[var(--color-primary)]"
+                            style={{
+                              width: `${Math.min(100, Math.max(0, barra.percentual))}%`,
+                            }}
+                          />
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+              <section
+                aria-labelledby="destaques-heading"
+                className="bg-[var(--color-bg-surface)] rounded-md p-5"
+              >
+                <h2
+                  id="destaques-heading"
+                  className="font-display text-lg font-bold"
+                >
+                  Destaques do semestre
+                </h2>
+                <p className="text-xs text-[var(--color-text-muted)] mt-1 mb-4">
+                  Mais presenças em eventos concluídos. No fim do semestre, o
+                  primeiro recebe a medalha Diamante.
                 </p>
-              ) : (
-                <ul className="flex flex-col gap-3">
-                  {data.certificadosPorEvento.map((barra) => (
-                    <li key={barra.rotulo}>
-                      <span className="flex justify-between gap-3 text-sm">
-                        <span className="truncate">{barra.rotulo}</span>
-                        <b className="tabular-nums">{barra.total}</b>
-                      </span>
-                      <span className="block h-2.5 rounded-full bg-[var(--color-primary-subtle)] mt-1.5 overflow-hidden">
-                        <span
-                          className="block h-full rounded-full bg-[var(--color-primary)]"
-                          style={{
-                            width: `${Math.min(100, Math.max(0, barra.percentual))}%`,
-                          }}
-                        />
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+                {data.destaquesSemestre.length === 0 ? (
+                  <p className="text-sm text-[var(--color-text-secondary)]">
+                    Nenhuma presença em evento concluído neste semestre.
+                  </p>
+                ) : (
+                  <ol className="flex flex-col gap-2.5">
+                    {data.destaquesSemestre.map((d, i) => (
+                      <li
+                        key={d.nome}
+                        className="flex items-center gap-3 text-sm"
+                      >
+                        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--color-bg-muted)] text-xs font-bold tabular-nums">
+                          {i + 1}
+                        </span>
+                        <span className="truncate flex-1">{d.nome}</span>
+                        <b className="tabular-nums">{d.presencas}</b>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </section>
+            </div>
           </div>
         </div>
       )}

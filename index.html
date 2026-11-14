@@ -1,10 +1,55 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
+    <!-- viewport-fit=cover: o app ocupa a tela toda e os cabeçalhos se afastam da câmera e do indicador.
+         Sem bloquear o zoom: os campos usam 16px no celular, que é o que evitava o zoom automático. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <title>Muttley · Eventos da Fatec</title>
+    <meta
+      name="description"
+      content="Inscrições, presença por QR Code, certificados e medalhas dos eventos da Fatec Zona Leste."
+    />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Muttley</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Cor da barra do sistema = fundo do topo da página em cada tema; o app ajusta ao trocar o tema. -->
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#eef0f6"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#0c1029"
+    />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Instalado na tela inicial -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Muttley" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Prévia ao compartilhar um link (WhatsApp, redes sociais) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Muttley" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="Muttley · Eventos da Fatec" />
+    <meta
+      property="og:description"
+      content="Inscrições, presença por QR Code, certificados e medalhas dos eventos da Fatec Zona Leste."
+    />
+    <meta property="og:image" content="/icon-512.png" />
+    <meta name="twitter:card" content="summary" />
   </head>
   <body>
     <div id="root"></div>

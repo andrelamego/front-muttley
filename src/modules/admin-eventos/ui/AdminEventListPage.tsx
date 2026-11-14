@@ -200,7 +200,7 @@ export const AdminEventListPage: React.FC = () => {
       )}
 
       {/* Barra de Filtros e Busca */}
-      <div className="flex flex-col md:flex-row md:items-end gap-4 justify-between surface-depth bg-[var(--color-bg-surface)] p-4 rounded-md border border-[var(--color-border)] shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-end gap-4 justify-between bg-[var(--color-bg-surface)] p-4 rounded-md">
         <div className="max-w-md flex-1">
           <label
             htmlFor={searchInputId}
@@ -293,10 +293,10 @@ export const AdminEventListPage: React.FC = () => {
               </div>
             </Card>
           ) : (
-            <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)] overflow-hidden shadow-xs">
+            <div className="bg-[var(--color-bg-surface)] rounded-md overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm border-collapse">
-                  <thead className="bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)]">
+                  <thead className="bg-[var(--color-bg-subtle)] text-xs font-semibold text-[var(--color-text-secondary)]">
                     <tr>
                       <th className="py-3.5 px-4">Evento</th>
                       <th className="py-3.5 px-4">Data e horário</th>

@@ -4,15 +4,16 @@ import type {
   AdminDashboardData,
   ParticipacaoResumo,
   CertificadoResumo,
-  MedalhaResumo,
 } from '../domain/painelTypes'
+import { getMinhasConquistasApi } from '../../medalhas'
 
 export const getParticipantDashboardData =
   async (): Promise<ParticipantDashboardData> => {
-    const [participacoesRes, certificadosRes, medalhasRes] = await Promise.all([
+    const [participacoesRes, certificadosRes, conquistas] = await Promise.all([
       apiClient.get<ParticipacaoResumo[]>('/me/participacoes'),
       apiClient.get<CertificadoResumo[]>('/me/certificados'),
-      apiClient.get<MedalhaResumo[]>('/me/medalhas'),
+      // Sem as medalhas o painel ainda funciona; o cartão só deixa de mostrar a meta.
+      getMinhasConquistasApi().catch(() => null),
     ])
 
     return {
@@ -22,7 +23,7 @@ export const getParticipantDashboardData =
       certificados: Array.isArray(certificadosRes.data)
         ? certificadosRes.data
         : [],
-      medalhas: Array.isArray(medalhasRes.data) ? medalhasRes.data : [],
+      conquistas,
     }
   }
 
@@ -43,8 +44,8 @@ export const getAdminDashboardData = async (): Promise<AdminDashboardData> => {
     certificadosPorEvento: Array.isArray(data.certificadosPorEvento)
       ? data.certificadosPorEvento
       : [],
-    medalhasPorParticipante: Array.isArray(data.medalhasPorParticipante)
-      ? data.medalhasPorParticipante
+    destaquesSemestre: Array.isArray(data.destaquesSemestre)
+      ? data.destaquesSemestre
       : [],
   }
 }

@@ -65,7 +65,7 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
       const response = await confirmarPresencaApi(id, cpf.trim())
       setSuccess(
         response.message ||
-          'Presença confirmada com sucesso! Sua participação e medalha de presença foram registradas.'
+          'Presença confirmada! Ela vai contar para suas medalhas quando o evento for concluído.'
       )
     } catch (err: unknown) {
       if (err instanceof Error) {

@@ -1,3 +1,4 @@
+import type { Conquistas } from '../../medalhas'
 export interface EventoResumo {
   id: number
   tema: string
@@ -30,19 +31,10 @@ export interface CertificadoResumo {
   evento: EventoResumo | null
 }
 
-export interface MedalhaResumo {
-  id: number
-  nome: string
-  descricao: string | null
-  tipo: 'BRONZE' | 'PRATA' | 'OURO'
-  inscricao: number
-  evento: EventoResumo | null
-}
-
 export interface ParticipantDashboardData {
   participacoes: ParticipacaoResumo[]
   certificados: CertificadoResumo[]
-  medalhas: MedalhaResumo[]
+  conquistas: Conquistas | null
 }
 
 export interface BarraEstatistica {
@@ -58,5 +50,6 @@ export interface AdminDashboardData {
   variacaoCertificadosUltimos30Dias: number
   proximosEventos: EventoResumo[]
   certificadosPorEvento: BarraEstatistica[]
-  medalhasPorParticipante: BarraEstatistica[]
+  /** Quem mais teve presenças no semestre em andamento. */
+  destaquesSemestre: { nome: string; presencas: number }[]
 }

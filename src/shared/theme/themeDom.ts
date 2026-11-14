@@ -10,9 +10,19 @@ export const readInitialTheme = (): Theme =>
     window.matchMedia('(prefers-color-scheme: dark)').matches
   )
 
+// Fundo do topo da página em cada tema (--color-bg-page), para a barra do sistema combinar.
+const COR_DA_BARRA: Record<Theme, string> = {
+  light: '#eef0f6',
+  dark: '#0c1029',
+}
+
 export const applyTheme = (theme: Theme) => {
   document.documentElement.dataset.theme = theme
   document.documentElement.style.colorScheme = theme
+  // O tema do app pode diferir do sistema; as duas metas passam a seguir o tema escolhido.
+  document
+    .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+    .forEach((meta) => meta.setAttribute('content', COR_DA_BARRA[theme]))
 }
 
 export const initializeTheme = () => {

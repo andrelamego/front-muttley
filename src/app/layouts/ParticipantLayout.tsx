@@ -1,25 +1,38 @@
 import React from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../modules/auth'
+import { AvatarPessoa, useAuth } from '../../modules/auth'
 import { PageTransition } from '../../shared/motion'
 import { m } from 'motion/react'
-import { ShieldCheck } from 'lucide-react'
-import { getInitials } from './iniciais'
+import {
+  ChevronDown,
+  LogOut,
+  Moon,
+  Settings,
+  ShieldCheck,
+  Sun,
+  UserRound,
+} from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../../shared/ui/shadcn/dropdown-menu'
+import { useTheme } from '../../shared/theme'
 import { PARTICIPANT_EVENTS_PATH } from '../../modules/eventos'
 import {
-  Button,
   Logo,
   DashboardIcon,
   CalendarIcon,
   AwardIcon,
   MedalIcon,
-  LogOutIcon,
-  ThemeToggle,
-  ButtonLink,
 } from '../../shared/ui'
 
 export const ParticipantLayout: React.FC = () => {
   const { user, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -34,9 +47,9 @@ export const ParticipantLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-page)] flex flex-col text-[var(--color-text-primary)] font-sans antialiased selection:bg-[var(--color-primary-subtle)] selection:text-[var(--color-primary-active)]">
+    <div className="min-h-dvh bg-[var(--color-bg-page)] flex flex-col text-[var(--color-text-primary)] font-sans antialiased selection:bg-[var(--color-primary-subtle)] selection:text-[var(--color-primary-active)]">
       {/* Barra superior */}
-      <header className="bg-[var(--color-bg-page)]/95 backdrop-blur-md border-b border-[var(--color-border)]/60 sticky top-0 z-30">
+      <header className="bg-[var(--color-bg-page)]/95 backdrop-blur-md border-b border-[var(--color-border)]/60 sticky top-0 z-30 pt-[env(safe-area-inset-top)]">
         <div className="max-w-[76rem] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
@@ -48,52 +61,65 @@ export const ParticipantLayout: React.FC = () => {
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            {user?.role === 'ADMIN' && (
-              <ButtonLink
-                to="/admin/inicio"
-                variant="outline"
-                size="sm"
-                leftIcon={<ShieldCheck className="size-3.5" />}
-                aria-label="Painel da coordenação"
-              >
-                <span className="hidden sm:inline">Coordenação</span>
-              </ButtonLink>
-            )}
-
-            <Link
-              to="/user/perfil"
-              aria-label="Meu perfil"
-              className={`flex items-center gap-2.5 rounded-md p-1 sm:pr-2 transition-colors hover:bg-[var(--color-bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)] ${
-                isTabActive('/user/perfil') ? 'bg-[var(--color-bg-hover)]' : ''
-              }`}
+          {/* Tudo da conta fica no menu da foto: perfil, dados, tema e sair */}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              aria-label="Menu da conta"
+              className="flex items-center gap-2.5 rounded-full p-0.5 sm:pr-3 transition-colors hover:bg-[var(--color-bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)] data-[state=open]:bg-[var(--color-bg-hover)]"
             >
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-signal)] text-xs font-bold text-[var(--color-signal-ink)]">
-                {getInitials(user?.nome)}
+              <AvatarPessoa className="size-9 text-xs" />
+              <span className="hidden sm:block text-sm font-semibold max-w-40 truncate">
+                {user?.nome?.split(' ')[0] || 'Participante'}
               </span>
-              <span className="hidden sm:flex flex-col text-left">
-                <span className="text-xs font-semibold text-[var(--color-text-primary)]">
-                  {user?.nome || 'Participante'}
+              <ChevronDown
+                className="hidden sm:block size-4 text-[var(--color-text-muted)]"
+                aria-hidden
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" sideOffset={8} className="w-64">
+              <DropdownMenuLabel className="flex items-center gap-3 font-normal">
+                <AvatarPessoa className="size-10 text-sm" />
+                <span className="min-w-0">
+                  <span className="block truncate font-semibold">
+                    {user?.nome || 'Participante'}
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {user?.email}
+                  </span>
                 </span>
-                <span className="text-xs text-[var(--color-text-secondary)]">
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/user/perfil">
+                  <UserRound />
                   Meu perfil
-                </span>
-              </span>
-            </Link>
-
-            <ThemeToggle />
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary-text)] hover:bg-[var(--color-bg-subtle)]"
-              aria-label="Sair da conta"
-              leftIcon={<LogOutIcon size={14} />}
-            >
-              <span className="hidden sm:inline">Sair</span>
-            </Button>
-          </div>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/user/perfil/editar">
+                  <Settings />
+                  Configurações
+                </Link>
+              </DropdownMenuItem>
+              {user?.role === 'ADMIN' && (
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/inicio">
+                    <ShieldCheck />
+                    Painel da coordenação
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onSelect={toggleTheme}>
+                {theme === 'light' ? <Moon /> : <Sun />}
+                {theme === 'light' ? 'Tema escuro' : 'Tema claro'}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={handleLogout}>
+                <LogOut />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Abas de Navegação Desktop */}

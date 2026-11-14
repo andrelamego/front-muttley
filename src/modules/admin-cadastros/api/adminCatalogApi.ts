@@ -7,7 +7,6 @@ import type {
   AdminEndereco,
   AdminEventoPendente,
   AdminLocal,
-  AdminMedalha,
   AdminPatrocinador,
   AdminPessoa,
 } from '../domain/adminCatalogTypes'
@@ -37,21 +36,18 @@ export async function getAdminPeopleApi(): Promise<AdminPessoa[]> {
 }
 
 export async function getAdminCatalogsApi(): Promise<AdminCatalogsData> {
-  const [disciplinas, locais, patrocinadores, enderecos, medalhas] =
-    await Promise.all([
-      apiClient.get<unknown>('/admin/disciplinas'),
-      apiClient.get<unknown>('/admin/locais'),
-      apiClient.get<unknown>('/admin/patrocinadores'),
-      apiClient.get<unknown>('/admin/enderecos'),
-      apiClient.get<unknown>('/admin/medalhas'),
-    ])
+  const [disciplinas, locais, patrocinadores, enderecos] = await Promise.all([
+    apiClient.get<unknown>('/admin/disciplinas'),
+    apiClient.get<unknown>('/admin/locais'),
+    apiClient.get<unknown>('/admin/patrocinadores'),
+    apiClient.get<unknown>('/admin/enderecos'),
+  ])
 
   return {
     disciplinas: normalizeAdminList<AdminDisciplina>(disciplinas.data),
     locais: normalizeAdminList<AdminLocal>(locais.data),
     patrocinadores: normalizeAdminList<AdminPatrocinador>(patrocinadores.data),
     enderecos: normalizeAdminList<AdminEndereco>(enderecos.data),
-    medalhas: normalizeAdminList<AdminMedalha>(medalhas.data),
   }
 }
 

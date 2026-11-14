@@ -368,6 +368,73 @@ h3,
   filter: drop-shadow(0 8px 16px rgb(0 0 0 / 40%));
 }
 
+/* Capa do perfil: cobalto com um brilho amarelo e o picote do ingresso */
+.perfil-capa {
+  position: relative;
+  background:
+    radial-gradient(circle at 85% 15%, rgb(255 217 59 / 38%), transparent 38%),
+    repeating-linear-gradient(
+      135deg,
+      rgb(255 255 255 / 4%) 0 2px,
+      transparent 2px 14px
+    ),
+    var(--color-primary);
+}
+
+.perfil-capa::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 16px;
+  border-top: 2px dashed rgb(255 255 255 / 35%);
+}
+
+/* Medalha especial: halo da cor da medalha atrás dela e um brilho que atravessa a face uma vez */
+.especial {
+  background:
+    radial-gradient(
+      circle at 68px 50%,
+      var(--especial-halo),
+      transparent 150px
+    ),
+    var(--color-bg-surface);
+}
+
+.especial--diamante {
+  --especial-halo: rgb(61 82 255 / 26%);
+}
+
+.especial--especialista {
+  --especial-halo: rgb(255 217 59 / 30%);
+}
+
+.especial--palestrante {
+  --especial-halo: rgb(34 54 224 / 24%);
+}
+
+.medalha-brilho {
+  animation: medalha-brilho 1.3s 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes medalha-brilho {
+  from {
+    transform: translateX(-40px);
+  }
+  to {
+    transform: translateX(110px);
+  }
+}
+
+/* Moeda da trilha: o anel cresce até o progresso quando a moeda aparece */
+.moeda-anel {
+  transition: stroke-dasharray 900ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .medalha-brilho {
+    display: none;
+  }
+}
+
 /* Ingresso clicável: o invólucro é o link */
 .ticket-link {
   color: inherit;
@@ -504,6 +571,44 @@ h3,
   ::before,
   ::after {
     border-color: var(--color-border);
+  }
+}
+
+/* Comportamento de app no celular */
+@layer base {
+  html {
+    /* Sem o flash cinza do navegador ao tocar; os botões têm o próprio :active */
+    -webkit-tap-highlight-color: transparent;
+    /* Sem o texto crescer sozinho ao girar o celular */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Toque responde na hora (sem a espera do toque duplo) e o rótulo do controle não é selecionado */
+  button,
+  a,
+  [role='button'],
+  [role='tab'],
+  [role='menuitem'] {
+    touch-action: manipulation;
+  }
+
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='menuitem'] {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* Abaixo de 16px o iPhone dá zoom ao focar um campo e não volta; o zoom continua permitido */
+  @media (pointer: coarse) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
   }
 }
 

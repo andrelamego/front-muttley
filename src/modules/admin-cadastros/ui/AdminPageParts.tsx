@@ -8,7 +8,7 @@ export const AdminSectionHeader: React.FC<{
   /** Ação principal da página, ao lado de "Atualizar dados". */
   action?: React.ReactNode
 }> = ({ title, description, onRefresh, action }) => (
-  <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 pb-6 border-b border-[var(--color-border)]">
+  <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
     <div>
       <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
         {title}
@@ -33,14 +33,13 @@ export const AdminMetric: React.FC<{
   value: number
   detail: string
 }> = ({ label, value, detail }) => (
+  // Mesmo desenho dos indicadores do painel da coordenação.
   <div className="rounded-md bg-[var(--color-bg-surface)] p-5">
-    <p className="tabular-nums text-xs text-[var(--color-text-muted)]">
-      {label}
-    </p>
-    <p className="font-display text-3xl text-[var(--color-text-primary)] mt-2">
+    <p className="text-sm text-[var(--color-text-secondary)]">{label}</p>
+    <p className="font-display text-4xl font-bold tabular-nums mt-2 text-[var(--color-text-primary)]">
       {value}
     </p>
-    <p className="text-xs text-[var(--color-text-secondary)] mt-1">{detail}</p>
+    <p className="text-xs text-[var(--color-text-muted)] mt-1">{detail}</p>
   </div>
 )
 
@@ -57,7 +56,7 @@ export const AdminLoadError: React.FC<{
 )
 
 export const AdminEmpty: React.FC<{ message: string }> = ({ message }) => (
-  <div className="p-10 text-center text-sm text-[var(--color-text-muted)] border border-dashed border-[var(--color-border)] bg-[var(--color-bg-subtle)]">
+  <div className="rounded-md bg-[var(--color-bg-surface)] px-6 py-12 text-center text-sm text-[var(--color-text-secondary)]">
     {message}
   </div>
 )

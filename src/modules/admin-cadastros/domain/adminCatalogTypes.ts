@@ -18,7 +18,6 @@ export interface AdminCertificado {
   dataEmissao?: string
   codigoValidacao?: string
   urlPublica?: string
-  caminhoPdf?: string
   participacao?: AdminParticipacaoCertificado
 }
 
@@ -71,19 +70,11 @@ export interface AdminEndereco {
   complemento?: string
 }
 
-export interface AdminMedalha {
-  id: number
-  nome: string
-  descricao?: string
-  tipo?: string
-}
-
 export interface AdminCatalogsData {
   disciplinas: AdminDisciplina[]
   locais: AdminLocal[]
   patrocinadores: AdminPatrocinador[]
   enderecos: AdminEndereco[]
-  medalhas: AdminMedalha[]
 }
 
 export type AdminCatalogKey = keyof AdminCatalogsData

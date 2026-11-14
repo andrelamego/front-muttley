@@ -1,4 +1,5 @@
 import apiClient from '../../../shared/http/apiClient'
+import { HttpError } from '../../../shared/http/httpError'
 import type {
   LoginCredentials,
   BackendLoginResponse,
@@ -54,6 +55,7 @@ export const getMeApi = async (): Promise<User> => {
     telefone: data.telefone || undefined,
     cpf: data.cpf || undefined,
     role,
+    temFoto: data.temFoto,
   }
 }
 
@@ -130,4 +132,25 @@ export const alterarSenhaApi = async (dados: {
   novaSenha: string
 }): Promise<void> => {
   await apiClient.put('/me/senha', dados)
+}
+
+/** Foto de perfil da pessoa logada; null quando ela ainda não tem foto. */
+export const getFotoPerfilApi = async (): Promise<Blob | null> => {
+  try {
+    const response = await apiClient.get<Blob>('/me/foto', {
+      responseType: 'blob',
+    })
+    return response.data
+  } catch (err) {
+    if (err instanceof HttpError && err.status === 404) return null
+    throw err
+  }
+}
+
+export const enviarFotoPerfilApi = async (imagemBase64: string) => {
+  await apiClient.put('/me/foto', { imagemBase64 })
+}
+
+export const removerFotoPerfilApi = async () => {
+  await apiClient.delete('/me/foto')
 }

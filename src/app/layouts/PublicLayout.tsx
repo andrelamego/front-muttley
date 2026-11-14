@@ -35,9 +35,9 @@ export const PublicLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-page)] flex flex-col text-[var(--color-text-primary)] font-sans antialiased selection:bg-[var(--color-primary-subtle)] selection:text-[var(--color-primary-active)]">
+    <div className="min-h-dvh bg-[var(--color-bg-page)] flex flex-col text-[var(--color-text-primary)] font-sans antialiased selection:bg-[var(--color-primary-subtle)] selection:text-[var(--color-primary-active)]">
       {/* Cabeçalho Público Fiel ao Stitch (64px) */}
-      <header className="fixed top-0 left-0 right-0 w-full z-40 bg-[var(--color-bg-surface)]/95 backdrop-blur-md border-b border-[var(--color-border)]">
+      <header className="fixed top-0 left-0 right-0 w-full z-40 bg-[var(--color-bg-surface)]/95 backdrop-blur-md border-b border-[var(--color-border)] pt-[env(safe-area-inset-top)]">
         <div className="h-16 max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo Único */}
           <Link
@@ -229,7 +229,7 @@ export const PublicLayout: React.FC = () => {
       </header>
 
       {/* Conteúdo com offset do header fixo (64px) */}
-      <main className="flex-1 pt-16">
+      <main className="flex-1 pt-[calc(4rem+env(safe-area-inset-top))]">
         <PageTransition>
           <Outlet />
         </PageTransition>
