@@ -36,7 +36,7 @@ export const Input: React.FC<InputProps> = ({
             {label}
             {required && (
               <span
-                className="text-[var(--color-danger)] ml-1"
+                className="text-[var(--color-danger-text)] ml-1"
                 aria-label="campo obrigatório"
               >
                 *
@@ -74,7 +74,7 @@ export const Input: React.FC<InputProps> = ({
         <p
           id={errorId}
           role="alert"
-          className="text-xs font-medium text-[var(--color-danger)]"
+          className="text-xs font-medium text-[var(--color-danger-text)]"
         >
           {error}
         </p>

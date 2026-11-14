@@ -47,7 +47,7 @@ export const ToastViewport: React.FC = () => {
           const iconColor = {
             success: 'text-[var(--color-success-text)]',
             warning: 'text-[var(--color-warning-text)]',
-            error: 'text-[var(--color-danger)]',
+            error: 'text-[var(--color-danger-text)]',
             info: 'text-[var(--color-info-text)]',
           }[item.type]
 
