@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Palette } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Palette } from 'lucide-react'
 import { getAdminCertificatesApi } from '../api/adminCatalogApi'
 import type {
   AdminCertificado,
@@ -9,11 +8,21 @@ import type {
 import { formatAdminDate, includesSearch } from '../domain/adminCatalogTypes'
 import {
   Badge,
+  Button,
+  ButtonLink,
   EyeIcon,
   Input,
   SearchIcon,
-  ButtonLink,
 } from '../../../shared/ui'
+import { paginar } from '../../../shared/lib/tabela'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../../../shared/ui/shadcn/table'
 import { AdminDataSkeleton } from './AdminDataSkeleton'
 import {
   AdminEmpty,
@@ -22,61 +31,110 @@ import {
   AdminSectionHeader,
 } from './AdminPageParts'
 
-const CertificateRows: React.FC<{ records: AdminCertificado[] }> = ({
-  records,
-}) => (
-  <div className="overflow-x-auto border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
-    <table className="w-full min-w-[760px] text-left text-sm">
-      <thead className="bg-[var(--color-bg-subtle)] text-xs text-[var(--color-text-secondary)] border-b border-[var(--color-border)]">
-        <tr>
-          <th className="px-4 py-3">Participante</th>
-          <th className="px-4 py-3">Evento</th>
-          <th className="px-4 py-3">Emissão</th>
-          <th className="px-4 py-3">Código</th>
-          <th className="px-4 py-3 text-right">Ação</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-[var(--color-border-subtle)]">
-        {records.map((cert) => (
-          <tr key={cert.id} className="hover:bg-[var(--color-bg-subtle)]">
-            <td className="px-4 py-3">
-              <span className="font-semibold text-[var(--color-text-primary)] block">
-                {cert.participacao?.pessoa?.nome ||
-                  'Participante não informado'}
-              </span>
-              <span className="text-xs text-[var(--color-text-muted)]">
-                {cert.participacao?.pessoa?.email || 'Email não informado'}
-              </span>
-            </td>
-            <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-              {cert.participacao?.evento?.tema || 'Evento não informado'}
-            </td>
-            <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-              {formatAdminDate(cert.dataEmissao)}
-            </td>
-            <td className="px-4 py-3 font-mono text-xs">
-              {cert.codigoValidacao || '—'}
-            </td>
-            <td className="px-4 py-3 text-right">
-              {cert.codigoValidacao ? (
-                <ButtonLink
-                  to={`/certificados/${cert.codigoValidacao}`}
-                  variant="outline"
-                  size="sm"
-                  leftIcon={<EyeIcon size={15} />}
-                >
-                  Visualizar
-                </ButtonLink>
-              ) : (
-                <Badge variant="default">Indisponível</Badge>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)
+const POR_PAGINA = 15
+
+const CertificateRows: React.FC<{
+  records: AdminCertificado[]
+  /** Pagina listas longas, como o acervo completo. */
+  paginado?: boolean
+  rotulo: string
+}> = ({ records, paginado = false, rotulo }) => {
+  const [pagina, setPagina] = useState(1)
+  const visiveis = paginado
+    ? paginar(records, pagina, POR_PAGINA)
+    : { itens: records, pagina: 1, totalPaginas: 1 }
+  return (
+    <div className="overflow-hidden rounded-md bg-[var(--color-bg-surface)]">
+      <Table className="min-w-[760px]">
+        <TableHeader className="bg-[var(--color-bg-subtle)]">
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="px-4">Participante</TableHead>
+            <TableHead className="px-4">Evento</TableHead>
+            <TableHead className="px-4">Emissão</TableHead>
+            <TableHead className="px-4">Código</TableHead>
+            <TableHead className="w-12 px-4">
+              <span className="sr-only">Ações</span>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {visiveis.itens.map((cert) => (
+            <TableRow key={cert.id}>
+              <TableCell className="px-4 py-3">
+                <span className="block font-semibold">
+                  {cert.participacao?.pessoa?.nome ||
+                    'Participante não informado'}
+                </span>
+                <span className="text-xs text-[var(--color-text-muted)]">
+                  {cert.participacao?.pessoa?.email || 'Email não informado'}
+                </span>
+              </TableCell>
+              <TableCell className="px-4 py-3 whitespace-normal text-[var(--color-text-secondary)]">
+                {cert.participacao?.evento?.tema || 'Evento não informado'}
+              </TableCell>
+              <TableCell className="px-4 py-3 tabular-nums text-[var(--color-text-secondary)]">
+                {formatAdminDate(cert.dataEmissao)}
+              </TableCell>
+              <TableCell className="px-4 py-3 font-mono text-xs text-[var(--color-text-secondary)]">
+                {cert.codigoValidacao
+                  ? `${cert.codigoValidacao.slice(0, 8)}…`
+                  : '—'}
+              </TableCell>
+              <TableCell className="px-4 py-3 text-right">
+                {cert.codigoValidacao ? (
+                  <ButtonLink
+                    to={`/certificados/${cert.codigoValidacao}`}
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<EyeIcon size={15} />}
+                    aria-label={`Ver o certificado de ${cert.participacao?.pessoa?.nome ?? 'participante'}`}
+                  >
+                    Ver
+                  </ButtonLink>
+                ) : (
+                  <Badge variant="default">Indisponível</Badge>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {visiveis.totalPaginas > 1 && (
+        <nav
+          aria-label={`Páginas de ${rotulo}`}
+          className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3"
+        >
+          <span
+            className="text-sm text-[var(--color-text-secondary)]"
+            aria-live="polite"
+          >
+            Página {visiveis.pagina} de {visiveis.totalPaginas}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={visiveis.pagina === 1}
+              onClick={() => setPagina(visiveis.pagina - 1)}
+              leftIcon={<ChevronLeft className="size-4" />}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={visiveis.pagina === visiveis.totalPaginas}
+              onClick={() => setPagina(visiveis.pagina + 1)}
+              rightIcon={<ChevronRight className="size-4" />}
+            >
+              Próxima
+            </Button>
+          </div>
+        </nav>
+      )}
+    </div>
+  )
+}
 
 export const AdminCertificatesPage: React.FC = () => {
   const [data, setData] = useState<AdminCertificatesData | null>(null)
@@ -178,25 +236,33 @@ export const AdminCertificatesPage: React.FC = () => {
               <h2 id="pending-title" className="font-display text-xl mb-3">
                 Eventos aguardando certificados
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <ul className="divide-y divide-[var(--color-border-subtle)] rounded-md bg-[var(--color-bg-surface)]">
                 {data?.eventosAguardandoCertificado.map((event) => (
-                  <Link
+                  <li
                     key={event.id}
-                    to={`/admin/eventos/${event.id}/concluir`}
-                    className="surface-depth flex items-center justify-between gap-4 border border-[var(--color-warning-border)] bg-[var(--color-primary-subtle)] p-4 hover:-translate-y-0.5 transition-transform"
+                    className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
                   >
-                    <span>
-                      <strong className="block text-sm">{event.tema}</strong>
-                      <span className="text-xs text-[var(--color-text-secondary)]">
+                    <span className="min-w-0">
+                      <span className="block font-semibold break-words">
+                        {event.tema}
+                      </span>
+                      <span className="text-xs text-[var(--color-text-muted)]">
                         {formatAdminDate(event.data)}
                       </span>
                     </span>
-                    <span className="text-xs font-semibold text-[var(--color-primary-text)]">
-                      Revisar emissão
+                    <span className="flex items-center gap-3">
+                      <Badge variant="warning">Aguarda conclusão</Badge>
+                      <ButtonLink
+                        to={`/admin/eventos/${event.id}/concluir`}
+                        size="sm"
+                        variant="outline"
+                      >
+                        Concluir
+                      </ButtonLink>
                     </span>
-                  </Link>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </section>
           )}
 
@@ -205,7 +271,10 @@ export const AdminCertificatesPage: React.FC = () => {
               <h2 id="recent-title" className="font-display text-xl mb-3">
                 Últimos certificados emitidos
               </h2>
-              <CertificateRows records={data?.ultimosCertificados || []} />
+              <CertificateRows
+                rotulo="últimos certificados"
+                records={data?.ultimosCertificados || []}
+              />
             </section>
           )}
 
@@ -233,7 +302,12 @@ export const AdminCertificatesPage: React.FC = () => {
               </div>
             </div>
             {filtered.length ? (
-              <CertificateRows records={filtered} />
+              <CertificateRows
+                key={search}
+                rotulo="acervo"
+                records={filtered}
+                paginado
+              />
             ) : (
               <AdminEmpty message="Nenhum certificado corresponde à busca." />
             )}

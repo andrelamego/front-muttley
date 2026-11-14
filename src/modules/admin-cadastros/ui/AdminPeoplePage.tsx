@@ -24,7 +24,14 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-import { Badge, Button, Input, SearchIcon, toast } from '../../../shared/ui'
+import {
+  Badge,
+  Button,
+  FiltroSegmentado,
+  Input,
+  SearchIcon,
+  toast,
+} from '../../../shared/ui'
 import { ordenarPor, paginar, type Direcao } from '../../../shared/lib/tabela'
 import {
   Table,
@@ -43,7 +50,9 @@ import {
 } from './AdminPageParts'
 
 const roleLabel = (role?: string) =>
-  role?.toUpperCase() === 'ADMIN' ? 'Administrador' : 'Usuário'
+  role?.toUpperCase() === 'ADMIN' ? 'Administrador' : 'Participante'
+
+type Perfil = 'TODOS' | 'ADMIN' | 'USER'
 
 const POR_PAGINA = 15
 
@@ -91,7 +100,7 @@ const CabecalhoOrdenavel: React.FC<{
 export const AdminPeoplePage: React.FC = () => {
   const [people, setPeople] = useState<AdminPessoa[]>([])
   const [search, setSearch] = useState('')
-  const [role, setRole] = useState('TODOS')
+  const [role, setRole] = useState<Perfil>('TODOS')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [ordem, setOrdem] = useState<Ordem>({ coluna: 'nome', direcao: 'asc' })
@@ -211,7 +220,7 @@ export const AdminPeoplePage: React.FC = () => {
               detail="perfis com acesso à gestão"
             />
             <AdminMetric
-              label="Usuários"
+              label="Participantes"
               value={people.length - admins}
               detail="participantes da plataforma"
             />
@@ -245,19 +254,27 @@ export const AdminPeoplePage: React.FC = () => {
                     className="pl-9"
                   />
                 </div>
-                <select
-                  value={role}
-                  onChange={(event) => {
-                    setRole(event.target.value)
+                <FiltroSegmentado<Perfil>
+                  rotulo="Filtrar por perfil"
+                  valor={role}
+                  onChange={(valor) => {
+                    setRole(valor)
                     setPagina(1)
                   }}
-                  aria-label="Filtrar por perfil"
-                  className="h-10 rounded-sm border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring-color)]"
-                >
-                  <option value="TODOS">Todos os perfis</option>
-                  <option value="ADMIN">Administradores</option>
-                  <option value="USER">Usuários</option>
-                </select>
+                  opcoes={[
+                    { valor: 'TODOS', rotulo: 'Todos', total: people.length },
+                    {
+                      valor: 'ADMIN',
+                      rotulo: 'Administradores',
+                      total: admins,
+                    },
+                    {
+                      valor: 'USER',
+                      rotulo: 'Participantes',
+                      total: people.length - admins,
+                    },
+                  ]}
+                />
               </div>
             </div>
 
