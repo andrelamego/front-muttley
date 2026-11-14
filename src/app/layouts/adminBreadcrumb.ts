@@ -10,7 +10,7 @@ const TOPO: Record<string, string> = {
   certificados: 'Certificados',
   pessoas: 'Pessoas',
   cadastros: 'Cadastros',
-  perfil: 'Meu perfil',
+  perfil: 'Configurações',
 }
 
 const ACAO_EVENTO: Record<string, string> = {

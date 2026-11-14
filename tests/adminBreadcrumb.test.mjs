@@ -6,7 +6,7 @@ test('páginas de primeiro nível mostram só o próprio nome', () => {
   assert.deepEqual(getAdminBreadcrumb('/admin/inicio'), [{ label: 'Painel' }])
   assert.deepEqual(getAdminBreadcrumb('/admin/pessoas'), [{ label: 'Pessoas' }])
   assert.deepEqual(getAdminBreadcrumb('/admin/perfil'), [
-    { label: 'Meu perfil' },
+    { label: 'Configurações' },
   ])
 })
 

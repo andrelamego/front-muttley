@@ -105,7 +105,7 @@ export const MeuPerfilPage: React.FC = () => {
   return (
     <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl font-bold">Meu perfil</h1>
+        <h1 className="font-display text-3xl font-bold">Configurações</h1>
         <p className="text-sm text-[var(--color-text-secondary)] mt-2">
           Seus dados aparecem nas inscrições e nos certificados.
         </p>

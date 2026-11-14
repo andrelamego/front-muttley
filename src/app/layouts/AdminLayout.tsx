@@ -5,11 +5,12 @@ import {
   LogOut,
   Moon,
   Plus,
+  Settings,
   Sun,
   Ticket as TicketIcone,
   UserRound,
 } from 'lucide-react'
-import { useAuth } from '../../modules/auth'
+import { AvatarPessoa, useAuth } from '../../modules/auth'
 import { PageTransition } from '../../shared/motion'
 import { useTheme } from '../../shared/theme'
 import {
@@ -56,7 +57,6 @@ import {
   useSidebar,
 } from '../../shared/ui/shadcn/sidebar'
 import { getAdminBreadcrumb } from './adminBreadcrumb'
-import { getInitials } from './iniciais'
 
 // O sidebar.tsx grava o estado aberto/recolhido neste cookie; aqui ele é lido na carga.
 const sidebarAbertoNoCookie = () =>
@@ -99,11 +99,10 @@ const AdminSidebar: React.FC = () => {
           className="flex h-10 items-center rounded-sm px-2 text-white focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
           aria-label="Muttley, ir para o painel"
         >
-          <Logo className="h-7 w-auto group-data-[collapsible=icon]:hidden" />
-          <Logo
-            variant="mark"
-            className="hidden h-6 w-auto group-data-[collapsible=icon]:block"
-          />
+          {/* Recolhida, só o nome sai de cena: o canhoto fica com o mesmo tamanho e lugar */}
+          <span className="block w-[120px] overflow-hidden transition-[width] duration-200 ease-linear group-data-[collapsible=icon]:w-4">
+            <Logo className="h-7 w-[120px] max-w-none" />
+          </span>
         </Link>
       </SidebarHeader>
 
@@ -186,9 +185,7 @@ const AdminSidebar: React.FC = () => {
                   tooltip={user?.nome || 'Conta'}
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-signal)] text-xs font-bold text-[var(--color-signal-ink)]">
-                    {getInitials(user?.nome)}
-                  </span>
+                  <AvatarPessoa className="size-8 text-xs" />
                   <span className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold text-white">
                       {user?.nome || 'Coordenação'}
@@ -214,9 +211,15 @@ const AdminSidebar: React.FC = () => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/admin/perfil" onClick={fecharNoCelular}>
+                  <Link to="/user/perfil" onClick={fecharNoCelular}>
                     <UserRound />
                     Meu perfil
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/perfil" onClick={fecharNoCelular}>
+                    <Settings />
+                    Configurações
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={toggleTheme}>
@@ -252,7 +255,7 @@ export const AdminLayout: React.FC = () => {
       </a>
       <AdminSidebar />
       <SidebarInset className="min-w-0">
-        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-bg-page)]/90 px-4 backdrop-blur sm:px-6">
+        <header className="sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] shrink-0 items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-bg-page)]/90 px-4 backdrop-blur sm:px-6">
           <SidebarTrigger
             className="-ml-1 size-9"
             aria-label="Recolher ou abrir o menu (Ctrl+B)"

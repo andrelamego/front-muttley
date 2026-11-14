@@ -7,6 +7,8 @@ export interface User {
   telefone?: string
   cpf?: string
   role: AuthRole
+  /** Ausente em sessões antigas: o avatar tenta buscar a foto mesmo assim. */
+  temFoto?: boolean
 }
 
 export interface LoginCredentials {
@@ -37,6 +39,7 @@ export interface BackendMeResponse {
   telefone?: string | null
   cpf?: string | null
   role?: string | null
+  temFoto?: boolean
 }
 
 export interface AuthSession {
