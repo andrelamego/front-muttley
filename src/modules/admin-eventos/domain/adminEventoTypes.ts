@@ -20,7 +20,7 @@ export interface AdminEvento {
   localId: number | null
   disciplina?: { id: number; nome: string } | string | null
   local?: { id: number; nome: string; capacidade?: number } | string | null
-  patrocinador?: { id: number; razaoSocial: string } | string | null
+  patrocinador?: { id: number; nome: string } | string | null
   totalInscritos?: number
 }
 
@@ -69,5 +69,5 @@ export interface LocalOption {
 
 export interface PatrocinadorOption {
   id: number
-  razaoSocial: string
+  nome: string
 }
