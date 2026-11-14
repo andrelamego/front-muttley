@@ -5,7 +5,12 @@ import {
   parseBlobErrorMessage,
 } from '../api/adminEventosApi'
 import type { AdminEvento } from '../domain/adminEventoTypes'
-import { Button, DownloadIcon, SkeletonBlock } from '../../../shared/ui'
+import {
+  Button,
+  DownloadIcon,
+  SkeletonBlock,
+  ButtonLink,
+} from '../../../shared/ui'
 import {
   Dialog,
   DialogClose,
@@ -96,16 +101,16 @@ const PainelQr: React.FC<{
       </div>
 
       {estado.status === 'pronto' && (
-        <a href={estado.url} download={nomeArquivo} className="w-full">
-          <Button
-            variant="outline"
-            size="sm"
-            fullWidth
-            leftIcon={<DownloadIcon size={14} />}
-          >
-            Baixar PNG
-          </Button>
-        </a>
+        <ButtonLink
+          href={estado.url}
+          download={nomeArquivo}
+          variant="outline"
+          size="sm"
+          fullWidth
+          leftIcon={<DownloadIcon size={14} />}
+        >
+          Baixar PNG
+        </ButtonLink>
       )}
     </div>
   )

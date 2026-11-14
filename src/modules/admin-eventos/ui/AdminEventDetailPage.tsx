@@ -1,6 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Download, Pencil } from 'lucide-react'
+import { useParams } from 'react-router-dom'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Pencil,
+  Presentation,
+} from 'lucide-react'
 import {
   getAdminEventoByIdApi,
   getEventParticipationsApi,
@@ -20,6 +26,7 @@ import {
   SearchIcon,
   SkeletonBlock,
   Ticket,
+  ButtonLink,
 } from '../../../shared/ui'
 import { baixarArquivo, paraCsv } from '../../../shared/lib/csv'
 import { ordenarPor, paginar } from '../../../shared/lib/tabela'
@@ -223,11 +230,12 @@ export const AdminEventDetailPage: React.FC = () => {
           )}
           <div className="flex flex-wrap gap-2 mt-4">
             {!encerrado && (
-              <Link to={`/admin/eventos/${evento.id}/concluir`}>
-                <Button leftIcon={<CheckCircleIcon size={16} />}>
-                  Concluir evento
-                </Button>
-              </Link>
+              <ButtonLink
+                to={`/admin/eventos/${evento.id}/concluir`}
+                leftIcon={<CheckCircleIcon size={16} />}
+              >
+                Concluir evento
+              </ButtonLink>
             )}
             <Button
               id="botao-qr-evento"
@@ -237,15 +245,23 @@ export const AdminEventDetailPage: React.FC = () => {
             >
               QR Codes
             </Button>
+            {!encerrado && (
+              <ButtonLink
+                to={`/admin/eventos/${evento.id}/telao`}
+                variant="outline"
+                leftIcon={<Presentation className="size-4" />}
+              >
+                Modo telão
+              </ButtonLink>
+            )}
             {evento.status !== 'CANCELADO' && (
-              <Link to={`/admin/eventos/${evento.id}/editar`}>
-                <Button
-                  variant="ghost"
-                  leftIcon={<Pencil className="size-4" />}
-                >
-                  Editar
-                </Button>
-              </Link>
+              <ButtonLink
+                to={`/admin/eventos/${evento.id}/editar`}
+                variant="ghost"
+                leftIcon={<Pencil className="size-4" />}
+              >
+                Editar
+              </ButtonLink>
             )}
           </div>
         </Ticket>

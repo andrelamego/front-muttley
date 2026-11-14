@@ -55,7 +55,7 @@ export const isWithinPresenceWindow = (
   return agora >= janela.abre && agora <= janela.fecha
 }
 
-const formatHora = (d: Date) =>
+export const formatHora = (d: Date) =>
   `${d.getHours()}h${String(d.getMinutes()).padStart(2, '0')}`
 
 export const formatPresenceWindow = (janela: PresenceWindow): string =>
