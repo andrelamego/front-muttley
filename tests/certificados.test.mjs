@@ -11,9 +11,7 @@ test('buildLinkedInCertUrl gera link oficial de certificação do LinkedIn com p
 
   assert.ok(url.startsWith('https://www.linkedin.com/profile/add?'))
   assert.ok(url.includes('startTask=CERTIFICATION_NAME'))
-  assert.ok(
-    url.includes('name=Semana%20de%20Tecnologia%20FATEC%202026')
-  )
+  assert.ok(url.includes('name=Semana%20de%20Tecnologia%20FATEC%202026'))
   assert.ok(url.includes('organizationName=FATEC%20Zona%20Leste'))
   assert.ok(url.includes('certId=uuid-cert-12345'))
   assert.ok(url.includes('issueYear=2026'))
@@ -28,9 +26,7 @@ test('buildLinkedInCertUrl funciona mesmo sem data de emissão informada', () =>
   )
 
   assert.ok(url.startsWith('https://www.linkedin.com/profile/add?'))
-  assert.ok(
-    url.includes('name=Palestra%20de%20Arquitetura%20de%20Software')
-  )
+  assert.ok(url.includes('name=Palestra%20de%20Arquitetura%20de%20Software'))
   assert.ok(url.includes('certId=uuid-cert-99999'))
   assert.strictEqual(url.includes('issueYear='), false)
   assert.strictEqual(url.includes('issueMonth='), false)

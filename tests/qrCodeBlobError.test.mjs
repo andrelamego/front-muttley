@@ -5,7 +5,10 @@ import { parseBlobErrorMessage } from '../src/modules/admin-eventos/domain/qrCod
 test('trata status 503 com mensagem clara de indisponibilidade', async () => {
   const error503 = { response: { status: 503 } }
   const message = await parseBlobErrorMessage(error503, 'Erro padrão')
-  assert.equal(message, 'Serviço gerador de QR Code temporariamente indisponível. Tente novamente em instantes.')
+  assert.equal(
+    message,
+    'Serviço gerador de QR Code temporariamente indisponível. Tente novamente em instantes.'
+  )
 })
 
 test('trata status 404 com mensagem de evento não encontrado', async () => {
@@ -29,7 +32,9 @@ test('trata status 401 e 403 com mensagens adequadas de autorização', async ()
 })
 
 test('extrai mensagem amigável de Blob com JSON', async () => {
-  const jsonBody = JSON.stringify({ erro: 'Inscrições ainda não abertas para este evento.' })
+  const jsonBody = JSON.stringify({
+    erro: 'Inscrições ainda não abertas para este evento.',
+  })
   const blob = new Blob([jsonBody], { type: 'application/json' })
   const errorWithBlob = { response: { status: 400, data: blob } }
 
@@ -38,10 +43,15 @@ test('extrai mensagem amigável de Blob com JSON', async () => {
 })
 
 test('sanitiza e não expõe SQL ou exceptions internas de Blob com JSON', async () => {
-  const jsonBody = JSON.stringify({ erro: 'org.hibernate.exception.SQLGrammarException: select * from eventos' })
+  const jsonBody = JSON.stringify({
+    erro: 'org.hibernate.exception.SQLGrammarException: select * from eventos',
+  })
   const blob = new Blob([jsonBody], { type: 'application/json' })
   const errorWithSql = { response: { status: 500, data: blob } }
 
-  const message = await parseBlobErrorMessage(errorWithSql, 'Erro padrão de servidor')
+  const message = await parseBlobErrorMessage(
+    errorWithSql,
+    'Erro padrão de servidor'
+  )
   assert.equal(message, 'Erro padrão de servidor')
 })

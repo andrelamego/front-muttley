@@ -16,5 +16,8 @@ test('envolve em aspas valores com separador, aspas ou quebra de linha', () => {
 })
 
 test('neutraliza valores que o Excel executaria como fórmula', () => {
-  assert.equal(paraCsv([['=1+1', '+55 11', '-x', '@a']]), "﻿'=1+1;'+55 11;'-x;'@a")
+  assert.equal(
+    paraCsv([['=1+1', '+55 11', '-x', '@a']]),
+    "﻿'=1+1;'+55 11;'-x;'@a"
+  )
 })

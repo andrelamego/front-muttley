@@ -35,5 +35,8 @@ test('expiracao ou resposta tardia da sessao anterior nao contamina a rota do no
   assert.equal(resolveLoginDestination(staleIntent, 'USER'), '/user/inicio')
 
   // E se autenticar como ADMIN, a rota e concedida
-  assert.equal(resolveLoginDestination(staleIntent, 'ADMIN'), '/admin/eventos/novo')
+  assert.equal(
+    resolveLoginDestination(staleIntent, 'ADMIN'),
+    '/admin/eventos/novo'
+  )
 })

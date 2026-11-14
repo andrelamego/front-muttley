@@ -22,7 +22,10 @@ test('formata data ISO sem deslocamento de fuso horário', () => {
 })
 
 test('busca administrativa ignora caixa e acentos são preservados', () => {
-  assert.equal(includesSearch(['Maria Silva', 'maria@email.com'], 'SILVA'), true)
+  assert.equal(
+    includesSearch(['Maria Silva', 'maria@email.com'], 'SILVA'),
+    true
+  )
   assert.equal(includesSearch(['Certificação'], 'certificação'), true)
   assert.equal(includesSearch(['Evento'], 'pessoa'), false)
   assert.equal(includesSearch([], ''), true)

@@ -23,7 +23,10 @@ test('ordem decrescente mantém vazios no fim e não altera a lista original', (
 test('pagina e informa o total de páginas', () => {
   const itens = Array.from({ length: 32 }, (_, i) => i + 1)
   const p2 = paginar(itens, 2, 15)
-  assert.deepEqual(p2.itens, Array.from({ length: 15 }, (_, i) => i + 16))
+  assert.deepEqual(
+    p2.itens,
+    Array.from({ length: 15 }, (_, i) => i + 16)
+  )
   assert.equal(p2.pagina, 2)
   assert.equal(p2.totalPaginas, 3)
 })
@@ -31,5 +34,9 @@ test('pagina e informa o total de páginas', () => {
 test('página fora do intervalo é ajustada e lista vazia tem uma página', () => {
   assert.equal(paginar([1, 2, 3], 9, 2).pagina, 2)
   assert.equal(paginar([1, 2, 3], 0, 2).pagina, 1)
-  assert.deepEqual(paginar([], 1, 15), { itens: [], pagina: 1, totalPaginas: 1 })
+  assert.deepEqual(paginar([], 1, 15), {
+    itens: [],
+    pagina: 1,
+    totalPaginas: 1,
+  })
 })
