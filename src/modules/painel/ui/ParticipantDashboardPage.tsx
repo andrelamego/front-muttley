@@ -4,9 +4,11 @@ import { useAuth } from '../../auth'
 import {
   buildEventPath,
   buildPresencePath,
+  cancelarInscricaoApi,
   formatDateSafe,
-  formatPresenceWindow,
+  formatHora,
   getPresenceWindow,
+  parseEventDateTime,
   formatModalidade,
   getTicketDateParts,
   isWithinPresenceWindow,
@@ -26,10 +28,23 @@ import {
   AwardIcon,
   Badge,
   Button,
+  ButtonLink,
   DownloadIcon,
   MedalIcon,
   Ticket,
+  toast,
 } from '../../../shared/ui'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../../../shared/ui/shadcn/alert-dialog'
+import { Clock } from 'lucide-react'
 import { ParticipantDashboardSkeleton } from './skeletons'
 
 // Eventos mostrados em "Depois disso" antes de expandir
@@ -46,6 +61,8 @@ export const ParticipantDashboardPage: React.FC = () => {
   const [downloadingCertId, setDownloadingCertId] = useState<number | null>(
     null
   )
+  const [confirmandoCancelamento, setConfirmandoCancelamento] = useState(false)
+  const [cancelando, setCancelando] = useState(false)
 
   const loadData = useCallback(async () => {
     setError(null)
@@ -140,6 +157,33 @@ export const ParticipantDashboardPage: React.FC = () => {
         eventoDestaque.horarioFim
       )
     : null
+  const agora = new Date()
+  const inicioDestaque = eventoDestaque
+    ? parseEventDateTime(eventoDestaque.data, eventoDestaque.horarioInicio)
+    : null
+  // A API só aceita desistir antes do início do evento.
+  const podeCancelar =
+    !destaquePassado && inicioDestaque !== null && agora < inicioDestaque
+
+  const cancelarInscricao = async () => {
+    if (!participacaoDestaque) return
+    setCancelando(true)
+    try {
+      await cancelarInscricaoApi(participacaoDestaque.id)
+      toast.success('Inscrição cancelada')
+      setConfirmandoCancelamento(false)
+      void loadData()
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : 'Não foi possível cancelar a inscrição.'
+      )
+    } finally {
+      setCancelando(false)
+    }
+  }
+
   const ticket = eventoDestaque
     ? getTicketDateParts(eventoDestaque.data, eventoDestaque.horarioInicio)
     : null
@@ -209,40 +253,53 @@ export const ParticipantDashboardPage: React.FC = () => {
                       .filter(Boolean)
                       .join(' · ')}
                   </p>
-                  {!destaquePassado && (
-                    <>
-                      <Button
-                        variant="primary"
-                        fullWidth
-                        className="mt-4"
-                        disabled={!presencaAberta}
-                        onClick={() =>
-                          navigate(
-                            buildPresencePath(
-                              PARTICIPANT_EVENTS_PATH,
-                              eventoDestaque.id
-                            )
-                          )
-                        }
-                      >
-                        Confirmar presença
-                      </Button>
-                      {janela && (
+                  {!destaquePassado &&
+                    janela &&
+                    (presencaAberta ? (
+                      <>
+                        <ButtonLink
+                          to={buildPresencePath(
+                            PARTICIPANT_EVENTS_PATH,
+                            eventoDestaque.id
+                          )}
+                          fullWidth
+                          className="mt-4"
+                        >
+                          Confirmar presença
+                        </ButtonLink>
                         <p className="text-xs text-[var(--color-text-secondary)] mt-2">
-                          {formatPresenceWindow(janela)}
+                          Aberta até {formatHora(janela.fecha)}
                         </p>
+                      </>
+                    ) : (
+                      // Fora da janela não há botão desativado: a tela diz quando dá para confirmar.
+                      <p className="mt-4 flex items-center gap-2 rounded-md bg-[var(--color-bg-subtle)] px-3 py-2.5 text-sm text-[var(--color-text-secondary)]">
+                        <Clock className="size-4 shrink-0" aria-hidden />
+                        {agora < janela.abre
+                          ? `A confirmação de presença abre às ${formatHora(janela.abre)}`
+                          : 'A confirmação de presença deste evento já foi encerrada'}
+                      </p>
+                    ))}
+                  <div className="flex flex-wrap items-center justify-between gap-x-4">
+                    <Link
+                      to={buildEventPath(
+                        PARTICIPANT_EVENTS_PATH,
+                        eventoDestaque.id
                       )}
-                    </>
-                  )}
-                  <Link
-                    to={buildEventPath(
-                      PARTICIPANT_EVENTS_PATH,
-                      eventoDestaque.id
+                      className="inline-flex items-center min-h-[44px] text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
+                    >
+                      Ver detalhes do evento
+                    </Link>
+                    {podeCancelar && (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmandoCancelamento(true)}
+                        className="inline-flex items-center min-h-[44px] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-danger-text)] hover:underline"
+                      >
+                        Não vou poder ir
+                      </button>
                     )}
-                    className="inline-flex items-center min-h-[44px] text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
-                  >
-                    Ver detalhes do evento
-                  </Link>
+                  </div>
                 </Ticket>
               ) : (
                 <div className="bg-[var(--color-bg-surface)] rounded-[var(--radius-lg)] shadow-[var(--shadow-card)] p-6 flex flex-col items-start gap-3">
@@ -418,6 +475,38 @@ export const ParticipantDashboardPage: React.FC = () => {
           </div>
         )}
       </div>
+      <AlertDialog
+        open={confirmandoCancelamento}
+        onOpenChange={(aberto) =>
+          !cancelando && setConfirmandoCancelamento(aberto)
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar sua inscrição?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sua vaga em “{eventoDestaque?.tema}” será liberada para outra
+              pessoa. Se mudar de ideia, você pode se inscrever de novo enquanto
+              houver vagas e o evento não tiver começado.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelando}>
+              Manter inscrição
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={cancelando}
+              onClick={(e) => {
+                e.preventDefault() // fecha só depois da resposta da API
+                void cancelarInscricao()
+              }}
+            >
+              {cancelando ? 'Cancelando…' : 'Cancelar inscrição'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

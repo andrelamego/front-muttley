@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import {
   getEventoPublicoPorIdApi,
   criarInscricaoPublicaApi,
+  getMinhaInscricaoApi,
+  cancelarInscricaoApi,
 } from '../api/eventosApi'
 import type { EventoPublico } from '../domain/eventoTypes'
 import { buildPresencePath, PUBLIC_EVENTS_PATH } from '../domain/eventRoutes'
@@ -11,6 +13,7 @@ import {
   formatPresenceWindow,
   getPresenceWindow,
   isWithinPresenceWindow,
+  parseEventDateTime,
 } from '../domain/presenceWindow'
 import { useAuth } from '../../auth'
 import {
@@ -23,7 +26,19 @@ import {
   Input,
   Alert,
   Ticket,
+  toast,
+  ButtonLink,
 } from '../../../shared/ui'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../../../shared/ui/shadcn/alert-dialog'
 import { EventDetailSkeleton } from './skeletons'
 import { HistoryBackButton } from '../../../shared/navigation'
 
@@ -51,6 +66,47 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
     message: string
     inscricao: number
   } | null>(null)
+
+  // Inscrição da pessoa logada: undefined enquanto não se sabe, null quando não há.
+  const [minhaInscricao, setMinhaInscricao] = useState<
+    { id: number; inscricao: number } | null | undefined
+  >(undefined)
+  const [confirmandoCancelamento, setConfirmandoCancelamento] = useState(false)
+  const [cancelando, setCancelando] = useState(false)
+  const participante = isAuthenticated && user?.role === 'USER'
+
+  const carregarMinhaInscricao = useCallback(() => {
+    if (!id || !participante) return
+    getMinhaInscricaoApi(id)
+      .then(setMinhaInscricao)
+      .catch(() => setMinhaInscricao(null)) // sem a lista, o formulário segue disponível
+  }, [id, participante])
+
+  useEffect(carregarMinhaInscricao, [carregarMinhaInscricao])
+
+  const cancelarInscricao = async () => {
+    if (!minhaInscricao) return
+    setCancelando(true)
+    try {
+      await cancelarInscricaoApi(minhaInscricao.id)
+      setMinhaInscricao(null)
+      setSuccessInfo(null)
+      toast.success('Inscrição cancelada')
+      if (id)
+        getEventoPublicoPorIdApi(id)
+          .then(setEvento)
+          .catch(() => {})
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : 'Não foi possível cancelar a inscrição.'
+      )
+    } finally {
+      setCancelando(false)
+      setConfirmandoCancelamento(false)
+    }
+  }
 
   const loadEvento = useCallback(async () => {
     if (!id) return
@@ -114,6 +170,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
         message: result.message || 'Inscrição realizada com sucesso!',
         inscricao: result.inscricao,
       })
+      carregarMinhaInscricao()
     } catch (err: unknown) {
       if (err instanceof Error) {
         setSubmitError(err.message)
@@ -246,26 +303,63 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                       </p>
                       <div className="pt-2 flex gap-3">
                         {isAuthenticated ? (
-                          <Link to="/user/inicio">
-                            <Button variant="primary" size="sm">
-                              Ir para meu início
-                            </Button>
-                          </Link>
+                          <ButtonLink
+                            to="/user/inicio"
+                            variant="primary"
+                            size="sm"
+                          >
+                            Ir para meu início
+                          </ButtonLink>
                         ) : (
-                          <Link to="/login">
-                            <Button variant="primary" size="sm">
-                              Entrar na minha conta
-                            </Button>
-                          </Link>
+                          <ButtonLink to="/login" variant="primary" size="sm">
+                            Entrar na minha conta
+                          </ButtonLink>
                         )}
-                        <Link to={buildPresencePath(eventRouteBase, evento.id)}>
-                          <Button variant="outline" size="sm">
-                            Confirmar presença
-                          </Button>
-                        </Link>
+                        <ButtonLink
+                          to={buildPresencePath(eventRouteBase, evento.id)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Confirmar presença
+                        </ButtonLink>
                       </div>
                     </div>
                   </Alert>
+                ) : minhaInscricao ? (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <Badge variant="success">Inscrição confirmada</Badge>
+                      <span className="text-sm text-[var(--color-text-secondary)] tabular-nums">
+                        Inscrição #{minhaInscricao.inscricao}
+                      </span>
+                    </div>
+                    {(() => {
+                      const inicio = parseEventDateTime(
+                        evento.data,
+                        evento.horarioInicio
+                      )
+                      return inicio && new Date() < inicio ? (
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <p className="text-sm text-[var(--color-text-secondary)]">
+                            Não vai poder ir? Cancele para liberar a vaga para
+                            outra pessoa.
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setConfirmandoCancelamento(true)}
+                          >
+                            Cancelar inscrição
+                          </Button>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-[var(--color-text-secondary)]">
+                          O evento já começou, então a inscrição não pode mais
+                          ser cancelada.
+                        </p>
+                      )
+                    })()}
+                  </div>
                 ) : evento.inscricoesEncerradas ? (
                   <Alert
                     variant="warning"
@@ -341,6 +435,39 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
           </section>
         </div>
       )}
+
+      <AlertDialog
+        open={confirmandoCancelamento}
+        onOpenChange={(aberto) =>
+          !cancelando && setConfirmandoCancelamento(aberto)
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar sua inscrição?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sua vaga em “{evento?.tema}” será liberada para outra pessoa. Se
+              mudar de ideia, você pode se inscrever de novo enquanto houver
+              vagas e o evento não tiver começado.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelando}>
+              Manter inscrição
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={cancelando}
+              onClick={(e) => {
+                e.preventDefault() // fecha só depois da resposta da API
+                void cancelarInscricao()
+              }}
+            >
+              {cancelando ? 'Cancelando…' : 'Cancelar inscrição'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
