@@ -14,7 +14,7 @@ export const AccessDenied: React.FC<AccessDeniedProps> = ({
   returnUrl = '/user/inicio',
 }) => {
   return (
-    <div className="min-h-screen bg-[var(--color-bg-page)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-dvh bg-[var(--color-bg-page)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <Card className="max-w-md w-full border-[var(--color-border)] shadow-sm bg-[var(--color-bg-surface)]">
         <CardContent className="p-6 sm:p-8 text-center flex flex-col items-center">
           <div className="w-12 h-12 rounded-full bg-[var(--color-primary-subtle)] text-[var(--color-warning-text)] flex items-center justify-center mb-4">

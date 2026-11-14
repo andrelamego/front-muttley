@@ -8,7 +8,7 @@ export const AuthLayout: React.FC<{
   subtitulo: string
   children: React.ReactNode
 }> = ({ titulo, subtitulo, children }) => (
-  <div className="min-h-screen bg-[var(--color-bg-page)] flex flex-col justify-center items-center px-4 py-8 sm:px-6 lg:px-8">
+  <div className="min-h-dvh bg-[var(--color-bg-page)] flex flex-col justify-center items-center px-4 py-8 sm:px-6 lg:px-8">
     <HistoryBackButton
       label="Voltar"
       className="fixed left-4 top-4 sm:left-6 sm:top-6"
