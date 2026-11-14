@@ -5,7 +5,9 @@ export const AdminSectionHeader: React.FC<{
   title: string
   description: string
   onRefresh?: () => void
-}> = ({ title, description, onRefresh }) => (
+  /** Ação principal da página, ao lado de "Atualizar dados". */
+  action?: React.ReactNode
+}> = ({ title, description, onRefresh, action }) => (
   <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 pb-6 border-b border-[var(--color-border)]">
     <div>
       <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
@@ -15,11 +17,14 @@ export const AdminSectionHeader: React.FC<{
         {description}
       </p>
     </div>
-    {onRefresh && (
-      <Button variant="outline" size="sm" onClick={onRefresh}>
-        Atualizar dados
-      </Button>
-    )}
+    <div className="flex flex-wrap gap-2">
+      {onRefresh && (
+        <Button variant="outline" size="sm" onClick={onRefresh}>
+          Atualizar dados
+        </Button>
+      )}
+      {action}
+    </div>
   </div>
 )
 

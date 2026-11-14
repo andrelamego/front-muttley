@@ -1,5 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { getAdminPeopleApi } from '../api/adminCatalogApi'
+import {
+  atualizarPessoaApi,
+  excluirPessoaApi,
+  getAdminPeopleApi,
+} from '../api/adminCatalogApi'
+import {
+  CAMPOS_CONVITE,
+  CAMPOS_PESSOA,
+  paraPayload,
+  valoresDe,
+} from '../domain/formularios'
+import { solicitarCadastroApi, useAuth } from '../../auth'
+import { UserPlus } from 'lucide-react'
+import { FormularioDialog } from './FormularioDialog'
+import { ConfirmarExclusao } from './ConfirmarExclusao'
+import { AcoesRegistro } from './AcoesRegistro'
 import type { AdminPessoa } from '../domain/adminCatalogTypes'
 import { includesSearch } from '../domain/adminCatalogTypes'
 import {
@@ -9,7 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-import { Badge, Button, Input, SearchIcon } from '../../../shared/ui'
+import { Badge, Button, Input, SearchIcon, toast } from '../../../shared/ui'
 import { ordenarPor, paginar, type Direcao } from '../../../shared/lib/tabela'
 import {
   Table,
@@ -81,6 +96,10 @@ export const AdminPeoplePage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [ordem, setOrdem] = useState<Ordem>({ coluna: 'nome', direcao: 'asc' })
   const [pagina, setPagina] = useState(1)
+  const { user } = useAuth()
+  const [editando, setEditando] = useState<AdminPessoa | null>(null)
+  const [excluindo, setExcluindo] = useState<AdminPessoa | null>(null)
+  const [convidando, setConvidando] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -161,8 +180,18 @@ export const AdminPeoplePage: React.FC = () => {
     <div className="w-full max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
       <AdminSectionHeader
         title="Pessoas"
-        description="Consulte os usuários cadastrados e identifique os perfis com acesso administrativo."
+        description="Consulte, convide e mantenha os dados das pessoas cadastradas."
         onRefresh={load}
+        action={
+          <Button
+            id="botao-convidar-pessoa"
+            size="sm"
+            leftIcon={<UserPlus className="size-4" />}
+            onClick={() => setConvidando(true)}
+          >
+            Convidar pessoa
+          </Button>
+        }
       />
       {loading && people.length === 0 ? (
         <AdminDataSkeleton />
@@ -256,6 +285,9 @@ export const AdminPeoplePage: React.FC = () => {
                         ordem={ordem}
                         onOrdenar={alternarOrdem}
                       />
+                      <TableHead className="w-12 px-4">
+                        <span className="sr-only">Ações</span>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -283,6 +315,19 @@ export const AdminPeoplePage: React.FC = () => {
                           >
                             {roleLabel(person.role)}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-right">
+                          <AcoesRegistro
+                            id={`acoes-pessoa-${person.id}`}
+                            rotulo={`Ações de ${person.nome}`}
+                            onEditar={() => setEditando(person)}
+                            onExcluir={() => setExcluindo(person)}
+                            exclusaoBloqueada={
+                              String(person.id) === String(user?.id)
+                                ? 'Sua própria conta'
+                                : undefined
+                            }
+                          />
                         </TableCell>
                       </TableRow>
                     ))}
@@ -327,6 +372,63 @@ export const AdminPeoplePage: React.FC = () => {
           </section>
         </>
       )}
+
+      <FormularioDialog
+        key={editando?.id ?? 'fechado'}
+        aberto={editando !== null}
+        onFechar={() => setEditando(null)}
+        idRetorno={editando ? `acoes-pessoa-${editando.id}` : undefined}
+        titulo="Editar pessoa"
+        descricao="A senha e o perfil de acesso não mudam por aqui."
+        campos={CAMPOS_PESSOA}
+        valoresIniciais={valoresDe(
+          CAMPOS_PESSOA,
+          editando as unknown as Record<string, unknown> | null
+        )}
+        rotuloSalvar="Salvar alterações"
+        onSalvar={async (valores) => {
+          if (!editando) return
+          await atualizarPessoaApi(
+            editando.id,
+            paraPayload(CAMPOS_PESSOA, valores)
+          )
+          toast.success('Dados atualizados')
+          setEditando(null)
+          void load()
+        }}
+      />
+
+      <FormularioDialog
+        key={convidando ? 'convite-aberto' : 'convite-fechado'}
+        aberto={convidando}
+        onFechar={() => setConvidando(false)}
+        idRetorno="botao-convidar-pessoa"
+        titulo="Convidar pessoa"
+        descricao="A pessoa recebe um email com um link, válido por 24 horas, para concluir o cadastro e criar a própria senha."
+        campos={CAMPOS_CONVITE}
+        valoresIniciais={{ nome: '', email: '' }}
+        rotuloSalvar="Enviar convite"
+        onSalvar={async (valores) => {
+          await solicitarCadastroApi({
+            nome: valores.nome,
+            email: valores.email,
+          })
+          toast.success(`Convite enviado para ${valores.email.trim()}`)
+          setConvidando(false)
+        }}
+      />
+
+      <ConfirmarExclusao
+        nome={excluindo?.nome ?? null}
+        tipo="cadastro"
+        idRetorno={excluindo ? `acoes-pessoa-${excluindo.id}` : undefined}
+        onFechar={() => setExcluindo(null)}
+        onExcluir={async () => {
+          if (!excluindo) return
+          await excluirPessoaApi(excluindo.id)
+          void load()
+        }}
+      />
     </div>
   )
 }
