@@ -1,5 +1,9 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 @import './styles/tokens.css';
+
+/* O tema escuro do app é data-theme="dark"; as classes dark: do shadcn seguem ele */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 @theme {
   --color-primary: var(--color-primary);
@@ -21,9 +25,8 @@
   --color-line-subtle: var(--color-border-subtle);
   --color-line-strong: var(--color-border-strong);
 
-  --font-serif: var(--font-serif);
+  --font-display: var(--font-display);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
 }
 
 body {
@@ -41,12 +44,13 @@ body {
 h1,
 h2,
 h3,
-.font-serif-editorial {
-  font-family: var(--font-serif);
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 85;
 }
 
 .font-mono-tabular {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
 }
 
@@ -61,7 +65,6 @@ h3,
 
 .surface-depth-interactive:hover {
   box-shadow: var(--shadow-card-hover);
-  transform: translate(-1px, -1px);
 }
 
 .skeleton-shape {
@@ -139,10 +142,6 @@ h3,
     transition-duration: 0.01ms !important;
   }
 
-  .surface-depth-interactive:hover {
-    transform: none;
-  }
-
   .skeleton-shape::after {
     animation: none;
     display: none;
@@ -155,7 +154,383 @@ h3,
   }
 }
 
+/* Conteúdo que substitui um esqueleto entra suave, sem saltar */
+/* Entrada das telas: os blocos de cada página sobem em onda, com intervalos que encolhem.
+   .entrada-rota fica no contêiner da rota (PageTransition): anima os filhos da raiz da página.
+   .entrada anima os próprios filhos (telas fora dos layouts, hero da página inicial).
+   Páginas com coreografia própria marcam a raiz com data-entrada="propria". */
+.entrada > *,
+.entrada-rota > :not([data-entrada='propria']) > * {
+  --sobe: 5px;
+  animation: entrada 300ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.entrada > :nth-child(1),
+.entrada-rota > :not([data-entrada='propria']) > :nth-child(1) {
+  --sobe: 8px;
+}
+.entrada > :nth-child(2),
+.entrada-rota > :not([data-entrada='propria']) > :nth-child(2) {
+  animation-delay: 50ms;
+}
+.entrada > :nth-child(3),
+.entrada-rota > :not([data-entrada='propria']) > :nth-child(3) {
+  animation-delay: 90ms;
+}
+.entrada > :nth-child(4),
+.entrada-rota > :not([data-entrada='propria']) > :nth-child(4) {
+  animation-delay: 120ms;
+}
+.entrada > :nth-child(n + 5),
+.entrada-rota > :not([data-entrada='propria']) > :nth-child(n + 5) {
+  animation-delay: 140ms;
+}
+
+@keyframes entrada {
+  from {
+    opacity: 0;
+    transform: translateY(var(--sobe));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entrada > *,
+  .entrada-rota > :not([data-entrada='propria']) > * {
+    animation-name: content-fade;
+    animation-delay: 0ms;
+  }
+}
+
+.content-enter {
+  animation: content-enter 160ms var(--motion-ease-standard) both;
+}
+
+@keyframes content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content-enter {
+    animation-name: content-fade;
+  }
+}
+
+@keyframes content-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Troca de ícone (copiar → ✓): os dois ocupam a mesma célula e cruzam opacidade e escala */
+.icon-swap {
+  display: inline-grid;
+}
+
+.icon-swap > * {
+  grid-area: 1 / 1;
+  transition:
+    opacity 150ms var(--motion-ease-standard),
+    transform 150ms var(--motion-ease-standard);
+}
+
+.icon-swap > :last-child,
+.icon-swap[data-on='true'] > :first-child {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.icon-swap[data-on='true'] > :last-child {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-swap > * {
+    transform: none !important;
+  }
+}
+
+/* Pilha de ingressos do hero: levemente inclinados e sobrepostos, entram uma vez ao carregar */
+.hero-tickets {
+  --step: 8px;
+  display: flex;
+  flex-direction: column;
+  /* reserva o deslocamento lateral dos ingressos de trás */
+  padding-right: calc(var(--step) * 2);
+}
+
+@media (min-width: 1024px) {
+  .hero-tickets {
+    --step: 18px;
+  }
+}
+
+.hero-tickets > li {
+  --r: calc(-2deg + var(--i) * 2.5deg);
+  --x: calc(var(--i) * var(--step));
+  position: relative;
+  z-index: calc(3 - var(--i));
+  margin-top: -14px;
+  transform: translateX(var(--x)) rotate(var(--r));
+  animation: hero-ticket-in 480ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: calc(120ms + var(--i) * 80ms);
+}
+
+.hero-tickets > li:first-child {
+  margin-top: 0;
+}
+
+@keyframes hero-ticket-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--x), 24px) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-tickets > li {
+    animation-name: content-fade;
+    animation-delay: 0ms;
+  }
+}
+
+/* Ingresso: corpo e canhoto com máscaras próprias, para o canhoto poder se mover na perfuração */
+.ticket {
+  --ticket-stub: 92px;
+  --ticket-notch: 11px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--ticket-stub);
+  color: var(--color-text-primary);
+}
+
+.ticket--compact {
+  --ticket-stub: 72px;
+  --ticket-notch: 9px;
+}
+
+.ticket-body,
+.ticket-stub {
+  background: var(--color-bg-surface);
+}
+
+.ticket-body {
+  min-width: 0;
+  padding: 18px 16px 18px 18px;
+  overflow-wrap: anywhere;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  -webkit-mask:
+    radial-gradient(circle var(--ticket-notch) at 100% 0, #0000 98%, #000) top /
+      100% 51% no-repeat,
+    radial-gradient(circle var(--ticket-notch) at 100% 100%, #0000 98%, #000)
+      bottom / 100% 51% no-repeat;
+  mask:
+    radial-gradient(circle var(--ticket-notch) at 100% 0, #0000 98%, #000) top /
+      100% 51% no-repeat,
+    radial-gradient(circle var(--ticket-notch) at 100% 100%, #0000 98%, #000)
+      bottom / 100% 51% no-repeat;
+}
+
+.ticket-stub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 12px 6px;
+  border-left: 2px dashed var(--color-border);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  text-align: center;
+  transform-origin: 0 100%;
+  transition: transform 220ms var(--motion-ease-standard);
+  -webkit-mask:
+    radial-gradient(circle var(--ticket-notch) at 0 0, #0000 98%, #000) top /
+      100% 51% no-repeat,
+    radial-gradient(circle var(--ticket-notch) at 0 100%, #0000 98%, #000)
+      bottom / 100% 51% no-repeat;
+  mask:
+    radial-gradient(circle var(--ticket-notch) at 0 0, #0000 98%, #000) top /
+      100% 51% no-repeat,
+    radial-gradient(circle var(--ticket-notch) at 0 100%, #0000 98%, #000)
+      bottom / 100% 51% no-repeat;
+}
+
+/* A máscara corta box-shadow; o drop-shadow no invólucro segue o recorte. */
+.ticket-shadow {
+  display: block;
+  border-radius: var(--radius-lg);
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 12%));
+}
+
+:root[data-theme='dark'] .ticket-shadow {
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 40%));
+}
+
+/* Ingresso clicável: o invólucro é o link */
+.ticket-link {
+  color: inherit;
+  text-decoration: none;
+  transition: transform 180ms var(--motion-ease-standard);
+}
+
+.ticket-link:active {
+  transform: scale(0.99);
+}
+
+.ticket-link:focus-visible {
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ticket-link:hover {
+    transform: translateY(-2px);
+  }
+
+  /* O canhoto "solta" na perfuração, convidando ao clique */
+  .ticket-link:hover .ticket-stub {
+    transform: translateX(2px) rotate(1.5deg);
+  }
+
+  .ticket-link:hover .ticket-cta {
+    text-decoration: underline;
+  }
+}
+
+/* Presença confirmada: o canhoto se destaca do ingresso */
+.ticket--stamped .ticket-stub {
+  transform: translate(6px, 3px) rotate(3deg);
+  transition-duration: 420ms;
+  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.ticket-day {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 75;
+  font-weight: 800;
+  font-size: 40px;
+  line-height: 0.9;
+  color: var(--color-primary-text);
+}
+
+.ticket--compact .ticket-day {
+  font-size: 30px;
+}
+
+.ticket-month {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.ticket-time,
+.ticket-stamp {
+  margin-top: 6px;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.ticket-time {
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-signal);
+  color: var(--color-signal-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ticket-stamp {
+  padding: 1px 5px;
+  border: 2px solid var(--color-success-text);
+  border-radius: var(--radius-xs);
+  color: var(--color-success-text);
+  font-size: 12px;
+  transform: rotate(-8deg);
+  animation: ticket-stamp-in 220ms var(--motion-ease-standard) both;
+}
+
+.ticket--compact .ticket-stamp {
+  font-size: 11px;
+  padding: 1px 3px;
+}
+
+@keyframes ticket-stamp-in {
+  from {
+    opacity: 0;
+    transform: rotate(-8deg) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticket-link,
+  .ticket-stub {
+    transition: none;
+  }
+
+  .ticket-link:hover,
+  .ticket-link:active,
+  .ticket-link:hover .ticket-stub {
+    transform: none;
+  }
+
+  .ticket-stamp {
+    animation: none;
+  }
+}
+
+@supports not (
+  (mask: radial-gradient(#000, #000)) or
+    (-webkit-mask: radial-gradient(#000, #000))
+) {
+  .ticket-body,
+  .ticket-stub {
+    border: 1px solid var(--color-border);
+  }
+
+  .ticket-stub {
+    border-left: 2px dashed var(--color-border);
+  }
+}
+
 *:focus-visible {
   outline: 2px solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
+}
+
+/* Borda padrão do tema (o Tailwind 4 usa currentColor); os componentes shadcn contam com isso */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+}
+
+/* Componentes shadcn (src/shared/ui/shadcn) lendo os tokens Ingresso */
+@theme inline {
+  --color-background: var(--color-bg-page);
+  --color-foreground: var(--color-text-primary);
+  --color-card: var(--color-bg-surface);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-bg-surface);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-primary-foreground: var(--color-primary-contrast);
+  --color-secondary: var(--color-bg-subtle);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-muted: var(--color-bg-subtle);
+  --color-muted-foreground: var(--color-text-muted);
+  --color-accent: var(--color-bg-hover);
+  --color-accent-foreground: var(--color-text-primary);
+  --color-destructive: var(--color-danger);
+  --color-input: var(--color-border);
+  --color-ring: var(--focus-ring-color);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }

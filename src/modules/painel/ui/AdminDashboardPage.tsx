@@ -1,72 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { getAdminDashboardData } from '../api/painelApi'
-import type { AdminDashboardData, EventoResumo } from '../domain/painelTypes'
 import {
-  Button,
-  Alert,
-  CalendarIcon,
-  PlusIcon,
-  ClockIcon,
-  ArrowUpRightIcon,
-  AwardIcon,
-} from '../../../shared/ui'
+  formatModalidade,
+  getTicketDateParts,
+  isWithinPresenceWindow,
+  parseEventDateTime,
+} from '../../eventos'
+import { formatResumoSemana } from '../domain/resumoSemana'
+import type { AdminDashboardData, EventoResumo } from '../domain/painelTypes'
+import { Alert, Badge, Button, PlusIcon } from '../../../shared/ui'
 import { AdminDashboardSkeleton } from './skeletons'
 
-// Helper seguro para analisar data e hora de eventos
-const parseEventDateTime = (dateStr: string, timeStr: string): Date | null => {
-  if (!dateStr || !timeStr) return null
-  const [year, month, day] = dateStr.split('-').map(Number)
-  const [hours, minutes] = timeStr.split(':').map(Number)
-  if (!year || !month || !day) return null
-  return new Date(year, month - 1, day, hours || 0, minutes || 0)
-}
-
-// Checa se o credenciamento está aberto (10 min antes até 10 min após o término)
-const isWithinPresenceWindow = (
-  dateStr?: string,
-  inicioStr?: string,
-  fimStr?: string
-): boolean => {
-  if (!dateStr || !inicioStr || !fimStr) return false
-  const inicio = parseEventDateTime(dateStr, inicioStr)
-  const fim = parseEventDateTime(dateStr, fimStr)
-  if (!inicio || !fim) return false
-
-  const agora = new Date()
-  const dezMinAntes = new Date(inicio.getTime() - 10 * 60 * 1000)
-  const dezMinDepois = new Date(fim.getTime() + 10 * 60 * 1000)
-
-  return agora >= dezMinAntes && agora <= dezMinDepois
-}
-
-// Extrai dia e mês abreviado de uma data ISO YYYY-MM-DD
-const extractDateParts = (dateStr: string) => {
-  if (!dateStr) return { day: '--', monthYear: '---' }
-  const [year, month, day] = dateStr.split('-')
-  const meses = [
-    'JAN',
-    'FEV',
-    'MAR',
-    'ABR',
-    'MAI',
-    'JUN',
-    'JUL',
-    'AGO',
-    'SET',
-    'OUT',
-    'NOV',
-    'DEZ',
-  ]
-  const monthIndex = parseInt(month, 10) - 1
-  const monthName = meses[monthIndex] || month
-  return {
-    day: day || '--',
-    monthYear: `${monthName} • ${year || ''}`,
-  }
-}
-
 export const AdminDashboardPage: React.FC = () => {
+  const navigate = useNavigate()
   const [data, setData] = useState<AdminDashboardData | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
@@ -123,87 +70,34 @@ export const AdminDashboardPage: React.FC = () => {
   )
   const eventoPendente = pendenciasConclusao[0] as EventoResumo | undefined
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'EM_ANDAMENTO':
-        return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-info-bg)] text-[var(--color-info-text)] font-medium inline-flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-info-text)]" />
-            Em Andamento
-          </span>
-        )
-      case 'PROGRAMADO':
-        return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
-            Programado
-          </span>
-        )
-      case 'FINALIZADO':
-        return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-medium">
-            Finalizado
-          </span>
-        )
-      case 'CANCELADO':
-        return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] font-medium">
-            Cancelado
-          </span>
-        )
-      default:
-        return (
-          <span className="font-mono text-xs uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-bg-muted)] text-[var(--color-text-secondary)] font-medium">
-            {status}
-          </span>
-        )
-    }
-  }
+  const hora = new Date().getHours()
+  const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite'
+  const variacao = data?.variacaoCertificadosUltimos30Dias ?? 0
 
   return (
-    <div className="flex flex-col gap-8 w-full max-w-[76rem] mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      {/* Barra de Título e Ações Principais do Administrador */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 pb-6 border-b border-[var(--color-border)]/60">
+    <div className="flex flex-col gap-6 w-full max-w-[76rem] mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <div className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold mb-1">
-            Sessão Acadêmica • Comissão de Extensão e Pesquisa
-          </div>
-          <h1 className="font-serif text-3xl sm:text-4xl text-[var(--color-text-primary)] tracking-tight">
-            Painel de Gestão
+          <h1 className="font-display text-3xl sm:text-4xl font-extrabold leading-none">
+            {saudacao}, coordenação
           </h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-1 max-w-2xl leading-relaxed">
-            Bem-vindo à sala de coordenação. Visualize o status operacional dos
-            eventos, controle a abertura do credenciamento e valide as atas de
-            conclusão.
-          </p>
+          {data && (
+            <p className="text-[var(--color-text-secondary)] mt-2">
+              {formatResumoSemana(data.eventosAtivosNaSemana)}
+            </p>
+          )}
         </div>
-
-        <div className="flex items-center gap-3 shrink-0">
-          <Button
-            variant="outline"
-            size="md"
-            onClick={loadData}
-            isLoading={isLoading}
-          >
-            Atualizar
-          </Button>
-          <Link to="/admin/eventos/novo">
-            <Button
-              variant="primary"
-              size="md"
-              leftIcon={<PlusIcon size={18} />}
-            >
-              Criar Evento
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Alerta de erro */}
-      {error && (
-        <Alert
-          variant="error"
-          title="Falha ao carregar indicadores administrativos"
+        <Button
+          variant="primary"
+          leftIcon={<PlusIcon size={18} />}
+          onClick={() => navigate('/admin/eventos/novo')}
         >
+          Criar evento
+        </Button>
+      </header>
+
+      {error && (
+        <Alert variant="error" title="Não foi possível carregar o painel">
           <div className="flex flex-col gap-2">
             <p>{error}</p>
             <div>
@@ -215,392 +109,227 @@ export const AdminDashboardPage: React.FC = () => {
         </Alert>
       )}
 
-      {/* Estado de carregamento */}
       {isLoading && !data && <AdminDashboardSkeleton />}
 
       {data && (
-        <>
-          {/* BANNER: Eventos Aguardando Conclusão (quando houver) */}
+        <div className="content-enter flex flex-col gap-6">
           {eventoPendente && (
             <section
               aria-labelledby="pendencias-heading"
-              className="p-6 rounded-none bg-[var(--color-primary-subtle)] border border-[var(--color-warning-border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs"
+              className="rounded-[var(--radius-lg)] bg-[var(--color-signal)] text-[var(--color-signal-ink)] p-5 flex flex-col md:flex-row md:items-center gap-4"
             >
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <AwardIcon size={20} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2
-                      id="pendencias-heading"
-                      className="text-base font-bold text-[var(--color-primary-active)]"
-                    >
-                      Eventos Aguardando Conclusão e Emissão
-                    </h2>
-                    <span className="font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded-none bg-[var(--color-primary)] text-white">
-                      Ação Necessária
-                    </span>
-                  </div>
-                  <p className="text-xs text-[var(--color-warning-text)] leading-relaxed">
-                    O evento{' '}
-                    <strong className="text-[var(--color-primary-active)] font-semibold">
-                      {eventoPendente.tema}
-                    </strong>{' '}
-                    já encerrou seu horário previsto. Revise as presenças e faça
-                    o upload da assinatura do coordenador para emitir os
-                    certificados aos participantes.
-                  </p>
-                </div>
-              </div>
-
-              <div className="shrink-0 w-full md:w-auto">
-                <Link
-                  to={`/admin/eventos/${eventoPendente.id}/concluir`}
-                  className="block w-full"
+              <div className="flex-1">
+                <h2
+                  id="pendencias-heading"
+                  className="font-display text-lg font-bold"
                 >
-                  <Button variant="primary" size="sm" fullWidth>
-                    Revisar Conclusão
-                  </Button>
-                </Link>
+                  {pendenciasConclusao.length > 1
+                    ? `${pendenciasConclusao.length} eventos aguardam conclusão`
+                    : `${eventoPendente.tema} terminou e aguarda conclusão`}
+                </h2>
+                <p className="text-sm mt-1">
+                  {pendenciasConclusao.length > 1 &&
+                    `Comece por ${eventoPendente.tema}. `}
+                  Marque os presentes e envie a assinatura para emitir os
+                  certificados.
+                </p>
               </div>
+              <Button
+                className="bg-[var(--color-signal-ink)]! text-white! hover:opacity-90"
+                onClick={() =>
+                  navigate(`/admin/eventos/${eventoPendente.id}/concluir`)
+                }
+              >
+                Concluir evento
+              </Button>
             </section>
           )}
 
-          {/* OS TRÊS INDICADORES PRINCIPAIS */}
           <section
             aria-labelledby="metrics-heading"
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4"
           >
             <h2 id="metrics-heading" className="sr-only">
-              Indicadores Principais
+              Números do período
             </h2>
-
-            {/* Indicador 1 */}
-            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
-                    Ciclo Vigente
-                  </span>
-                  <span className="text-base font-bold text-[var(--color-text-primary)] mt-1 block">
-                    Eventos Ativos
-                  </span>
-                </div>
-                <div className="w-10 h-10 rounded-none bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-primary-text)]">
-                  <CalendarIcon size={20} />
-                </div>
-              </div>
-              <div className="mt-6 flex items-baseline justify-between">
-                <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl sm:text-5xl text-[var(--color-primary-text)] font-bold leading-none">
-                    {data.eventosAtivos}
-                  </span>
-                  <span className="text-xs text-[var(--color-text-secondary)]">
-                    em curso ou abertura
-                  </span>
-                </div>
-              </div>
-              <div className="mt-4 w-full bg-[var(--color-bg-muted)] h-1.5 rounded-full overflow-hidden">
-                <div
-                  className="bg-[var(--color-primary)] h-full rounded-full"
-                  style={{
-                    width: `${Math.min(100, Math.max(15, data.eventosAtivos * 12))}%`,
-                  }}
-                />
-              </div>
+            <div className="bg-[var(--color-bg-surface)] rounded-md p-5">
+              <span className="text-sm text-[var(--color-text-secondary)]">
+                Eventos ativos
+              </span>
+              <b className="block font-display text-5xl font-extrabold leading-none mt-2 [font-variation-settings:'wdth'_75]">
+                {data.eventosAtivos}
+              </b>
             </div>
-
-            {/* Indicador 2 */}
-            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
-                    Projeção Imediata
-                  </span>
-                  <span className="text-base font-bold text-[var(--color-text-primary)] mt-1 block">
-                    Próximos 7 Dias
-                  </span>
-                </div>
-                <div className="w-10 h-10 rounded-none bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-info-text)]">
-                  <ClockIcon size={20} />
-                </div>
-              </div>
-              <div className="mt-6 flex items-baseline justify-between">
-                <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl sm:text-5xl text-[var(--color-text-primary)] font-bold leading-none">
-                    {data.eventosAtivosNaSemana}
-                  </span>
-                  <span className="text-xs text-[var(--color-text-secondary)]">
-                    com inscrições ativas
-                  </span>
-                </div>
-              </div>
-              <div className="mt-4 w-full bg-[var(--color-bg-muted)] h-1.5 rounded-full overflow-hidden">
-                <div
-                  className="bg-[var(--color-info-text)] h-full rounded-full"
-                  style={{
-                    width: `${Math.min(100, Math.max(15, data.eventosAtivosNaSemana * 20))}%`,
-                  }}
-                />
-              </div>
+            <div className="bg-[var(--color-bg-surface)] rounded-md p-5">
+              <span className="text-sm text-[var(--color-text-secondary)]">
+                Nesta semana
+              </span>
+              <b className="block font-display text-5xl font-extrabold leading-none mt-2 [font-variation-settings:'wdth'_75]">
+                {data.eventosAtivosNaSemana}
+              </b>
             </div>
-
-            {/* Indicador 3 */}
-            <div className="flex flex-col justify-between p-6 surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] shadow-xs relative overflow-hidden">
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block">
-                    Autenticação Pública
-                  </span>
-                  <span className="text-base font-bold text-[var(--color-text-primary)] mt-1 block truncate">
-                    Certificados (30 dias)
-                  </span>
-                </div>
-                <div className="w-10 h-10 rounded-none bg-[var(--color-bg-subtle)] flex items-center justify-center text-[var(--color-success-text)]">
-                  <AwardIcon size={20} />
-                </div>
-              </div>
-              <div className="mt-6 flex items-baseline justify-between flex-wrap gap-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl sm:text-5xl text-[var(--color-success-text)] font-bold leading-none">
-                    {data.certificadosUltimos30Dias.toLocaleString('pt-BR')}
-                  </span>
-                  <span className="text-xs text-[var(--color-text-secondary)]">
-                    emitidos
-                  </span>
-                </div>
-                {data.variacaoCertificadosUltimos30Dias !== 0 && (
-                  <span className="font-mono text-xs text-[var(--color-success-text)] font-semibold flex items-center gap-1">
-                    {data.variacaoCertificadosUltimos30Dias > 0 ? '+' : ''}
-                    {data.variacaoCertificadosUltimos30Dias}%
-                  </span>
-                )}
-              </div>
-              <div className="mt-4 w-full bg-[var(--color-bg-muted)] h-1.5 rounded-full overflow-hidden">
-                <div
-                  className="bg-[var(--color-success-text)] h-full rounded-full"
-                  style={{ width: '85%' }}
-                />
-              </div>
+            <div className="bg-[var(--color-bg-surface)] rounded-md p-5">
+              <span className="text-sm text-[var(--color-text-secondary)]">
+                Certificados em 30 dias
+              </span>
+              <b className="block font-display text-5xl font-extrabold leading-none mt-2 [font-variation-settings:'wdth'_75]">
+                {data.certificadosUltimos30Dias.toLocaleString('pt-BR')}
+              </b>
+              {variacao !== 0 && (
+                <span
+                  className={`block text-sm font-semibold mt-2 ${
+                    variacao > 0
+                      ? 'text-[var(--color-success-text)]'
+                      : 'text-[var(--color-danger-text)]'
+                  }`}
+                >
+                  {variacao > 0 ? '+' : ''}
+                  {variacao}% que os 30 dias anteriores
+                </span>
+              )}
             </div>
           </section>
 
-          {/* AGENDA DOS PRÓXIMOS EVENTOS */}
-          <section
-            aria-labelledby="agenda-heading"
-            className="surface-depth bg-[var(--color-bg-surface)] p-6 sm:p-8 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col gap-6"
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-[var(--color-bg-muted)] gap-3">
-              <div>
-                <span className="font-mono text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-semibold block mb-0.5">
-                  Fluxo Presencial e Digital
-                </span>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 items-start">
+            <section
+              aria-labelledby="agenda-heading"
+              className="bg-[var(--color-bg-surface)] rounded-md p-5"
+            >
+              <div className="flex items-baseline justify-between mb-2">
                 <h2
                   id="agenda-heading"
-                  className="font-serif text-2xl text-[var(--color-text-primary)] font-bold"
+                  className="font-display text-lg font-bold"
                 >
-                  Agenda dos Próximos Eventos
+                  Próximos eventos
                 </h2>
-              </div>
-
-              <div className="flex items-center gap-2 p-2 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)]/60 text-xs text-[var(--color-text-secondary)]">
-                <span
-                  className="w-2 h-2 rounded-full bg-[var(--color-primary)]"
-                  aria-hidden="true"
-                />
-                <span>
-                  Regra institucional: Credenciamento disponível de 10 min antes
-                  até 10 min após o término.
-                </span>
-              </div>
-            </div>
-
-            {data.proximosEventos.length === 0 ? (
-              <p className="text-sm text-[var(--color-text-secondary)] py-6 text-center">
-                Não há eventos agendados para os próximos dias.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {data.proximosEventos.slice(0, 6).map((evento) => {
-                  const { day, monthYear } = extractDateParts(evento.data)
-                  const janelaAberta = isWithinPresenceWindow(
-                    evento.data,
-                    evento.horarioInicio,
-                    evento.horarioFim
-                  )
-
-                  return (
-                    <article
-                      key={evento.id}
-                      className="p-5 rounded-none bg-[var(--color-bg-subtle)] border border-[var(--color-border)]/60 flex flex-col justify-between gap-4"
-                    >
-                      <div>
-                        <div className="flex items-start justify-between gap-2 mb-3">
-                          <span className="font-mono text-xs uppercase tracking-wider font-semibold text-[var(--color-text-secondary)]">
-                            {day} {monthYear}
-                          </span>
-                          {janelaAberta ? (
-                            <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-none bg-[var(--color-success-bg)] text-[var(--color-success-text)] font-bold flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success-text)] animate-pulse" />
-                              Janela Aberta
-                            </span>
-                          ) : (
-                            getStatusBadge(evento.status)
-                          )}
-                        </div>
-
-                        <h3 className="font-serif text-lg font-bold text-[var(--color-text-primary)] mb-2 line-clamp-2">
-                          {evento.tema}
-                        </h3>
-
-                        <div className="space-y-1 text-xs text-[var(--color-text-secondary)]">
-                          <div className="flex items-center gap-1.5">
-                            <ClockIcon
-                              size={14}
-                              className="text-[var(--color-text-muted)]"
-                            />
-                            <span>
-                              {evento.horarioInicio} às {evento.horarioFim}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[10px] uppercase text-[var(--color-text-muted)]">
-                              Local:
-                            </span>
-                            <span className="truncate">
-                              {evento.local ||
-                                evento.disciplina ||
-                                'Campus FATEC'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pt-3 border-t border-[var(--color-border)]/60 flex items-center justify-between">
-                        <span className="font-mono text-[11px] text-[var(--color-text-secondary)] uppercase font-medium">
-                          {evento.modalidade}
-                        </span>
-                        <Link
-                          to={`/admin/eventos/${evento.id}/editar`}
-                          className="text-xs font-semibold text-[var(--color-primary-text)] hover:underline inline-flex items-center gap-1"
-                        >
-                          <span>Gerenciar</span>
-                          <ArrowUpRightIcon size={14} />
-                        </Link>
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            )}
-          </section>
-
-          {/* CATÁLOGO RESUMIDO DE EVENTOS CADASTRADOS */}
-          <section
-            aria-labelledby="catalog-heading"
-            className="surface-depth bg-[var(--color-bg-surface)] p-6 sm:p-8 rounded-none border border-[var(--color-border)] shadow-xs flex flex-col gap-6"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[var(--color-bg-muted)] gap-4">
-              <div>
-                <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold block mb-0.5">
-                  Registro Geral
-                </span>
-                <h2
-                  id="catalog-heading"
-                  className="font-serif text-2xl text-[var(--color-text-primary)] font-bold"
+                <Link
+                  to="/admin/eventos"
+                  className="text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
                 >
-                  Eventos Cadastrados no Sistema
-                </h2>
+                  Ver todos
+                </Link>
               </div>
 
-              <Link to="/admin/eventos">
-                <Button variant="outline" size="sm">
-                  Ver Todos os Eventos &rarr;
-                </Button>
-              </Link>
-            </div>
-
-            {/* Tabela Responsiva */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--color-border)] text-[11px] font-mono uppercase tracking-wider text-[var(--color-text-muted)]">
-                    <th scope="col" className="pb-3 pr-4 font-semibold">
-                      Tema do Evento
-                    </th>
-                    <th scope="col" className="pb-3 px-4 font-semibold">
-                      Data &amp; Horário
-                    </th>
-                    <th scope="col" className="pb-3 px-4 font-semibold">
-                      Modalidade
-                    </th>
-                    <th scope="col" className="pb-3 px-4 font-semibold">
-                      Status
-                    </th>
-                    <th
-                      scope="col"
-                      className="pb-3 pl-4 text-right font-semibold"
-                    >
-                      Ação
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--color-bg-muted)]">
-                  {data.proximosEventos.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className="py-8 text-center text-[var(--color-text-secondary)]"
-                      >
-                        Nenhum evento registrado no catálogo.
-                      </td>
-                    </tr>
-                  ) : (
-                    data.proximosEventos.map((evento) => (
-                      <tr
+              {data.proximosEventos.length === 0 ? (
+                <p className="text-sm text-[var(--color-text-secondary)] py-6">
+                  Nenhum evento agendado. Crie um evento para abrir inscrições.
+                </p>
+              ) : (
+                <ul className="divide-y divide-[var(--color-border)]">
+                  {data.proximosEventos.slice(0, 6).map((evento) => {
+                    const partes = getTicketDateParts(
+                      evento.data,
+                      evento.horarioInicio
+                    )
+                    const janelaAberta = isWithinPresenceWindow(
+                      evento.data,
+                      evento.horarioInicio,
+                      evento.horarioFim
+                    )
+                    const aguardaConclusao =
+                      pendenciasConclusao.includes(evento)
+                    return (
+                      <li
                         key={evento.id}
-                        className="hover:bg-[var(--color-bg-page)] transition-colors"
+                        className="grid grid-cols-[3.5rem_1fr_auto] gap-4 items-center py-3"
                       >
-                        <td className="py-4 pr-4">
-                          <span className="font-semibold text-[var(--color-text-primary)] block">
-                            {evento.tema}
+                        <span className="rounded-sm border-2 border-dashed border-[var(--color-border)] text-center py-1">
+                          <span className="block font-display text-xl font-extrabold leading-none text-[var(--color-primary-text)]">
+                            {partes.dia}
                           </span>
-                          <span className="text-xs text-[var(--color-text-muted)] block">
-                            {evento.local || evento.disciplina || 'Campus'}
+                          <span className="text-xs text-[var(--color-text-secondary)]">
+                            {partes.mes}
                           </span>
-                        </td>
-                        <td className="py-4 px-4 font-mono text-xs text-[var(--color-text-secondary)] whitespace-nowrap">
-                          <div>{evento.data}</div>
-                          <div className="text-[11px] text-[var(--color-text-muted)]">
-                            {evento.horarioInicio} - {evento.horarioFim}
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 whitespace-nowrap">
-                          <span className="font-mono text-xs uppercase text-[var(--color-text-secondary)]">
-                            {evento.modalidade}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="flex items-center gap-2 flex-wrap">
+                            <strong className="font-semibold min-w-0 [overflow-wrap:anywhere]">
+                              {evento.tema}
+                            </strong>
+                            {aguardaConclusao && (
+                              <Badge variant="warning" size="sm">
+                                Aguarda conclusão
+                              </Badge>
+                            )}
+                            {janelaAberta && (
+                              <Badge variant="success" size="sm">
+                                Presença aberta
+                              </Badge>
+                            )}
+                            {evento.status === 'CANCELADO' && (
+                              <Badge variant="danger" size="sm">
+                                Cancelado
+                              </Badge>
+                            )}
                           </span>
-                        </td>
-                        <td className="py-4 px-4 whitespace-nowrap">
-                          {getStatusBadge(evento.status)}
-                        </td>
-                        <td className="py-4 pl-4 text-right whitespace-nowrap">
-                          <Link
-                            to={`/admin/eventos/${evento.id}/editar`}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-primary-text)] hover:underline"
-                          >
-                            <span>Gerenciar</span>
-                            <ArrowUpRightIcon size={14} />
-                          </Link>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </>
+                          <span className="block text-sm text-[var(--color-text-secondary)] truncate">
+                            {[
+                              partes.horario,
+                              evento.local ||
+                                formatModalidade(evento.modalidade),
+                            ]
+                              .filter(Boolean)
+                              .join(' · ')}
+                          </span>
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            navigate(
+                              aguardaConclusao
+                                ? `/admin/eventos/${evento.id}/concluir`
+                                : `/admin/eventos/${evento.id}`
+                            )
+                          }
+                          aria-label={`${aguardaConclusao ? 'Concluir' : 'Abrir'} ${evento.tema}`}
+                        >
+                          {aguardaConclusao ? 'Concluir' : 'Abrir'}
+                        </Button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </section>
+
+            <section
+              aria-labelledby="certs-heading"
+              className="bg-[var(--color-bg-surface)] rounded-md p-5"
+            >
+              <h2
+                id="certs-heading"
+                className="font-display text-lg font-bold mb-4"
+              >
+                Certificados por evento
+              </h2>
+              {data.certificadosPorEvento.length === 0 ? (
+                <p className="text-sm text-[var(--color-text-secondary)]">
+                  Nenhum certificado emitido ainda.
+                </p>
+              ) : (
+                <ul className="flex flex-col gap-3">
+                  {data.certificadosPorEvento.map((barra) => (
+                    <li key={barra.rotulo}>
+                      <span className="flex justify-between gap-3 text-sm">
+                        <span className="truncate">{barra.rotulo}</span>
+                        <b className="tabular-nums">{barra.total}</b>
+                      </span>
+                      <span className="block h-2.5 rounded-full bg-[var(--color-primary-subtle)] mt-1.5 overflow-hidden">
+                        <span
+                          className="block h-full rounded-full bg-[var(--color-primary)]"
+                          style={{
+                            width: `${Math.min(100, Math.max(0, barra.percentual))}%`,
+                          }}
+                        />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+        </div>
       )}
     </div>
   )

@@ -1,8 +1,39 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { getAdminPeopleApi } from '../api/adminCatalogApi'
+import {
+  atualizarPessoaApi,
+  excluirPessoaApi,
+  getAdminPeopleApi,
+} from '../api/adminCatalogApi'
+import {
+  CAMPOS_CONVITE,
+  CAMPOS_PESSOA,
+  paraPayload,
+  valoresDe,
+} from '../domain/formularios'
+import { solicitarCadastroApi, useAuth } from '../../auth'
+import { UserPlus } from 'lucide-react'
+import { FormularioDialog } from './FormularioDialog'
+import { ConfirmarExclusao } from './ConfirmarExclusao'
+import { AcoesRegistro } from './AcoesRegistro'
 import type { AdminPessoa } from '../domain/adminCatalogTypes'
 import { includesSearch } from '../domain/adminCatalogTypes'
-import { Badge, Input, SearchIcon } from '../../../shared/ui'
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
+import { Badge, Button, Input, SearchIcon, toast } from '../../../shared/ui'
+import { ordenarPor, paginar, type Direcao } from '../../../shared/lib/tabela'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../../../shared/ui/shadcn/table'
 import { AdminDataSkeleton } from './AdminDataSkeleton'
 import {
   AdminEmpty,
@@ -14,12 +45,61 @@ import {
 const roleLabel = (role?: string) =>
   role?.toUpperCase() === 'ADMIN' ? 'Administrador' : 'Usuário'
 
+const POR_PAGINA = 15
+
+type ColunaOrdenavel = 'nome' | 'email' | 'role'
+interface Ordem {
+  coluna: ColunaOrdenavel
+  direcao: Direcao
+}
+
+/** Cabeçalho que ordena ao clicar; aria-sort informa a ordem atual ao leitor de tela. */
+const CabecalhoOrdenavel: React.FC<{
+  rotulo: string
+  coluna: ColunaOrdenavel
+  ordem: Ordem
+  onOrdenar: (coluna: ColunaOrdenavel) => void
+}> = ({ rotulo, coluna, ordem, onOrdenar }) => {
+  const ativa = ordem.coluna === coluna
+  const Icone = !ativa
+    ? ArrowUpDown
+    : ordem.direcao === 'asc'
+      ? ArrowUp
+      : ArrowDown
+  return (
+    <TableHead
+      className="px-2"
+      aria-sort={
+        ativa ? (ordem.direcao === 'asc' ? 'ascending' : 'descending') : 'none'
+      }
+    >
+      <button
+        type="button"
+        onClick={() => onOrdenar(coluna)}
+        className="inline-flex min-h-9 items-center gap-1.5 rounded-sm px-2 font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+      >
+        {rotulo}
+        <Icone
+          className={`size-3.5 ${ativa ? '' : 'opacity-50'}`}
+          aria-hidden="true"
+        />
+      </button>
+    </TableHead>
+  )
+}
+
 export const AdminPeoplePage: React.FC = () => {
   const [people, setPeople] = useState<AdminPessoa[]>([])
   const [search, setSearch] = useState('')
   const [role, setRole] = useState('TODOS')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [ordem, setOrdem] = useState<Ordem>({ coluna: 'nome', direcao: 'asc' })
+  const [pagina, setPagina] = useState(1)
+  const { user } = useAuth()
+  const [editando, setEditando] = useState<AdminPessoa | null>(null)
+  const [excluindo, setExcluindo] = useState<AdminPessoa | null>(null)
+  const [convidando, setConvidando] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -67,6 +147,31 @@ export const AdminPeoplePage: React.FC = () => {
     [people, role, search]
   )
 
+  const visiveis = useMemo(
+    () =>
+      paginar(
+        // Ordenação estável: empates na coluna escolhida ficam em ordem de nome
+        ordenarPor(
+          ordenarPor(filtered, 'nome', 'asc'),
+          ordem.coluna,
+          ordem.direcao
+        ),
+        pagina,
+        POR_PAGINA
+      ),
+    [filtered, ordem, pagina]
+  )
+
+  // Mesma coluna inverte a direção; outra coluna começa em ordem crescente.
+  const alternarOrdem = (coluna: ColunaOrdenavel) => {
+    setOrdem((atual) => ({
+      coluna,
+      direcao:
+        atual.coluna === coluna && atual.direcao === 'asc' ? 'desc' : 'asc',
+    }))
+    setPagina(1)
+  }
+
   const admins = people.filter(
     (person) => person.role?.toUpperCase() === 'ADMIN'
   ).length
@@ -74,10 +179,19 @@ export const AdminPeoplePage: React.FC = () => {
   return (
     <div className="w-full max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
       <AdminSectionHeader
-        eyebrow="Diretório institucional"
         title="Pessoas"
-        description="Consulte os usuários cadastrados e identifique os perfis com acesso administrativo."
+        description="Consulte, convide e mantenha os dados das pessoas cadastradas."
         onRefresh={load}
+        action={
+          <Button
+            id="botao-convidar-pessoa"
+            size="sm"
+            leftIcon={<UserPlus className="size-4" />}
+            onClick={() => setConvidando(true)}
+          >
+            Convidar pessoa
+          </Button>
+        }
       />
       {loading && people.length === 0 ? (
         <AdminDataSkeleton />
@@ -106,31 +220,39 @@ export const AdminPeoplePage: React.FC = () => {
           <section className="space-y-4" aria-labelledby="people-list-title">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
               <div>
-                <h2 id="people-list-title" className="font-serif text-xl">
+                <h2 id="people-list-title" className="font-display text-xl">
                   Diretório completo
                 </h2>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                  {filtered.length} pessoa(s) encontrada(s)
+                  {filtered.length === 1
+                    ? '1 pessoa encontrada'
+                    : `${filtered.length} pessoas encontradas`}
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                 <div className="relative sm:w-80">
                   <SearchIcon
                     size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+                    className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[var(--color-text-muted)]"
                   />
                   <Input
                     value={search}
-                    onChange={(event) => setSearch(event.target.value)}
+                    onChange={(event) => {
+                      setSearch(event.target.value)
+                      setPagina(1)
+                    }}
                     placeholder="Buscar nome, email, CPF ou telefone"
                     className="pl-9"
                   />
                 </div>
                 <select
                   value={role}
-                  onChange={(event) => setRole(event.target.value)}
+                  onChange={(event) => {
+                    setRole(event.target.value)
+                    setPagina(1)
+                  }}
                   aria-label="Filtrar por perfil"
-                  className="h-10 border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring-color)]"
+                  className="h-10 rounded-sm border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring-color)]"
                 >
                   <option value="TODOS">Todos os perfis</option>
                   <option value="ADMIN">Administradores</option>
@@ -140,35 +262,50 @@ export const AdminPeoplePage: React.FC = () => {
             </div>
 
             {filtered.length ? (
-              <div className="overflow-x-auto border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
-                <table className="w-full min-w-[760px] text-left text-sm">
-                  <thead className="bg-[var(--color-bg-subtle)] text-xs text-[var(--color-text-secondary)] border-b border-[var(--color-border)]">
-                    <tr>
-                      <th className="px-4 py-3">Nome</th>
-                      <th className="px-4 py-3">Contato</th>
-                      <th className="px-4 py-3">CPF</th>
-                      <th className="px-4 py-3">Perfil</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[var(--color-border-subtle)]">
-                    {filtered.map((person) => (
-                      <tr
-                        key={person.id}
-                        className="hover:bg-[var(--color-bg-subtle)]"
-                      >
-                        <td className="px-4 py-3 font-semibold">
+              <div className="rounded-md bg-[var(--color-bg-surface)]">
+                <Table className="min-w-[760px]">
+                  <TableHeader className="bg-[var(--color-bg-subtle)]">
+                    <TableRow className="hover:bg-transparent">
+                      <CabecalhoOrdenavel
+                        rotulo="Nome"
+                        coluna="nome"
+                        ordem={ordem}
+                        onOrdenar={alternarOrdem}
+                      />
+                      <CabecalhoOrdenavel
+                        rotulo="Contato"
+                        coluna="email"
+                        ordem={ordem}
+                        onOrdenar={alternarOrdem}
+                      />
+                      <TableHead className="px-4">CPF</TableHead>
+                      <CabecalhoOrdenavel
+                        rotulo="Perfil"
+                        coluna="role"
+                        ordem={ordem}
+                        onOrdenar={alternarOrdem}
+                      />
+                      <TableHead className="w-12 px-4">
+                        <span className="sr-only">Ações</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {visiveis.itens.map((person) => (
+                      <TableRow key={person.id}>
+                        <TableCell className="px-4 py-3 font-semibold">
                           {person.nome}
-                        </td>
-                        <td className="px-4 py-3">
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
                           <span className="block">{person.email}</span>
                           <span className="text-xs text-[var(--color-text-muted)]">
                             {person.telefone || 'Telefone não informado'}
                           </span>
-                        </td>
-                        <td className="px-4 py-3 font-mono text-xs">
+                        </TableCell>
+                        <TableCell className="px-4 py-3 tabular-nums text-xs">
                           {person.cpf || '—'}
-                        </td>
-                        <td className="px-4 py-3">
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
                           <Badge
                             variant={
                               person.role?.toUpperCase() === 'ADMIN'
@@ -178,11 +315,56 @@ export const AdminPeoplePage: React.FC = () => {
                           >
                             {roleLabel(person.role)}
                           </Badge>
-                        </td>
-                      </tr>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-right">
+                          <AcoesRegistro
+                            id={`acoes-pessoa-${person.id}`}
+                            rotulo={`Ações de ${person.nome}`}
+                            onEditar={() => setEditando(person)}
+                            onExcluir={() => setExcluindo(person)}
+                            exclusaoBloqueada={
+                              String(person.id) === String(user?.id)
+                                ? 'Sua própria conta'
+                                : undefined
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
+
+                <nav
+                  aria-label="Páginas do diretório"
+                  className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3"
+                >
+                  <span
+                    className="text-sm text-[var(--color-text-secondary)]"
+                    aria-live="polite"
+                  >
+                    Página {visiveis.pagina} de {visiveis.totalPaginas}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={visiveis.pagina === 1}
+                      onClick={() => setPagina(visiveis.pagina - 1)}
+                      leftIcon={<ChevronLeft className="size-4" />}
+                    >
+                      Anterior
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={visiveis.pagina === visiveis.totalPaginas}
+                      onClick={() => setPagina(visiveis.pagina + 1)}
+                      rightIcon={<ChevronRight className="size-4" />}
+                    >
+                      Próxima
+                    </Button>
+                  </div>
+                </nav>
               </div>
             ) : (
               <AdminEmpty message="Nenhuma pessoa corresponde aos filtros." />
@@ -190,6 +372,63 @@ export const AdminPeoplePage: React.FC = () => {
           </section>
         </>
       )}
+
+      <FormularioDialog
+        key={editando?.id ?? 'fechado'}
+        aberto={editando !== null}
+        onFechar={() => setEditando(null)}
+        idRetorno={editando ? `acoes-pessoa-${editando.id}` : undefined}
+        titulo="Editar pessoa"
+        descricao="A senha e o perfil de acesso não mudam por aqui."
+        campos={CAMPOS_PESSOA}
+        valoresIniciais={valoresDe(
+          CAMPOS_PESSOA,
+          editando as unknown as Record<string, unknown> | null
+        )}
+        rotuloSalvar="Salvar alterações"
+        onSalvar={async (valores) => {
+          if (!editando) return
+          await atualizarPessoaApi(
+            editando.id,
+            paraPayload(CAMPOS_PESSOA, valores)
+          )
+          toast.success('Dados atualizados')
+          setEditando(null)
+          void load()
+        }}
+      />
+
+      <FormularioDialog
+        key={convidando ? 'convite-aberto' : 'convite-fechado'}
+        aberto={convidando}
+        onFechar={() => setConvidando(false)}
+        idRetorno="botao-convidar-pessoa"
+        titulo="Convidar pessoa"
+        descricao="A pessoa recebe um email com um link, válido por 24 horas, para concluir o cadastro e criar a própria senha."
+        campos={CAMPOS_CONVITE}
+        valoresIniciais={{ nome: '', email: '' }}
+        rotuloSalvar="Enviar convite"
+        onSalvar={async (valores) => {
+          await solicitarCadastroApi({
+            nome: valores.nome,
+            email: valores.email,
+          })
+          toast.success(`Convite enviado para ${valores.email.trim()}`)
+          setConvidando(false)
+        }}
+      />
+
+      <ConfirmarExclusao
+        nome={excluindo?.nome ?? null}
+        tipo="cadastro"
+        idRetorno={excluindo ? `acoes-pessoa-${excluindo.id}` : undefined}
+        onFechar={() => setExcluindo(null)}
+        onExcluir={async () => {
+          if (!excluindo) return
+          await excluirPessoaApi(excluindo.id)
+          void load()
+        }}
+      />
     </div>
   )
 }

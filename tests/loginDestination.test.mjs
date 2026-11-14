@@ -43,21 +43,39 @@ test('bloqueia open redirect e URLs externas maliciosas', () => {
 
 test('bloqueia retorno para a própria página de login para evitar loops', () => {
   assert.equal(resolveLoginDestination('/login', 'USER'), '/user/inicio')
-  assert.equal(resolveLoginDestination('/login?returnTo=/admin', 'ADMIN'), '/admin/inicio')
+  assert.equal(
+    resolveLoginDestination('/login?returnTo=/admin', 'ADMIN'),
+    '/admin/inicio'
+  )
   assert.equal(resolveLoginDestination('/login#topo', 'USER'), '/user/inicio')
 })
 
 test('USER tentando acessar rotas de ADMIN é encaminhado com segurança para /user/inicio', () => {
   assert.equal(resolveLoginDestination('/admin', 'USER'), '/user/inicio')
   assert.equal(resolveLoginDestination('/admin/inicio', 'USER'), '/user/inicio')
-  assert.equal(resolveLoginDestination('/admin/eventos', 'USER'), '/user/inicio')
-  assert.equal(resolveLoginDestination('/admin/eventos/novo', 'USER'), '/user/inicio')
-  assert.equal(resolveLoginDestination('/admin/eventos/42/editar', 'USER'), '/user/inicio')
-  assert.equal(resolveLoginDestination('/admin/eventos/42/concluir', 'USER'), '/user/inicio')
+  assert.equal(
+    resolveLoginDestination('/admin/eventos', 'USER'),
+    '/user/inicio'
+  )
+  assert.equal(
+    resolveLoginDestination('/admin/eventos/novo', 'USER'),
+    '/user/inicio'
+  )
+  assert.equal(
+    resolveLoginDestination('/admin/eventos/42/editar', 'USER'),
+    '/user/inicio'
+  )
+  assert.equal(
+    resolveLoginDestination('/admin/eventos/42/concluir', 'USER'),
+    '/user/inicio'
+  )
 })
 
 test('ADMIN acessando rotas de ADMIN tem o destino preservado com query e hash', () => {
-  assert.equal(resolveLoginDestination('/admin/inicio', 'ADMIN'), '/admin/inicio')
+  assert.equal(
+    resolveLoginDestination('/admin/inicio', 'ADMIN'),
+    '/admin/inicio'
+  )
   assert.equal(
     resolveLoginDestination('/admin/eventos?status=EM_ANDAMENTO', 'ADMIN'),
     '/admin/eventos?status=EM_ANDAMENTO'
@@ -70,8 +88,14 @@ test('ADMIN acessando rotas de ADMIN tem o destino preservado com query e hash',
 
 test('USER e ADMIN acessando rotas de participante (/user) têm o destino respeitado', () => {
   assert.equal(resolveLoginDestination('/user/inicio', 'USER'), '/user/inicio')
-  assert.equal(resolveLoginDestination('/user/certificados', 'USER'), '/user/certificados')
-  assert.equal(resolveLoginDestination('/user/medalhas', 'USER'), '/user/medalhas')
+  assert.equal(
+    resolveLoginDestination('/user/certificados', 'USER'),
+    '/user/certificados'
+  )
+  assert.equal(
+    resolveLoginDestination('/user/medalhas', 'USER'),
+    '/user/medalhas'
+  )
   assert.equal(resolveLoginDestination('/user/inicio', 'ADMIN'), '/user/inicio')
 })
 
@@ -94,5 +118,8 @@ test('rotas públicas (/eventos, /certificados, /) são permitidas para qualquer
 
 test('rotas desconhecidas ou não mapeadas caem no fallback do perfil', () => {
   assert.equal(resolveLoginDestination('/desconhecido', 'USER'), '/user/inicio')
-  assert.equal(resolveLoginDestination('/random/path', 'ADMIN'), '/admin/inicio')
+  assert.equal(
+    resolveLoginDestination('/random/path', 'ADMIN'),
+    '/admin/inicio'
+  )
 })

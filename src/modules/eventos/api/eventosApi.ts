@@ -43,3 +43,22 @@ export const confirmarPresencaApi = async (
   )
   return response.data
 }
+
+/** Inscrição da pessoa logada neste evento, ou null se ela não está inscrita. */
+export const getMinhaInscricaoApi = async (
+  eventoId: string | number
+): Promise<{ id: number; inscricao: number } | null> => {
+  const response =
+    await apiClient.get<
+      Array<{ id: number; inscricao: number; evento?: { id?: number } | null }>
+    >('/me/participacoes')
+  const minha = response.data.find(
+    (p) => String(p.evento?.id) === String(eventoId)
+  )
+  return minha ? { id: minha.id, inscricao: minha.inscricao } : null
+}
+
+/** A API só aceita antes do início do evento e sem presença registrada. */
+export const cancelarInscricaoApi = async (participacaoId: number) => {
+  await apiClient.delete(`/participacoes/${participacaoId}`)
+}

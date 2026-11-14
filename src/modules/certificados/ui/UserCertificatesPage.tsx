@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useId } from 'react'
-import { Link } from 'react-router-dom'
 import { PARTICIPANT_EVENTS_PATH } from '../../eventos'
 import {
   getMeCertificadosApi,
@@ -19,16 +18,16 @@ import {
   Button,
   Alert,
   Input,
-  ShieldCheckIcon,
   SearchIcon,
   DownloadIcon,
   ExternalLinkIcon,
   CopyIcon,
   CheckIcon,
   AwardIcon,
+  copiarTexto,
+  ButtonLink,
 } from '../../../shared/ui'
 import { CertificateListSkeleton } from './skeletons'
-import { HistoryBackButton } from '../../../shared/navigation'
 
 const formatDate = (dateStr: string): string => {
   if (!dateStr) return 'Data não informada'
@@ -92,14 +91,9 @@ export const UserCertificatesPage: React.FC = () => {
   }, [])
 
   const handleCopyCode = async (codigo: string) => {
-    try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(codigo)
-        setCopiedCode(codigo)
-        setTimeout(() => setCopiedCode(null), 2500)
-      }
-    } catch {
-      // Falha silenciosa de permissão de clipboard
+    if (await copiarTexto(codigo, 'Código de validação copiado')) {
+      setCopiedCode(codigo)
+      setTimeout(() => setCopiedCode(null), 2500)
     }
   }
 
@@ -141,19 +135,14 @@ export const UserCertificatesPage: React.FC = () => {
       {/* Cabeçalho da Página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[var(--color-border)] pb-5">
         <div>
-          <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
-            Reconhecimento Acadêmico
-          </span>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mt-1">
-            Meus Certificados
+          <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
+            Meus certificados
           </h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Comprovantes oficiais emitidos após validação de presença e
             conclusão das atividades.
           </p>
         </div>
-
-        <HistoryBackButton label="Voltar para a página anterior" />
       </div>
 
       {/* Alertas */}
@@ -193,7 +182,7 @@ export const UserCertificatesPage: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
           />
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
+          <div className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
             <SearchIcon size={16} />
           </div>
         </div>
@@ -222,11 +211,14 @@ export const UserCertificatesPage: React.FC = () => {
                     : 'Assim que você participar de um evento e ele for concluído pela organização, seu certificado oficial ficará disponível aqui.'}
                 </p>
                 {!searchTerm && (
-                  <Link to={PARTICIPANT_EVENTS_PATH} className="mt-2">
-                    <Button variant="primary" size="md">
-                      Explorar Eventos Abertos
-                    </Button>
-                  </Link>
+                  <ButtonLink
+                    to={PARTICIPANT_EVENTS_PATH}
+                    variant="primary"
+                    size="md"
+                    className="mt-2"
+                  >
+                    Ver eventos abertos
+                  </ButtonLink>
                 )}
                 {searchTerm && (
                   <Button
@@ -242,7 +234,7 @@ export const UserCertificatesPage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredCertificates.map((cert) => {
-                const eventName = cert.evento?.tema || 'Certificado Muttley'
+                const eventName = cert.evento?.tema || 'Certificado'
                 const linkedinUrl = buildLinkedInCertUrl(
                   eventName,
                   cert.codigoValidacao,
@@ -258,10 +250,7 @@ export const UserCertificatesPage: React.FC = () => {
                   >
                     <div>
                       <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-[var(--color-border-subtle)]">
-                        <Badge variant="success" className="gap-1">
-                          <ShieldCheckIcon size={14} />
-                          Certificado Válido
-                        </Badge>
+                        <Badge variant="success">Válido</Badge>
                         <span className="text-xs text-[var(--color-text-muted)]">
                           {formatDate(cert.dataEmissao)}
                         </span>
@@ -281,10 +270,10 @@ export const UserCertificatesPage: React.FC = () => {
                         </div>
 
                         {/* Código de Validação */}
-                        <div className="bg-[var(--color-bg-subtle)] rounded-none p-2.5 border border-[var(--color-border)] flex items-center justify-between gap-2">
+                        <div className="bg-[var(--color-bg-subtle)] rounded-md p-2.5 border border-[var(--color-border)] flex items-center justify-between gap-2">
                           <div className="overflow-hidden">
-                            <span className="block text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-                              Código de Validação
+                            <span className="block text-xs text-[var(--color-text-muted)]">
+                              Código de validação
                             </span>
                             <span className="font-mono text-xs text-[var(--color-text-primary)] truncate block">
                               {cert.codigoValidacao}
@@ -299,14 +288,20 @@ export const UserCertificatesPage: React.FC = () => {
                             aria-label="Copiar código de validação"
                             className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] shrink-0"
                           >
-                            {isCopied ? (
-                              <span className="flex items-center gap-1 text-[var(--color-success-text)] text-xs font-semibold">
-                                <CheckIcon size={14} />
-                                Copiado
-                              </span>
-                            ) : (
+                            <span
+                              className="icon-swap"
+                              data-on={isCopied}
+                              aria-hidden="true"
+                            >
                               <CopyIcon size={16} />
-                            )}
+                              <CheckIcon
+                                size={16}
+                                className="text-[var(--color-success-text)]"
+                              />
+                            </span>
+                            <span className="sr-only" aria-live="polite">
+                              {isCopied ? 'Código copiado' : ''}
+                            </span>
                           </Button>
                         </div>
                       </CardContent>
@@ -314,21 +309,23 @@ export const UserCertificatesPage: React.FC = () => {
 
                     <CardFooter className="pt-2 border-t border-[var(--color-border-subtle)] flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <Link to={`/certificados/${cert.codigoValidacao}`}>
-                          <Button variant="outline" size="sm">
-                            Visualizar
-                          </Button>
-                        </Link>
+                        <ButtonLink
+                          to={`/certificados/${cert.codigoValidacao}`}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Visualizar
+                        </ButtonLink>
 
                         <Button
                           variant="secondary"
                           size="sm"
                           onClick={() => handleDownloadPdf(cert)}
                           isLoading={isDownloading}
-                          loadingText="PDF"
+                          loadingText="Baixando"
+                          leftIcon={<DownloadIcon size={14} />}
                         >
-                          {!isDownloading && <DownloadIcon size={14} />}
-                          {!isDownloading && 'PDF'}
+                          Baixar PDF
                         </Button>
                       </div>
 
@@ -336,7 +333,7 @@ export const UserCertificatesPage: React.FC = () => {
                         href={linkedinUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-primary-text)] hover:text-[var(--color-primary-text-hover)] hover:underline px-2 py-1 rounded-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-primary-text)] hover:text-[var(--color-primary-text-hover)] hover:underline px-2 py-1 rounded-md focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
                       >
                         LinkedIn
                         <ExternalLinkIcon size={12} />

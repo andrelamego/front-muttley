@@ -3,9 +3,6 @@ import { Link } from 'react-router-dom'
 import {
   getAdminEventosApi,
   cancelarAdminEventoApi,
-  getEventQrCodeInscricaoBlobApi,
-  getEventQrCodeConfirmacaoBlobApi,
-  parseBlobErrorMessage,
 } from '../api/adminEventosApi'
 import type { AdminEvento, StatusEvento } from '../domain/adminEventoTypes'
 import {
@@ -14,7 +11,6 @@ import {
   Button,
   Alert,
   LoadingDots,
-  SkeletonBlock,
   Input,
   SearchIcon,
   PlusIcon,
@@ -24,40 +20,32 @@ import {
   CheckCircleIcon,
   CalendarIcon,
   ClockIcon,
-  DownloadIcon,
-  XIcon,
+  toast,
+  FiltroSegmentado,
+  ButtonLink,
 } from '../../../shared/ui'
 import { AdminEventListSkeleton } from './skeletons'
-
-const getStatusBadgeVariant = (status: StatusEvento) => {
-  switch (status) {
-    case 'EM_ANDAMENTO':
-      return 'info' as const
-    case 'CRIADO':
-      return 'default' as const
-    case 'FINALIZADO':
-      return 'success' as const
-    case 'CANCELADO':
-      return 'danger' as const
-    default:
-      return 'default' as const
-  }
-}
-
-const getStatusLabel = (status: StatusEvento) => {
-  switch (status) {
-    case 'EM_ANDAMENTO':
-      return 'Em Andamento'
-    case 'CRIADO':
-      return 'Programado'
-    case 'FINALIZADO':
-      return 'Finalizado'
-    case 'CANCELADO':
-      return 'Cancelado'
-    default:
-      return status
-  }
-}
+import { EventoQrDialog } from './EventoQrDialog'
+import { getStatusBadgeVariant, getStatusLabel } from './statusEvento'
+import { MoreHorizontal } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../../../shared/ui/shadcn/alert-dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../../../shared/ui/shadcn/dropdown-menu'
+import { formatModalidade } from '../../eventos'
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '-'
@@ -77,31 +65,18 @@ export const AdminEventListPage: React.FC = () => {
   )
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [eventoACancelar, setEventoACancelar] = useState<AdminEvento | null>(
+    null
+  )
   const searchInputId = useId()
 
-  interface QrItemState {
-    status: 'idle' | 'loading' | 'success' | 'error'
-    url: string | null
-    error: string | null
-  }
-
-  // Estado do Modal de QR Code desacoplado
+  // Evento com o dialog de QR aberto e o botão que o abriu (recebe o foco ao fechar)
   const [qrModalEvent, setQrModalEvent] = useState<AdminEvento | null>(null)
-  const [qrInscricao, setQrInscricao] = useState<QrItemState>({
-    status: 'idle',
-    url: null,
-    error: null,
-  })
-  const [qrConfirmacao, setQrConfirmacao] = useState<QrItemState>({
-    status: 'idle',
-    url: null,
-    error: null,
-  })
-
-  const activeEventIdRef = useRef<number | null>(null)
   const modalTriggerRef = useRef<HTMLElement | null>(null)
+  // Quando a escolha do menu abre um dialog, o menu não devolve o foco ao ⋯
+  // (senão ele tira o foco de dentro do dialog e o Esc deixa de funcionar).
+  const abrindoDialogRef = useRef(false)
 
   const loadEvents = useCallback(async () => {
     setIsLoading(true)
@@ -144,118 +119,17 @@ export const AdminEventListPage: React.FC = () => {
     }
   }, [])
 
-  // Carregamento independente de QR Code de Inscrição
-  const carregarInscricao = useCallback(async (eventId: number) => {
-    setQrInscricao((prev) => {
-      if (prev.url) URL.revokeObjectURL(prev.url)
-      return { status: 'loading', url: null, error: null }
-    })
-    try {
-      const blob = await getEventQrCodeInscricaoBlobApi(eventId)
-      if (activeEventIdRef.current !== eventId) return
-      const url = URL.createObjectURL(blob)
-      setQrInscricao({ status: 'success', url, error: null })
-    } catch (err: unknown) {
-      if (activeEventIdRef.current !== eventId) return
-      const message = await parseBlobErrorMessage(
-        err,
-        'Não foi possível gerar o QR Code de inscrição.'
-      )
-      setQrInscricao({ status: 'error', url: null, error: message })
-    }
-  }, [])
-
-  // Carregamento independente de QR Code de Presença
-  const carregarConfirmacao = useCallback(async (eventId: number) => {
-    setQrConfirmacao((prev) => {
-      if (prev.url) URL.revokeObjectURL(prev.url)
-      return { status: 'loading', url: null, error: null }
-    })
-    try {
-      const blob = await getEventQrCodeConfirmacaoBlobApi(eventId)
-      if (activeEventIdRef.current !== eventId) return
-      const url = URL.createObjectURL(blob)
-      setQrConfirmacao({ status: 'success', url, error: null })
-    } catch (err: unknown) {
-      if (activeEventIdRef.current !== eventId) return
-      const message = await parseBlobErrorMessage(
-        err,
-        'Não foi possível gerar o QR Code de confirmação de presença.'
-      )
-      setQrConfirmacao({ status: 'error', url: null, error: message })
-    }
-  }, [])
-
-  // Fechamento do Modal com devolução de foco ao elemento disparador e liberação de Blobs
-  const handleCloseQrModal = useCallback(() => {
-    activeEventIdRef.current = null
-    setQrModalEvent(null)
-    setQrInscricao((prev) => {
-      if (prev.url) URL.revokeObjectURL(prev.url)
-      return { status: 'idle', url: null, error: null }
-    })
-    setQrConfirmacao((prev) => {
-      if (prev.url) URL.revokeObjectURL(prev.url)
-      return { status: 'idle', url: null, error: null }
-    })
-    if (modalTriggerRef.current) {
-      modalTriggerRef.current.focus()
-      modalTriggerRef.current = null
-    }
-  }, [])
-
-  // Abertura do Modal guardando disparador e disparando ambas as chamadas independentes
-  const handleOpenQrModal = (
-    evt: AdminEvento,
-    triggerElement?: HTMLElement
-  ) => {
-    if (triggerElement) {
-      modalTriggerRef.current = triggerElement
-    }
-    // Libera Blobs anteriores se houver
-    if (qrInscricao.url) URL.revokeObjectURL(qrInscricao.url)
-    if (qrConfirmacao.url) URL.revokeObjectURL(qrConfirmacao.url)
-
-    activeEventIdRef.current = evt.id
+  const handleOpenQrModal = (evt: AdminEvento, trigger?: HTMLElement) => {
+    modalTriggerRef.current = trigger ?? null
     setQrModalEvent(evt)
-
-    // Dispara carregamentos independentes
-    carregarInscricao(evt.id)
-    carregarConfirmacao(evt.id)
   }
 
-  // Fecha modal com Escape
-  useEffect(() => {
-    if (!qrModalEvent) return
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleCloseQrModal()
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [qrModalEvent, handleCloseQrModal])
-
-  // Liberação de Blobs na desmontagem do componente
-  useEffect(() => {
-    return () => {
-      if (qrInscricao.url) URL.revokeObjectURL(qrInscricao.url)
-      if (qrConfirmacao.url) URL.revokeObjectURL(qrConfirmacao.url)
-    }
-  }, [qrInscricao.url, qrConfirmacao.url])
-
   const handleCancelEvent = async (evt: AdminEvento) => {
-    const confirmMessage = `Tem certeza que deseja cancelar o evento "${evt.tema}"?\nEsta ação mudará o status para CANCELADO.`
-    if (!window.confirm(confirmMessage)) return
-
     setDeletingId(evt.id)
     setError(null)
     try {
       await cancelarAdminEventoApi(evt.id)
-      setActionSuccess(`Evento "${evt.tema}" cancelado com sucesso.`)
-      setTimeout(() => setActionSuccess(null), 4000)
+      toast.success(`Evento "${evt.tema}" cancelado`)
       await loadEvents()
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -294,11 +168,8 @@ export const AdminEventListPage: React.FC = () => {
       {/* Cabeçalho da Gestão de Eventos */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[var(--color-border)] pb-5">
         <div>
-          <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
-            Área do Administrador
-          </span>
-          <h1 className="text-2xl lg:text-3xl font-black text-[var(--color-text-primary)] mt-1">
-            Gestão de Eventos
+          <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
+            Eventos
           </h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Cadastre, organize horários, acompanhe presenças e conclua eventos
@@ -307,26 +178,18 @@ export const AdminEventListPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link to="/admin/eventos/novo">
-            <Button variant="primary" size="md" className="gap-2 shadow-xs">
-              <PlusIcon size={18} />
-              Criar Novo Evento
-            </Button>
-          </Link>
+          <ButtonLink
+            to="/admin/eventos/novo"
+            variant="primary"
+            size="md"
+            leftIcon={<PlusIcon size={18} />}
+          >
+            Criar evento
+          </ButtonLink>
         </div>
       </div>
 
       {/* Alertas */}
-      {actionSuccess && (
-        <Alert
-          variant="success"
-          title="Sucesso"
-          onClose={() => setActionSuccess(null)}
-        >
-          {actionSuccess}
-        </Alert>
-      )}
-
       {error && (
         <Alert variant="error" title="Erro na gestão de eventos">
           <p className="mb-2">{error}</p>
@@ -337,7 +200,7 @@ export const AdminEventListPage: React.FC = () => {
       )}
 
       {/* Barra de Filtros e Busca */}
-      <div className="flex flex-col md:flex-row md:items-end gap-4 justify-between surface-depth bg-[var(--color-bg-surface)] p-4 rounded-none border border-[var(--color-border)] shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-end gap-4 justify-between surface-depth bg-[var(--color-bg-surface)] p-4 rounded-md border border-[var(--color-border)] shadow-xs">
         <div className="max-w-md flex-1">
           <label
             htmlFor={searchInputId}
@@ -354,74 +217,33 @@ export const AdminEventListPage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
+            <div className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
               <SearchIcon size={16} />
             </div>
           </div>
         </div>
 
         {/* Abas de Status */}
-        <div
-          className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0"
-          role="tablist"
-          aria-label="Filtrar eventos por status"
-        >
-          <button
-            type="button"
-            onClick={() => setStatusFilter('TODOS')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
-              statusFilter === 'TODOS'
-                ? 'bg-[var(--color-primary)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Todos ({events.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('EM_ANDAMENTO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
-              statusFilter === 'EM_ANDAMENTO'
-                ? 'bg-[var(--color-info)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Em Andamento ({countEmAndamento})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('CRIADO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
-              statusFilter === 'CRIADO'
-                ? 'bg-[var(--color-text-secondary)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Programados ({countCriado})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('FINALIZADO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
-              statusFilter === 'FINALIZADO'
-                ? 'bg-[var(--color-success)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Finalizados ({countFinalizado})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('CANCELADO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
-              statusFilter === 'CANCELADO'
-                ? 'bg-[var(--color-danger)] text-white shadow-xs'
-                : 'bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-muted)]'
-            }`}
-          >
-            Cancelados ({countCancelado})
-          </button>
-        </div>
+        <FiltroSegmentado
+          rotulo="Filtrar eventos por situação"
+          valor={statusFilter}
+          onChange={setStatusFilter}
+          opcoes={[
+            { valor: 'TODOS', rotulo: 'Todos', total: events.length },
+            {
+              valor: 'EM_ANDAMENTO',
+              rotulo: 'Em andamento',
+              total: countEmAndamento,
+            },
+            { valor: 'CRIADO', rotulo: 'Programados', total: countCriado },
+            {
+              valor: 'FINALIZADO',
+              rotulo: 'Finalizados',
+              total: countFinalizado,
+            },
+            { valor: 'CANCELADO', rotulo: 'Cancelados', total: countCancelado },
+          ]}
+        />
       </div>
 
       {/* Estado de Carregamento */}
@@ -458,28 +280,29 @@ export const AdminEventListPage: React.FC = () => {
                     Redefinir filtros
                   </Button>
                 ) : (
-                  <Link to="/admin/eventos/novo" className="mt-2">
-                    <Button variant="primary" size="md" className="gap-2">
-                      <PlusIcon size={16} />
-                      Criar Primeiro Evento
-                    </Button>
-                  </Link>
+                  <ButtonLink
+                    to="/admin/eventos/novo"
+                    variant="primary"
+                    size="md"
+                    className="mt-2 gap-2"
+                  >
+                    <PlusIcon size={16} />
+                    Criar o primeiro evento
+                  </ButtonLink>
                 )}
               </div>
             </Card>
           ) : (
-            <div className="surface-depth bg-[var(--color-bg-surface)] rounded-none border border-[var(--color-border)] overflow-hidden shadow-xs">
+            <div className="surface-depth bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border)] overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm border-collapse">
-                  <thead className="bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
+                  <thead className="bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)]">
                     <tr>
                       <th className="py-3.5 px-4">Evento</th>
-                      <th className="py-3.5 px-4">Data e Horário</th>
+                      <th className="py-3.5 px-4">Data e horário</th>
                       <th className="py-3.5 px-4">Modalidade</th>
                       <th className="py-3.5 px-4">Status</th>
-                      <th className="py-3.5 px-4 text-right">
-                        Ações Operacionais
-                      </th>
+                      <th className="py-3.5 px-4 text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--color-border-subtle)]">
@@ -498,9 +321,12 @@ export const AdminEventListPage: React.FC = () => {
                           className="hover:bg-[var(--color-bg-subtle)]/60 transition-colors"
                         >
                           <td className="py-4 px-4">
-                            <div className="font-semibold text-[var(--color-text-primary)] line-clamp-1">
+                            <Link
+                              to={`/admin/eventos/${evt.id}`}
+                              className="font-semibold text-[var(--color-text-primary)] line-clamp-1 hover:text-[var(--color-primary-text)] hover:underline underline-offset-2"
+                            >
                               {evt.tema}
-                            </div>
+                            </Link>
                             <div className="text-xs text-[var(--color-text-muted)] mt-0.5 line-clamp-1">
                               {localNome}
                             </div>
@@ -528,7 +354,7 @@ export const AdminEventListPage: React.FC = () => {
 
                           <td className="py-4 px-4 whitespace-nowrap">
                             <Badge variant="default" size="sm">
-                              {evt.modalidade}
+                              {formatModalidade(evt.modalidade)}
                             </Badge>
                           </td>
 
@@ -543,66 +369,84 @@ export const AdminEventListPage: React.FC = () => {
 
                           <td className="py-4 px-4 whitespace-nowrap text-right">
                             <div className="inline-flex items-center gap-1.5">
-                              {/* Botão QR Code */}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) =>
-                                  handleOpenQrModal(evt, e.currentTarget)
-                                }
-                                title="Visualizar QR Codes do evento"
-                                aria-label={`Visualizar QR Codes do evento ${evt.tema}`}
-                                className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                              >
-                                <QrCodeIcon size={16} />
-                              </Button>
-
-                              {/* Botão Editar */}
-                              <Link to={`/admin/eventos/${evt.id}/editar`}>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  title="Editar evento"
-                                  aria-label="Editar evento"
-                                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                                >
-                                  <EditIcon size={16} />
-                                </Button>
-                              </Link>
-
-                              {/* Botão Concluir */}
                               {!isFinished && !isCancelled && (
-                                <Link to={`/admin/eventos/${evt.id}/concluir`}>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    title="Concluir evento e emitir certificados"
-                                    className="gap-1 text-[var(--color-success-text)] border-[var(--color-success-border)] hover:bg-[var(--color-success-bg)] text-xs"
-                                  >
-                                    <CheckCircleIcon size={14} />
-                                    Concluir
-                                  </Button>
-                                </Link>
+                                <ButtonLink
+                                  to={`/admin/eventos/${evt.id}/concluir`}
+                                  variant="outline"
+                                  size="sm"
+                                  leftIcon={<CheckCircleIcon size={14} />}
+                                >
+                                  Concluir
+                                </ButtonLink>
                               )}
 
-                              {/* Botão Cancelar */}
-                              {!isCancelled && !isFinished && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleCancelEvent(evt)}
-                                  disabled={isDeleting}
-                                  title="Cancelar evento"
-                                  aria-label="Cancelar evento"
-                                  className="text-[var(--color-danger)] hover:bg-[var(--color-danger-bg)]"
+                              {/* modal={false}: o menu abre um dialog; sem isso o Radix trava o ponteiro da página */}
+                              <DropdownMenu modal={false}>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    id={`acoes-evento-${evt.id}`}
+                                    variant="ghost"
+                                    size="sm"
+                                    aria-label={`Ações do evento ${evt.tema}`}
+                                    title="Mais ações"
+                                  >
+                                    {isDeleting ? (
+                                      <LoadingDots label="Cancelando evento" />
+                                    ) : (
+                                      <MoreHorizontal className="size-4" />
+                                    )}
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="w-52"
+                                  onCloseAutoFocus={(e) => {
+                                    if (abrindoDialogRef.current) {
+                                      e.preventDefault()
+                                      abrindoDialogRef.current = false
+                                    }
+                                  }}
                                 >
-                                  {isDeleting ? (
-                                    <LoadingDots label="Cancelando evento" />
-                                  ) : (
-                                    <TrashIcon size={16} />
+                                  <DropdownMenuItem
+                                    onSelect={() => {
+                                      abrindoDialogRef.current = true
+                                      handleOpenQrModal(
+                                        evt,
+                                        document.getElementById(
+                                          `acoes-evento-${evt.id}`
+                                        ) ?? undefined
+                                      )
+                                    }}
+                                  >
+                                    <QrCodeIcon size={16} />
+                                    Ver QR Codes
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem asChild>
+                                    <Link
+                                      to={`/admin/eventos/${evt.id}/editar`}
+                                    >
+                                      <EditIcon size={16} />
+                                      Editar evento
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  {!isCancelled && !isFinished && (
+                                    <>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        variant="destructive"
+                                        disabled={isDeleting}
+                                        onSelect={() => {
+                                          abrindoDialogRef.current = true
+                                          setEventoACancelar(evt)
+                                        }}
+                                      >
+                                        <TrashIcon size={16} />
+                                        Cancelar evento
+                                      </DropdownMenuItem>
+                                    </>
                                   )}
-                                </Button>
-                              )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </td>
                         </tr>
@@ -616,216 +460,49 @@ export const AdminEventListPage: React.FC = () => {
         </>
       )}
 
-      {/* Modal de QR Codes com Estados e Tentativas Independentes */}
-      {qrModalEvent && (
-        <div
-          className="fixed inset-0 z-50 bg-[var(--color-backdrop)] backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-qrcode-titulo"
+      {/* Confirmação de cancelamento: ação sem volta, então pede confirmação explícita */}
+      <AlertDialog
+        open={eventoACancelar !== null}
+        onOpenChange={(aberto) => {
+          if (!aberto) setEventoACancelar(null)
+        }}
+      >
+        <AlertDialogContent
+          onCloseAutoFocus={(e) => {
+            e.preventDefault()
+            if (eventoACancelar)
+              document
+                .getElementById(`acoes-evento-${eventoACancelar.id}`)
+                ?.focus()
+          }}
         >
-          <div className="surface-depth bg-[var(--color-bg-surface)] rounded-none max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-[var(--color-border)] animate-in fade-in zoom-in-95 my-8">
-            <div className="flex items-start justify-between pb-4 border-b border-[var(--color-border-subtle)] gap-4">
-              <div>
-                <span className="text-[11px] font-bold text-[var(--color-primary-text)] uppercase tracking-wider">
-                  Códigos de Acesso Rápido
-                </span>
-                <h3
-                  id="modal-qrcode-titulo"
-                  className="text-xl font-black text-[var(--color-text-primary)] tracking-tight"
-                >
-                  QR Codes do Evento
-                </h3>
-                <p className="text-xs text-[var(--color-text-muted)] mt-1 line-clamp-1">
-                  {qrModalEvent.tema} &bull; {formatDate(qrModalEvent.data)}
-                </p>
-              </div>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar este evento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{eventoACancelar?.tema}” passa a ficar cancelado e não poderá
+              mais ser editado. Os links já divulgados continuam abrindo a
+              página do evento.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Voltar</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                if (eventoACancelar) handleCancelEvent(eventoACancelar)
+              }}
+            >
+              Cancelar evento
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseQrModal}
-                aria-label="Fechar modal de QR Codes"
-                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
-              >
-                <XIcon size={20} />
-              </Button>
-            </div>
-
-            <div className="py-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* 1. Painel de Inscrição Pública */}
-                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)] min-h-[340px]">
-                  <div className="w-full text-center mb-3">
-                    <span className="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider block">
-                      Inscrição Pública
-                    </span>
-                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-                      Direciona para a página de inscrição do evento
-                    </p>
-                  </div>
-
-                  <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
-                    {qrInscricao.status === 'loading' && (
-                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
-                        <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
-                        <span className="text-xs font-medium">
-                          Gerando código...
-                        </span>
-                      </div>
-                    )}
-
-                    {qrInscricao.status === 'error' && (
-                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-none border border-[var(--color-danger-border)] text-center w-full">
-                        <p className="text-xs text-[var(--color-danger-text)] leading-snug">
-                          {qrInscricao.error || 'Falha ao carregar QR Code.'}
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => carregarInscricao(qrModalEvent.id)}
-                          className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
-                        >
-                          Tentar novamente
-                        </Button>
-                      </div>
-                    )}
-
-                    {qrInscricao.status === 'success' && qrInscricao.url && (
-                      <div className="flex flex-col items-center">
-                        <img
-                          src={qrInscricao.url}
-                          alt={`QR Code para inscrição no evento ${qrModalEvent.tema}`}
-                          className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-none border border-[var(--color-border)] shadow-xs object-contain"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
-                    {qrInscricao.status === 'success' && qrInscricao.url ? (
-                      <a
-                        href={qrInscricao.url}
-                        download={`qrcode-inscricao-evento-${qrModalEvent.id}.png`}
-                        className="w-full"
-                      >
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          fullWidth
-                          className="gap-1.5 text-xs"
-                        >
-                          <DownloadIcon size={14} />
-                          Baixar PNG
-                        </Button>
-                      </a>
-                    ) : (
-                      <span className="text-[11px] text-[var(--color-text-muted)] py-1.5">
-                        {qrInscricao.status === 'loading'
-                          ? 'Aguardando processamento...'
-                          : 'Download indisponível'}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* 2. Painel de Confirmação de Presença */}
-                <div className="flex flex-col items-center justify-between p-5 bg-[var(--color-bg-subtle)] rounded-none border border-[var(--color-border)] min-h-[340px]">
-                  <div className="w-full text-center mb-3">
-                    <span className="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider block">
-                      Confirmar Presença
-                    </span>
-                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-                      Check-in por leitura de câmera no local
-                    </p>
-                  </div>
-
-                  <div className="flex-1 flex flex-col items-center justify-center w-full my-2">
-                    {qrConfirmacao.status === 'loading' && (
-                      <div className="flex flex-col items-center justify-center py-6 gap-2 text-[var(--color-text-muted)]">
-                        <SkeletonBlock className="h-40 w-40 border border-[var(--color-border)]" />
-                        <span className="text-xs font-medium">
-                          Gerando código...
-                        </span>
-                      </div>
-                    )}
-
-                    {qrConfirmacao.status === 'error' && (
-                      <div className="flex flex-col items-center justify-center gap-3 p-3 bg-[var(--color-danger-bg)]/80 rounded-none border border-[var(--color-danger-border)] text-center w-full">
-                        <p className="text-xs text-[var(--color-danger-text)] leading-snug">
-                          {qrConfirmacao.error || 'Falha ao carregar QR Code.'}
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => carregarConfirmacao(qrModalEvent.id)}
-                          className="text-xs text-[var(--color-danger-text)] border-[var(--color-danger-border)] hover:bg-[var(--color-danger-bg)]"
-                        >
-                          Tentar novamente
-                        </Button>
-                      </div>
-                    )}
-
-                    {qrConfirmacao.status === 'success' &&
-                      qrConfirmacao.url && (
-                        <div className="flex flex-col items-center">
-                          <img
-                            src={qrConfirmacao.url}
-                            alt={`QR Code para confirmação de presença no evento ${qrModalEvent.tema}`}
-                            className="w-40 h-40 surface-depth bg-[var(--color-bg-surface)] p-2 rounded-none border border-[var(--color-border)] shadow-xs object-contain"
-                          />
-                        </div>
-                      )}
-                  </div>
-
-                  <div className="w-full pt-3 mt-auto border-t border-[var(--color-border)]/60 flex justify-center">
-                    {qrConfirmacao.status === 'success' && qrConfirmacao.url ? (
-                      <a
-                        href={qrConfirmacao.url}
-                        download={`qrcode-presenca-evento-${qrModalEvent.id}.png`}
-                        className="w-full"
-                      >
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          fullWidth
-                          className="gap-1.5 text-xs"
-                        >
-                          <DownloadIcon size={14} />
-                          Baixar PNG
-                        </Button>
-                      </a>
-                    ) : (
-                      <span className="text-[11px] text-[var(--color-text-muted)] py-1.5">
-                        {qrConfirmacao.status === 'loading'
-                          ? 'Aguardando processamento...'
-                          : 'Download indisponível'}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-[var(--color-border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
-              <span className="text-xs text-[var(--color-text-muted)]">
-                Pressione{' '}
-                <kbd className="px-1.5 py-0.5 bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-none text-[10px] font-mono text-[var(--color-text-secondary)]">
-                  Esc
-                </kbd>{' '}
-                para fechar a qualquer momento
-              </span>
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={handleCloseQrModal}
-              >
-                Fechar Janela
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EventoQrDialog
+        evento={qrModalEvent}
+        onClose={() => setQrModalEvent(null)}
+        focoAoFechar={() => modalTriggerRef.current}
+      />
     </div>
   )
 }

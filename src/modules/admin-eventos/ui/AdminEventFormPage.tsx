@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useId } from 'react'
-import { useNavigate, useParams, Link } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   getAdminEventoByIdApi,
   salvarAdminEventoApi,
@@ -20,9 +20,35 @@ import {
   Button,
   Input,
   Alert,
+  toast,
+  CalendarIcon,
+  ButtonLink,
 } from '../../../shared/ui'
 import { AdminEventFormSkeleton } from './skeletons'
 import { HistoryBackButton } from '../../../shared/navigation'
+import { ptBR } from 'react-day-picker/locale'
+import { deDataIso, paraDataIso } from '../../../shared/lib/datas'
+import { Calendar } from '../../../shared/ui/shadcn/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../../../shared/ui/shadcn/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../../shared/ui/shadcn/select'
+import { Textarea } from '../../../shared/ui/shadcn/textarea'
+
+const NENHUM = 'nenhum'
+const rotuloClasse =
+  'block text-sm font-semibold text-[var(--color-text-secondary)] mb-1.5'
+const campoClasse =
+  'w-full h-11 rounded-sm border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]'
+const formatoData = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' })
 
 export const AdminEventFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -44,6 +70,8 @@ export const AdminEventFormPage: React.FC = () => {
   const [tema, setTema] = useState('')
   const [descricao, setDescricao] = useState('')
   const [data, setData] = useState('')
+  const [calendarioAberto, setCalendarioAberto] = useState(false)
+  const dataSelecionada = deDataIso(data)
   const [horarioInicio, setHorarioInicio] = useState('')
   const [horarioFim, setHorarioFim] = useState('')
   const [modalidade, setModalidade] = useState<ModalidadeEvento>('PRESENCIAL')
@@ -153,6 +181,7 @@ export const AdminEventFormPage: React.FC = () => {
         patrocinadorId: patrocinadorId ? Number(patrocinadorId) : null,
       })
 
+      toast.success(id ? 'Evento atualizado' : 'Evento criado')
       navigate('/admin/eventos')
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -173,11 +202,8 @@ export const AdminEventFormPage: React.FC = () => {
       </div>
 
       <div>
-        <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
-          {isEditing ? 'Atualização de Cadastro' : 'Novo Registro'}
-        </span>
-        <h1 className="text-2xl lg:text-3xl font-black text-[var(--color-text-primary)] mt-1">
-          {isEditing ? 'Editar Evento Acadêmico' : 'Cadastrar Novo Evento'}
+        <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
+          {isEditing ? 'Editar evento' : 'Criar evento'}
         </h1>
         <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
           Preencha os dados abaixo com o planejamento de data, horário, local e
@@ -210,18 +236,15 @@ export const AdminEventFormPage: React.FC = () => {
           <Card className="surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-xs">
             <CardHeader className="border-b border-[var(--color-border-subtle)]">
               <CardTitle className="text-base font-bold text-[var(--color-text-primary)]">
-                Informações Principais
+                Informações principais
               </CardTitle>
             </CardHeader>
 
             <CardContent className="p-6 space-y-5">
-              {/* Tema / Título */}
+              {/* Tema */}
               <div>
-                <label
-                  htmlFor={temaId}
-                  className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
-                >
-                  Tema / Título do Evento *
+                <label htmlFor={temaId} className={rotuloClasse}>
+                  Tema do evento *
                 </label>
                 <Input
                   id={temaId}
@@ -235,46 +258,69 @@ export const AdminEventFormPage: React.FC = () => {
 
               {/* Descrição */}
               <div>
-                <label
-                  htmlFor={descricaoId}
-                  className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
-                >
-                  Descrição e Objetivos
+                <label htmlFor={descricaoId} className={rotuloClasse}>
+                  Descrição
                 </label>
-                <textarea
+                <Textarea
                   id={descricaoId}
-                  rows={3}
-                  className="w-full rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
-                  placeholder="Descreva a programação, palestrantes ou tópicos que serão abordados..."
+                  rows={4}
+                  placeholder="Programação, palestrantes e tópicos que serão abordados"
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
                 />
               </div>
 
-              {/* Grid: Data, Horário de Início e Horário de Fim */}
+              {/* Data e horários */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label
-                    htmlFor={dataId}
-                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
-                  >
-                    Data do Evento *
+                  <label htmlFor={dataId} className={rotuloClasse}>
+                    Data *
                   </label>
-                  <Input
-                    id={dataId}
-                    type="date"
-                    value={data}
-                    onChange={(e) => setData(e.target.value)}
-                    required
-                  />
+                  <Popover
+                    open={calendarioAberto}
+                    onOpenChange={setCalendarioAberto}
+                  >
+                    <PopoverTrigger asChild>
+                      <button
+                        id={dataId}
+                        type="button"
+                        className={`${campoClasse} flex items-center justify-between gap-2 text-left`}
+                      >
+                        <span
+                          className={
+                            dataSelecionada
+                              ? ''
+                              : 'text-[var(--color-text-muted)]'
+                          }
+                        >
+                          {dataSelecionada
+                            ? formatoData.format(dataSelecionada)
+                            : 'Escolha a data'}
+                        </span>
+                        <CalendarIcon
+                          size={16}
+                          className="shrink-0 text-[var(--color-text-muted)]"
+                        />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        locale={ptBR}
+                        selected={dataSelecionada}
+                        defaultMonth={dataSelecionada}
+                        onSelect={(dia) => {
+                          setData(dia ? paraDataIso(dia) : '')
+                          setCalendarioAberto(false)
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div>
-                  <label
-                    htmlFor={inicioId}
-                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
-                  >
-                    Horário de Início *
+                  <label htmlFor={inicioId} className={rotuloClasse}>
+                    Início *
                   </label>
                   <Input
                     id={inicioId}
@@ -286,11 +332,8 @@ export const AdminEventFormPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor={fimId}
-                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
-                  >
-                    Horário de Término *
+                  <label htmlFor={fimId} className={rotuloClasse}>
+                    Término *
                   </label>
                   <Input
                     id={fimId}
@@ -302,109 +345,116 @@ export const AdminEventFormPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Grid: Modalidade e Local */}
+              {/* Modalidade e local */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label
-                    htmlFor={modalidadeId}
-                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
-                  >
+                  <label htmlFor={modalidadeId} className={rotuloClasse}>
                     Modalidade *
                   </label>
-                  <select
-                    id={modalidadeId}
+                  <Select
                     value={modalidade}
-                    onChange={(e) =>
-                      setModalidade(e.target.value as ModalidadeEvento)
-                    }
-                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                    onValueChange={(v) => setModalidade(v as ModalidadeEvento)}
                   >
-                    <option value="PRESENCIAL">Presencial</option>
-                    <option value="ONLINE">Online</option>
-                    <option value="HIBRIDO">Híbrido</option>
-                  </select>
+                    <SelectTrigger id={modalidadeId} className={campoClasse}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PRESENCIAL">Presencial</SelectItem>
+                      <SelectItem value="ONLINE">Online</SelectItem>
+                      <SelectItem value="HIBRIDO">Híbrido</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
-                  <label
-                    htmlFor={localIdSelect}
-                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
-                  >
-                    Local / Sala (Campus)
+                  <label htmlFor={localIdSelect} className={rotuloClasse}>
+                    Local
                   </label>
-                  <select
-                    id={localIdSelect}
-                    value={localId}
-                    onChange={(e) => setLocalId(e.target.value)}
-                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                  <Select
+                    value={localId || NENHUM}
+                    onValueChange={(v) => setLocalId(v === NENHUM ? '' : v)}
                   >
-                    <option value="">Selecione um local cadastrado...</option>
-                    {locais.map((loc) => (
-                      <option key={loc.id} value={loc.id}>
-                        {loc.nome}{' '}
-                        {loc.capacidade
-                          ? `(Capacidade: ${loc.capacidade})`
-                          : ''}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id={localIdSelect} className={campoClasse}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NENHUM}>Sem local definido</SelectItem>
+                      {locais.map((loc) => (
+                        <SelectItem key={loc.id} value={String(loc.id)}>
+                          {loc.nome}
+                          {loc.capacidade ? ` · ${loc.capacidade} lugares` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              {/* Grid: Disciplina e Patrocinador */}
+              {/* Disciplina e patrocinador */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label
-                    htmlFor={disciplinaIdSelect}
-                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
-                  >
-                    Disciplina Vinculada (Opcional)
+                  <label htmlFor={disciplinaIdSelect} className={rotuloClasse}>
+                    Disciplina (opcional)
                   </label>
-                  <select
-                    id={disciplinaIdSelect}
-                    value={disciplinaId}
-                    onChange={(e) => setDisciplinaId(e.target.value)}
-                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                  <Select
+                    value={disciplinaId || NENHUM}
+                    onValueChange={(v) =>
+                      setDisciplinaId(v === NENHUM ? '' : v)
+                    }
                   >
-                    <option value="">Nenhuma disciplina vinculada</option>
-                    {disciplinas.map((disc) => (
-                      <option key={disc.id} value={disc.id}>
-                        {disc.nome}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger
+                      id={disciplinaIdSelect}
+                      className={campoClasse}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NENHUM}>Nenhuma</SelectItem>
+                      {disciplinas.map((disc) => (
+                        <SelectItem key={disc.id} value={String(disc.id)}>
+                          {disc.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <label
                     htmlFor={patrocinadorIdSelect}
-                    className="block text-xs font-semibold text-[var(--color-text-secondary)] mb-1"
+                    className={rotuloClasse}
                   >
-                    Patrocinador / Parceiro (Opcional)
+                    Patrocinador (opcional)
                   </label>
-                  <select
-                    id={patrocinadorIdSelect}
-                    value={patrocinadorId}
-                    onChange={(e) => setPatrocinadorId(e.target.value)}
-                    className="w-full h-10 rounded-none border border-[var(--color-border-strong)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] focus-visible:border-[var(--color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)]"
+                  <Select
+                    value={patrocinadorId || NENHUM}
+                    onValueChange={(v) =>
+                      setPatrocinadorId(v === NENHUM ? '' : v)
+                    }
                   >
-                    <option value="">Nenhum parceiro vinculado</option>
-                    {patrocinadores.map((pat) => (
-                      <option key={pat.id} value={pat.id}>
-                        {pat.razaoSocial}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger
+                      id={patrocinadorIdSelect}
+                      className={campoClasse}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NENHUM}>Nenhum</SelectItem>
+                      {patrocinadores.map((pat) => (
+                        <SelectItem key={pat.id} value={String(pat.id)}>
+                          {pat.razaoSocial}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
 
             <CardFooter className="bg-[var(--color-bg-subtle)]/70 border-t border-[var(--color-border-subtle)] flex items-center justify-between p-4 sm:px-6">
-              <Link to="/admin/eventos">
-                <Button variant="outline" size="md" type="button">
-                  Cancelar
-                </Button>
-              </Link>
+              <ButtonLink to="/admin/eventos" variant="outline" size="md">
+                Cancelar
+              </ButtonLink>
 
               <Button
                 variant="primary"
@@ -413,7 +463,7 @@ export const AdminEventFormPage: React.FC = () => {
                 disabled={isSaving}
                 isLoading={isSaving}
               >
-                {isSaving ? 'Salvando...' : 'Salvar Evento'}
+                {isSaving ? 'Salvando...' : 'Salvar evento'}
               </Button>
             </CardFooter>
           </Card>

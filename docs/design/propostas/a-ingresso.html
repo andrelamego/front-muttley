@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proposta A — Ingresso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Proposta A: o evento como ingresso. Cobalto + amarelo de sinalização. */
+  :root {
+    --bg: #eef0f6;
+    --surface: #ffffff;
+    --ink: #0e1330;
+    --ink-2: #4a5070;
+    --line: #d9dceb;
+    --cobalt: #2236e0;
+    --cobalt-deep: #141f8f;
+    --signal: #ffd93b;
+    --ok: #0b7550;
+    --r-ctl: 10px;
+    --r-ticket: 18px;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --body: 'Schibsted Grotesk', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #dfe2ee; color: var(--ink); font: 15px/1.5 var(--body); padding: 40px 16px 80px; }
+  .intro { max-width: 1240px; margin: 0 auto 32px; display: flex; flex-wrap: wrap; gap: 24px; align-items: end; justify-content: space-between; }
+  .intro h1 { font: 800 56px/0.95 var(--display); font-variation-settings: 'wdth' 80; letter-spacing: -0.02em; }
+  .intro p { max-width: 520px; color: var(--ink-2); }
+  .swatches { display: flex; gap: 8px; }
+  .swatches span { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgb(0 0 0 / 8%); }
+  .stage { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr; justify-items: center; gap: 40px; } .stage > .desk { width: 100%; }
+  @media (max-width: 1000px) { .stage { grid-template-columns: 1fr; justify-items: center; } .desk { width: 100%; } }
+
+  /* ---------- celular ---------- */
+  .phone { width: 390px; max-width: 100%; height: 820px; background: var(--bg); border-radius: 44px; border: 10px solid var(--ink); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+  .phone-top { background: var(--cobalt); color: #fff; padding: 22px 20px 64px; }
+  .phone-top .hello { display: flex; justify-content: space-between; align-items: center; }
+  .phone-top small { opacity: .92; font-size: 13px; }
+  .phone-top h2 { font: 700 30px/1.05 var(--display); font-variation-settings: 'wdth' 85; margin-top: 18px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--signal); color: var(--ink); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .phone-body { padding: 0 16px; margin-top: -48px; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 14px; }
+
+  /* o ingresso: corpo + canhoto separados por perfuração com recortes */
+  .ticket { display: grid; grid-template-columns: 1fr 92px; background: var(--surface); border-radius: var(--r-ticket); box-shadow: 0 10px 24px rgb(0 0 0 / 12%);
+    -webkit-mask: radial-gradient(circle 11px at calc(100% - 92px) 0, #0000 98%, #000) top/100% 51% no-repeat, radial-gradient(circle 11px at calc(100% - 92px) 100%, #0000 98%, #000) bottom/100% 51% no-repeat;
+            mask: radial-gradient(circle 11px at calc(100% - 92px) 0, #0000 98%, #000) top/100% 51% no-repeat, radial-gradient(circle 11px at calc(100% - 92px) 100%, #0000 98%, #000) bottom/100% 51% no-repeat; }
+  .ticket-main { padding: 18px 16px 18px 18px; }
+  .ticket-stub { border-left: 2px dashed var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 6px; text-align: center; }
+  .stub-day { font: 800 40px/0.9 var(--display); font-variation-settings: 'wdth' 75; color: var(--cobalt); }
+  .stub-month { font-weight: 600; font-size: 13px; color: var(--ink-2); }
+  .stub-time { margin-top: 8px; font-weight: 600; font-size: 13px; background: var(--signal); padding: 4px 10px; border-radius: 99px; }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--ok); background: #e3f5ec; padding: 4px 12px; border-radius: 99px; }
+  .status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .ticket h3 { font: 700 20px/1.15 var(--display); font-variation-settings: 'wdth' 90; margin: 10px 0 6px; }
+  .meta { color: var(--ink-2); font-size: 13.5px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: var(--r-ctl); font: 600 15px var(--body); border: 0; cursor: pointer; }
+  .btn-primary { background: var(--cobalt); color: #fff; }
+  .btn-primary:hover { background: var(--cobalt-deep); }
+  .btn-quiet { background: transparent; color: var(--cobalt); border: 1.5px solid var(--line); }
+  .ticket .btn { width: 100%; margin-top: 14px; }
+  .window-note { font-size: 12.5px; color: var(--ink-2); margin-top: 8px; }
+  .section-h { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px; }
+  .section-h h4 { font: 700 17px var(--display); }
+  .section-h a { color: var(--cobalt); font-weight: 600; font-size: 13.5px; text-decoration: none; }
+  .mini { background: var(--surface); border-radius: 14px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; }
+  .mini .ico { width: 40px; height: 40px; border-radius: 10px; background: #e6e9ff; color: var(--cobalt); display: grid; place-items: center; flex: none; }
+  .mini b { display: block; font-size: 14px; }
+  .mini span { font-size: 12.5px; color: var(--ink-2); }
+  .mini .go { margin-left: auto; color: var(--cobalt); font-weight: 600; font-size: 13px; }
+  .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding: 8px 6px 18px; }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11.5px; color: var(--ink-2); text-decoration: none; min-height: 44px; justify-content: center; }
+  .tabbar a.on { color: var(--cobalt); font-weight: 700; }
+
+  /* ---------- desktop ---------- */
+  .desk { background: var(--bg); border-radius: 16px; border: 1px solid #c9cde0; overflow: hidden; box-shadow: 0 30px 60px rgb(0 0 0 / 12%); }
+  .chrome { height: 34px; background: #fff; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 6px; padding: 0 14px; }
+  .chrome i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: 740px; }
+  .side { background: var(--ink); color: #c9cdea; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .brand { font: 800 24px var(--display); font-variation-settings: 'wdth' 78; color: #fff; padding: 0 10px 20px; display: flex; align-items: center; gap: 8px; }
+  .brand::before { content: ''; width: 14px; height: 22px; background: var(--signal); border-radius: 3px; -webkit-mask: radial-gradient(circle 4px at 100% 50%, #0000 98%, #000); mask: radial-gradient(circle 4px at 100% 50%, #0000 98%, #000); }
+  .side a { color: inherit; text-decoration: none; padding: 10px 12px; border-radius: var(--r-ctl); font-weight: 500; }
+  .side a.on { background: var(--cobalt); color: #fff; }
+  .main { padding: 28px 32px; display: flex; flex-direction: column; gap: 22px; }
+  .main-h { display: flex; justify-content: space-between; align-items: end; }
+  .main-h h2 { font: 800 34px/1 var(--display); font-variation-settings: 'wdth' 82; }
+  .main-h p { color: var(--ink-2); margin-top: 6px; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .kpi { background: var(--surface); border-radius: 14px; padding: 18px; }
+  .kpi span { font-size: 13.5px; color: var(--ink-2); }
+  .kpi b { display: block; font: 800 44px/1 var(--display); font-variation-settings: 'wdth' 75; margin-top: 8px; }
+  .kpi em { font-style: normal; font-size: 13px; color: var(--ok); font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px; }
+  .panel { background: var(--surface); border-radius: 14px; padding: 18px 20px; }
+  .panel h3 { font: 700 18px var(--display); margin-bottom: 12px; }
+  .row { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: 0; }
+  .date-chip { border: 1.5px dashed var(--line); border-radius: 10px; text-align: center; padding: 4px 0; }
+  .date-chip b { display: block; font: 800 22px/1 var(--display); color: var(--cobalt); }
+  .date-chip small { font-size: 11.5px; color: var(--ink-2); }
+  .row strong { font-size: 15px; }
+  .row .meta { display: block; }
+  .bars { display: flex; flex-direction: column; gap: 12px; }
+  .bar span { display: flex; justify-content: space-between; font-size: 13.5px; }
+  .bar i { display: block; height: 10px; border-radius: 99px; background: #e6e9ff; margin-top: 5px; overflow: hidden; }
+  .bar i::after { content: ''; display: block; height: 100%; width: var(--w); background: var(--cobalt); border-radius: inherit; }
+  .why { max-width: 1240px; margin: 40px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; color: var(--ink-2); font-size: 14.5px; }
+  .why b { color: var(--ink); display: block; font: 700 17px var(--display); margin-bottom: 4px; }
+  @media (max-width: 800px) { .why { grid-template-columns: 1fr; } .app { grid-template-columns: 1fr; } .side { display: none; } .kpis, .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="intro">
+  <div>
+    <h1>A · Ingresso</h1>
+    <p>Cada evento é um ingresso que a pessoa guarda: canhoto com a data, perfuração, QR de presença. Cobalto confiável, amarelo de sinalização para o que pede ação.</p>
+  </div>
+  <div class="swatches" aria-label="Paleta">
+    <span style="background:#2236e0"></span><span style="background:#ffd93b"></span><span style="background:#0e1330"></span><span style="background:#eef0f6"></span><span style="background:#0f8a5f"></span>
+  </div>
+</header>
+
+<div class="stage">
+  <section class="phone" aria-label="Início do participante, celular">
+    <div class="phone-top">
+      <div class="hello"><small>Fatec · Semana 46</small><span class="avatar">AL</span></div>
+      <h2>Seu próximo evento é amanhã</h2>
+    </div>
+    <div class="phone-body">
+      <article class="ticket">
+        <div class="ticket-main">
+          <span class="status">Inscrição confirmada</span>
+          <h3>Kafka na prática: mensageria para microsserviços</h3>
+          <p class="meta">Auditório 2 · Presencial</p>
+          <button class="btn btn-primary">Confirmar presença</button>
+          <p class="window-note">Disponível das 18h50 às 21h10</p>
+        </div>
+        <div class="ticket-stub">
+          <span class="stub-day">13</span>
+          <span class="stub-month">nov</span>
+          <span class="stub-time">19h</span>
+        </div>
+      </article>
+
+      <div class="section-h"><h4>Certificados</h4><a href="#">Ver todos</a></div>
+      <div class="mini"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg></span><div><b>Semana de Tecnologia 2026</b><span>12 horas · emitido em 30/10</span></div><span class="go">Baixar</span></div>
+      <div class="mini"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg></span><div><b>Oficina de Docker</b><span>4 horas · emitido em 18/10</span></div><span class="go">Baixar</span></div>
+
+      <div class="section-h"><h4>Medalhas</h4><a href="#">3 conquistadas</a></div>
+    </div>
+    <nav class="tabbar">
+      <a class="on" href="#">●<span>Início</span></a><a href="#">◇<span>Eventos</span></a><a href="#">▭<span>Certificados</span></a><a href="#">○<span>Perfil</span></a>
+    </nav>
+  </section>
+
+  <section class="desk" aria-label="Painel administrativo, desktop">
+    <div class="chrome"><i></i><i></i><i></i></div>
+    <div class="app">
+      <aside class="side">
+        <div class="brand">Muttley</div>
+        <a class="on" href="#">Início</a><a href="#">Eventos</a><a href="#">Pessoas</a><a href="#">Certificados</a><a href="#">Cadastros</a>
+      </aside>
+      <div class="main">
+        <div class="main-h">
+          <div><h2>Bom dia, coordenação</h2><p>4 eventos acontecem esta semana. 1 aguarda conclusão.</p></div>
+          <button class="btn btn-primary">Criar evento</button>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><span>Eventos ativos</span><b>12</b></div>
+          <div class="kpi"><span>Nesta semana</span><b>4</b></div>
+          <div class="kpi"><span>Certificados em 30 dias</span><b>286</b><em>+18% que o período anterior</em></div>
+        </div>
+        <div class="grid2">
+          <div class="panel">
+            <h3>Próximos eventos</h3>
+            <div class="row"><div class="date-chip"><b>12</b><small>nov</small></div><div><strong>Workshop de UX Research</strong><span class="meta">Lab 4 · 38 inscritos</span></div><button class="btn btn-quiet">Concluir</button></div>
+            <div class="row"><div class="date-chip"><b>13</b><small>nov</small></div><div><strong>Kafka na prática</strong><span class="meta">Auditório 2 · 112 inscritos</span></div><button class="btn btn-quiet">Abrir</button></div>
+            <div class="row"><div class="date-chip"><b>14</b><small>nov</small></div><div><strong>Carreira em dados</strong><span class="meta">Online · 64 inscritos</span></div><button class="btn btn-quiet">Abrir</button></div>
+            <div class="row"><div class="date-chip"><b>16</b><small>nov</small></div><div><strong>Hackathon Fatec</strong><span class="meta">Ginásio · 90 inscritos</span></div><button class="btn btn-quiet">Abrir</button></div>
+          </div>
+          <div class="panel">
+            <h3>Certificados por evento</h3>
+            <div class="bars">
+              <div class="bar"><span>Semana de Tecnologia<b>142</b></span><i style="--w:92%"></i></div>
+              <div class="bar"><span>Oficina de Docker<b>58</b></span><i style="--w:38%"></i></div>
+              <div class="bar"><span>Palestra de IA<b>51</b></span><i style="--w:33%"></i></div>
+              <div class="bar"><span>Git sem medo<b>35</b></span><i style="--w:23%"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="why">
+  <div><b>O que muda</b>Sai o papel creme e o terracota. Entra uma cor fria e enérgica, cantos arredondados e o ingresso como peça central.</div>
+  <div><b>Ponto forte</b>Data, horário e local saltam aos olhos, que é o que o participante procura primeiro. O QR e a presença têm lugar natural no canhoto.</div>
+  <div><b>Cuidado</b>A metáfora do ingresso precisa aparecer só onde existe evento. No admin ela fica discreta, nos selos de data.</div>
+</section>
+</body>
+</html>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useId } from 'react'
-import { Link } from 'react-router-dom'
 import { PARTICIPANT_EVENTS_PATH } from '../../eventos'
 import { getMeMedalhasApi } from '../api/medalhasApi'
 import type { MedalhaUsuario, TipoMedalha } from '../domain/medalhaTypes'
@@ -17,44 +16,23 @@ import {
   SearchIcon,
   CopyIcon,
   CheckIcon,
+  copiarTexto,
+  FiltroSegmentado,
+  ButtonLink,
 } from '../../../shared/ui'
 import { MedalGridSkeleton } from './skeletons'
-import { HistoryBackButton } from '../../../shared/navigation'
 
-const getMedalBadgeVariant = (tipo: TipoMedalha): 'warning' | 'default' => {
-  switch (tipo) {
-    case 'OURO':
-      return 'warning'
-    case 'PRATA':
-      return 'default'
-    case 'BRONZE':
-    default:
-      return 'warning'
-  }
+// Disco da medalha na cor do nível; o ícone fica sempre em tinta para manter o contraste.
+const MEDAL_DISC: Record<TipoMedalha, string> = {
+  OURO: 'bg-[var(--color-medal-ouro)]',
+  PRATA: 'bg-[var(--color-medal-prata)]',
+  BRONZE: 'bg-[var(--color-medal-bronze)]',
 }
 
-const getMedalBorderClass = (tipo: TipoMedalha) => {
-  switch (tipo) {
-    case 'OURO':
-      return 'border-[var(--color-warning-border)] bg-[var(--color-warning-bg)]/30'
-    case 'PRATA':
-      return 'border-[var(--color-border-strong)] bg-[var(--color-bg-subtle)]/40'
-    case 'BRONZE':
-    default:
-      return 'border-orange-200 bg-orange-50/20'
-  }
-}
-
-const getMedalIconClass = (tipo: TipoMedalha) => {
-  switch (tipo) {
-    case 'OURO':
-      return 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)] ring-[var(--color-warning-border)]'
-    case 'PRATA':
-      return 'bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] ring-[var(--color-border-strong)]'
-    case 'BRONZE':
-    default:
-      return 'bg-orange-100 text-orange-700 ring-orange-200'
-  }
+const MEDAL_LABEL: Record<TipoMedalha, string> = {
+  OURO: 'Ouro',
+  PRATA: 'Prata',
+  BRONZE: 'Bronze',
 }
 
 export const UserMedalsPage: React.FC = () => {
@@ -108,16 +86,11 @@ export const UserMedalsPage: React.FC = () => {
   }, [])
 
   const handleCopyAchievement = async (medal: MedalhaUsuario) => {
-    const eventName = medal.evento?.tema || 'Evento Acadêmico'
-    const text = `Conquistei a Medalha de ${medal.tipo.toLowerCase()} "${medal.nome}" no evento "${eventName}" na FATEC!`
-    try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(text)
-        setCopiedId(medal.id)
-        setTimeout(() => setCopiedId(null), 2500)
-      }
-    } catch {
-      // Falha de clipboard silenciosa
+    const eventName = medal.evento?.tema || 'Evento'
+    const text = `Conquistei a medalha de ${medal.tipo.toLowerCase()} "${medal.nome}" no evento "${eventName}" na Fatec!`
+    if (await copiarTexto(text, 'Texto da conquista copiado')) {
+      setCopiedId(medal.id)
+      setTimeout(() => setCopiedId(null), 2500)
     }
   }
 
@@ -141,19 +114,14 @@ export const UserMedalsPage: React.FC = () => {
       {/* Cabeçalho da Página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[var(--color-border)] pb-5">
         <div>
-          <span className="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">
-            Gamificação e Conquistas
-          </span>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mt-1">
-            Minhas Medalhas
+          <h1 className="font-display text-3xl font-bold text-[var(--color-text-primary)]">
+            Minhas medalhas
           </h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
             Reconhecimentos de destaque atribuídos pela participação em eventos
             acadêmicos.
           </p>
         </div>
-
-        <HistoryBackButton label="Voltar para a página anterior" />
       </div>
 
       {/* Alertas */}
@@ -184,63 +152,24 @@ export const UserMedalsPage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
+            <div className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]">
               <SearchIcon size={16} />
             </div>
           </div>
         </div>
 
         {/* Seletor de Tipo */}
-        <div
-          className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"
-          role="tablist"
-          aria-label="Filtrar por tipo de medalha"
-        >
-          <button
-            type="button"
-            onClick={() => setTypeFilter('TODAS')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
-              typeFilter === 'TODAS'
-                ? 'bg-[var(--color-primary)] text-white shadow-sm'
-                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
-            }`}
-          >
-            Todas ({medals.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setTypeFilter('OURO')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
-              typeFilter === 'OURO'
-                ? 'bg-[var(--color-warning)] text-white shadow-sm'
-                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
-            }`}
-          >
-            Ouro ({countOuro})
-          </button>
-          <button
-            type="button"
-            onClick={() => setTypeFilter('PRATA')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
-              typeFilter === 'PRATA'
-                ? 'bg-[var(--color-text-muted)] text-white shadow-sm'
-                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
-            }`}
-          >
-            Prata ({countPrata})
-          </button>
-          <button
-            type="button"
-            onClick={() => setTypeFilter('BRONZE')}
-            className={`px-3 py-1.5 rounded-none text-xs font-semibold transition-colors ${
-              typeFilter === 'BRONZE'
-                ? 'bg-orange-500 text-white shadow-sm'
-                : 'bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)]'
-            }`}
-          >
-            Bronze ({countBronze})
-          </button>
-        </div>
+        <FiltroSegmentado
+          rotulo="Filtrar por nível de medalha"
+          valor={typeFilter}
+          onChange={setTypeFilter}
+          opcoes={[
+            { valor: 'TODAS', rotulo: 'Todas', total: medals.length },
+            { valor: 'OURO', rotulo: 'Ouro', total: countOuro },
+            { valor: 'PRATA', rotulo: 'Prata', total: countPrata },
+            { valor: 'BRONZE', rotulo: 'Bronze', total: countBronze },
+          ]}
+        />
       </div>
 
       {/* Estado de Carregamento */}
@@ -277,34 +206,37 @@ export const UserMedalsPage: React.FC = () => {
                     Redefinir filtros
                   </Button>
                 ) : (
-                  <Link to={PARTICIPANT_EVENTS_PATH} className="mt-2">
-                    <Button variant="primary" size="md">
-                      Explorar Eventos Disponíveis
-                    </Button>
-                  </Link>
+                  <ButtonLink
+                    to={PARTICIPANT_EVENTS_PATH}
+                    variant="primary"
+                    size="md"
+                    className="mt-2"
+                  >
+                    Ver eventos disponíveis
+                  </ButtonLink>
                 )}
               </div>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredMedals.map((medal) => {
-                const eventName = medal.evento?.tema || 'Evento Acadêmico'
+                const eventName = medal.evento?.tema || 'Evento'
                 const isCopied = copiedId === medal.id
 
                 return (
                   <Card
                     key={medal.id}
-                    className={`surface-depth surface-depth-interactive bg-[var(--color-bg-surface)] transition-all hover:shadow-md flex flex-col justify-between ${getMedalBorderClass(medal.tipo)}`}
+                    className="bg-[var(--color-bg-surface)] flex flex-col justify-between"
                   >
                     <div>
                       <CardHeader className="flex flex-row items-center justify-between pb-3">
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ring-2 ${getMedalIconClass(medal.tipo)}`}
+                          className={`w-12 h-12 rounded-full flex items-center justify-center text-[var(--color-signal-ink)] shadow-[inset_0_-3px_0_rgb(0_0_0/18%)] ${MEDAL_DISC[medal.tipo]}`}
                         >
-                          <MedalIcon size={20} />
+                          <MedalIcon size={22} />
                         </div>
-                        <Badge variant={getMedalBadgeVariant(medal.tipo)}>
-                          {medal.tipo}
+                        <Badge variant="default">
+                          {MEDAL_LABEL[medal.tipo]}
                         </Badge>
                       </CardHeader>
 
@@ -318,7 +250,7 @@ export const UserMedalsPage: React.FC = () => {
                         </p>
 
                         <div className="pt-2 border-t border-[var(--color-border-subtle)]">
-                          <span className="block text-[11px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+                          <span className="block text-xs text-[var(--color-text-muted)]">
                             Evento
                           </span>
                           <span className="text-xs font-medium text-[var(--color-text-primary)] line-clamp-1">
@@ -329,7 +261,7 @@ export const UserMedalsPage: React.FC = () => {
                     </div>
 
                     <CardFooter className="pt-2 border-t border-[var(--color-border-subtle)] flex items-center justify-between">
-                      <span className="text-[11px] text-[var(--color-text-muted)]">
+                      <span className="text-xs text-[var(--color-text-muted)]">
                         Inscrição #{medal.inscricao}
                       </span>
 

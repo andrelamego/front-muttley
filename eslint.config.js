@@ -10,10 +10,6 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 export default defineConfig([
   globalIgnores([
     'dist',
-    'src/pages/**',
-    'src/components/**',
-    'src/data/**',
-    'src/services/**',
   ]),
   {
     files: ['**/*.{ts,tsx}'],
@@ -32,6 +28,13 @@ export default defineConfig([
     },
     rules: {
       'prettier/prettier': 'error',
+    },
+  },
+  {
+    // Componentes do shadcn exportam variantes e hooks junto com os componentes, por convenção.
+    files: ['src/shared/ui/shadcn/**/*.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
     },
   },
 ])

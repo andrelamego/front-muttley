@@ -36,7 +36,7 @@ export const Input: React.FC<InputProps> = ({
             {label}
             {required && (
               <span
-                className="text-[var(--color-danger)] ml-1"
+                className="text-[var(--color-danger-text)] ml-1"
                 aria-label="campo obrigatório"
               >
                 *
@@ -55,7 +55,7 @@ export const Input: React.FC<InputProps> = ({
           aria-describedby={
             hasError ? errorId : helperText ? helperId : undefined
           }
-          className={`w-full min-h-[44px] px-3.5 py-2.5 text-sm rounded-none border bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-[var(--color-bg-subtle)] disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed ${
+          className={`w-full min-h-[44px] px-3.5 py-2.5 text-sm rounded-sm border bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-[var(--color-bg-subtle)] disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed read-only:bg-[var(--color-bg-subtle)] read-only:text-[var(--color-text-secondary)] ${
             hasError
               ? 'border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]'
               : 'border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)]'
@@ -74,7 +74,7 @@ export const Input: React.FC<InputProps> = ({
         <p
           id={errorId}
           role="alert"
-          className="text-xs font-medium text-[var(--color-danger)]"
+          className="text-xs font-medium text-[var(--color-danger-text)]"
         >
           {error}
         </p>

@@ -121,7 +121,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             }
             aria-pressed={showPassword}
             tabIndex={0}
-            className="p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] text-xs font-medium rounded-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)] cursor-pointer"
+            className="p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] text-xs font-medium rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring-color)] cursor-pointer"
           >
             {showPassword ? 'Ocultar' : 'Mostrar'}
           </button>

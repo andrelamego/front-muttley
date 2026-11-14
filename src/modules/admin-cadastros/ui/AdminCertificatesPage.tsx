@@ -1,12 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Palette } from 'lucide-react'
 import { getAdminCertificatesApi } from '../api/adminCatalogApi'
 import type {
   AdminCertificado,
   AdminCertificatesData,
 } from '../domain/adminCatalogTypes'
 import { formatAdminDate, includesSearch } from '../domain/adminCatalogTypes'
-import { Badge, Button, EyeIcon, Input, SearchIcon } from '../../../shared/ui'
+import {
+  Badge,
+  EyeIcon,
+  Input,
+  SearchIcon,
+  ButtonLink,
+} from '../../../shared/ui'
 import { AdminDataSkeleton } from './AdminDataSkeleton'
 import {
   AdminEmpty,
@@ -52,15 +59,14 @@ const CertificateRows: React.FC<{ records: AdminCertificado[] }> = ({
             </td>
             <td className="px-4 py-3 text-right">
               {cert.codigoValidacao ? (
-                <Link to={`/certificados/${cert.codigoValidacao}`}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    leftIcon={<EyeIcon size={15} />}
-                  >
-                    Visualizar
-                  </Button>
-                </Link>
+                <ButtonLink
+                  to={`/certificados/${cert.codigoValidacao}`}
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<EyeIcon size={15} />}
+                >
+                  Visualizar
+                </ButtonLink>
               ) : (
                 <Badge variant="default">Indisponível</Badge>
               )}
@@ -130,10 +136,18 @@ export const AdminCertificatesPage: React.FC = () => {
   return (
     <div className="w-full max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7">
       <AdminSectionHeader
-        eyebrow="Emissão e autenticidade"
         title="Certificados"
         description="Acompanhe emissões recentes, consulte o acervo e identifique eventos que ainda aguardam certificados."
         onRefresh={load}
+        action={
+          <ButtonLink
+            to="/admin/certificados/modelo"
+            size="sm"
+            leftIcon={<Palette className="size-4" />}
+          >
+            Modelo do certificado
+          </ButtonLink>
+        }
       />
       {loading && !data ? (
         <AdminDataSkeleton />
@@ -161,7 +175,7 @@ export const AdminCertificatesPage: React.FC = () => {
 
           {(data?.eventosAguardandoCertificado.length || 0) > 0 && (
             <section aria-labelledby="pending-title">
-              <h2 id="pending-title" className="font-serif text-xl mb-3">
+              <h2 id="pending-title" className="font-display text-xl mb-3">
                 Eventos aguardando certificados
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -188,7 +202,7 @@ export const AdminCertificatesPage: React.FC = () => {
 
           {(data?.ultimosCertificados.length || 0) > 0 && (
             <section aria-labelledby="recent-title">
-              <h2 id="recent-title" className="font-serif text-xl mb-3">
+              <h2 id="recent-title" className="font-display text-xl mb-3">
                 Últimos certificados emitidos
               </h2>
               <CertificateRows records={data?.ultimosCertificados || []} />
@@ -198,7 +212,7 @@ export const AdminCertificatesPage: React.FC = () => {
           <section aria-labelledby="archive-title" className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <h2 id="archive-title" className="font-serif text-xl">
+                <h2 id="archive-title" className="font-display text-xl">
                   Acervo completo
                 </h2>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1">
@@ -208,7 +222,7 @@ export const AdminCertificatesPage: React.FC = () => {
               <div className="relative w-full sm:w-80">
                 <SearchIcon
                   size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+                  className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[var(--color-text-muted)]"
                 />
                 <Input
                   value={search}

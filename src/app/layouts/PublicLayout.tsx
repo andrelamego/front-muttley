@@ -1,7 +1,14 @@
 import React, { useState } from 'react'
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../modules/auth'
-import { Button, Logo, MenuIcon, ThemeToggle, XIcon } from '../../shared/ui'
+import {
+  Button,
+  Logo,
+  MenuIcon,
+  ThemeToggle,
+  XIcon,
+  ButtonLink,
+} from '../../shared/ui'
 import { PageTransition } from '../../shared/motion'
 import { AnimatePresence, m } from 'motion/react'
 
@@ -30,13 +37,13 @@ export const PublicLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-[var(--color-bg-page)] flex flex-col text-[var(--color-text-primary)] font-sans antialiased selection:bg-[var(--color-primary-subtle)] selection:text-[var(--color-primary-active)]">
       {/* Cabeçalho Público Fiel ao Stitch (64px) */}
-      <header className="fixed top-0 left-0 right-0 w-full z-40 bg-[var(--color-bg-page)]/95 backdrop-blur-md border-b border-[var(--color-border)]/60 shadow-[0_1px_8px_rgba(0,0,0,0.03)]">
+      <header className="fixed top-0 left-0 right-0 w-full z-40 bg-[var(--color-bg-surface)]/95 backdrop-blur-md border-b border-[var(--color-border)]">
         <div className="h-16 max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo Único */}
           <Link
             to="/"
-            className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-none py-1 px-1"
-            aria-label="Página inicial do Muttley Acadêmico"
+            className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md py-1 px-1"
+            aria-label="Página inicial do Muttley"
           >
             <Logo className="h-8 w-auto" />
           </Link>
@@ -52,7 +59,7 @@ export const PublicLayout: React.FC = () => {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`text-sm font-medium px-3 py-1.5 rounded-none transition-colors ${
+                  className={`text-sm font-medium px-3 py-1.5 rounded-md transition-colors ${
                     active
                       ? 'bg-[var(--color-bg-muted)] text-[var(--color-primary-text)] font-semibold'
                       : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-subtle)]'
@@ -71,23 +78,17 @@ export const PublicLayout: React.FC = () => {
               <div className="flex items-center gap-2.5">
                 {user?.role === 'ADMIN' ? (
                   <>
-                    <Link to="/user/inicio">
-                      <Button variant="outline" size="sm">
-                        Painel do Usuário
-                      </Button>
-                    </Link>
-                    <Link to="/admin/inicio">
-                      <Button variant="primary" size="sm">
-                        Painel Admin
-                      </Button>
-                    </Link>
+                    <ButtonLink to="/user/inicio" variant="outline" size="sm">
+                      Painel do participante
+                    </ButtonLink>
+                    <ButtonLink to="/admin/inicio" variant="primary" size="sm">
+                      Coordenação
+                    </ButtonLink>
                   </>
                 ) : (
-                  <Link to="/user/inicio">
-                    <Button variant="primary" size="sm">
-                      Meu Painel
-                    </Button>
-                  </Link>
+                  <ButtonLink to="/user/inicio" variant="primary" size="sm">
+                    Meu painel
+                  </ButtonLink>
                 )}
                 <Button
                   variant="ghost"
@@ -106,11 +107,9 @@ export const PublicLayout: React.FC = () => {
                 >
                   Entrar
                 </Link>
-                <Link to="/login">
-                  <Button variant="primary" size="sm">
-                    Área Restrita
-                  </Button>
-                </Link>
+                <ButtonLink to="/login" variant="primary" size="sm">
+                  Entrar
+                </ButtonLink>
               </div>
             )}
           </div>
@@ -123,7 +122,7 @@ export const PublicLayout: React.FC = () => {
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
               aria-expanded={isMobileMenuOpen}
               aria-label={isMobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
-              className="p-2 rounded-none text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+              className="p-2 rounded-md text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
             >
               {isMobileMenuOpen ? <XIcon size={22} /> : <MenuIcon size={22} />}
             </button>
@@ -144,7 +143,7 @@ export const PublicLayout: React.FC = () => {
                   key={item.to}
                   to={item.to}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary-text)] hover:bg-[var(--color-bg-muted)] px-3 py-2 rounded-none"
+                  className="block text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-primary-text)] hover:bg-[var(--color-bg-muted)] px-3 py-2 rounded-md"
                 >
                   {item.label}
                 </Link>
@@ -154,35 +153,38 @@ export const PublicLayout: React.FC = () => {
                   <>
                     {user?.role === 'ADMIN' ? (
                       <>
-                        <Link
+                        <ButtonLink
                           to="/user/inicio"
                           onClick={() => setIsMobileMenuOpen(false)}
+                          variant="outline"
+                          size="md"
+                          fullWidth
                           className="w-full"
                         >
-                          <Button variant="outline" size="md" fullWidth>
-                            Painel do Usuário
-                          </Button>
-                        </Link>
-                        <Link
+                          Painel do participante
+                        </ButtonLink>
+                        <ButtonLink
                           to="/admin/inicio"
                           onClick={() => setIsMobileMenuOpen(false)}
+                          variant="primary"
+                          size="md"
+                          fullWidth
                           className="w-full"
                         >
-                          <Button variant="primary" size="md" fullWidth>
-                            Painel Admin
-                          </Button>
-                        </Link>
+                          Coordenação
+                        </ButtonLink>
                       </>
                     ) : (
-                      <Link
+                      <ButtonLink
                         to="/user/inicio"
                         onClick={() => setIsMobileMenuOpen(false)}
+                        variant="primary"
+                        size="md"
+                        fullWidth
                         className="w-full"
                       >
-                        <Button variant="primary" size="md" fullWidth>
-                          Meu Painel
-                        </Button>
-                      </Link>
+                        Meu painel
+                      </ButtonLink>
                     )}
                     <Button
                       variant="outline"
@@ -198,24 +200,26 @@ export const PublicLayout: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <Link
+                    <ButtonLink
                       to="/login"
                       onClick={() => setIsMobileMenuOpen(false)}
+                      variant="outline"
+                      size="md"
+                      fullWidth
                       className="w-full"
                     >
-                      <Button variant="outline" size="md" fullWidth>
-                        Entrar
-                      </Button>
-                    </Link>
-                    <Link
+                      Entrar
+                    </ButtonLink>
+                    <ButtonLink
                       to="/login"
                       onClick={() => setIsMobileMenuOpen(false)}
+                      variant="primary"
+                      size="md"
+                      fullWidth
                       className="w-full"
                     >
-                      <Button variant="primary" size="md" fullWidth>
-                        Área Restrita
-                      </Button>
-                    </Link>
+                      Entrar
+                    </ButtonLink>
                   </>
                 )}
               </div>
@@ -231,72 +235,47 @@ export const PublicLayout: React.FC = () => {
         </PageTransition>
       </main>
 
-      {/* Rodapé Editorial Institucional */}
-      <footer className="bg-[var(--color-bg-subtle)] border-t border-[var(--color-border)] py-12 text-[var(--color-text-secondary)] text-sm">
-        <div className="max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-8 border-b border-[var(--color-border)]">
-            {/* Coluna da Marca */}
-            <div className="md:col-span-6 flex flex-col gap-3">
-              <Logo className="h-7 w-auto" />
-              <p className="text-xs text-[var(--color-text-secondary)] max-w-md leading-relaxed mt-1">
-                Infraestrutura acadêmica para gestão de eventos, conferências,
-                registro rigoroso de presença e emissão pública de certificados
-                com código de validação.
-              </p>
-            </div>
-
-            {/* Coluna Navegação */}
-            <div className="md:col-span-3 flex flex-col gap-2">
-              <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-primary)] font-semibold">
-                Navegação
-              </span>
-              <Link
-                to="/eventos"
-                className="text-xs hover:text-[var(--color-primary-text)] transition-colors py-0.5"
-              >
-                Catálogo de Eventos
-              </Link>
-              <a
-                href="#fluxo-academico"
-                className="text-xs hover:text-[var(--color-primary-text)] transition-colors py-0.5"
-              >
-                Como Funciona o Ciclo
-              </a>
-              <Link
-                to="/login"
-                className="text-xs hover:text-[var(--color-primary-text)] transition-colors py-0.5"
-              >
-                Área do Participante
-              </Link>
-            </div>
-
-            {/* Coluna Validação de Certificados */}
-            <div className="md:col-span-3 flex flex-col gap-2">
-              <span className="font-mono text-xs uppercase tracking-wider text-[var(--color-text-primary)] font-semibold">
-                Validação Pública
-              </span>
-              <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
-                Consulte a autenticidade de certificados emitidos através do
-                código único impresso no documento.
-              </p>
-              <Link
-                to="/#validar"
-                className="text-xs font-semibold text-[var(--color-primary-text)] hover:underline inline-flex items-center gap-1 mt-1"
-              >
-                Consultar Certificado &rarr;
-              </Link>
-            </div>
+      {/* Rodapé enxuto: marca, atalhos e créditos numa faixa só */}
+      <footer className="bg-[var(--color-bg-subtle)] border-t border-[var(--color-border)] py-8 text-sm text-[var(--color-text-secondary)]">
+        <div className="max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2 max-w-sm">
+            <Logo className="h-6 w-auto" />
+            <p className="text-xs leading-relaxed">
+              Eventos acadêmicos da Fatec com inscrição on-line, presença por QR
+              Code e certificados que qualquer pessoa pode validar.
+            </p>
           </div>
-
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--color-text-muted)]">
-            <span>
-              &copy; {new Date().getFullYear()} Plataforma Acadêmica Muttley.
-              Todos os direitos reservados.
-            </span>
-            <span className="font-mono uppercase tracking-wider">
-              Rigor Acadêmico • Preservação Digital
-            </span>
-          </div>
+          <nav aria-label="Rodapé">
+            <ul className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
+              <li>
+                <Link
+                  to="/eventos"
+                  className="hover:text-[var(--color-primary-text)]"
+                >
+                  Programação
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/login"
+                  className="hover:text-[var(--color-primary-text)]"
+                >
+                  Área do participante
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/#validar"
+                  className="font-semibold text-[var(--color-primary-text)] hover:underline"
+                >
+                  Validar certificado
+                </Link>
+              </li>
+            </ul>
+          </nav>
+          <span className="text-xs text-[var(--color-text-muted)]">
+            &copy; {new Date().getFullYear()} Muttley
+          </span>
         </div>
       </footer>
     </div>

@@ -69,6 +69,10 @@ test('calculateSelectAllPresents marca e desmarca conjunto visível sem duplicid
   assert.deepStrictEqual(allSelected.sort(), [101, 102, 103, 105].sort())
 
   // Desmarcar todos visíveis
-  const deselectVisible = calculateSelectAllPresents(allSelected, visible, false)
+  const deselectVisible = calculateSelectAllPresents(
+    allSelected,
+    visible,
+    false
+  )
   assert.deepStrictEqual(deselectVisible, [105])
 })
