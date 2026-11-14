@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useId } from 'react'
-import { Link } from 'react-router-dom'
 import { PARTICIPANT_EVENTS_PATH } from '../../eventos'
 import {
   getMeCertificadosApi,
@@ -26,6 +25,7 @@ import {
   CheckIcon,
   AwardIcon,
   copiarTexto,
+  ButtonLink,
 } from '../../../shared/ui'
 import { CertificateListSkeleton } from './skeletons'
 
@@ -211,11 +211,14 @@ export const UserCertificatesPage: React.FC = () => {
                     : 'Assim que você participar de um evento e ele for concluído pela organização, seu certificado oficial ficará disponível aqui.'}
                 </p>
                 {!searchTerm && (
-                  <Link to={PARTICIPANT_EVENTS_PATH} className="mt-2">
-                    <Button variant="primary" size="md">
-                      Explorar Eventos Abertos
-                    </Button>
-                  </Link>
+                  <ButtonLink
+                    to={PARTICIPANT_EVENTS_PATH}
+                    variant="primary"
+                    size="md"
+                    className="mt-2"
+                  >
+                    Ver eventos abertos
+                  </ButtonLink>
                 )}
                 {searchTerm && (
                   <Button
@@ -231,7 +234,7 @@ export const UserCertificatesPage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredCertificates.map((cert) => {
-                const eventName = cert.evento?.tema || 'Certificado Muttley'
+                const eventName = cert.evento?.tema || 'Certificado'
                 const linkedinUrl = buildLinkedInCertUrl(
                   eventName,
                   cert.codigoValidacao,
@@ -306,11 +309,13 @@ export const UserCertificatesPage: React.FC = () => {
 
                     <CardFooter className="pt-2 border-t border-[var(--color-border-subtle)] flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <Link to={`/certificados/${cert.codigoValidacao}`}>
-                          <Button variant="outline" size="sm">
-                            Visualizar
-                          </Button>
-                        </Link>
+                        <ButtonLink
+                          to={`/certificados/${cert.codigoValidacao}`}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Visualizar
+                        </ButtonLink>
 
                         <Button
                           variant="secondary"

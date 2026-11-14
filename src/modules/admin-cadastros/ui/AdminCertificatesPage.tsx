@@ -1,12 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Palette } from 'lucide-react'
 import { getAdminCertificatesApi } from '../api/adminCatalogApi'
 import type {
   AdminCertificado,
   AdminCertificatesData,
 } from '../domain/adminCatalogTypes'
 import { formatAdminDate, includesSearch } from '../domain/adminCatalogTypes'
-import { Badge, Button, EyeIcon, Input, SearchIcon } from '../../../shared/ui'
+import {
+  Badge,
+  EyeIcon,
+  Input,
+  SearchIcon,
+  ButtonLink,
+} from '../../../shared/ui'
 import { AdminDataSkeleton } from './AdminDataSkeleton'
 import {
   AdminEmpty,
@@ -52,15 +59,14 @@ const CertificateRows: React.FC<{ records: AdminCertificado[] }> = ({
             </td>
             <td className="px-4 py-3 text-right">
               {cert.codigoValidacao ? (
-                <Link to={`/certificados/${cert.codigoValidacao}`}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    leftIcon={<EyeIcon size={15} />}
-                  >
-                    Visualizar
-                  </Button>
-                </Link>
+                <ButtonLink
+                  to={`/certificados/${cert.codigoValidacao}`}
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<EyeIcon size={15} />}
+                >
+                  Visualizar
+                </ButtonLink>
               ) : (
                 <Badge variant="default">Indisponível</Badge>
               )}
@@ -133,6 +139,15 @@ export const AdminCertificatesPage: React.FC = () => {
         title="Certificados"
         description="Acompanhe emissões recentes, consulte o acervo e identifique eventos que ainda aguardam certificados."
         onRefresh={load}
+        action={
+          <ButtonLink
+            to="/admin/certificados/modelo"
+            size="sm"
+            leftIcon={<Palette className="size-4" />}
+          >
+            Modelo do certificado
+          </ButtonLink>
+        }
       />
       {loading && !data ? (
         <AdminDataSkeleton />
