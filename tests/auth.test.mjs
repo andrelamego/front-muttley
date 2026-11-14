@@ -23,7 +23,12 @@ for (const [name, input, expected] of [
 }
 
 test('papel do JWT emitido pelo backend', () => {
-  assert.equal(getRoleFromToken(token({ sub: 'teste@example.invalid', userId: 7, role: 'ADMIN' })), 'ADMIN')
+  assert.equal(
+    getRoleFromToken(
+      token({ sub: 'teste@example.invalid', userId: 7, role: 'ADMIN' })
+    ),
+    'ADMIN'
+  )
 })
 
 for (const [claim, value] of [
@@ -47,5 +52,8 @@ for (const value of [null, '', 'sem-payload', 'a.%%%.b', 'a.e30.b']) {
 }
 
 test('claim role tem prioridade sobre alternativas', () => {
-  assert.equal(getRoleFromToken(token({ role: 'USER', authorities: ['ROLE_ADMIN'] })), 'USER')
+  assert.equal(
+    getRoleFromToken(token({ role: 'USER', authorities: ['ROLE_ADMIN'] })),
+    'USER'
+  )
 })

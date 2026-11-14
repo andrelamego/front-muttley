@@ -1,0 +1,97 @@
+{
+  "arquivoOrigem": "stitch_plataforma_acad_mica_muttley.zip",
+  "sha256Zip": "e49e7b203e1f1708cd52806ee8d936433b8dbe06d65c2181800c33bd0b1b0e24",
+  "dataPreparacao": "2026-09-04",
+  "observacao": "Arquivos originais preservados; recursos externos apenas inventariados, não baixados ou executados.",
+  "arquivos": [
+    {
+      "origemNoZip": "stitch_plataforma_acad_mica_muttley/muttley_logo/code.html",
+      "arquivoLocal": "logo/code.html",
+      "bytes": 641,
+      "sha256": "80fe81d0682e9d2f3338a33e4e226a4eaeee5774bc068288f267e7dfa5a22cf6",
+      "recursosExternos": []
+    },
+    {
+      "origemNoZip": "stitch_plataforma_acad_mica_muttley/muttley_logo/screen.png",
+      "arquivoLocal": "logo/screen.png",
+      "bytes": 2614,
+      "sha256": "666649275c983bf47f2282c66ef99c18df7ff781d1af82121048ddbacb327613",
+      "recursosExternos": []
+    },
+    {
+      "origemNoZip": "stitch_plataforma_acad_mica_muttley/muttley_landing_page_p_blica/code.html",
+      "arquivoLocal": "landing/code.html",
+      "bytes": 36892,
+      "sha256": "3c50259cb75b25e99722ef78a4998dfb7c64c064af5eae02927d68f3aa0353a7",
+      "recursosExternos": [
+        "https://cdn.tailwindcss.com",
+        "https://fonts.googleapis.com",
+        "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap",
+        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0",
+        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap",
+        "https://fonts.gstatic.com",
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuBtIkaabIHqTBdWlHidb7_KzFVfPE-UYp8pb3tWJo0I2ZBGPoI3sV_8mB6udce9HFMamDeo8r2hSPSJhjioVzv2BbSTocigCmD0YwgLtvvUSb4CNOHN9nvGD5fRW2Uo9NuBkiYAifM6yyau5Tpqtd1Rpc9GTgtN73cPB32bm5HLYv6FsLFYGEVKYz_11kIW7kPTBMioDBJCcKBi0eyKGFof01Mj0aLAIISFjGuB7v5VwalR49CnXlXh",
+        "https://lh3.googleusercontent.com/aida/AEtjO1UGsyVqdrgqp2ygVJuDy8jGUinRy46ffUn0lSu5Gf3yzxRtdsJuBlotwdcM6aGcb7cvwvfzubD8f_JIOiv-GBYMWLSbMQImKydx6QRaTwcLN1ViZSL6BQJGTX42syJK0Bg3n3e-uziVlMaKX9R5LnVZTpRgaDpi6pDKtP1Bo4GptdXXX-nzMhIi5Bz-_KIVxyQ2iV_Bx6wZuTkfKwxxsDl6zaqSu80IgnWfSGEyFHxNSJ2zDd2LDBhh5Fo"
+      ]
+    },
+    {
+      "origemNoZip": "stitch_plataforma_acad_mica_muttley/muttley_landing_page_p_blica/screen.png",
+      "arquivoLocal": "landing/screen.png",
+      "bytes": 647146,
+      "sha256": "668891fac89a4c6a36b419145a2232e6839a1247377d4f9ad3b50a8e28c15721",
+      "recursosExternos": []
+    },
+    {
+      "origemNoZip": "stitch_plataforma_acad_mica_muttley/muttley_dashboard_administrativo/code.html",
+      "arquivoLocal": "admin/code.html",
+      "bytes": 37933,
+      "sha256": "22d4a4b43e76a66374f3035df37b3a46c2d7183f678f68341efc43c25d52ca73",
+      "recursosExternos": [
+        "https://cdn.tailwindcss.com",
+        "https://fonts.googleapis.com",
+        "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap",
+        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0",
+        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap",
+        "https://fonts.gstatic.com",
+        "https://lh3.googleusercontent.com/aida/AEtjO1UGsyVqdrgqp2ygVJuDy8jGUinRy46ffUn0lSu5Gf3yzxRtdsJuBlotwdcM6aGcb7cvwvfzubD8f_JIOiv-GBYMWLSbMQImKydx6QRaTwcLN1ViZSL6BQJGTX42syJK0Bg3n3e-uziVlMaKX9R5LnVZTpRgaDpi6pDKtP1Bo4GptdXXX-nzMhIi5Bz-_KIVxyQ2iV_Bx6wZuTkfKwxxsDl6zaqSu80IgnWfSGEyFHxNSJ2zDd2LDBhh5Fo"
+      ]
+    },
+    {
+      "origemNoZip": "stitch_plataforma_acad_mica_muttley/muttley_dashboard_administrativo/screen.png",
+      "arquivoLocal": "admin/screen.png",
+      "bytes": 276175,
+      "sha256": "41ccc8b67ab298f4373ea5534ac107f97ec9727b40fc91dcdff8f2f2862c36a3",
+      "recursosExternos": []
+    },
+    {
+      "origemNoZip": "stitch_plataforma_acad_mica_muttley/muttley_painel_do_participante/code.html",
+      "arquivoLocal": "participante/code.html",
+      "bytes": 22172,
+      "sha256": "8addc73b9f2f28da21656461354d6c438b4800db4336d803b5d16b7f8d21fb3f",
+      "recursosExternos": [
+        "https://cdn.tailwindcss.com",
+        "https://fonts.googleapis.com",
+        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0",
+        "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap",
+        "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+        "https://fonts.gstatic.com",
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuA-B3j0LVub2fK9QijnLwwU5JB4wvVEulkr8oEW3-UTPL2kpJavGWvSCnuJGjqCaXKzf2Q4W926OORmDNuphiZhpUsR8Gs0DiG_bqnynk-W8jOf1L_MqtWKHoOqZQ1PAvWO1egxrYrT00I_ortMXXdeOpKWgSZNIbwTpUN9McZyD9w5JLjvE7s6V5sWLVktLJ-hIEZ78OtuArcc0B7vHGROiYP-45-YGsTO7IOmNLuYt3pOU9sEGsGU",
+        "https://lh3.googleusercontent.com/aida/AEtjO1UGsyVqdrgqp2ygVJuDy8jGUinRy46ffUn0lSu5Gf3yzxRtdsJuBlotwdcM6aGcb7cvwvfzubD8f_JIOiv-GBYMWLSbMQImKydx6QRaTwcLN1ViZSL6BQJGTX42syJK0Bg3n3e-uziVlMaKX9R5LnVZTpRgaDpi6pDKtP1Bo4GptdXXX-nzMhIi5Bz-_KIVxyQ2iV_Bx6wZuTkfKwxxsDl6zaqSu80IgnWfSGEyFHxNSJ2zDd2LDBhh5Fo"
+      ]
+    },
+    {
+      "origemNoZip": "stitch_plataforma_acad_mica_muttley/muttley_painel_do_participante/screen.png",
+      "arquivoLocal": "participante/screen.png",
+      "bytes": 219429,
+      "sha256": "14eb84a6903edcb54adb62c0568916a0f825fdb3997e29fc75e6802a7819f8d1",
+      "recursosExternos": []
+    },
+    {
+      "origemNoZip": "stitch_plataforma_acad_mica_muttley/editorial_acad_mico/DESIGN.md",
+      "arquivoLocal": "sistema/DESIGN.md",
+      "bytes": 11440,
+      "sha256": "79c978e47fa74d31d7338bacb9e30644eabada9076c681f5d763546a36bf266c",
+      "recursosExternos": []
+    }
+  ]
+}

@@ -1,12 +1,22 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import '@fontsource-variable/bricolage-grotesque/wdth.css'
+import '@fontsource-variable/schibsted-grotesk/wght.css'
 import './index.css'
 import App from './App.tsx'
-import { ToastViewport } from './components/ui/Toast.tsx'
+import { ToastViewport } from './shared/ui'
+import { initializeTheme, ThemeProvider } from './shared/theme'
+import { MotionPreferences } from './shared/motion'
+
+initializeTheme()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
-    <ToastViewport />
+    <ThemeProvider>
+      <MotionPreferences>
+        <App />
+        <ToastViewport />
+      </MotionPreferences>
+    </ThemeProvider>
   </StrictMode>
 )

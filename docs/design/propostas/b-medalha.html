@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proposta B — Medalha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;700;800;900&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Proposta B: participação como conquista. Verde campus + tangerina + sol. */
+  :root {
+    --bg: #f2f7f3;
+    --surface: #ffffff;
+    --ink: #0f2a22;
+    --ink-2: #4c625a;
+    --line: #d6e3db;
+    --green: #0b5a43;
+    --green-deep: #073d2e;
+    --mint: #d4f2e1;
+    --tangerine: #c2480a;
+    --sun: #ffc83d;
+    --r-sm: 12px;
+    --r-lg: 24px;
+    --display: 'Gabarito', system-ui, sans-serif;
+    --body: 'Figtree', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #e3ede6; color: var(--ink); font: 15px/1.5 var(--body); padding: 40px 16px 80px; }
+  .intro { max-width: 1240px; margin: 0 auto 32px; display: flex; flex-wrap: wrap; gap: 24px; align-items: end; justify-content: space-between; }
+  .intro h1 { font: 900 56px/0.95 var(--display); letter-spacing: -0.03em; color: var(--green); }
+  .intro p { max-width: 520px; color: var(--ink-2); }
+  .swatches { display: flex; gap: 8px; }
+  .swatches span { width: 44px; height: 44px; border-radius: 14px; border: 1px solid rgb(0 0 0 / 8%); }
+  .stage { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr; justify-items: center; gap: 40px; } .stage > .desk { width: 100%; }
+  @media (max-width: 1000px) { .stage { grid-template-columns: 1fr; justify-items: center; } .desk { width: 100%; } }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 20px; border-radius: 99px; font: 700 15px var(--body); border: 0; cursor: pointer; transition: transform .12s; }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--tangerine); color: #fff; }
+  .btn-primary:hover { background: #a33c07; }
+  .btn-soft { background: var(--mint); color: var(--green-deep); }
+
+  /* ---------- celular ---------- */
+  .phone { width: 390px; max-width: 100%; height: 820px; background: var(--bg); border-radius: 44px; border: 10px solid var(--ink); overflow: hidden; display: flex; flex-direction: column; }
+  .phone-body { padding: 22px 18px 0; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 16px; }
+  .top { display: flex; justify-content: space-between; align-items: center; }
+  .top h2 { font: 800 26px/1.1 var(--display); letter-spacing: -0.02em; }
+  .top small { display: block; color: var(--ink-2); font-size: 14px; font-family: var(--body); font-weight: 500; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--sun); display: grid; place-items: center; font: 800 15px var(--display); }
+  .next { background: var(--green); color: #fff; border-radius: var(--r-lg); padding: 20px; position: relative; overflow: hidden; }
+  .next::after { content: ''; position: absolute; right: -40px; top: -40px; width: 150px; height: 150px; border-radius: 50%; border: 22px solid rgb(255 255 255 / 7%); }
+  .when { display: flex; gap: 10px; align-items: center; }
+  .when b { background: var(--sun); color: var(--ink); font: 800 15px var(--display); padding: 4px 12px; border-radius: 99px; }
+  .when span { font-size: 14px; color: #cfe9dc; }
+  .next h3 { font: 800 23px/1.15 var(--display); margin: 14px 0 6px; letter-spacing: -0.01em; }
+  .next p { color: #cfe9dc; font-size: 14px; }
+  .next .btn { width: 100%; margin-top: 16px; }
+  .next .note { font-size: 13px; text-align: center; margin-top: 8px; color: #cfe9dc; }
+  .shelf { background: var(--surface); border-radius: var(--r-lg); padding: 16px 18px; }
+  .shelf-h { display: flex; justify-content: space-between; align-items: baseline; }
+  .shelf-h h4 { font: 800 17px var(--display); }
+  .shelf-h a { color: var(--green); font-weight: 700; font-size: 13.5px; text-decoration: none; }
+  .medals { display: flex; gap: 14px; margin-top: 14px; }
+  .medal { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 72px; text-align: center; font-size: 12px; font-weight: 600; line-height: 1.25; }
+  /* broche esmaltado: anel + miolo + fita */
+  .pin { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; position: relative; box-shadow: inset 0 -4px 0 rgb(0 0 0 / 14%); }
+  .pin::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; border: 2px solid rgb(255 255 255 / 55%); }
+  .pin svg { position: relative; }
+  .pin.locked { background: #e7ece9; box-shadow: none; color: #8aa097; }
+  .pin.locked::before { border-style: dashed; border-color: #b7c6bf; }
+  .certs { display: flex; flex-direction: column; gap: 10px; }
+  .cert { background: var(--surface); border-radius: 18px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+  .cert .hrs { width: 46px; height: 46px; border-radius: 14px; background: var(--mint); color: var(--green-deep); display: grid; place-items: center; font: 800 15px/1 var(--display); flex: none; }
+  .cert b { display: block; font-size: 14.5px; }
+  .cert span { font-size: 13px; color: var(--ink-2); }
+  .cert .dl { margin-left: auto; width: 40px; height: 40px; border-radius: 50%; background: var(--bg); display: grid; place-items: center; color: var(--green); flex: none; }
+  .tabbar { margin: 8px 14px 14px; background: var(--ink); border-radius: 99px; display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px; }
+  .tabbar a { color: #9fb8ae; text-decoration: none; font-size: 12px; font-weight: 600; min-height: 44px; display: grid; place-items: center; border-radius: 99px; }
+  .tabbar a.on { background: var(--sun); color: var(--ink); }
+
+  /* ---------- desktop ---------- */
+  .desk { background: var(--bg); border-radius: 20px; border: 1px solid #c8d8ce; overflow: hidden; box-shadow: 0 30px 60px rgb(0 0 0 / 10%); }
+  .chrome { height: 34px; background: #fff; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 6px; padding: 0 14px; }
+  .chrome i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: 740px; }
+  .side { padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; background: var(--surface); border-right: 1px solid var(--line); }
+  .brand { font: 900 26px var(--display); color: var(--green); padding: 0 12px 22px; letter-spacing: -0.03em; display: flex; gap: 8px; align-items: center; }
+  .brand::before { content: ''; width: 22px; height: 22px; border-radius: 50%; background: var(--sun); box-shadow: inset 0 0 0 5px var(--tangerine); }
+  .side a { color: var(--ink-2); text-decoration: none; padding: 11px 14px; border-radius: 99px; font-weight: 600; }
+  .side a.on { background: var(--mint); color: var(--green-deep); }
+  .main { padding: 28px 32px; display: flex; flex-direction: column; gap: 20px; }
+  .main-h { display: flex; justify-content: space-between; align-items: center; }
+  .main-h h2 { font: 800 32px/1.05 var(--display); letter-spacing: -0.02em; }
+  .main-h p { color: var(--ink-2); margin-top: 4px; }
+  .attention { background: var(--sun); border-radius: var(--r-lg); padding: 18px 22px; display: flex; align-items: center; gap: 18px; }
+  .attention b { font: 800 18px var(--display); display: block; }
+  .attention span { font-size: 14px; }
+  .attention .btn { margin-left: auto; background: var(--ink); color: #fff; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .kpi { background: var(--surface); border-radius: var(--r-lg); padding: 18px 20px; }
+  .kpi span { font-size: 14px; color: var(--ink-2); font-weight: 500; }
+  .kpi b { display: block; font: 900 42px/1 var(--display); margin-top: 8px; color: var(--green); }
+  .kpi em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--green); background: var(--mint); padding: 4px 10px; border-radius: 99px; display: inline-block; margin-top: 8px; }
+  .grid2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  .panel { background: var(--surface); border-radius: var(--r-lg); padding: 18px 20px; }
+  .panel h3 { font: 800 18px var(--display); margin-bottom: 10px; }
+  .ev { display: flex; gap: 14px; align-items: center; padding: 10px 0; }
+  .ev + .ev { border-top: 1px solid var(--line); }
+  .ev .d { width: 52px; height: 52px; border-radius: 16px; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: none; }
+  .ev .d b { font: 900 20px/1 var(--display); color: var(--green); }
+  .ev .d small { font-size: 11.5px; color: var(--ink-2); font-weight: 600; }
+  .ev strong { font-size: 15px; display: block; }
+  .ev span { font-size: 13px; color: var(--ink-2); }
+  .ev .cap { margin-left: auto; width: 110px; }
+  .ev .cap i { display: block; height: 8px; border-radius: 99px; background: var(--bg); overflow: hidden; }
+  .ev .cap i::after { content: ''; display: block; height: 100%; width: var(--w); background: var(--tangerine); border-radius: inherit; }
+  .ev .cap small { font-size: 12px; color: var(--ink-2); }
+  .rank { display: flex; flex-direction: column; gap: 10px; }
+  .rank div { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .rank .n { width: 30px; height: 30px; border-radius: 50%; background: var(--mint); display: grid; place-items: center; font: 800 13px var(--display); color: var(--green-deep); }
+  .rank .c { margin-left: auto; font-weight: 700; display: flex; gap: 4px; align-items: center; }
+  .rank .c::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--sun); box-shadow: inset 0 0 0 3px var(--tangerine); }
+  .why { max-width: 1240px; margin: 40px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; color: var(--ink-2); font-size: 14.5px; }
+  .why b { color: var(--ink); display: block; font: 800 17px var(--display); margin-bottom: 4px; }
+  @media (max-width: 800px) { .why { grid-template-columns: 1fr; } .app { grid-template-columns: 1fr; } .side { display: none; } .kpis, .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="intro">
+  <div>
+    <h1>B · Medalha</h1>
+    <p>Participar vira conquista. Formas redondas, broches esmaltados para as medalhas e um verde de campus com tangerina para a ação. É a mais calorosa e a mais próxima de um app de consumo.</p>
+  </div>
+  <div class="swatches" aria-label="Paleta">
+    <span style="background:#0b5a43"></span><span style="background:#c2480a"></span><span style="background:#ffc83d"></span><span style="background:#d4f2e1"></span><span style="background:#0f2a22"></span>
+  </div>
+</header>
+
+<div class="stage">
+  <section class="phone" aria-label="Início do participante, celular">
+    <div class="phone-body">
+      <div class="top"><h2><small>Olá, Ana</small>Bora para o próximo?</h2><span class="avatar">AL</span></div>
+
+      <article class="next">
+        <div class="when"><b>Amanhã, 19h</b><span>Auditório 2</span></div>
+        <h3>Kafka na prática: mensageria para microsserviços</h3>
+        <p>Inscrição confirmada. A presença abre 10 minutos antes.</p>
+        <button class="btn btn-primary">Confirmar presença</button>
+        <p class="note">Disponível das 18h50 às 21h10</p>
+      </article>
+
+      <div class="shelf">
+        <div class="shelf-h"><h4>Suas medalhas</h4><a href="#">Ver todas</a></div>
+        <div class="medals">
+          <div class="medal"><span class="pin" style="background:var(--tangerine);color:#fff"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/></svg></span>Primeiro evento</div>
+          <div class="medal"><span class="pin" style="background:var(--green);color:#fff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12l5 5L20 6"/></svg></span>5 presenças</div>
+          <div class="medal"><span class="pin" style="background:var(--sun);color:var(--ink)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></span>20 horas</div>
+          <div class="medal"><span class="pin locked"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>Maratona</div>
+        </div>
+      </div>
+
+      <div class="certs">
+        <div class="cert"><span class="hrs">12h</span><div><b>Semana de Tecnologia</b><span>Emitido em 30/10</span></div><a class="dl" href="#" aria-label="Baixar certificado"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg></a></div>
+      </div>
+    </div>
+    <nav class="tabbar"><a class="on" href="#">Início</a><a href="#">Eventos</a><a href="#">Certificados</a><a href="#">Perfil</a></nav>
+  </section>
+
+  <section class="desk" aria-label="Painel administrativo, desktop">
+    <div class="chrome"><i></i><i></i><i></i></div>
+    <div class="app">
+      <aside class="side">
+        <div class="brand">Muttley</div>
+        <a class="on" href="#">Início</a><a href="#">Eventos</a><a href="#">Pessoas</a><a href="#">Certificados</a><a href="#">Cadastros</a>
+      </aside>
+      <div class="main">
+        <div class="main-h">
+          <div><h2>Bom dia, coordenação</h2><p>Quinta, 13 de novembro</p></div>
+          <button class="btn btn-primary">Criar evento</button>
+        </div>
+        <div class="attention">
+          <div><b>Workshop de UX Research terminou ontem</b><span>Marque os presentes e envie a assinatura para emitir 38 certificados.</span></div>
+          <button class="btn">Concluir evento</button>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><span>Eventos ativos</span><b>12</b></div>
+          <div class="kpi"><span>Acontecem nesta semana</span><b>4</b></div>
+          <div class="kpi"><span>Certificados em 30 dias</span><b>286</b><em>+18% vs. 30 dias antes</em></div>
+        </div>
+        <div class="grid2">
+          <div class="panel">
+            <h3>Próximos eventos</h3>
+            <div class="ev"><div class="d"><b>13</b><small>nov</small></div><div><strong>Kafka na prática</strong><span>Auditório 2 · Presencial</span></div><div class="cap"><i style="--w:93%"></i><small>112 de 120 vagas</small></div></div>
+            <div class="ev"><div class="d"><b>14</b><small>nov</small></div><div><strong>Carreira em dados</strong><span>Online</span></div><div class="cap"><i style="--w:43%"></i><small>64 de 150 vagas</small></div></div>
+            <div class="ev"><div class="d"><b>16</b><small>nov</small></div><div><strong>Hackathon Fatec</strong><span>Ginásio · Presencial</span></div><div class="cap"><i style="--w:75%"></i><small>90 de 120 vagas</small></div></div>
+          </div>
+          <div class="panel">
+            <h3>Quem mais participa</h3>
+            <div class="rank">
+              <div><span class="n">1</span>Beatriz Nogueira<span class="c">9</span></div>
+              <div><span class="n">2</span>Caio Martins<span class="c">7</span></div>
+              <div><span class="n">3</span>Larissa Okada<span class="c">7</span></div>
+              <div><span class="n">4</span>Rafael Tavares<span class="c">5</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="why">
+  <div><b>O que muda</b>O app ganha personalidade e humor. As medalhas, que já existem na API, viram motivo para voltar e participar de novo.</div>
+  <div><b>Ponto forte</b>O que pede ação aparece em faixa de cor própria, tanto para o participante quanto para a coordenação. Fácil de entender em 2 segundos.</div>
+  <div><b>Cuidado</b>O tom é mais leve. Para uma banca de TCC funciona bem, mas exige disciplina para o admin não ficar infantil.</div>
+</section>
+</body>
+</html>

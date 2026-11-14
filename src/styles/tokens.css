@@ -1,0 +1,166 @@
+/* Muttley — identidade "Ingresso" (docs/decisoes/003-identidade-ingresso.md) */
+:root {
+  /* Fundo e superfícies */
+  --color-bg-page: #eef0f6;
+  --color-bg-surface: #ffffff;
+  --color-bg-subtle: #f5f6fa;
+  --color-bg-muted: #e6e9ff;
+  --color-bg-surface-raised: #ffffff;
+  --color-bg-hover: #e9ebf3;
+  --color-bg-active: #dfe2ee;
+  --color-backdrop: rgb(14 19 48 / 45%);
+
+  /* Tinta */
+  --color-text-primary: #0e1330;
+  --color-text-secondary: #4a5070;
+  --color-text-muted: #5d6385;
+  --color-text-subtle: #8a8fab;
+  --color-text-inverse: #ffffff;
+
+  /* Cobalto: ação principal e destaques */
+  --color-primary: #2236e0;
+  --color-primary-hover: #1a2bc0;
+  --color-primary-active: #141f8f;
+  --color-primary-subtle: #e6e9ff;
+  --color-primary-contrast: #ffffff;
+  --color-primary-text: #2236e0;
+  --color-primary-text-hover: #141f8f;
+
+  /* Amarelo de sinalização: só o que pede ação; texto sobre ele é sempre tinta */
+  --color-signal: #ffd93b;
+  --color-signal-ink: #0e1330;
+
+  /* Níveis de medalha (disco com ícone em tinta) */
+  --color-medal-ouro: #ffd93b;
+  --color-medal-prata: #c9cdea;
+  --color-medal-bronze: #d08a52;
+
+  /* Divisórias, perfuração e contornos */
+  --color-border: #d9dceb;
+  --color-border-subtle: #e9ebf3;
+  --color-border-strong: #8a8fab;
+
+  /* Feedback e estados */
+  --color-info-text: #1d3989;
+  --color-info-bg: #dce1ff;
+  --color-info-border: #b6c4ff;
+  --color-info: #4059aa;
+
+  --color-success-text: #0b7550;
+  --color-success-bg: #e3f5ec;
+  --color-success-border: #a8dcc4;
+  --color-success: #0f8a5f;
+
+  --color-danger-text: #93000a;
+  --color-danger-bg: #ffdad6;
+  --color-danger-border: #ffb4a3;
+  --color-danger: #ba1a1a;
+
+  --color-warning-text: #0e1330;
+  --color-warning-bg: #fff1b8;
+  --color-warning-border: #ffd93b;
+  --color-warning: #ffd93b;
+
+  /* Foco acessível */
+  --focus-ring-color: #2236e0;
+  --focus-ring-offset: 2px;
+  --focus-ring-width: 2px;
+
+  /* Forma: controles, painéis, ingresso */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+
+  /* Sombras neutras */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 5%);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 7%), 0 1px 2px rgb(0 0 0 / 4%);
+  --shadow-md: 0 4px 10px rgb(0 0 0 / 8%);
+  --shadow-lg: 0 14px 28px rgb(0 0 0 / 12%);
+  --shadow-card: 0 10px 24px rgb(0 0 0 / 12%);
+  --shadow-card-hover: 0 14px 30px rgb(0 0 0 / 16%);
+
+  /* Movimento e carregamento */
+  --motion-duration-instant: 120ms;
+  --motion-duration-interface: 180ms;
+  --motion-duration-composition: 220ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --color-skeleton-base: #e2e5f0;
+  --color-skeleton-highlight: #f3f4f9;
+
+  /* Tipografia (fontes locais via Fontsource, importadas em main.tsx) */
+  --font-display:
+    'Bricolage Grotesque Variable', system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+  --font-sans:
+    'Schibsted Grotesk Variable', system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+
+  /* Barra lateral da coordenação: tinta nos dois temas (componente sidebar do shadcn) */
+  --sidebar: #0e1330;
+  --sidebar-foreground: #c9cdea;
+  --sidebar-primary: #2236e0;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(255 255 255 / 9%);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: #ffd93b;
+
+  /* Área mínima de toque */
+  --touch-target-min: 44px;
+}
+
+:root[data-theme='dark'] {
+  --color-bg-page: #0c1029;
+  --color-bg-surface: #161b3d;
+  --color-bg-subtle: #1b2148;
+  --color-bg-muted: #222960;
+  --color-bg-surface-raised: #1b2148;
+  --color-bg-hover: #262d5a;
+  --color-bg-active: #2f3768;
+  --color-backdrop: rgb(0 0 0 / 62%);
+
+  --color-text-primary: #eef0ff;
+  --color-text-secondary: #b4b9d9;
+  --color-text-muted: #9da3cc;
+  --color-text-subtle: #6f75a3;
+
+  --color-primary: #4a5bff;
+  --color-primary-hover: #3a49e0;
+  --color-primary-active: #2f3cc0;
+  --color-primary-subtle: #222960;
+  --color-primary-text: #9aa5ff;
+  --color-primary-text-hover: #b8c0ff;
+
+  --color-border: #2b3160;
+  --color-border-subtle: #1f2550;
+  --color-border-strong: #5a6194;
+
+  --color-info-text: #c2ccff;
+  --color-info-bg: #1f2a5c;
+  --color-info-border: #3b4a8f;
+  --color-info: #6170ff;
+  --color-success-text: #8fe0bc;
+  --color-success-bg: #0f3326;
+  --color-success-border: #1e5a42;
+  --color-success: #2aa877;
+  --color-danger-text: #ffc3bb;
+  --color-danger-bg: #4a1a1e;
+  --color-danger-border: #7f3a3a;
+  --color-warning-text: #ffe58a;
+  --color-warning-bg: #3a3112;
+  --color-warning-border: #6b5a1d;
+  --color-warning: #ffd93b;
+
+  --focus-ring-color: #9aa5ff;
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 22%);
+  --shadow-sm: 0 2px 5px rgb(0 0 0 / 25%);
+  --shadow-md: 0 6px 14px rgb(0 0 0 / 30%);
+  --shadow-lg: 0 14px 28px rgb(0 0 0 / 34%);
+  --shadow-card: 0 10px 24px rgb(0 0 0 / 34%);
+  --shadow-card-hover: 0 14px 30px rgb(0 0 0 / 42%);
+  --color-skeleton-base: #1f2550;
+  --color-skeleton-highlight: #2b3268;
+}
