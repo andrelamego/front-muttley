@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useId } from 'react'
-import { useNavigate, useParams, Link } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   getAdminEventoByIdApi,
   salvarAdminEventoApi,
@@ -22,6 +22,7 @@ import {
   Alert,
   toast,
   CalendarIcon,
+  ButtonLink,
 } from '../../../shared/ui'
 import { AdminEventFormSkeleton } from './skeletons'
 import { HistoryBackButton } from '../../../shared/navigation'
@@ -235,7 +236,7 @@ export const AdminEventFormPage: React.FC = () => {
           <Card className="surface-depth bg-[var(--color-bg-surface)] border-[var(--color-border)] shadow-xs">
             <CardHeader className="border-b border-[var(--color-border-subtle)]">
               <CardTitle className="text-base font-bold text-[var(--color-text-primary)]">
-                Informações Principais
+                Informações principais
               </CardTitle>
             </CardHeader>
 
@@ -451,11 +452,9 @@ export const AdminEventFormPage: React.FC = () => {
             </CardContent>
 
             <CardFooter className="bg-[var(--color-bg-subtle)]/70 border-t border-[var(--color-border-subtle)] flex items-center justify-between p-4 sm:px-6">
-              <Link to="/admin/eventos">
-                <Button variant="outline" size="md" type="button">
-                  Cancelar
-                </Button>
-              </Link>
+              <ButtonLink to="/admin/eventos" variant="outline" size="md">
+                Cancelar
+              </ButtonLink>
 
               <Button
                 variant="primary"
@@ -464,7 +463,7 @@ export const AdminEventFormPage: React.FC = () => {
                 disabled={isSaving}
                 isLoading={isSaving}
               >
-                {isSaving ? 'Salvando...' : 'Salvar Evento'}
+                {isSaving ? 'Salvando...' : 'Salvar evento'}
               </Button>
             </CardFooter>
           </Card>

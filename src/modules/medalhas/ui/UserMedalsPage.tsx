@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useId } from 'react'
-import { Link } from 'react-router-dom'
 import { PARTICIPANT_EVENTS_PATH } from '../../eventos'
 import { getMeMedalhasApi } from '../api/medalhasApi'
 import type { MedalhaUsuario, TipoMedalha } from '../domain/medalhaTypes'
@@ -19,6 +18,7 @@ import {
   CheckIcon,
   copiarTexto,
   FiltroSegmentado,
+  ButtonLink,
 } from '../../../shared/ui'
 import { MedalGridSkeleton } from './skeletons'
 
@@ -86,8 +86,8 @@ export const UserMedalsPage: React.FC = () => {
   }, [])
 
   const handleCopyAchievement = async (medal: MedalhaUsuario) => {
-    const eventName = medal.evento?.tema || 'Evento Acadêmico'
-    const text = `Conquistei a Medalha de ${medal.tipo.toLowerCase()} "${medal.nome}" no evento "${eventName}" na FATEC!`
+    const eventName = medal.evento?.tema || 'Evento'
+    const text = `Conquistei a medalha de ${medal.tipo.toLowerCase()} "${medal.nome}" no evento "${eventName}" na Fatec!`
     if (await copiarTexto(text, 'Texto da conquista copiado')) {
       setCopiedId(medal.id)
       setTimeout(() => setCopiedId(null), 2500)
@@ -206,18 +206,21 @@ export const UserMedalsPage: React.FC = () => {
                     Redefinir filtros
                   </Button>
                 ) : (
-                  <Link to={PARTICIPANT_EVENTS_PATH} className="mt-2">
-                    <Button variant="primary" size="md">
-                      Explorar Eventos Disponíveis
-                    </Button>
-                  </Link>
+                  <ButtonLink
+                    to={PARTICIPANT_EVENTS_PATH}
+                    variant="primary"
+                    size="md"
+                    className="mt-2"
+                  >
+                    Ver eventos disponíveis
+                  </ButtonLink>
                 )}
               </div>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredMedals.map((medal) => {
-                const eventName = medal.evento?.tema || 'Evento Acadêmico'
+                const eventName = medal.evento?.tema || 'Evento'
                 const isCopied = copiedId === medal.id
 
                 return (

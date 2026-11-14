@@ -14,7 +14,7 @@ export const AuthLayout: React.FC<{
       className="fixed left-4 top-4 sm:left-6 sm:top-6"
     />
     <ThemeToggle className="fixed right-4 top-4 sm:right-6 sm:top-6" />
-    <div className="w-full max-w-md">
+    <div className="w-full max-w-md entrada">
       <div className="text-center mb-6 flex flex-col items-center">
         <div className="inline-flex items-center p-1 mb-2">
           <Logo className="h-9 w-auto" />

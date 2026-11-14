@@ -22,6 +22,7 @@ import {
   ClockIcon,
   toast,
   FiltroSegmentado,
+  ButtonLink,
 } from '../../../shared/ui'
 import { AdminEventListSkeleton } from './skeletons'
 import { EventoQrDialog } from './EventoQrDialog'
@@ -177,15 +178,14 @@ export const AdminEventListPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link to="/admin/eventos/novo">
-            <Button
-              variant="primary"
-              size="md"
-              leftIcon={<PlusIcon size={18} />}
-            >
-              Criar evento
-            </Button>
-          </Link>
+          <ButtonLink
+            to="/admin/eventos/novo"
+            variant="primary"
+            size="md"
+            leftIcon={<PlusIcon size={18} />}
+          >
+            Criar evento
+          </ButtonLink>
         </div>
       </div>
 
@@ -280,12 +280,15 @@ export const AdminEventListPage: React.FC = () => {
                     Redefinir filtros
                   </Button>
                 ) : (
-                  <Link to="/admin/eventos/novo" className="mt-2">
-                    <Button variant="primary" size="md" className="gap-2">
-                      <PlusIcon size={16} />
-                      Criar Primeiro Evento
-                    </Button>
-                  </Link>
+                  <ButtonLink
+                    to="/admin/eventos/novo"
+                    variant="primary"
+                    size="md"
+                    className="mt-2 gap-2"
+                  >
+                    <PlusIcon size={16} />
+                    Criar o primeiro evento
+                  </ButtonLink>
                 )}
               </div>
             </Card>
@@ -367,15 +370,14 @@ export const AdminEventListPage: React.FC = () => {
                           <td className="py-4 px-4 whitespace-nowrap text-right">
                             <div className="inline-flex items-center gap-1.5">
                               {!isFinished && !isCancelled && (
-                                <Link to={`/admin/eventos/${evt.id}/concluir`}>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    leftIcon={<CheckCircleIcon size={14} />}
-                                  >
-                                    Concluir
-                                  </Button>
-                                </Link>
+                                <ButtonLink
+                                  to={`/admin/eventos/${evt.id}/concluir`}
+                                  variant="outline"
+                                  size="sm"
+                                  leftIcon={<CheckCircleIcon size={14} />}
+                                >
+                                  Concluir
+                                </ButtonLink>
                               )}
 
                               {/* modal={false}: o menu abre um dialog; sem isso o Radix trava o ponteiro da página */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getEventosPublicosApi } from '../api/eventosApi'
 import type { EventoPublico } from '../domain/eventoTypes'
 import {
@@ -11,6 +11,7 @@ import {
   AwardIcon,
   Ticket,
   TicketSkeleton,
+  ButtonLink,
 } from '../../../shared/ui'
 import { sortEventosByDate } from '../domain/carouselLogic'
 import { formatModalidade, getTicketDateParts } from '../domain/ticketFormat'
@@ -50,7 +51,8 @@ export const LandingPage: React.FC = () => {
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    // Coreografia própria: o hero entra em onda e os ingressos (.hero-tickets) chegam em seguida.
+    <div className="w-full flex flex-col items-center" data-entrada="propria">
       {/* Container Central com Limite Máximo 76rem (1216px) */}
       <div className="w-full max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Hero: a promessa em uma frase e os próximos eventos reais como ingressos */}
@@ -59,7 +61,7 @@ export const LandingPage: React.FC = () => {
           className="relative w-full pt-4 pb-14 lg:pb-20"
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7">
+            <div className="lg:col-span-7 entrada">
               <h1
                 id="hero-title"
                 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.02] text-balance"
@@ -348,11 +350,9 @@ export const LandingPage: React.FC = () => {
               </div>
 
               <div>
-                <Link to="/login">
-                  <Button variant="primary" size="lg">
-                    Acessar painel administrativo &rarr;
-                  </Button>
-                </Link>
+                <ButtonLink to="/login" variant="primary" size="lg">
+                  Acessar painel administrativo &rarr;
+                </ButtonLink>
               </div>
             </div>
 
@@ -445,7 +445,7 @@ export const LandingPage: React.FC = () => {
                 />
               </div>
               <Button type="submit" variant="primary" size="md">
-                Consultar Certificado
+                Consultar certificado
               </Button>
             </form>
           </div>

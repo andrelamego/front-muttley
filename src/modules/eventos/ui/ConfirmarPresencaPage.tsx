@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import {
   confirmarPresencaApi,
   getEventoPublicoPorIdApi,
@@ -21,6 +21,7 @@ import {
   Input,
   Alert,
   Ticket,
+  ButtonLink,
 } from '../../../shared/ui'
 import { HistoryBackButton } from '../../../shared/navigation'
 
@@ -130,16 +131,22 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
               <div className="flex flex-col gap-3">
                 <p className="text-sm leading-relaxed">{success}</p>
                 <div className="flex flex-col gap-2 pt-2">
-                  <Link to="/user/inicio">
-                    <Button variant="primary" size="md" fullWidth>
-                      Ver meu início
-                    </Button>
-                  </Link>
-                  <Link to={eventRouteBase}>
-                    <Button variant="outline" size="sm" fullWidth>
-                      Ver eventos
-                    </Button>
-                  </Link>
+                  <ButtonLink
+                    to="/user/inicio"
+                    variant="primary"
+                    size="md"
+                    fullWidth
+                  >
+                    Ver meu início
+                  </ButtonLink>
+                  <ButtonLink
+                    to={eventRouteBase}
+                    variant="outline"
+                    size="sm"
+                    fullWidth
+                  >
+                    Ver eventos
+                  </ButtonLink>
                 </div>
               </div>
             </Alert>
