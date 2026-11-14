@@ -1,7 +1,7 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import { AlertCircleIcon } from './icons'
 import { Button } from './Button'
+import { ButtonLink } from './ButtonLink'
 import { Card, CardContent } from './Card'
 
 export interface AccessDeniedProps {
@@ -22,7 +22,7 @@ export const AccessDenied: React.FC<AccessDeniedProps> = ({
           </div>
 
           <h1 className="text-xl font-bold text-[var(--color-text-primary)] tracking-tight font-display">
-            Acesso Restrito
+            Acesso restrito
           </h1>
 
           <p className="mt-2 text-sm text-[var(--color-text-secondary)] leading-relaxed">
@@ -32,11 +32,15 @@ export const AccessDenied: React.FC<AccessDeniedProps> = ({
           </p>
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3 w-full justify-center">
-            <Link to={returnUrl} className="w-full sm:w-auto">
-              <Button variant="primary" size="md" fullWidth>
-                Ir para o Meu Painel
-              </Button>
-            </Link>
+            <ButtonLink
+              to={returnUrl}
+              variant="primary"
+              size="md"
+              fullWidth
+              className="w-full sm:w-auto"
+            >
+              Ir para o meu painel
+            </ButtonLink>
 
             {onLogout && (
               <Button
@@ -45,7 +49,7 @@ export const AccessDenied: React.FC<AccessDeniedProps> = ({
                 onClick={onLogout}
                 className="w-full sm:w-auto"
               >
-                Trocar de Conta
+                Trocar de conta
               </Button>
             )}
           </div>
