@@ -20,6 +20,7 @@ import {
 } from '../../modules/painel'
 import {
   PublicCertificateViewPage,
+  ValidarCertificadoPage,
   UserCertificatesPage,
 } from '../../modules/certificados'
 import { UserMedalsPage } from '../../modules/medalhas'
@@ -48,6 +49,12 @@ export const AppRoutes: React.FC = () => {
         <Route
           path="/eventos/:id/confirmar-presenca"
           element={<ConfirmarPresencaPage />}
+        />
+        <Route path="/validar" element={<ValidarCertificadoPage />} />
+        {/* O certificado impresso aponta para /certificados (sem o código): leva à validação. */}
+        <Route
+          path="/certificados"
+          element={<Navigate to="/validar" replace />}
         />
         <Route
           path="/certificados/:codigo"

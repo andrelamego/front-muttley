@@ -1,32 +1,63 @@
-import React, { useState } from 'react'
-import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
+import React, { useEffect, useRef, useState } from 'react'
+import Lenis from 'lenis'
+import 'lenis/dist/lenis.css'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../modules/auth'
-import {
-  Button,
-  Logo,
-  MenuIcon,
-  ThemeToggle,
-  XIcon,
-  ButtonLink,
-} from '../../shared/ui'
+import { Logo, MenuIcon, ThemeToggle, XIcon, ButtonLink } from '../../shared/ui'
 import { PageTransition } from '../../shared/motion'
+import { MenuConta } from './MenuConta'
 import { AnimatePresence, m } from 'motion/react'
 
 export const PublicLayout: React.FC = () => {
-  const { user, isAuthenticated, logout } = useAuth()
-  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const handleLogout = () => {
-    logout()
-    navigate('/login', { replace: true, state: {} })
-  }
+  // Rolagem com inércia (Lenis) só nas páginas públicas: a roda do mouse desliza e
+  // desacelera. No toque fica a rolagem nativa, e quem prefere menos movimento
+  // rola sem animação (a Lenis respeita prefers-reduced-motion por padrão).
+  const rolagem = useRef<Lenis | null>(null)
+  useEffect(() => {
+    const lenis = new Lenis({
+      autoRaf: true,
+      lerp: 0.085,
+      stopInertiaOnNavigate: true,
+    })
+    rolagem.current = lenis
+    return () => {
+      lenis.destroy()
+      rolagem.current = null
+    }
+  }, [])
+
+  // O roteador não rola sozinho: com âncora (/#validar), desliza até a seção;
+  // sem âncora, uma página nova começa do topo.
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      const alvo = location.hash
+        ? document.getElementById(decodeURIComponent(location.hash.slice(1)))
+        : null
+      if (location.hash && !alvo) return
+      if (rolagem.current) {
+        // -80: o cabeçalho fixo cobre o topo da seção.
+        rolagem.current.scrollTo(alvo ?? 0, {
+          offset: alvo ? -80 : 0,
+          immediate: !alvo,
+        })
+      } else if (alvo) {
+        alvo.scrollIntoView({ block: 'start' })
+      } else {
+        window.scrollTo(0, 0)
+      }
+    }, 60)
+    return () => window.clearTimeout(t)
+  }, [location.pathname, location.hash])
 
   const navItems = [
     { to: '/', label: 'Início', exact: true },
     { to: '/eventos', label: 'Eventos' },
     { to: '/#fluxo-academico', label: 'Como funciona' },
+    { to: '/validar', label: 'Validar certificado' },
   ]
 
   const isItemActive = (to: string, exact?: boolean) => {
@@ -71,52 +102,31 @@ export const PublicLayout: React.FC = () => {
             })}
           </nav>
 
-          {/* Ações de Conta Desktop */}
-          <div className="hidden md:flex items-center gap-3">
-            <ThemeToggle />
+          {/* Conta: logado, tudo fica no menu da foto; deslogado, entrar e criar conta */}
+          <div className="hidden md:flex items-center gap-2">
             {isAuthenticated ? (
-              <div className="flex items-center gap-2.5">
-                {user?.role === 'ADMIN' ? (
-                  <>
-                    <ButtonLink to="/user/inicio" variant="outline" size="sm">
-                      Painel do participante
-                    </ButtonLink>
-                    <ButtonLink to="/admin/inicio" variant="primary" size="sm">
-                      Coordenação
-                    </ButtonLink>
-                  </>
-                ) : (
-                  <ButtonLink to="/user/inicio" variant="primary" size="sm">
-                    Meu painel
-                  </ButtonLink>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  aria-label="Encerrar sessão"
-                >
-                  Sair
-                </Button>
-              </div>
+              <MenuConta comPainel />
             ) : (
-              <div className="flex items-center gap-2.5">
-                <Link
-                  to="/login"
-                  className="text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-primary-text)] transition-colors px-3 py-1.5"
-                >
-                  Entrar
-                </Link>
-                <ButtonLink to="/login" variant="primary" size="sm">
+              <>
+                <ButtonLink to="/login" variant="ghost" size="sm">
                   Entrar
                 </ButtonLink>
-              </div>
+                <ButtonLink to="/cadastro" variant="primary" size="sm">
+                  Criar conta
+                </ButtonLink>
+                {/* Mesma altura do botão pequeno, sem borda */}
+                <ThemeToggle className="size-10 border-0 bg-transparent sm:size-9" />
+              </>
             )}
           </div>
 
           {/* Menu Mobile Trigger */}
           <div className="flex md:hidden items-center gap-2">
-            <ThemeToggle />
+            {isAuthenticated ? (
+              <MenuConta comPainel />
+            ) : (
+              <ThemeToggle className="size-10 border-0 bg-transparent" />
+            )}
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
@@ -148,81 +158,28 @@ export const PublicLayout: React.FC = () => {
                   {item.label}
                 </Link>
               ))}
-              <div className="pt-3 border-t border-[var(--color-border)] flex flex-col gap-2">
-                {isAuthenticated ? (
-                  <>
-                    {user?.role === 'ADMIN' ? (
-                      <>
-                        <ButtonLink
-                          to="/user/inicio"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          variant="outline"
-                          size="md"
-                          fullWidth
-                          className="w-full"
-                        >
-                          Painel do participante
-                        </ButtonLink>
-                        <ButtonLink
-                          to="/admin/inicio"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          variant="primary"
-                          size="md"
-                          fullWidth
-                          className="w-full"
-                        >
-                          Coordenação
-                        </ButtonLink>
-                      </>
-                    ) : (
-                      <ButtonLink
-                        to="/user/inicio"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        variant="primary"
-                        size="md"
-                        fullWidth
-                        className="w-full"
-                      >
-                        Meu painel
-                      </ButtonLink>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="md"
-                      fullWidth
-                      onClick={() => {
-                        setIsMobileMenuOpen(false)
-                        handleLogout()
-                      }}
-                    >
-                      Sair da conta
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <ButtonLink
-                      to="/login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      variant="outline"
-                      size="md"
-                      fullWidth
-                      className="w-full"
-                    >
-                      Entrar
-                    </ButtonLink>
-                    <ButtonLink
-                      to="/login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      variant="primary"
-                      size="md"
-                      fullWidth
-                      className="w-full"
-                    >
-                      Entrar
-                    </ButtonLink>
-                  </>
-                )}
-              </div>
+              {!isAuthenticated && (
+                <div className="pt-3 border-t border-[var(--color-border)] flex flex-col gap-2">
+                  <ButtonLink
+                    to="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    variant="outline"
+                    size="md"
+                    fullWidth
+                  >
+                    Entrar
+                  </ButtonLink>
+                  <ButtonLink
+                    to="/cadastro"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    variant="primary"
+                    size="md"
+                    fullWidth
+                  >
+                    Criar conta
+                  </ButtonLink>
+                </div>
+              )}
             </m.div>
           )}
         </AnimatePresence>
@@ -239,7 +196,7 @@ export const PublicLayout: React.FC = () => {
       <footer className="bg-[var(--color-bg-subtle)] border-t border-[var(--color-border)] py-8 text-sm text-[var(--color-text-secondary)]">
         <div className="max-w-[76rem] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-2 max-w-sm">
-            <Logo className="h-6 w-auto" />
+            <Logo className="h-6 w-auto self-start" />
             <p className="text-xs leading-relaxed">
               Eventos acadêmicos da Fatec com inscrição on-line, presença por QR
               Code e certificados que qualquer pessoa pode validar.
@@ -265,7 +222,7 @@ export const PublicLayout: React.FC = () => {
               </li>
               <li>
                 <Link
-                  to="/#validar"
+                  to="/validar"
                   className="font-semibold text-[var(--color-primary-text)] hover:underline"
                 >
                   Validar certificado
