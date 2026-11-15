@@ -19,7 +19,14 @@ import {
   selecionarEventoDestaque,
 } from '../domain/proximoEvento'
 import { getParticipantDashboardData } from '../api/painelApi'
-import { NOME_NIVEL, proximaMeta, totalMedalhas, unidade } from '../../medalhas'
+import {
+  MoedaTrilha,
+  NOME_NIVEL,
+  RevelacaoMedalha,
+  proximaMeta,
+  totalMedalhas,
+  unidade,
+} from '../../medalhas'
 import type {
   ParticipantDashboardData,
   CertificadoResumo,
@@ -34,6 +41,8 @@ import {
   MedalIcon,
   Ticket,
   toast,
+  EstadoVazio,
+  IlustracaoSemEventos,
 } from '../../../shared/ui'
 import {
   AlertDialog,
@@ -231,6 +240,10 @@ export const ParticipantDashboardPage: React.FC = () => {
 
         {isLoading && !data && <ParticipantDashboardSkeleton />}
 
+        {data?.conquistas && user && (
+          <RevelacaoMedalha conquistas={data.conquistas} idPessoa={user.id} />
+        )}
+
         {data && (
           <div className="content-enter grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             <div className="lg:col-span-7 flex flex-col gap-6">
@@ -239,6 +252,7 @@ export const ParticipantDashboardPage: React.FC = () => {
                   dia={ticket.dia}
                   mes={ticket.mes}
                   horario={ticket.horario}
+                  numero={participacaoDestaque?.inscricao}
                 >
                   {destaquePassado ? (
                     <Badge variant="default">Evento realizado</Badge>
@@ -305,20 +319,18 @@ export const ParticipantDashboardPage: React.FC = () => {
                   </div>
                 </Ticket>
               ) : (
-                <div className="bg-[var(--color-bg-surface)] rounded-[var(--radius-lg)] shadow-[var(--shadow-card)] p-6 flex flex-col items-start gap-3">
-                  <h2 className="font-display text-xl font-bold">
-                    Você ainda não tem inscrições
-                  </h2>
-                  <p className="text-sm text-[var(--color-text-secondary)]">
-                    Escolha um evento aberto para garantir sua vaga.
-                  </p>
+                <EstadoVazio
+                  ilustracao={<IlustracaoSemEventos />}
+                  titulo="Você ainda não tem inscrições"
+                  descricao="Escolha um evento aberto para garantir sua vaga."
+                >
                   <Button
                     variant="primary"
                     onClick={() => navigate(PARTICIPANT_EVENTS_PATH)}
                   >
                     Ver eventos abertos
                   </Button>
-                </div>
+                </EstadoVazio>
               )}
 
               {outrosCompromissos.length > 0 && (
@@ -460,9 +472,14 @@ export const ParticipantDashboardPage: React.FC = () => {
                 to="/user/medalhas"
                 className="flex items-center gap-3 bg-[var(--color-bg-surface)] rounded-md p-3 min-h-[44px] hover:bg-[var(--color-bg-hover)] transition-colors"
               >
-                <span className="w-10 h-10 shrink-0 rounded-full bg-[var(--color-signal)] text-[var(--color-signal-ink)] flex items-center justify-center">
-                  <MedalIcon size={20} />
-                </span>
+                {meta ? (
+                  // A moeda da próxima meta, com o anel enchendo até onde a pessoa chegou.
+                  <MoedaTrilha trilha={meta} tamanho={56} />
+                ) : (
+                  <span className="w-10 h-10 shrink-0 rounded-full bg-[var(--color-signal)] text-[var(--color-signal-ink)] flex items-center justify-center">
+                    <MedalIcon size={20} />
+                  </span>
+                )}
                 <span className="min-w-0 text-sm">
                   <span className="block font-semibold">
                     {medalhas === 0

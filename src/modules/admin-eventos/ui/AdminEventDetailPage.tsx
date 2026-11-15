@@ -27,6 +27,9 @@ import {
   SkeletonBlock,
   Ticket,
   ButtonLink,
+  EstadoVazio,
+  IlustracaoBuscaVazia,
+  IlustracaoSemPessoas,
 } from '../../../shared/ui'
 import { baixarArquivo, paraCsv } from '../../../shared/lib/csv'
 import { ordenarPor, paginar } from '../../../shared/lib/tabela'
@@ -344,13 +347,16 @@ export const AdminEventDetailPage: React.FC = () => {
         </div>
 
         {inscritos.length === 0 ? (
-          <p className="px-4 pb-6 text-sm text-[var(--color-text-secondary)]">
-            Ainda não há inscritos neste evento.
-          </p>
+          <EstadoVazio
+            ilustracao={<IlustracaoSemPessoas />}
+            titulo="Ainda não há inscritos"
+            descricao="Divulgue o link ou o QR Code de inscrição; cada inscrição aparece aqui na hora."
+          />
         ) : visiveis.itens.length === 0 ? (
-          <p className="px-4 pb-6 text-sm text-[var(--color-text-secondary)]">
-            Nenhum inscrito corresponde à busca.
-          </p>
+          <EstadoVazio
+            ilustracao={<IlustracaoBuscaVazia />}
+            titulo="Nenhum inscrito corresponde à busca"
+          />
         ) : (
           <>
             <Table className="min-w-[640px]">

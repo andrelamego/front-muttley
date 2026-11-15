@@ -223,6 +223,7 @@ export const PublicEventDetailPage: React.FC<PublicEventDetailPageProps> = ({
                 dia={partes.dia}
                 mes={partes.mes}
                 horario={partes.horario}
+                numero={minhaInscricao?.inscricao ?? successInfo?.inscricao}
               >
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge

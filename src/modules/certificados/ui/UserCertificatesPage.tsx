@@ -23,9 +23,11 @@ import {
   ExternalLinkIcon,
   CopyIcon,
   CheckIcon,
-  AwardIcon,
   copiarTexto,
   ButtonLink,
+  EstadoVazio,
+  IlustracaoBuscaVazia,
+  IlustracaoSemCertificados,
 } from '../../../shared/ui'
 import { CertificateListSkeleton } from './skeletons'
 
@@ -195,42 +197,45 @@ export const UserCertificatesPage: React.FC = () => {
       {!isLoading && !error && (
         <>
           {filteredCertificates.length === 0 ? (
-            <Card className="bg-[var(--color-bg-surface)] border-dashed border-[var(--color-border-strong)] p-10 text-center">
-              <div className="max-w-sm mx-auto flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[var(--color-info-bg)] text-[var(--color-primary-text)] flex items-center justify-center">
-                  <AwardIcon size={24} />
-                </div>
-                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
-                  {searchTerm
-                    ? 'Nenhum certificado encontrado'
-                    : 'Nenhum certificado emitido até o momento'}
-                </h2>
-                <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
-                  {searchTerm
-                    ? 'Tente utilizar outros termos na busca.'
-                    : 'Assim que você participar de um evento e ele for concluído pela organização, seu certificado oficial ficará disponível aqui.'}
-                </p>
-                {!searchTerm && (
-                  <ButtonLink
-                    to={PARTICIPANT_EVENTS_PATH}
-                    variant="primary"
-                    size="md"
-                    className="mt-2"
-                  >
-                    Ver eventos abertos
-                  </ButtonLink>
-                )}
-                {searchTerm && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSearchTerm('')}
-                  >
-                    Limpar busca
-                  </Button>
-                )}
-              </div>
-            </Card>
+            <EstadoVazio
+              ilustracao={
+                searchTerm ? (
+                  <IlustracaoBuscaVazia />
+                ) : (
+                  <IlustracaoSemCertificados />
+                )
+              }
+              titulo={
+                searchTerm
+                  ? 'Nenhum certificado encontrado'
+                  : 'Nenhum certificado emitido até o momento'
+              }
+              descricao={
+                searchTerm
+                  ? 'Tente utilizar outros termos na busca.'
+                  : 'Assim que você participar de um evento e ele for concluído pela organização, seu certificado oficial ficará disponível aqui.'
+              }
+            >
+              {!searchTerm && (
+                <ButtonLink
+                  to={PARTICIPANT_EVENTS_PATH}
+                  variant="primary"
+                  size="md"
+                  className="mt-2"
+                >
+                  Ver eventos abertos
+                </ButtonLink>
+              )}
+              {searchTerm && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSearchTerm('')}
+                >
+                  Limpar busca
+                </Button>
+              )}
+            </EstadoVazio>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredCertificates.map((cert) => {

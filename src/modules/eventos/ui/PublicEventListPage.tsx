@@ -11,9 +11,11 @@ import { hojeLocal, secoesExplorar } from '../domain/explorarEventos'
 import {
   Badge,
   Button,
-  Alert,
   Input,
-  SearchIcon,
+  EstadoVazio,
+  IlustracaoBuscaVazia,
+  IlustracaoErro,
+  IlustracaoSemEventos,
   Ticket,
 } from '../../../shared/ui'
 import { EventListSkeleton } from './skeletons'
@@ -195,16 +197,15 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
       </div>
 
       {error && (
-        <Alert variant="error" title="Não foi possível obter os eventos">
-          <div className="flex flex-col gap-2">
-            <p>{error}</p>
-            <div>
-              <Button variant="secondary" size="sm" onClick={loadEventos}>
-                Tentar novamente
-              </Button>
-            </div>
-          </div>
-        </Alert>
+        <EstadoVazio
+          ilustracao={<IlustracaoErro />}
+          titulo="Não foi possível carregar os eventos"
+          descricao={error}
+        >
+          <Button variant="secondary" size="sm" onClick={loadEventos}>
+            Tentar novamente
+          </Button>
+        </EstadoVazio>
       )}
 
       {isLoading && eventos.length === 0 && <EventListSkeleton />}
@@ -212,30 +213,31 @@ export const PublicEventListPage: React.FC<PublicEventListPageProps> = ({
       {!error && (!isLoading || eventos.length > 0) && (
         <>
           {filteredEventos.length === 0 ? (
-            <div className="rounded-md bg-[var(--color-bg-surface)] p-12 text-center">
-              <div className="max-w-md mx-auto flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[var(--color-bg-muted)] flex items-center justify-center text-[var(--color-text-muted)]">
-                  <SearchIcon size={24} />
-                </div>
-                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
-                  Nenhum evento encontrado
-                </h2>
-                <p className="text-sm text-[var(--color-text-muted)]">
-                  {searchTerm
-                    ? 'Nenhum evento corresponde à busca informada. Tente outros termos.'
-                    : 'Não há eventos abertos para inscrição no momento. Volte em breve!'}
-                </p>
-                {searchTerm && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSearchTerm('')}
-                  >
-                    Limpar busca
-                  </Button>
-                )}
-              </div>
-            </div>
+            <EstadoVazio
+              ilustracao={
+                searchTerm ? <IlustracaoBuscaVazia /> : <IlustracaoSemEventos />
+              }
+              titulo={
+                searchTerm
+                  ? 'Nenhum evento encontrado'
+                  : 'Nenhum evento aberto agora'
+              }
+              descricao={
+                searchTerm
+                  ? 'Nenhum evento corresponde à busca. Tente outro tema, disciplina ou local.'
+                  : 'Novas palestras e workshops aparecem aqui assim que a coordenação abrir as inscrições.'
+              }
+            >
+              {searchTerm && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSearchTerm('')}
+                >
+                  Limpar busca
+                </Button>
+              )}
+            </EstadoVazio>
           ) : termo ? (
             // Na busca, as prateleiras repetiriam eventos: a lista vira uma grade única.
             <section
