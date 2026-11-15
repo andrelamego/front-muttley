@@ -129,3 +129,39 @@ export const copiarDe = (e: AdminEvento): Omit<ValoresEvento, 'data'> => ({
   disciplinaId: idDe(e.disciplinaId, e.disciplina),
   patrocinadorId: idDe(e.patrocinadorId, e.patrocinador),
 })
+
+const semAcento = (texto: string) =>
+  texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+
+/**
+ * Sugestões para o campo de palestrantes: pelo nome ou e-mail, sem acento e
+ * sem diferenciar maiúsculas, fora quem já foi escolhido. Quem começa com o
+ * termo vem antes de quem só o contém.
+ */
+export const buscarPessoas = <
+  P extends { id: number; nome: string; email?: string },
+>(
+  pessoas: P[],
+  termo: string,
+  escolhidos: ReadonlySet<number>,
+  limite = 6
+): P[] => {
+  const t = semAcento(termo.trim())
+  if (!t) return []
+  const nota = (p: P) => {
+    const nome = semAcento(p.nome)
+    if (nome.startsWith(t) || nome.includes(` ${t}`)) return 0
+    if (nome.includes(t) || semAcento(p.email ?? '').includes(t)) return 1
+    return -1
+  }
+  return pessoas
+    .filter((p) => !escolhidos.has(p.id))
+    .map((p) => ({ p, n: nota(p) }))
+    .filter(({ n }) => n >= 0)
+    .sort((a, b) => a.n - b.n || a.p.nome.localeCompare(b.p.nome, 'pt-BR'))
+    .slice(0, limite)
+    .map(({ p }) => p)
+}

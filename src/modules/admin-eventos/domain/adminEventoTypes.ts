@@ -22,6 +22,8 @@ export interface AdminEvento {
   local?: { id: number; nome: string; capacidade?: number } | string | null
   patrocinador?: { id: number; nome: string } | string | null
   totalInscritos?: number
+  /** Só no GET de um evento: quem palestra, para a edição. */
+  palestrantes?: PessoaOption[]
 }
 
 export interface ParticipacaoEventoAdmin {
@@ -48,6 +50,8 @@ export interface SalvarEventoPayload {
   disciplinaId?: number | null
   patrocinadorId?: number | null
   localId?: number | null
+  /** Ids das pessoas que palestram; o backend acerta as participações. */
+  palestrantes: number[]
 }
 
 export interface ConcluirEventoResponse {
@@ -70,4 +74,10 @@ export interface LocalOption {
 export interface PatrocinadorOption {
   id: number
   nome: string
+}
+
+export interface PessoaOption {
+  id: number
+  nome: string
+  email?: string
 }

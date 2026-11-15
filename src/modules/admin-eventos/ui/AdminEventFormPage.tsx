@@ -15,6 +15,7 @@ import type {
   LocalOption,
   ModalidadeEvento,
   PatrocinadorOption,
+  PessoaOption,
 } from '../domain/adminEventoTypes'
 import {
   ATALHOS_PERIODO,
@@ -63,6 +64,7 @@ import {
 } from '../../../shared/ui/shadcn/dialog'
 import { formatModalidade, getTicketDateParts } from '../../eventos'
 import { AdminEventFormSkeleton } from './skeletons'
+import { SeletorPalestrantes } from './SeletorPalestrantes'
 
 const VAZIO = '__vazio__'
 const ULTIMO_LOCAL = 'muttley-ultimo-local'
@@ -191,6 +193,9 @@ export const AdminEventFormPage: React.FC = () => {
   const [locais, setLocais] = useState<LocalOption[]>([])
   const [disciplinas, setDisciplinas] = useState<DisciplinaOption[]>([])
   const [patrocinadores, setPatrocinadores] = useState<PatrocinadorOption[]>([])
+  const [pessoas, setPessoas] = useState<PessoaOption[]>([])
+  // Fora de ValoresEvento: não entra em copiarDe, porque a palestra muda de um evento para outro.
+  const [palestrantes, setPalestrantes] = useState<PessoaOption[]>([])
   const [eventos, setEventos] = useState<AdminEvento[]>([])
 
   const [carregando, setCarregando] = useState(true)
@@ -210,8 +215,10 @@ export const AdminEventFormPage: React.FC = () => {
         setLocais(aux.locais)
         setDisciplinas(aux.disciplinas)
         setPatrocinadores(aux.patrocinadores)
+        setPessoas(aux.pessoas)
         setEventos(lista)
         if (evt) {
+          setPalestrantes(evt.palestrantes ?? [])
           setV({
             ...copiarDe(evt),
             data: evt.data ?? '',
@@ -307,6 +314,7 @@ export const AdminEventFormPage: React.FC = () => {
         localId: Number(v.localId),
         disciplinaId: Number(v.disciplinaId),
         patrocinadorId: Number(v.patrocinadorId),
+        palestrantes: palestrantes.map((p) => p.id),
       })
       try {
         localStorage.setItem(ULTIMO_LOCAL, v.localId)
@@ -610,6 +618,31 @@ export const AdminEventFormPage: React.FC = () => {
                   </p>
                 </Alert>
               )}
+            </Secao>
+
+            <Secao titulo="Quem apresenta?">
+              <div className="sm:max-w-md">
+                <label
+                  htmlFor={idCampo('palestrantes')}
+                  className={rotuloClasse}
+                >
+                  Palestrantes
+                </label>
+                <SeletorPalestrantes
+                  id={idCampo('palestrantes')}
+                  descricaoId={idCampo('palestrantes-ajuda')}
+                  pessoas={pessoas}
+                  selecionados={palestrantes}
+                  onChange={setPalestrantes}
+                />
+                <p
+                  id={idCampo('palestrantes-ajuda')}
+                  className="mt-1.5 text-xs text-[var(--color-text-muted)]"
+                >
+                  Opcional. Quem palestra não ocupa vaga da plateia e, com a
+                  presença marcada na conclusão, ganha a medalha de Palestrante.
+                </p>
+              </div>
             </Secao>
 
             <Secao titulo="Quem apoia?">

@@ -130,3 +130,24 @@ test('cópia reaproveita tudo menos a data', () => {
   })
   assert.equal('data' in copia, false)
 })
+
+test('buscarPessoas acha por nome ou e-mail, sem acento, e pula quem já foi escolhido', async () => {
+  const { buscarPessoas } =
+    await import('../src/modules/admin-eventos/domain/formularioEvento.ts')
+  const pessoas = [
+    { id: 1, nome: 'João Silva', email: 'joao@fatec.sp.gov.br' },
+    { id: 2, nome: 'Ana Joana Prado', email: 'ana@fatec.sp.gov.br' },
+    { id: 3, nome: 'Beatriz Lima', email: 'bia.joao@fatec.sp.gov.br' },
+    { id: 4, nome: 'Joaquim Reis', email: 'jr@fatec.sp.gov.br' },
+  ]
+  // começo de nome ou de sobrenome antes de quem só contém no e-mail
+  assert.deepEqual(
+    buscarPessoas(pessoas, 'joa', new Set()).map((p) => p.id),
+    [2, 1, 4, 3]
+  )
+  assert.deepEqual(
+    buscarPessoas(pessoas, 'JOÃO', new Set([1])).map((p) => p.id),
+    [3]
+  )
+  assert.deepEqual(buscarPessoas(pessoas, '   ', new Set()), [])
+})
