@@ -18,6 +18,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [capsLock, setCapsLock] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<{
     email?: string
     senha?: string
@@ -112,6 +113,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         required
         disabled={isLoading}
         error={fieldErrors.senha}
+        // Caps Lock ligado é a causa mais comum de "senha errada"; avisa enquanto digita.
+        helperText={capsLock ? 'Caps Lock está ligado.' : undefined}
+        onKeyDown={(e) => setCapsLock(e.getModifierState('CapsLock'))}
+        onKeyUp={(e) => setCapsLock(e.getModifierState('CapsLock'))}
+        onBlur={() => setCapsLock(false)}
         rightElement={
           <button
             type="button"

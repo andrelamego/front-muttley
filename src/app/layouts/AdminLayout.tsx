@@ -73,7 +73,7 @@ const navItems = [
 const AdminSidebar: React.FC = () => {
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
-  const { isMobile, setOpenMobile } = useSidebar()
+  const { setOpenMobile } = useSidebar()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -100,8 +100,8 @@ const AdminSidebar: React.FC = () => {
           aria-label="Muttley, ir para o painel"
         >
           {/* Recolhida, só o nome sai de cena: o canhoto fica com o mesmo tamanho e lugar */}
-          <span className="block w-[120px] overflow-hidden transition-[width] duration-200 ease-linear group-data-[collapsible=icon]:w-4">
-            <Logo className="h-7 w-[120px] max-w-none" />
+          <span className="block w-[90px] overflow-hidden transition-[width] duration-200 ease-linear group-data-[collapsible=icon]:w-4">
+            <Logo className="h-7 w-[90px] max-w-none" />
           </span>
         </Link>
       </SidebarHeader>
@@ -197,8 +197,9 @@ const AdminSidebar: React.FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-md"
-                side={isMobile ? 'bottom' : 'right'}
-                align="end"
+                // Abre para cima, sobre a barra, alinhado ao botão do usuário.
+                side="top"
+                align="start"
                 sideOffset={6}
               >
                 <DropdownMenuLabel className="font-normal">

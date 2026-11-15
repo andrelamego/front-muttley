@@ -28,10 +28,13 @@ export const Logo: React.FC<LogoProps> = ({
   }
 
   // O texto herda a cor do contexto (currentColor), o que serve ao fundo claro e à barra lateral escura.
+  // A largura termina onde termina "Muttley" (88,6): sobra à direita descentralizava o logo.
+  // overflow visível: se a fonte da marca não carregar, o texto da fonte reserva não é cortado.
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 120 28"
+      viewBox="0 0 90 28"
+      overflow="visible"
       className={className}
       role="img"
       aria-label="Muttley"

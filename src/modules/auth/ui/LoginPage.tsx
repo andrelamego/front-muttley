@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../application/useAuth'
 import { LoginForm } from './LoginForm'
-import { Alert, Card, CardContent } from '../../../shared/ui'
+import { Alert } from '../../../shared/ui'
 import type { LoginCredentials } from '../domain/authTypes'
 import { resolveLoginDestination } from '../domain/loginDestinationPolicy'
 import { AuthLayout } from './AuthLayout'
@@ -95,37 +95,35 @@ export const LoginPage: React.FC = () => {
       </div>
 
       {/* Cartão principal do formulário */}
-      <Card className="shadow-xs border-[var(--color-border)] surface-depth bg-[var(--color-bg-surface)]">
-        <CardContent className="p-6 sm:p-8">
-          <LoginForm
-            onSubmit={handleLoginSubmit}
-            isLoading={isLoading}
-            errorMessage={errorMessage}
-            onClearError={() => setErrorMessage(null)}
-          />
+      <div className="rounded-md bg-[var(--color-bg-surface)] p-6 sm:p-8">
+        <LoginForm
+          onSubmit={handleLoginSubmit}
+          isLoading={isLoading}
+          errorMessage={errorMessage}
+          onClearError={() => setErrorMessage(null)}
+        />
 
-          <div className="mt-6 pt-5 border-t border-[var(--color-bg-muted)] flex flex-col gap-3 text-center text-sm text-[var(--color-text-secondary)]">
-            <p>
-              Ainda não possui conta?{' '}
-              <Link
-                to="/cadastro"
-                className="font-semibold text-[var(--color-primary-text)] hover:text-[var(--color-primary-text-hover)] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md px-1"
-              >
-                Cadastre-se gratuitamente
-              </Link>
-            </p>
+        <div className="mt-6 flex flex-col gap-3 text-center text-sm text-[var(--color-text-secondary)]">
+          <p>
+            Ainda não possui conta?{' '}
+            <Link
+              to="/cadastro"
+              className="font-semibold text-[var(--color-primary-text)] hover:text-[var(--color-primary-text-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md px-1"
+            >
+              Cadastre-se gratuitamente
+            </Link>
+          </p>
 
-            <div>
-              <Link
-                to="/eventos"
-                className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md px-1"
-              >
-                Ver eventos acadêmicos sem fazer login &rarr;
-              </Link>
-            </div>
+          <div>
+            <Link
+              to="/eventos"
+              className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md px-1"
+            >
+              Ver eventos acadêmicos sem fazer login
+            </Link>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </AuthLayout>
   )
 }
