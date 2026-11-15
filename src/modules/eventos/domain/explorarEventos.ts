@@ -124,7 +124,10 @@ export const secoesExplorar = (
     secoes.push({
       chave: 'outros',
       titulo: prateleiras.length > 0 ? 'Mais eventos' : 'Programação',
-      descricao: 'De outras disciplinas e abertos a todos os cursos',
+      descricao:
+        prateleiras.length > 0
+          ? 'De outras disciplinas e abertos a todos os cursos'
+          : 'Todos os eventos abertos, do mais próximo ao mais distante',
       eventos: ordenar(avulsos),
     })
   }
