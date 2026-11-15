@@ -11,11 +11,19 @@ import {
   type Nivel,
   type Trilha,
 } from '../domain/conquistas'
-import { Alert, Button, ButtonLink } from '../../../shared/ui'
+import {
+  Alert,
+  Button,
+  ButtonLink,
+  EstadoVazio,
+  IlustracaoSemMedalhas,
+} from '../../../shared/ui'
 import { PARTICIPANT_EVENTS_PATH } from '../../eventos'
 import { MedalGridSkeleton } from './skeletons'
 import { MoedaTrilha } from './MoedaTrilha'
 import { MedalhaEspecial } from './MedalhaEspecial'
+import { RevelacaoMedalha } from './RevelacaoMedalha'
+import { useAuth } from '../../auth'
 
 const COR_NIVEL: Record<Nivel, string> = {
   BRONZE: 'var(--color-medal-bronze)',
@@ -98,6 +106,7 @@ const LinhaDisputa: React.FC<{ disputa: Disputa }> = ({ disputa }) => {
 export const UserMedalsPage: React.FC = () => {
   const [dados, setDados] = useState<Conquistas | null>(null)
   const [erro, setErro] = useState<string | null>(null)
+  const { user } = useAuth()
 
   const carregar = useCallback(() => {
     setErro(null)
@@ -157,19 +166,20 @@ export const UserMedalsPage: React.FC = () => {
 
       {!dados && !erro && <MedalGridSkeleton />}
 
+      {dados && user && (
+        <RevelacaoMedalha conquistas={dados} idPessoa={user.id} />
+      )}
+
       {dados && semPresenca && (
-        <section className="rounded-md bg-[var(--color-bg-surface)] p-6 flex flex-col items-start gap-3">
-          <h2 className="font-display text-xl font-bold">
-            Sua primeira medalha está a um evento de distância
-          </h2>
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            Inscreva-se, confirme presença no dia e, quando o evento for
-            concluído, a medalha de bronze em Participação é sua.
-          </p>
+        <EstadoVazio
+          ilustracao={<IlustracaoSemMedalhas />}
+          titulo="Sua primeira medalha está a um evento de distância"
+          descricao="Inscreva-se, confirme presença no dia e, quando o evento for concluído, a medalha de bronze em Participação é sua."
+        >
           <ButtonLink to={PARTICIPANT_EVENTS_PATH}>
             Ver eventos abertos
           </ButtonLink>
-        </section>
+        </EstadoVazio>
       )}
 
       {dados && dados.especiais.length > 0 && (

@@ -1,5 +1,10 @@
 import React from 'react'
-import { Alert, Button } from '../../../shared/ui'
+import {
+  Alert,
+  Button,
+  EstadoVazio,
+  IlustracaoBuscaVazia,
+} from '../../../shared/ui'
 
 export const AdminSectionHeader: React.FC<{
   title: string
@@ -56,7 +61,5 @@ export const AdminLoadError: React.FC<{
 )
 
 export const AdminEmpty: React.FC<{ message: string }> = ({ message }) => (
-  <div className="rounded-md bg-[var(--color-bg-surface)] px-6 py-12 text-center text-sm text-[var(--color-text-secondary)]">
-    {message}
-  </div>
+  <EstadoVazio ilustracao={<IlustracaoBuscaVazia />} titulo={message} />
 )

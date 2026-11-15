@@ -1,5 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { CodigoBarras } from './CodigoBarras'
+import { formatarNumeroIngresso } from '../lib/codigoBarras'
 
 export interface TicketProps {
   dia: string
@@ -8,6 +10,8 @@ export interface TicketProps {
   compact?: boolean
   /** Destaca o canhoto e mostra o carimbo "Presente" (após confirmar a presença). */
   stamped?: boolean
+  /** Número da inscrição: imprime no rodapé o código de barras e o número, como num ingresso. */
+  numero?: number
   /** Torna o ingresso inteiro um link. O conteúdo não deve conter outros links ou botões. */
   to?: string
   className?: string
@@ -21,6 +25,7 @@ export const Ticket: React.FC<TicketProps> = ({
   horario,
   compact = false,
   stamped = false,
+  numero,
   to,
   className = '',
   children,
@@ -29,7 +34,17 @@ export const Ticket: React.FC<TicketProps> = ({
     <div
       className={`ticket ${compact ? 'ticket--compact' : ''} ${stamped ? 'ticket--stamped' : ''}`}
     >
-      <div className="ticket-body">{children}</div>
+      <div className="ticket-body">
+        {children}
+        {numero !== undefined && (
+          <div className="mt-5 flex items-end gap-3 text-[var(--color-text-muted)]">
+            <CodigoBarras semente={numero} className="h-6 w-28" />
+            <span className="font-mono text-xs tabular-nums">
+              {formatarNumeroIngresso(numero)}
+            </span>
+          </div>
+        )}
+      </div>
       <div className="ticket-stub">
         <span className="sr-only">
           {dia} de {mes}

@@ -427,11 +427,23 @@ h3,
 /* Moeda da trilha: o anel cresce até o progresso quando a moeda aparece */
 .moeda-anel {
   transition: stroke-dasharray 900ms cubic-bezier(0.23, 1, 0.32, 1);
+  /* Ao aparecer, o anel enche do zero até o progresso atual. */
+  animation: moeda-anel-encher 900ms cubic-bezier(0.23, 1, 0.32, 1) 150ms both;
+}
+
+@keyframes moeda-anel-encher {
+  from {
+    stroke-dasharray: 0 258;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .medalha-brilho {
     display: none;
+  }
+
+  .moeda-anel {
+    animation: none;
   }
 }
 
@@ -513,8 +525,31 @@ h3,
   border-radius: var(--radius-xs);
   color: var(--color-success-text);
   font-size: 12px;
+  position: relative;
+  isolation: isolate; /* a tinta (z-index -1) fica atrás do texto, mas na frente do canhoto */
   transform: rotate(-8deg);
-  animation: ticket-stamp-in 220ms var(--motion-ease-standard) both;
+  /* Carimbo batendo: desce grande e inclinado, passa um pouco do ponto e assenta. */
+  animation: ticket-stamp-in 420ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+/* Marca de tinta que fica em volta do carimbo no impacto. */
+.ticket-stamp::after {
+  content: '';
+  position: absolute;
+  inset: -5px -7px;
+  border-radius: 40% 55% 45% 60%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--color-success-text) 22%, transparent),
+    transparent
+  );
+  z-index: -1;
+  animation: ticket-ink-in 420ms ease-out both;
+}
+
+/* O papel acusa o golpe: o canhoto afunda um instante no momento do impacto. */
+.ticket--stamped .ticket-stub {
+  animation: ticket-stub-thump 180ms ease-out 230ms;
 }
 
 .ticket--compact .ticket-stamp {
@@ -523,9 +558,37 @@ h3,
 }
 
 @keyframes ticket-stamp-in {
-  from {
+  0% {
     opacity: 0;
-    transform: rotate(-8deg) scale(1.15);
+    transform: rotate(-16deg) scale(1.9);
+  }
+  55% {
+    opacity: 1;
+    transform: rotate(-8deg) scale(0.9);
+  }
+  75% {
+    transform: rotate(-8deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(-8deg) scale(1);
+  }
+}
+
+@keyframes ticket-ink-in {
+  0%,
+  50% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ticket-stub-thump {
+  40% {
+    transform: translateY(2px) scale(0.985);
   }
 }
 
@@ -541,7 +604,9 @@ h3,
     transform: none;
   }
 
-  .ticket-stamp {
+  .ticket-stamp,
+  .ticket-stamp::after,
+  .ticket--stamped .ticket-stub {
     animation: none;
   }
 }

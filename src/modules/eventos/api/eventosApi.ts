@@ -62,3 +62,15 @@ export const getMinhaInscricaoApi = async (
 export const cancelarInscricaoApi = async (participacaoId: number) => {
   await apiClient.delete(`/participacoes/${participacaoId}`)
 }
+
+/** O mínimo das inscrições da pessoa para recomendar eventos e marcar os já inscritos. */
+export interface MinhaParticipacao {
+  evento: { id: number; data: string; disciplina: string | null } | null
+}
+
+export const getMinhasParticipacoesApi = async (): Promise<
+  MinhaParticipacao[]
+> => {
+  const response = await apiClient.get<MinhaParticipacao[]>('/me/participacoes')
+  return Array.isArray(response.data) ? response.data : []
+}

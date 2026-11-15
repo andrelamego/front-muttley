@@ -7,6 +7,7 @@ import type {
   DisciplinaOption,
   LocalOption,
   PatrocinadorOption,
+  PessoaOption,
 } from '../domain/adminEventoTypes'
 
 interface PageContent<T> {
@@ -53,7 +54,7 @@ export async function salvarAdminEventoApi(
 
   const body = {
     evento: eventoData,
-    participacoes: [],
+    palestrantes: payload.palestrantes,
   }
 
   if (payload.id) {
@@ -150,11 +151,13 @@ export async function getAuxiliaresEventoApi(): Promise<{
   locais: LocalOption[]
   disciplinas: DisciplinaOption[]
   patrocinadores: PatrocinadorOption[]
+  pessoas: PessoaOption[]
 }> {
-  const [locaisRes, discRes, patrocRes] = await Promise.allSettled([
+  const [locaisRes, discRes, patrocRes, pessoasRes] = await Promise.allSettled([
     apiClient.get<LocalOption[]>('/admin/locais'),
     apiClient.get<DisciplinaOption[]>('/admin/disciplinas'),
     apiClient.get<PatrocinadorOption[]>('/admin/patrocinadores'),
+    apiClient.get<PessoaOption[] | PageContent<PessoaOption>>('/admin/pessoas'),
   ])
 
   const locais = locaisRes.status === 'fulfilled' ? locaisRes.value.data : []
@@ -162,7 +165,13 @@ export async function getAuxiliaresEventoApi(): Promise<{
   const patrocinadores =
     patrocRes.status === 'fulfilled' ? patrocRes.value.data : []
 
-  return { locais, disciplinas, patrocinadores }
+  const pessoasData =
+    pessoasRes.status === 'fulfilled' ? pessoasRes.value.data : []
+  const pessoas = Array.isArray(pessoasData)
+    ? pessoasData
+    : pessoasData.content || []
+
+  return { locais, disciplinas, patrocinadores, pessoas }
 }
 
 export { parseBlobErrorMessage } from '../domain/qrCodeErrorUtils'

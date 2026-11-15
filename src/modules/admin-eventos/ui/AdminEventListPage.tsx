@@ -6,7 +6,6 @@ import {
 } from '../api/adminEventosApi'
 import type { AdminEvento, StatusEvento } from '../domain/adminEventoTypes'
 import {
-  Card,
   Badge,
   Button,
   Alert,
@@ -23,6 +22,9 @@ import {
   toast,
   FiltroSegmentado,
   ButtonLink,
+  EstadoVazio,
+  IlustracaoBuscaVazia,
+  IlustracaoSemEventos,
 } from '../../../shared/ui'
 import { AdminEventListSkeleton } from './skeletons'
 import { EventoQrDialog } from './EventoQrDialog'
@@ -253,45 +255,48 @@ export const AdminEventListPage: React.FC = () => {
       {!isLoading && !error && (
         <>
           {filteredEvents.length === 0 ? (
-            <Card className="bg-[var(--color-bg-surface)] border-dashed border-[var(--color-border-strong)] p-12 text-center">
-              <div className="max-w-md mx-auto flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[var(--color-info-bg)] text-[var(--color-primary-text)] flex items-center justify-center">
-                  <CalendarIcon size={24} />
-                </div>
-                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
-                  {searchTerm || statusFilter !== 'TODOS'
-                    ? 'Nenhum evento corresponde aos filtros informados'
-                    : 'Nenhum evento acadêmico cadastrado'}
-                </h2>
-                <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
-                  {searchTerm || statusFilter !== 'TODOS'
-                    ? 'Tente remover os filtros ou pesquisar por outro termo.'
-                    : 'Comece criando o primeiro evento para permitir inscrições e emissão de certificados.'}
-                </p>
-                {searchTerm || statusFilter !== 'TODOS' ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSearchTerm('')
-                      setStatusFilter('TODOS')
-                    }}
-                  >
-                    Redefinir filtros
-                  </Button>
+            <EstadoVazio
+              ilustracao={
+                searchTerm || statusFilter !== 'TODOS' ? (
+                  <IlustracaoBuscaVazia />
                 ) : (
-                  <ButtonLink
-                    to="/admin/eventos/novo"
-                    variant="primary"
-                    size="md"
-                    className="mt-2 gap-2"
-                  >
-                    <PlusIcon size={16} />
-                    Criar o primeiro evento
-                  </ButtonLink>
-                )}
-              </div>
-            </Card>
+                  <IlustracaoSemEventos />
+                )
+              }
+              titulo={
+                searchTerm || statusFilter !== 'TODOS'
+                  ? 'Nenhum evento corresponde aos filtros informados'
+                  : 'Nenhum evento acadêmico cadastrado'
+              }
+              descricao={
+                searchTerm || statusFilter !== 'TODOS'
+                  ? 'Tente remover os filtros ou pesquisar por outro termo.'
+                  : 'Comece criando o primeiro evento para permitir inscrições e emissão de certificados.'
+              }
+            >
+              {searchTerm || statusFilter !== 'TODOS' ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('')
+                    setStatusFilter('TODOS')
+                  }}
+                >
+                  Redefinir filtros
+                </Button>
+              ) : (
+                <ButtonLink
+                  to="/admin/eventos/novo"
+                  variant="primary"
+                  size="md"
+                  className="mt-2 gap-2"
+                >
+                  <PlusIcon size={16} />
+                  Criar o primeiro evento
+                </ButtonLink>
+              )}
+            </EstadoVazio>
           ) : (
             <div className="bg-[var(--color-bg-surface)] rounded-md overflow-hidden">
               <div className="overflow-x-auto">
