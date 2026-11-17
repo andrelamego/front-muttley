@@ -13,7 +13,7 @@ export const readInitialTheme = (): Theme =>
 // Fundo do topo da página em cada tema (--color-bg-page), para a barra do sistema combinar.
 const COR_DA_BARRA: Record<Theme, string> = {
   light: '#eef0f6',
-  dark: '#0c1029',
+  dark: '#11131c',
 }
 
 export const applyTheme = (theme: Theme) => {
