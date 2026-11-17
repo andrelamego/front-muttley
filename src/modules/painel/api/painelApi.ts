@@ -27,6 +27,9 @@ export const getParticipantDashboardData =
     }
   }
 
+const lista = <T>(valor: T[] | undefined): T[] =>
+  Array.isArray(valor) ? valor : []
+
 export const getAdminDashboardData = async (): Promise<AdminDashboardData> => {
   const response = await apiClient.get<AdminDashboardData>('/admin/inicio')
   const data = response.data
@@ -47,5 +50,14 @@ export const getAdminDashboardData = async (): Promise<AdminDashboardData> => {
     destaquesSemestre: Array.isArray(data.destaquesSemestre)
       ? data.destaquesSemestre
       : [],
+    // Um backend sem o painel novo devolve só os campos acima: o resto vem vazio.
+    hoje: lista(data.hoje),
+    semestre: data.semestre ?? null,
+    semestreAnterior: data.semestreAnterior ?? null,
+    ocupacao: lista(data.ocupacao),
+    presencaRecentes: lista(data.presencaRecentes),
+    serieMensal: lista(data.serieMensal),
+    porDisciplina: lista(data.porDisciplina),
+    pessoasSemConta: Number(data.pessoasSemConta || 0),
   }
 }

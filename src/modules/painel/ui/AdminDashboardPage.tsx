@@ -1,16 +1,39 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { MonitorUp, UserRoundX } from 'lucide-react'
 import { getAdminDashboardData } from '../api/painelApi'
-import {
-  formatModalidade,
-  getTicketDateParts,
-  isWithinPresenceWindow,
-  parseEventDateTime,
-} from '../../eventos'
+import { getTicketDateParts, parseEventDateTime } from '../../eventos'
 import { formatResumoSemana } from '../domain/resumoSemana'
+import { situacaoOcupacao, type SituacaoOcupacao } from '../domain/painelAdmin'
 import type { AdminDashboardData, EventoResumo } from '../domain/painelTypes'
-import { Alert, Badge, Button, PlusIcon } from '../../../shared/ui'
+import { Alert, Badge, Button, ButtonLink, PlusIcon } from '../../../shared/ui'
 import { AdminDashboardSkeleton } from './skeletons'
+import { Barra, Bloco, GraficoMensal, Indicador } from './admin/PartesPainel'
+
+const MENSAGEM_FALHA = 'Falha ao carregar indicadores administrativos.'
+
+const SELO: Record<
+  SituacaoOcupacao,
+  { texto: string; variante: 'danger' | 'warning' | 'info' }
+> = {
+  LOTADO: { texto: 'Lotado', variante: 'danger' },
+  QUASE_LOTADO: { texto: 'Quase lotado', variante: 'warning' },
+  BAIXA_PROCURA: { texto: 'Baixa procura', variante: 'info' },
+}
+
+/** Hoje no fuso do navegador, em YYYY-MM-DD. */
+const hojeIso = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+const dataCurta = (data: string, horario?: string | null) => {
+  const p = getTicketDateParts(data, horario)
+  return [`${p.dia} ${p.mes}`, p.horario].filter(Boolean).join(' · ')
+}
+
+const linkClasse =
+  'text-sm font-semibold text-[var(--color-primary-text)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-sm'
 
 export const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate()
@@ -22,14 +45,9 @@ export const AdminDashboardPage: React.FC = () => {
     setError(null)
     setIsLoading(true)
     try {
-      const result = await getAdminDashboardData()
-      setData(result)
+      setData(await getAdminDashboardData())
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Falha ao carregar indicadores administrativos.')
-      }
+      setError(err instanceof Error ? err.message : MENSAGEM_FALHA)
     } finally {
       setIsLoading(false)
     }
@@ -46,21 +64,16 @@ export const AdminDashboardPage: React.FC = () => {
       })
       .catch((err: unknown) => {
         if (isMounted) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : 'Falha ao carregar indicadores administrativos.'
-          )
+          setError(err instanceof Error ? err.message : MENSAGEM_FALHA)
           setIsLoading(false)
         }
       })
-
     return () => {
       isMounted = false
     }
   }, [])
 
-  // Identifica evento com pendência de conclusão real (EM_ANDAMENTO cujo horário de término já passou)
+  // Evento com pendência de conclusão real: EM_ANDAMENTO cujo horário de término já passou.
   const pendenciasConclusao = (data?.proximosEventos || []).filter(
     (ev: EventoResumo) => {
       if (ev.status !== 'EM_ANDAMENTO') return false
@@ -72,7 +85,13 @@ export const AdminDashboardPage: React.FC = () => {
 
   const hora = new Date().getHours()
   const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite'
-  const variacao = data?.variacaoCertificadosUltimos30Dias ?? 0
+  const hoje = hojeIso()
+  const semestre = data?.semestre
+  const anterior = data?.semestreAnterior ?? undefined
+  const maiorDisciplina = Math.max(
+    1,
+    ...(data?.porDisciplina ?? []).map((d) => d.presentes)
+  )
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-[76rem] mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -145,226 +164,278 @@ export const AdminDashboardPage: React.FC = () => {
             </section>
           )}
 
-          <section
-            aria-labelledby="metrics-heading"
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-          >
-            <h2 id="metrics-heading" className="sr-only">
-              Números do período
-            </h2>
-            <div className="bg-[var(--color-bg-surface)] rounded-md p-5">
-              <span className="text-sm text-[var(--color-text-secondary)]">
-                Eventos ativos
-              </span>
-              <b className="block font-display text-5xl font-extrabold leading-none mt-2 [font-variation-settings:'wdth'_75]">
-                {data.eventosAtivos}
-              </b>
-            </div>
-            <div className="bg-[var(--color-bg-surface)] rounded-md p-5">
-              <span className="text-sm text-[var(--color-text-secondary)]">
-                Nesta semana
-              </span>
-              <b className="block font-display text-5xl font-extrabold leading-none mt-2 [font-variation-settings:'wdth'_75]">
-                {data.eventosAtivosNaSemana}
-              </b>
-            </div>
-            <div className="bg-[var(--color-bg-surface)] rounded-md p-5">
-              <span className="text-sm text-[var(--color-text-secondary)]">
-                Certificados em 30 dias
-              </span>
-              <b className="block font-display text-5xl font-extrabold leading-none mt-2 [font-variation-settings:'wdth'_75]">
-                {data.certificadosUltimos30Dias.toLocaleString('pt-BR')}
-              </b>
-              {variacao !== 0 && (
-                <span
-                  className={`block text-sm font-semibold mt-2 ${
-                    variacao > 0
-                      ? 'text-[var(--color-success-text)]'
-                      : 'text-[var(--color-danger-text)]'
-                  }`}
-                >
-                  {variacao > 0 ? '+' : ''}
-                  {variacao}% que os 30 dias anteriores
-                </span>
-              )}
-            </div>
-          </section>
-
-          <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 items-start">
-            <section
-              aria-labelledby="agenda-heading"
-              className="bg-[var(--color-bg-surface)] rounded-md p-5"
+          {data.hoje.length > 0 && (
+            <Bloco
+              titulo="Hoje"
+              descricao="Abra o telão para a presença por QR Code na sala."
             >
-              <div className="flex items-baseline justify-between mb-2">
+              <ul className="divide-y divide-[var(--color-border-subtle)]">
+                {data.hoje.map((ev) => (
+                  <li
+                    key={ev.id}
+                    className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <strong className="font-semibold [overflow-wrap:anywhere]">
+                          {ev.tema}
+                        </strong>
+                        {ev.status === 'EM_ANDAMENTO' && (
+                          <Badge variant="success" size="sm">
+                            Em andamento
+                          </Badge>
+                        )}
+                        {ev.status === 'FINALIZADO' && (
+                          <Badge variant="default" size="sm">
+                            Concluído
+                          </Badge>
+                        )}
+                      </span>
+                      <span className="block text-sm text-[var(--color-text-secondary)] tabular-nums">
+                        {ev.horarioInicio}–{ev.horarioFim} · {ev.presentes} de{' '}
+                        {ev.inscritos} presentes
+                      </span>
+                    </span>
+                    <span className="flex gap-2">
+                      {ev.status !== 'FINALIZADO' && (
+                        <ButtonLink
+                          to={`/admin/eventos/${ev.id}/telao`}
+                          size="sm"
+                          leftIcon={<MonitorUp className="size-4" />}
+                        >
+                          Telão
+                        </ButtonLink>
+                      )}
+                      <ButtonLink
+                        to={`/admin/eventos/${ev.id}`}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Abrir
+                      </ButtonLink>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Bloco>
+          )}
+
+          {semestre && (
+            <section aria-labelledby="semestre-heading">
+              <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
                 <h2
-                  id="agenda-heading"
+                  id="semestre-heading"
                   className="font-display text-lg font-bold"
                 >
-                  Próximos eventos
+                  Semestre {semestre.semestre}
                 </h2>
-                <Link
-                  to="/admin/eventos"
-                  className="text-sm font-semibold text-[var(--color-primary-text)] hover:underline"
-                >
+                {data.pessoasSemConta > 0 && (
+                  <Link
+                    to="/admin/pessoas"
+                    className={`${linkClasse} inline-flex items-center gap-1.5`}
+                  >
+                    <UserRoundX className="size-4" aria-hidden />
+                    {data.pessoasSemConta === 1
+                      ? '1 inscrito ainda não criou conta'
+                      : `${data.pessoasSemConta} inscritos ainda não criaram conta`}
+                  </Link>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+                <Indicador
+                  rotulo="Eventos realizados"
+                  valor={semestre.eventosRealizados}
+                  anterior={anterior?.eventosRealizados}
+                  semestreAnterior={anterior?.semestre}
+                />
+                <Indicador
+                  rotulo="Inscrições"
+                  valor={semestre.inscricoes}
+                  anterior={anterior?.inscricoes}
+                  semestreAnterior={anterior?.semestre}
+                />
+                <Indicador
+                  rotulo="Presenças"
+                  valor={semestre.presentes}
+                  anterior={anterior?.presentes}
+                  semestreAnterior={anterior?.semestre}
+                />
+                <Indicador
+                  rotulo="Taxa de presença"
+                  valor={semestre.taxaPresenca}
+                  sufixo="%"
+                  anterior={anterior?.taxaPresenca}
+                  semestreAnterior={anterior?.semestre}
+                />
+                <Indicador
+                  rotulo="Certificados"
+                  valor={semestre.certificados}
+                  anterior={anterior?.certificados}
+                  semestreAnterior={anterior?.semestre}
+                />
+              </div>
+            </section>
+          )}
+
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1.4fr_1fr]">
+            <Bloco
+              titulo="Ocupação dos próximos eventos"
+              descricao="Inscritos sobre a capacidade do local. Palestrantes não contam."
+              acao={
+                <Link to="/admin/eventos" className={linkClasse}>
                   Ver todos
                 </Link>
-              </div>
-
-              {data.proximosEventos.length === 0 ? (
-                <p className="text-sm text-[var(--color-text-secondary)] py-6">
+              }
+            >
+              {data.ocupacao.length === 0 ? (
+                <p className="py-4 text-sm text-[var(--color-text-secondary)]">
                   Nenhum evento agendado. Crie um evento para abrir inscrições.
                 </p>
               ) : (
-                <ul className="divide-y divide-[var(--color-border)]">
-                  {data.proximosEventos.slice(0, 6).map((evento) => {
-                    const partes = getTicketDateParts(
-                      evento.data,
-                      evento.horarioInicio
-                    )
-                    const janelaAberta = isWithinPresenceWindow(
-                      evento.data,
-                      evento.horarioInicio,
-                      evento.horarioFim
-                    )
-                    const aguardaConclusao =
-                      pendenciasConclusao.includes(evento)
+                <ul className="flex flex-col gap-4">
+                  {data.ocupacao.map((o) => {
+                    const situacao = situacaoOcupacao(o, hoje)
                     return (
-                      <li
-                        key={evento.id}
-                        className="grid grid-cols-[3.5rem_1fr_auto] gap-4 items-center py-3"
-                      >
-                        <span className="rounded-sm border-2 border-dashed border-[var(--color-border)] text-center py-1">
-                          <span className="block font-display text-xl font-extrabold leading-none text-[var(--color-primary-text)]">
-                            {partes.dia}
-                          </span>
-                          <span className="text-xs text-[var(--color-text-secondary)]">
-                            {partes.mes}
-                          </span>
-                        </span>
-                        <span className="min-w-0">
-                          <span className="flex items-center gap-2 flex-wrap">
-                            <strong className="font-semibold min-w-0 [overflow-wrap:anywhere]">
-                              {evento.tema}
-                            </strong>
-                            {aguardaConclusao && (
-                              <Badge variant="warning" size="sm">
-                                Aguarda conclusão
-                              </Badge>
-                            )}
-                            {janelaAberta && (
-                              <Badge variant="success" size="sm">
-                                Presença aberta
-                              </Badge>
-                            )}
-                            {evento.status === 'CANCELADO' && (
-                              <Badge variant="danger" size="sm">
-                                Cancelado
-                              </Badge>
-                            )}
-                          </span>
-                          <span className="block text-sm text-[var(--color-text-secondary)] truncate">
-                            {[
-                              partes.horario,
-                              evento.local ||
-                                formatModalidade(evento.modalidade),
-                            ]
-                              .filter(Boolean)
-                              .join(' · ')}
-                          </span>
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            navigate(
-                              aguardaConclusao
-                                ? `/admin/eventos/${evento.id}/concluir`
-                                : `/admin/eventos/${evento.id}`
-                            )
-                          }
-                          aria-label={`${aguardaConclusao ? 'Concluir' : 'Abrir'} ${evento.tema}`}
-                        >
-                          {aguardaConclusao ? 'Concluir' : 'Abrir'}
-                        </Button>
-                      </li>
+                      <Barra
+                        key={o.id}
+                        percentual={o.percentual ?? 0}
+                        rotulo={
+                          <Link
+                            to={`/admin/eventos/${o.id}`}
+                            className="hover:text-[var(--color-primary-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-sm"
+                          >
+                            <span className="text-[var(--color-text-muted)] tabular-nums">
+                              {dataCurta(o.data, o.horarioInicio)}
+                            </span>{' '}
+                            {o.tema}
+                          </Link>
+                        }
+                        valor={
+                          o.capacidade
+                            ? `${o.inscritos}/${o.capacidade}`
+                            : `${o.inscritos} inscritos`
+                        }
+                        extra={
+                          situacao && (
+                            <Badge variant={SELO[situacao].variante} size="sm">
+                              {SELO[situacao].texto}
+                            </Badge>
+                          )
+                        }
+                      />
                     )
                   })}
                 </ul>
               )}
-            </section>
+            </Bloco>
 
-            <div className="flex flex-col gap-6">
-              <section
-                aria-labelledby="certs-heading"
-                className="bg-[var(--color-bg-surface)] rounded-md p-5"
-              >
-                <h2
-                  id="certs-heading"
-                  className="font-display text-lg font-bold mb-4"
-                >
-                  Certificados por evento
-                </h2>
-                {data.certificadosPorEvento.length === 0 ? (
-                  <p className="text-sm text-[var(--color-text-secondary)]">
-                    Nenhum certificado emitido ainda.
-                  </p>
-                ) : (
-                  <ul className="flex flex-col gap-3">
-                    {data.certificadosPorEvento.map((barra) => (
-                      <li key={barra.rotulo}>
-                        <span className="flex justify-between gap-3 text-sm">
-                          <span className="truncate">{barra.rotulo}</span>
-                          <b className="tabular-nums">{barra.total}</b>
-                        </span>
-                        <span className="block h-2.5 rounded-full bg-[var(--color-primary-subtle)] mt-1.5 overflow-hidden">
-                          <span
-                            className="block h-full rounded-full bg-[var(--color-primary)]"
-                            style={{
-                              width: `${Math.min(100, Math.max(0, barra.percentual))}%`,
-                            }}
-                          />
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-              <section
-                aria-labelledby="destaques-heading"
-                className="bg-[var(--color-bg-surface)] rounded-md p-5"
-              >
-                <h2
-                  id="destaques-heading"
-                  className="font-display text-lg font-bold"
-                >
-                  Destaques do semestre
-                </h2>
-                <p className="text-xs text-[var(--color-text-muted)] mt-1 mb-4">
-                  Mais presenças em eventos concluídos. No fim do semestre, o
-                  primeiro recebe a medalha Diamante.
+            <Bloco
+              titulo="Últimos 6 meses"
+              descricao="Presenças contam no mês do evento."
+            >
+              <div className="flex flex-col gap-8">
+                <GraficoMensal
+                  titulo="Presenças"
+                  meses={data.serieMensal.map((m) => ({
+                    mes: m.mes,
+                    rotulo: m.rotulo,
+                    valor: m.presencas,
+                  }))}
+                />
+                <GraficoMensal
+                  titulo="Certificados emitidos"
+                  meses={data.serieMensal.map((m) => ({
+                    mes: m.mes,
+                    rotulo: m.rotulo,
+                    valor: m.certificados,
+                  }))}
+                />
+              </div>
+            </Bloco>
+          </div>
+
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+            <Bloco
+              titulo="Presença nos últimos eventos"
+              descricao="Presentes sobre inscritos."
+            >
+              {data.presencaRecentes.length === 0 ? (
+                <p className="text-sm text-[var(--color-text-secondary)]">
+                  Nenhum evento concluído ainda.
                 </p>
-                {data.destaquesSemestre.length === 0 ? (
-                  <p className="text-sm text-[var(--color-text-secondary)]">
-                    Nenhuma presença em evento concluído neste semestre.
-                  </p>
-                ) : (
-                  <ol className="flex flex-col gap-2.5">
-                    {data.destaquesSemestre.map((d, i) => (
-                      <li
-                        key={d.nome}
-                        className="flex items-center gap-3 text-sm"
-                      >
-                        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--color-bg-muted)] text-xs font-bold tabular-nums">
-                          {i + 1}
+              ) : (
+                <ul className="flex flex-col gap-4">
+                  {data.presencaRecentes.map((p) => (
+                    <Barra
+                      key={p.id}
+                      percentual={p.taxa}
+                      rotulo={p.tema}
+                      valor={`${p.taxa}%`}
+                      extra={
+                        <span className="text-xs text-[var(--color-text-muted)] tabular-nums">
+                          {p.presentes}/{p.inscritos}
                         </span>
-                        <span className="truncate flex-1">{d.nome}</span>
-                        <b className="tabular-nums">{d.presencas}</b>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </section>
-            </div>
+                      }
+                    />
+                  ))}
+                </ul>
+              )}
+            </Bloco>
+
+            <Bloco
+              titulo="Por disciplina"
+              descricao="Presenças em eventos concluídos no semestre."
+            >
+              {data.porDisciplina.length === 0 ? (
+                <p className="text-sm text-[var(--color-text-secondary)]">
+                  Nenhum evento concluído neste semestre.
+                </p>
+              ) : (
+                <ul className="flex flex-col gap-4">
+                  {data.porDisciplina.map((d) => (
+                    <Barra
+                      key={d.disciplina}
+                      percentual={(d.presentes / maiorDisciplina) * 100}
+                      rotulo={d.disciplina}
+                      valor={String(d.presentes)}
+                      extra={
+                        <span className="text-xs text-[var(--color-text-muted)]">
+                          {d.eventos === 1
+                            ? '1 evento'
+                            : `${d.eventos} eventos`}
+                        </span>
+                      }
+                    />
+                  ))}
+                </ul>
+              )}
+            </Bloco>
+
+            <Bloco
+              titulo="Destaques do semestre"
+              descricao="No fim do semestre, o primeiro recebe a medalha Diamante."
+            >
+              {data.destaquesSemestre.length === 0 ? (
+                <p className="text-sm text-[var(--color-text-secondary)]">
+                  Nenhuma presença em evento concluído neste semestre.
+                </p>
+              ) : (
+                <ol className="flex flex-col gap-2.5">
+                  {data.destaquesSemestre.map((d, i) => (
+                    <li
+                      key={d.nome}
+                      className="flex items-center gap-3 text-sm"
+                    >
+                      <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--color-bg-muted)] text-xs font-bold tabular-nums">
+                        {i + 1}
+                      </span>
+                      <span className="flex-1 truncate">{d.nome}</span>
+                      <b className="tabular-nums">{d.presencas}</b>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </Bloco>
           </div>
         </div>
       )}
