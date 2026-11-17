@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import apiClient from '../../services/apiClient'
 import { toast } from '../../components/ui/Toast'
 
 export const ConfirmarPresenca: React.FC = () => {
   const { id } = useParams<{ id: string }>()
-  const codigo = useSearchParams()[0].get('codigo')
   const [cpf, setCpf] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -20,7 +19,7 @@ export const ConfirmarPresenca: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    if (!id || !codigo) {
+    if (!id) {
       toast.error(
         'Evento não identificado. Verifique o QR Code e tente novamente.'
       )
@@ -38,9 +37,7 @@ export const ConfirmarPresenca: React.FC = () => {
     try {
       setLoading(true)
       const response = await apiClient.post(
-        `/eventos/${id}/confirmar-presenca/${cpf}`,
-        null,
-        { params: { codigo } }
+        `/eventos/${id}/confirmar-presenca/${cpf}`
       )
       toast.success(
         response.data?.message ??
