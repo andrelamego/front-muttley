@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import {
   confirmarPresencaApi,
   getEventoPublicoPorIdApi,
@@ -33,6 +33,7 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
   eventRouteBase = PUBLIC_EVENTS_PATH,
 }) => {
   const { id } = useParams<{ id: string }>()
+  const codigo = useSearchParams()[0].get('codigo')
   const { user } = useAuth()
 
   const [cpf, setCpf] = useState(user?.cpf || '')
@@ -55,14 +56,14 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!id || !cpf.trim()) return
+    if (!id || !codigo || !cpf.trim()) return
 
     setIsSubmitting(true)
     setError(null)
     setSuccess(null)
 
     try {
-      const response = await confirmarPresencaApi(id, cpf.trim())
+      const response = await confirmarPresencaApi(id, cpf.trim(), codigo)
       setSuccess(
         response.message ||
           'Presença confirmada! Ela vai contar para suas medalhas quando o evento for concluído.'
@@ -149,6 +150,13 @@ export const ConfirmarPresencaPage: React.FC<ConfirmarPresencaPageProps> = ({
                   </ButtonLink>
                 </div>
               </div>
+            </Alert>
+          ) : !codigo ? (
+            <Alert variant="info" title="Escaneie o QR Code do evento">
+              <p className="text-sm leading-relaxed">
+                A presença só pode ser confirmada pelo QR Code exibido no local
+                do evento. Aponte a câmera do celular para ele.
+              </p>
             </Alert>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">

@@ -35,11 +35,15 @@ export const criarInscricaoPublicaApi = async (
 
 export const confirmarPresencaApi = async (
   eventoId: string | number,
-  cpf: string
+  cpf: string,
+  codigo: string
 ): Promise<{ message?: string }> => {
   const cleanedCpf = cpf.trim()
+  // O código vem do QR exibido no evento e prova que a pessoa está no local.
   const response = await apiClient.post<{ message?: string }>(
-    `/eventos/${eventoId}/confirmar-presenca/${cleanedCpf}`
+    `/eventos/${eventoId}/confirmar-presenca/${cleanedCpf}`,
+    null,
+    { params: { codigo } }
   )
   return response.data
 }
