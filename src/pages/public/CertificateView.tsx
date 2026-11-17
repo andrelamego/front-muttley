@@ -1,14 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import db from '../../data/mockDb'
-import type { Participation } from '../../data/types'
 import { toast } from '../../components/ui/Toast'
 
 export const CertificateView: React.FC = () => {
   const { codigo } = useParams<{ codigo: string }>()
   const navigate = useNavigate()
   const [data, setData] = useState<any | null>(null)
-  const [participation, setParticipation] = useState<Participation | null>(null)
   const [loading, setLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
 
@@ -29,22 +27,11 @@ export const CertificateView: React.FC = () => {
 
     setLoading(true)
     setHasError(false)
-    setParticipation(null)
 
     const loadCertificate = async () => {
       try {
         const certificateData = await db.getCertificateByCode(codigo)
         setData(certificateData)
-
-        const participationId =
-          certificateData.certificado.participacaoId ||
-          certificateData.raw?.participacao?.id
-        const participationData = participationId
-          ? await db
-              .getParticipationById(String(participationId))
-              .catch(() => certificateData.certificado.participacao || null)
-          : certificateData.certificado.participacao || null
-        setParticipation(participationData)
       } catch (err) {
         console.error(err)
         setHasError(true)
@@ -81,8 +68,7 @@ export const CertificateView: React.FC = () => {
   const handleShare = async () => {
     if (!navigator.share || !data?.certificado) return
 
-    const rawPart =
-      participation || data.certificado?.participacao || data.raw?.participacao
+    const rawPart = data.certificado?.participacao || data.raw?.participacao
     const rawEvent = rawPart?.evento
     try {
       await navigator.share({
@@ -132,12 +118,10 @@ export const CertificateView: React.FC = () => {
   }
 
   const { certificado, linkedinUrl } = data
-  const rawPart =
-    participation || certificado.participacao || data.raw?.participacao
+  const rawPart = certificado.participacao || data.raw?.participacao
   const rawEvent = rawPart?.evento
   const rawPerson = rawPart?.pessoa
   const participantName = rawPerson?.nome || 'Participante'
-  const participantEmail = rawPerson?.email || 'N/A'
   const participantRole = rawPart?.tipo || 'participante'
   const eventTitle = rawEvent?.tema || 'Evento'
 
@@ -240,14 +224,6 @@ export const CertificateView: React.FC = () => {
               </dt>
               <dd className="text-sm font-semibold text-brand-ink-strong">
                 {participantName}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs text-brand-muted font-bold uppercase">
-                E-mail
-              </dt>
-              <dd className="text-sm font-semibold text-brand-ink-strong">
-                {participantEmail}
               </dd>
             </div>
             <div className="col-span-2">
