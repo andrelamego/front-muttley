@@ -1,38 +1,31 @@
-import React, { useEffect, useState } from 'react'
-import { m } from 'motion/react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import { getEventosPublicosApi } from '../api/eventosApi'
 import type { EventoPublico } from '../domain/eventoTypes'
 import { sortEventosByDate } from '../domain/carouselLogic'
-import { formatModalidade, getTicketDateParts } from '../domain/ticketFormat'
-import { ButtonLink, Ticket, TicketSkeleton } from '../../../shared/ui'
+import { cartaoEventoSvg } from '../domain/cartaoEvento'
+import { formatModalidade } from '../domain/ticketFormat'
+import { ButtonLink, TicketSkeleton } from '../../../shared/ui'
+import CircularCarousel from '../../../shared/ui/CircularCarousel'
+import { useTheme } from '../../../shared/theme'
 import { useAuth } from '../../auth'
-import { MoedaTrilha } from '../../medalhas/ui/MoedaTrilha'
-import type { Trilha } from '../../medalhas/domain/conquistas'
 import { SecaoComoFunciona } from './landing/SecaoComoFunciona'
 import { SecaoMedalhas } from './landing/SecaoMedalhas'
 import { SecaoCertificado } from './landing/SecaoCertificado'
 import { SecaoCoordenacao } from './landing/SecaoCoordenacao'
 import { Revelar } from './landing/movimento'
 
-// Moeda de exemplo que flutua junto dos ingressos do hero.
-const MOEDA_OURO: Trilha = {
-  chave: 'geral',
-  titulo: 'Participação',
-  metrica: 'PRESENCAS',
-  valor: 25,
-  nivel: 'OURO',
-  proximoNivel: null,
-  proximoMarco: null,
-  marcos: [1, 10, 25],
-}
+// Com poucos cartões o anel fica vazio; os eventos se repetem até completar este mínimo.
+const MIN_CARTOES = 12
+const MAX_EVENTOS = 12
 
 export const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+  const { theme } = useTheme()
   const [eventos, setEventos] = useState<EventoPublico[]>([])
   const [carregando, setCarregando] = useState(true)
-  // O ingresso da frente leva o carimbo depois que a pilha termina de entrar.
-  const [carimbado, setCarimbado] = useState(false)
 
   useEffect(() => {
     let ativo = true
@@ -51,16 +44,33 @@ export const LandingPage: React.FC = () => {
     }
   }, [])
 
-  useEffect(() => {
-    if (eventos.length === 0) return
-    const t = window.setTimeout(() => setCarimbado(true), 1100)
-    return () => window.clearTimeout(t)
-  }, [eventos.length])
+  const anel = useMemo(() => {
+    const base = eventos.slice(0, MAX_EVENTOS)
+    if (base.length === 0) return []
+    return Array.from(
+      { length: Math.max(MIN_CARTOES, base.length) },
+      (_, i) => base[i % base.length]
+    )
+  }, [eventos])
+
+  const cartoes = useMemo(
+    () =>
+      anel.map((evento) => ({
+        src: cartaoEventoSvg(evento, theme === 'dark' ? 'papel' : 'tinta'),
+        alt: evento.tema,
+        title: evento.tema,
+        subtitle:
+          [evento.local, formatModalidade(evento.modalidade)]
+            .filter(Boolean)
+            .join(' · ') || undefined,
+      })),
+    [anel, theme]
+  )
 
   const comIngressos = carregando || eventos.length > 0
 
   return (
-    // Coreografia própria: o hero entra em onda e os ingressos (.hero-tickets) chegam em seguida.
+    // Coreografia própria: o hero entra em onda e o carrossel de eventos chega em seguida.
     <div className="w-full overflow-x-clip" data-entrada="propria">
       <div className="mx-auto w-full max-w-[76rem] px-4 sm:px-6 lg:px-8">
         <section
@@ -94,68 +104,38 @@ export const LandingPage: React.FC = () => {
 
             {comIngressos && (
               <div className="relative isolate lg:col-span-5">
-                {/* Fundo do palco dos ingressos */}
-                <div
-                  aria-hidden="true"
-                  className="absolute -inset-6 -z-10 rotate-3 rounded-[2rem] bg-[var(--color-primary-subtle)] sm:-inset-10"
-                />
-                <ul className="hero-tickets" aria-label="Próximos eventos">
-                  {carregando && eventos.length === 0
-                    ? [0, 1, 2].map((i) => (
-                        <li key={i} style={{ '--i': i } as React.CSSProperties}>
-                          <TicketSkeleton />
-                        </li>
-                      ))
-                    : eventos.slice(0, 3).map((evento, i) => {
-                        const partes = getTicketDateParts(
-                          evento.data,
-                          evento.horarioInicio
-                        )
-                        return (
-                          <li
-                            key={evento.id}
-                            style={{ '--i': i } as React.CSSProperties}
-                          >
-                            <Ticket
-                              compact
-                              dia={partes.dia}
-                              mes={partes.mes}
-                              horario={partes.horario}
-                              stamped={i === 0 && carimbado}
-                              to={`/eventos/${evento.id}`}
-                            >
-                              <p className="font-display text-lg font-bold leading-tight line-clamp-2">
-                                {evento.tema}
-                              </p>
-                              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                                {[
-                                  evento.local,
-                                  formatModalidade(evento.modalidade),
-                                ]
-                                  .filter(Boolean)
-                                  .join(' · ')}
-                              </p>
-                            </Ticket>
-                          </li>
-                        )
-                      })}
-                </ul>
-                <m.div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-20 -right-10 hidden sm:block"
-                  initial={{ opacity: 0, scale: 0.5, rotate: -30 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 12 }}
-                  transition={{
-                    type: 'spring',
-                    stiffness: 160,
-                    damping: 12,
-                    delay: 0.7,
-                  }}
-                >
-                  <div className="flutuar">
-                    <MoedaTrilha trilha={MOEDA_OURO} tamanho={96} semAnel />
+                {carregando && eventos.length === 0 ? (
+                  <ul className="hero-tickets" aria-label="Próximos eventos">
+                    {[0, 1, 2].map((i) => (
+                      <li key={i} style={{ '--i': i } as React.CSSProperties}>
+                        <TicketSkeleton />
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '560px',
+                      position: 'relative',
+                    }}
+                  >
+                    <CircularCarousel
+                      items={cartoes}
+                      preset="wheel"
+                      intro="spin"
+                      cardWidth={400}
+                      aspectRatio={2.4}
+                      speed={14}
+                      gap={10}
+                      tilt={-15}
+                      curve={0}
+                      perspective={1800}
+                      fadeColor="var(--color-bg-page)"
+                      onItemClick={(_, i) => navigate(`/eventos/${anel[i].id}`)}
+                    />
                   </div>
-                </m.div>
+                )}
               </div>
             )}
           </div>

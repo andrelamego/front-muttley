@@ -254,23 +254,6 @@ h3,
 }
 
 /* Pilha de ingressos do hero: levemente inclinados e sobrepostos, entram uma vez ao carregar */
-/* Flutuação lenta da moeda do hero: um único elemento em movimento contínuo. */
-.flutuar {
-  animation: flutuar 6s ease-in-out infinite;
-}
-
-@keyframes flutuar {
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .flutuar {
-    animation: none;
-  }
-}
-
 .hero-tickets {
   --step: 8px;
   display: flex;

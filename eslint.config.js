@@ -37,4 +37,12 @@ export default defineConfig([
       'react-refresh/only-export-components': 'off',
     },
   },
+  {
+    // CircularCarousel vem do React Bits: guarda o último valor das props em refs durante a renderização.
+    files: ['src/shared/ui/CircularCarousel.tsx'],
+    rules: {
+      'react-hooks/refs': 'off',
+      'no-empty': 'off',
+    },
+  },
 ])
