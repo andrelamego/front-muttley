@@ -1,0 +1,52 @@
+/* Parede de ingressos do hero (adaptada do DriftWall). Só fundo: nada aqui recebe ponteiro. */
+.parede {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Apagada: é cenário, não conteúdo */
+  opacity: 0.6;
+  perspective: 1200px;
+  /* Some nas bordas, para a parede não terminar num corte seco */
+  mask-image: radial-gradient(
+    ellipse 80% 85% at 50% 50%,
+    #000 45%,
+    transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 80% 85% at 50% 50%,
+    #000 45%,
+    transparent 100%
+  );
+}
+
+.parede__plano {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.parede__coluna {
+  width: calc(var(--parede-l) + var(--parede-espaco));
+}
+
+.parede__trilha {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.parede__quadro {
+  height: calc(var(--parede-a) + var(--parede-espaco));
+  padding: calc(var(--parede-espaco) / 2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parede__plano,
+  .parede__trilha {
+    will-change: auto;
+  }
+}

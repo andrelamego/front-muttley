@@ -1,0 +1,43 @@
+/* Ingresso destacável da seção do processo: mesmas cores e sombra do ingresso do site */
+.destacavel {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+}
+
+.destacavel__palco {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 12%));
+}
+
+:root[data-theme='dark'] .destacavel__palco {
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 40%));
+}
+
+.destacavel__peca {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+
+.destacavel__corpo {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 16px 18px 18px;
+}
+
+.destacavel__canhoto {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
