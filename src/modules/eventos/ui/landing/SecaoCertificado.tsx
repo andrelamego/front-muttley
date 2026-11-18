@@ -4,7 +4,9 @@ import { FormValidarCertificado } from '../../../certificados/ui/FormValidarCert
 import { Revelar } from './movimento'
 
 /** Miniatura do certificado no leiaute Ingresso, o mesmo do PDF emitido. */
-const MiniaturaCertificado: React.FC = () => (
+export const MiniaturaCertificado: React.FC<{ legenda?: boolean }> = ({
+  legenda = true,
+}) => (
   <figure className="relative">
     <div className="flex overflow-hidden rounded-md bg-white text-[#0e1330] shadow-[0_30px_60px_-30px_rgb(14_19_48/0.45)] -rotate-2">
       <div className="flex-1 p-6 sm:p-8">
@@ -37,9 +39,11 @@ const MiniaturaCertificado: React.FC = () => (
         </span>
       </div>
     </div>
-    <figcaption className="mt-5 text-center text-xs text-[var(--color-text-muted)]">
-      Exemplo de certificado no leiaute Ingresso
-    </figcaption>
+    {legenda && (
+      <figcaption className="mt-5 text-center text-xs text-[var(--color-text-muted)]">
+        Exemplo de certificado no leiaute Ingresso
+      </figcaption>
+    )}
   </figure>
 )
 
